@@ -41,7 +41,7 @@ export async function loginAction(email: string, passwordPlain: string) {
 
     const token = await encrypt(sessionPayload);
 
-    (await cookies()).set('Deltos_auth', token, {
+    (await cookies()).set('Kanonas_auth', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       path: '/',
@@ -55,7 +55,7 @@ export async function loginAction(email: string, passwordPlain: string) {
 }
 
 export async function logoutAction() {
-  (await cookies()).delete('Deltos_auth');
+  (await cookies()).delete('Kanonas_auth');
   return { success: true };
 }
 

@@ -8,7 +8,7 @@ interface YubotoSmsConfig {
 export async function sendSMS(phoneNumbers: string[], message: string) {
   // Try to use environment variables, fallback for MVP/dev purposes
   const apiKey = process.env.YUBOTO_API_KEY || 'test_api_key';
-  const senderId = process.env.YUBOTO_SENDER_ID || 'Deltos'; // Max 11 latin characters
+  const senderId = process.env.YUBOTO_SENDER_ID || 'Κανόνας'; // Max 11 latin characters
 
   // Mock implementation for development when no API Key is present
   if (!process.env.YUBOTO_API_KEY) {

@@ -21,7 +21,7 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
   const [schedule, setSchedule] = useState(defaultSchedule);
   const [newDateStr, setNewDateStr] = useState('');
   
-  const embedCode = `<iframe src="https://Deltos.gr/widget/booking/${templeId}" width="100%" height="600px" style="border:none; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></iframe>`;
+  const embedCode = `<iframe src="https://kanonas.gr/widget/booking/${templeId}" width="100%" height="600px" style="border:none; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></iframe>`;
 
   const copyEmbedCode = () => {
     navigator.clipboard.writeText(embedCode);
@@ -158,7 +158,7 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
               <ClockIcon className="text-primary" size={20} /> Επιτρεπτές Ώρες Έναρξης (Time Blocks)
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Επιλέξτε ΚΑΘΕ πιθανή ώρα που μπορεί να <b>ξεκινήσει</b> ένα μυστήριο. Το Deltos θα αφαιρεί αυτόματα τις επιλογές αν δεν υπάρχει επαρκής χρόνος βάσει της διάρκειας!
+              Επιλέξτε ΚΑΘΕ πιθανή ώρα που μπορεί να <b>ξεκινήσει</b> ένα μυστήριο. Το Κανόνας θα αφαιρεί αυτόματα τις επιλογές αν δεν υπάρχει επαρκής χρόνος βάσει της διάρκειας!
             </p>
             
             <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">

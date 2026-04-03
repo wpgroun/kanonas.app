@@ -34,7 +34,7 @@ export async function sendEmail({
 
   try {
     const info = await transporter.sendMail({
-      from: `"Ιερός Ναός (Deltos)" <${process.env.SMTP_USER || 'noreply@Deltos.gr'}>`,
+      from: `"Ιερός Ναός (Κανόνας)" <${process.env.SMTP_USER || 'noreply@kanonas.gr'}>`,
       to,
       subject,
       text,

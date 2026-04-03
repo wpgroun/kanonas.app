@@ -1,5 +1,5 @@
 /**
- * Deltos PDF Engine
+ * Κανόνας PDF Engine
  * Generates all required sacrament documents using pdf-lib.
  * Greek text is handled via TextEncoder with manual character mapping for proper Greek rendering.
  */

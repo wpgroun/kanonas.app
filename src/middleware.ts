@@ -25,7 +25,7 @@ export async function middleware(req: NextRequest) {
 
   // Προστατευμένα paths
   if (pathname.startsWith('/admin')) {
-    const token = req.cookies.get('Deltos_auth')?.value;
+    const token = req.cookies.get('Kanonas_auth')?.value;
 
     if (!token) {
       return NextResponse.redirect(new URL('/login', req.url));

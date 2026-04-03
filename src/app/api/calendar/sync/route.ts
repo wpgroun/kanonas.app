@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const gamosDuration = settings.bookingSchedule?.gamosDurationMin || 45;
   const vaptisiDuration = settings.bookingSchedule?.vaptisiDurationMin || 30;
 
-  let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Deltos//GR\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nX-WR-CALNAME:Deltos Μυστήρια\n";
+  let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Κανόνας//GR\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nX-WR-CALNAME:Κανόνας Μυστήρια\n";
   
   for (const t of tokens) {
     if(!t.ceremonyDate) continue;
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     const desc = t.assignedPriest ? `Ιερέας: ${t.assignedPriest}` : `Εκκρεμεί ανάθεση ιερέα.`;
     
     ics += "BEGIN:VEVENT\n";
-    ics += `UID:${t.id}@Deltos.gr\n`;
+    ics += `UID:${t.id}@kanonas.gr\n`;
     ics += `DTSTAMP:${formatIcsDate(new Date())}\n`;
     ics += `DTSTART:${formatIcsDate(d)}\n`;
     ics += `DTEND:${formatIcsDate(endD)}\n`;
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
   return new NextResponse(ics, {
     headers: {
       'Content-Type': 'text/calendar; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="Deltos-sync.ics"'
+      'Content-Disposition': 'attachment; filename="Κανόνας-sync.ics"'
     }
   });
 }

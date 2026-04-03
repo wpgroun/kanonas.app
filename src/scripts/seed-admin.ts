@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = 'admin@Deltos.gr';
+  const adminEmail = 'admin@kanonas.gr';
   
   // Check if test temple exists
   let temple = await prisma.temple.findUnique({ where: { id: 'cm0testtempleid0000000001' } });
@@ -48,7 +48,7 @@ async function main() {
     console.log('Linked Super Admin to Temple as Head Priest.');
   }
 
-  console.log('Seed completed successfully. You can login with admin@Deltos.gr / password123');
+  console.log('Seed completed successfully. You can login with admin@kanonas.gr / password123');
 }
 
 main()

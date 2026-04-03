@@ -49,7 +49,7 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm border border-white/50 group-hover:shadow-md transition-all">
-              <Image src="/logo.png" alt="Deltos" fill className="object-cover" />
+              <Image src="/logo.png" alt="Κανόνας" fill className="object-cover" />
             </div>
             <span style={{fontFamily:"'Playfair Display', serif"}} className="font-black text-2xl tracking-widest text-[#2b1f1a]">ΔΕΛΤΟΣ</span>
           </Link>
@@ -107,7 +107,7 @@ export default function ContactPage() {
               <ContactInfoRow
                 icon={<Mail className="w-5 h-5 text-[#c3a165]" />}
                 label="Email"
-                value="contact@deltos.gr"
+                value="contact@kanonas.gr"
                 iconBg="bg-[#c3a165]/10"
               />
               <ContactInfoRow

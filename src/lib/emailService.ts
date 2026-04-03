@@ -1,5 +1,5 @@
 /**
- * Deltos Email Service
+ * Κανόνας Email Service
  * Wraps nodemailer with Greek-language email templates.
  */
 import nodemailer from 'nodemailer';
@@ -16,8 +16,8 @@ function getTransporter() {
   });
 }
 
-const FROM_NAME = process.env.SMTP_FROM_NAME || 'Deltos – Γραμματεία Ναού';
-const FROM_EMAIL = process.env.SMTP_USER || 'no-reply@Deltos.gr';
+const FROM_NAME = process.env.SMTP_FROM_NAME || 'Κανόνας – Γραμματεία Ναού';
+const FROM_EMAIL = process.env.SMTP_USER || 'no-reply@kanonas.gr';
 
 // ─── Templates ────────────────────────────────────────────────────────────────
 
@@ -43,10 +43,10 @@ function htmlWrapper(title: string, body: string): string {
   <div class="header">
     <span class="cross">✝</span>
     <h1>${title}</h1>
-    <p>Αυτοματοποιημένο μήνυμα από το σύστημα Deltos</p>
+    <p>Αυτοματοποιημένο μήνυμα από το σύστημα Κανόνας</p>
   </div>
   <div class="body">${body}</div>
-  <div class="footer">© Deltos – Ψηφιακή Γραμματεία Ναού • Σε περίπτωση λάθους, αγνοήστε αυτό το email.</div>
+  <div class="footer">© Κανόνας – Ψηφιακή Γραμματεία Ναού • Σε περίπτωση λάθους, αγνοήστε αυτό το email.</div>
 </div>
 </body></html>`;
 }
@@ -151,8 +151,8 @@ export async function sendTestEmail(to: string): Promise<void> {
   await transporter.sendMail({
     from: `${FROM_NAME} <${FROM_EMAIL}>`,
     to,
-    subject: '✝ Deltos — Δοκιμαστικό Email',
-    html: htmlWrapper('Δοκιμαστικό Email', '<p>Αυτό είναι ένα δοκιμαστικό email από το Deltos. Αν το λάβατε, οι ρυθμίσεις SMTP είναι σωστές! ✅</p>'),
+    subject: '✝ Κανόνας — Δοκιμαστικό Email',
+    html: htmlWrapper('Δοκιμαστικό Email', '<p>Αυτό είναι ένα δοκιμαστικό email από το Κανόνας. Αν το λάβατε, οι ρυθμίσεις SMTP είναι σωστές! ✅</p>'),
   });
 }
 

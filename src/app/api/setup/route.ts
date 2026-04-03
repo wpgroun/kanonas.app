@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 export async function GET() {
   try {
     // 1. Check if user already exists
-    const existing = await prisma.user.findUnique({ where: { email: 'admin@Deltos.gr' } });
+    const existing = await prisma.user.findUnique({ where: { email: 'admin@kanonas.gr' } });
     if (existing) {
       return NextResponse.json({ message: 'Setup already completed. User exists.' });
     }
@@ -71,7 +71,7 @@ export async function GET() {
     const passwordHash = await bcrypt.hash('amen123', 10);
     const user = await prisma.user.create({
       data: {
-        email: 'admin@Deltos.gr',
+        email: 'admin@kanonas.gr',
         passwordHash,
         firstName: 'Ιωάννης',
         lastName: 'Παππάς',

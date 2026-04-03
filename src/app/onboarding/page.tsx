@@ -31,7 +31,7 @@ export default function OnboardingWizard() {
       // Typically this would go to an API route to setup the tenant and admin config
       // For demonstration in Phase 14, we simulate the API call that stores initial config
       await new Promise(res => setTimeout(res, 1500)); 
-      toast.success('Το Deltos ρυθμίστηκε επιτυχώς!');
+      toast.success('Το Κανόνας ρυθμίστηκε επιτυχώς!');
       router.push('/admin');
     } catch (err) {
       toast.error('Πρόβλημα κατά την αποθήκευση.');

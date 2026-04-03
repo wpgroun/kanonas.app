@@ -26,7 +26,7 @@ import { cookies } from 'next/headers';
 
 export async function getSession() {
   const cookieStore = await cookies();
-  const token = cookieStore.get('Deltos_auth')?.value;
+  const token = cookieStore.get('Kanonas_auth')?.value;
   if (!token) return null;
   return await decrypt(token);
 }

@@ -64,7 +64,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm border border-white/50 group-hover:shadow-md transition-all">
-              <Image src="/logo.png" alt="Deltos" fill className="object-cover" />
+              <Image src="/logo.png" alt="Κανόνας" fill className="object-cover" />
             </div>
             <span className="font-heading font-black text-2xl tracking-widest text-[#2b1f1a]">ΔΕΛΤΟΣ</span>
           </Link>
@@ -143,14 +143,14 @@ export default function Home() {
             <div className="relative hidden lg:block h-[600px] animate-in fade-in zoom-in duration-1000 delay-300 fill-mode-both">
                {/* Main Dashboard Card */}
                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] glass-premium rounded-2xl p-4 shadow-2xl rotate-[-2deg] animate-float">
-                  <Image src="/logo.png" width={40} height={40} alt="Deltos" className="absolute -top-5 -left-5 rounded-xl shadow-lg border border-white" />
+                  <Image src="/logo.png" width={40} height={40} alt="Κανόνας" className="absolute -top-5 -left-5 rounded-xl shadow-lg border border-white" />
                   <div className="flex items-center justify-between mb-4 border-b border-black/5 pb-2">
                     <div className="flex gap-2">
                       <div className="w-3 h-3 rounded-full bg-red-400"></div>
                       <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                       <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
                     </div>
-                    <div className="text-xs font-mono text-muted-foreground bg-white px-2 py-1 rounded">deltos.gr/admin</div>
+                    <div className="text-xs font-mono text-muted-foreground bg-white px-2 py-1 rounded">kanonas.gr/admin</div>
                   </div>
                   {/* Fake UI */}
                   <div className="grid grid-cols-3 gap-4 mb-4">
@@ -312,7 +312,7 @@ export default function Home() {
           
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6">
-              <Image src="/logo.png" alt="Deltos" width={40} height={40} className="w-10 h-10 brightness-0 invert opacity-90" />
+              <Image src="/logo.png" alt="Κανόνας" width={40} height={40} className="w-10 h-10 brightness-0 invert opacity-90" />
               <span className="font-heading font-black text-2xl tracking-widest text-white/90">ΔΕΛΤΟΣ</span>
             </Link>
             <p className="text-sm leading-relaxed max-w-sm mb-6">
@@ -334,7 +334,7 @@ export default function Home() {
           <div>
             <h4 className="text-white font-bold mb-4">Επικοινωνία</h4>
             <ul className="space-y-3 text-sm">
-              <li className="flex items-center gap-2"><Mail className="w-4 h-4 text-[#c3a165]" /> contact@deltos.gr</li>
+              <li className="flex items-center gap-2"><Mail className="w-4 h-4 text-[#c3a165]" /> contact@kanonas.gr</li>
               <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#c3a165]" /> Αθήνα, Ελλάδα</li>
             </ul>
           </div>

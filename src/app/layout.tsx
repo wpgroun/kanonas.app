@@ -11,8 +11,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Deltos',
-    default: 'Deltos', // a default is required when creating a template
+    template: '%s | Κανόνας',
+    default: 'Κανόνας', // a default is required when creating a template
   },
 };
 
