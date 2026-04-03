@@ -133,6 +133,7 @@ export interface TokenData {
   };
   ceremonyMeta: { dataJson: string | null } | null;
   persons: { role: string; firstName: string; lastName: string; fathersName: string | null }[];
+  customTemplates?: { docType: string; nameEl: string; htmlContent: string | null }[];
 }
 
 function parseSettings(settingsJson?: string | null) {
@@ -252,6 +253,43 @@ async function genGamilionGramma(t: TokenData, settings: any): Promise<Buffer> {
   return Buffer.from(await pdfDoc.save());
 }
 
+async function genPinakasSynthikon(t: TokenData, settings: any): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  const groom = findPerson(t.persons, 'groom');
+  const bride = findPerson(t.persons, 'bride');
+  const meta = parseSettings(t.ceremonyMeta?.dataJson);
+
+  await buildDocumentPage(pdfDoc, {
+    metropolisHeader: settings.metropolisName || 'Ιερά Μητρόπολη',
+    templeHeader: t.temple.name,
+    title: 'ΠΙΝΑΚΑΣ ΣΥΝΘΗΚΩΝ ΓΑΜΟΥ',
+    subtitle: '(Υποβάλλεται στη Μητρόπολη πριν την τέλεση)',
+    protocolLabel: `Αρ. Πρωτ.: ${t.protocolNumber || BLANK}`,
+    body: [
+      { label: 'Α. ΝΥΜΦΙΟΣ (ΓΑΜΠΡΟΣ)', value: '', wide: true },
+      { label: 'Επώνυμο', value: groom?.lastName || BLANK },
+      { label: 'Όνομα', value: groom?.firstName || BLANK },
+      { label: 'Πατρώνυμο', value: groom?.fathersName || BLANK },
+      { label: 'Οικογ. Κατάσταση', value: meta.groomStatus === 'diazevmenos' ? `Διαζευγμένος (Ληξ.: ${meta.groomDivorceRef || BLANK})` : meta.groomStatus === 'xiros' ? 'Χήρος' : 'Άγαμος' },
+      { label: 'Β. ΝΥΜΦΗ', value: '', wide: true },
+      { label: 'Επώνυμο', value: bride?.lastName || BLANK },
+      { label: 'Όνομα', value: bride?.firstName || BLANK },
+      { label: 'Πατρώνυμο', value: bride?.fathersName || BLANK },
+      { label: 'Οικογ. Κατάσταση', value: meta.brideStatus === 'diazevmeni' ? `Διαζευγμένη (Ληξ.: ${meta.brideDivorceRef || BLANK})` : meta.brideStatus === 'xira' ? 'Χήρα' : 'Άγαμη' },
+      { label: 'Γ. ΣΤΟΙΧΕΙΑ ΤΕΛΕΣΗΣ', value: '', wide: true },
+      { label: 'Ημερομηνία Γάμου', value: formatGreekDate(t.ceremonyDate) },
+      { label: 'Κουμπάρος Ορθόδοξος', value: meta.koumparosIsOrthodox === 'yes' ? 'ΝΑΙ ✓' : meta.koumparosIsOrthodox === 'no' ? 'ΟΧΙ ✗' : BLANK },
+      { label: 'Εφημέριος', value: t.assignedPriest || settings.priests?.[0]?.name || BLANK },
+      { label: 'Αρ. Βιβλίου Γάμων', value: t.bookNumber || BLANK },
+    ],
+    footerText: 'Βεβαιώνεται η κανονική τέλεση του μυστηρίου κατά τους Ιερούς Κανόνες. Ο Ναός ευθύνεται για την ακρίβεια των στοιχείων.',
+    signatureLabel: 'Ο Προϊστάμενος',
+  });
+
+  return Buffer.from(await pdfDoc.save());
+}
+
+
 // ─── BAPTISM DOCUMENTS ────────────────────────────────────────────────────────
 
 async function genBaptistiko(t: TokenData, settings: any): Promise<Buffer> {
@@ -366,6 +404,7 @@ export async function generateAllGamosDocs(t: TokenData): Promise<GeneratedDoc[]
   const docs: GeneratedDoc[] = [];
 
   const pairs: [string, string, () => Promise<Buffer>][] = [
+    ['pinakas_synthikon', 'Πίνακας Συνθηκών', () => genPinakasSynthikon(t, settings)],
     ['aitisi', 'Αίτηση Γάμου', () => genAitisiGamou(t, settings)],
     ['dilosi_gampr', 'Δήλωση Γαμπρού', () => genDilosiGamou(t, settings, 'groom')],
     ['dilosi_nyfis', 'Δήλωση Νύφης', () => genDilosiGamou(t, settings, 'bride')],

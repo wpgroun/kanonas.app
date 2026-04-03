@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateAllGamosDocs, generateAllBaptisiDocs, TokenData } from '@/lib/pdfEngine';
+import { getSession } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,10 +19,15 @@ export async function POST(req: NextRequest) {
 
     if (!token) return NextResponse.json({ error: 'Token not found' }, { status: 404 });
 
+    // Fetch custom HTML templates for this temple if they exist
+    const customTemplates = await prisma.docTemplate.findMany({
+      where: { templeId: token.templeId }
+    });
+
     const tokenData: TokenData = {
       id: token.id,
       serviceType: token.serviceType,
-      customerName: token.customerName || token.customerName || 'Οικογένεια',
+      customerName: token.customerName || 'Οικογένεια',
       ceremonyDate: token.ceremonyDate,
       assignedPriest: token.assignedPriest,
       assignedPsaltis: token.assignedPsaltis,
@@ -39,6 +45,11 @@ export async function POST(req: NextRequest) {
         lastName: p.lastName,
         fathersName: p.fathersName,
       })),
+      customTemplates: customTemplates.map(t => ({
+        docType: t.docType,
+        nameEl: t.nameEl,
+        htmlContent: t.htmlContent,
+      })),
     };
 
     const isGamos = token.serviceType === 'GAMOS';
@@ -46,7 +57,6 @@ export async function POST(req: NextRequest) {
       ? await generateAllGamosDocs(tokenData)
       : await generateAllBaptisiDocs(tokenData);
 
-    // Return as JSON array of base64 buffers for the client to download individually
     const result = docs.map(doc => ({
       key: doc.key,
       label: doc.label,
@@ -61,4 +71,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
