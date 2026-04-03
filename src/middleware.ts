@@ -41,7 +41,7 @@ export async function middleware(req: NextRequest) {
       const requestHeaders = new Headers(req.headers);
       requestHeaders.set('x-user-id', payload.userId as string);
       requestHeaders.set('x-temple-id', payload.templeId as string);
-      requestHeaders.set('x-user-role', payload.roleName as string);
+      requestHeaders.set('x-user-role', encodeURIComponent((payload.roleName as string) || ''));
 
       if (pathname.startsWith('/admin/metropolis') && !payload.isSuperAdmin) {
         // Only super admin can access metropolis 
