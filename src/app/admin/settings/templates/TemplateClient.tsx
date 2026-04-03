@@ -131,3 +131,4 @@ export default function TemplateClient({ initialTemplates }: { initialTemplates:
     </div>
   );
 }
+

@@ -74,3 +74,4 @@ export async function clearDiptychs(type: string) {
     return { success: false }
   }
 }
+

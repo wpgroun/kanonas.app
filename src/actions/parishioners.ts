@@ -109,3 +109,4 @@ export async function updateParishionerRoles(id: string, newRolesStr: string) {
     return { success: false, error: "Αποτυχία ενημέρωσης" }
   }
 }
+

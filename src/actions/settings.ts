@@ -28,3 +28,4 @@ export async function saveTempleSettings(settingsObj: any) {
     return { success: false }
   }
 }
+

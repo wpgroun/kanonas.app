@@ -114,3 +114,4 @@ export default function NewParishionerPage() {
     </div>
   )
 }
+

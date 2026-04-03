@@ -107,3 +107,4 @@ export async function getDashboardStats(templeId: string = 'cm0testtempleid00000
     recentParishioners,
   }
 }
+

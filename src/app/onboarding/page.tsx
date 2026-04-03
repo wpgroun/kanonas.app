@@ -1,144 +1,272 @@
-'use client';
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
-import { CheckCircle2, Building, FileText, ArrowRight, ArrowLeft } from 'lucide-react';
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { motion, AnimatePresence } from 'motion/react'
+import {
+  Building2, FileText, UserCheck, CheckCircle2,
+  ArrowRight, ArrowLeft, Eye, EyeOff, Loader2
+} from 'lucide-react'
+import { setupTemple } from './actions'
+
+const STEPS = [
+  { id: 1, label: 'Ναός',     icon: Building2 },
+  { id: 2, label: 'Διαχ/τής', icon: UserCheck },
+  { id: 3, label: 'Ρυθμίσεις', icon: FileText },
+  { id: 4, label: 'Έτοιμο',   icon: CheckCircle2 },
+]
 
 export default function OnboardingWizard() {
-  const [step, setStep] = useState(1);
-  const router = useRouter();
-  
-  // Form State
+  const router = useRouter()
+  const [step, setStep] = useState(1)
+  const [saving, setSaving] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
   const [formData, setFormData] = useState({
-    templeName: '',
     metropolisName: '',
+    templeName: '',
+    city: '',
     phone: '',
+    email: '',
+    adminFirstName: '',
+    adminLastName: '',
+    adminEmail: '',
+    adminPassword: '',
     protocolStart: '1',
-  });
+  })
 
-  const [saving, setSaving] = useState(false);
+  const set = (k: string, v: string) => setFormData(p => ({ ...p, [k]: v }))
 
-  const handleNext = () => setStep(s => s + 1);
-  const handlePrev = () => setStep(s => s - 1);
+  const canNext = () => {
+    if (step === 1) return formData.metropolisName.trim() && formData.templeName.trim() && formData.city.trim()
+    if (step === 2) return formData.adminFirstName.trim() && formData.adminLastName.trim()
+      && formData.adminEmail.includes('@') && formData.adminPassword.length >= 6
+    return true
+  }
 
   const handleComplete = async () => {
-    setSaving(true);
+    setSaving(true)
     try {
-      // Typically this would go to an API route to setup the tenant and admin config
-      // For demonstration in Phase 14, we simulate the API call that stores initial config
-      await new Promise(res => setTimeout(res, 1500)); 
-      toast.success('Το Κανόνας ρυθμίστηκε επιτυχώς!');
-      router.push('/admin');
-    } catch (err) {
-      toast.error('Πρόβλημα κατά την αποθήκευση.');
-    } finally {
-      setSaving(false);
+      const result = await setupTemple({
+        ...formData,
+        protocolStart: parseInt(formData.protocolStart) || 1,
+      })
+      if (!result.success) {
+        toast.error(result.error || 'Σφάλμα ρύθμισης')
+        setSaving(false)
+        return
+      }
+      setStep(4)
+      setTimeout(() => router.push('/admin'), 2000)
+    } catch (e) {
+      toast.error('Απρόσμενο σφάλμα')
+      setSaving(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Καλωσορίσατε στο Church<span className="text-primary">OS</span></h1>
-        <p className="text-muted-foreground mt-2">Ας ρυθμίσουμε τον Ναό σας σε 3 απλά βήματα.</p>
+    <div className="min-h-screen bg-[#FDFBF7] flex flex-col items-center justify-center p-4">
+
+      {/* Logo */}
+      <div className="mb-10 text-center">
+        <div className="inline-flex items-center gap-3 mb-3">
+          <div className="w-12 h-12 rounded-xl bg-[#59161a] flex items-center justify-center shadow-lg">
+            <span className="text-white font-black text-xl">Κ</span>
+          </div>
+          <span className="font-heading font-black text-3xl tracking-widest text-[#2b1f1a]">ΚΑΝΟΝΑΣ</span>
+        </div>
+        <p className="text-[#736760] font-medium">Ρύθμιση νέου Ιερού Ναού σε 3 βήματα</p>
       </div>
 
-      <div className="w-full max-w-2xl">
-        {/* Stepper Headers */}
-        <div className="flex justify-between items-center mb-8 relative">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-border/50 -z-10 rounded-full"></div>
-          <div className={`absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-primary -z-10 transition-all duration-300 rounded-full`} style={{ width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' }}></div>
-          
-          {[
-            { num: 1, label: 'Στοιχεία Ναού', icon: Building },
-            { num: 2, label: 'Πρωτόκολλο', icon: FileText },
-            { num: 3, label: 'Ολοκλήρωση', icon: CheckCircle2 }
-          ].map(s => (
-            <div key={s.num} className="flex flex-col items-center gap-2 bg-background px-2">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-300 ${step >= s.num ? 'bg-primary border-primary text-primary-foreground' : 'bg-background border-border text-muted-foreground'}`}>
-                <s.icon className="w-5 h-5" />
+      {/* Stepper */}
+      <div className="w-full max-w-xl mb-8">
+        <div className="flex items-center">
+          {STEPS.map((s, i) => (
+            <div key={s.id} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                  step > s.id ? 'bg-[#59161a] border-[#59161a] text-white'
+                  : step === s.id ? 'border-[#c3a165] bg-[#c3a165]/10 text-[#59161a]'
+                  : 'border-[#e5dfd9] bg-white text-[#a89d96]'
+                }`}>
+                  {step > s.id ? <CheckCircle2 className="w-5 h-5" /> : <s.icon className="w-4 h-4" />}
+                </div>
+                <span className={`text-[10px] font-bold mt-1.5 ${step >= s.id ? 'text-[#59161a]' : 'text-[#a89d96]'}`}>{s.label}</span>
               </div>
-              <span className={`text-xs font-semibold uppercase tracking-wider ${step >= s.num ? 'text-primary' : 'text-muted-foreground'}`}>{s.label}</span>
+              {i < STEPS.length - 1 && (
+                <div className={`flex-1 h-0.5 mx-2 mb-5 rounded-full transition-all duration-500 ${step > s.id ? 'bg-[#59161a]' : 'bg-[#e5dfd9]'}`} />
+              )}
             </div>
           ))}
         </div>
-
-        {/* Wizard Content */}
-        <Card className="shadow-lg border-border/50">
-          <CardHeader>
-            <CardTitle>{step === 1 ? 'Βασικά Στοιχεία' : step === 2 ? 'Ρυθμίσεις Εγγράφων' : 'Είστε Έτοιμοι!'}</CardTitle>
-            <CardDescription>
-              {step === 1 ? 'Εισάγετε την επίσημη ονομασία και τα στοιχεία επικοινωνίας.' : step === 2 ? 'Ρυθμίστε την αρίθμηση για τα πιστοποιητικά και το πρωτόκολλο.' : 'Το σύστημα είναι έτοιμο προς χρήση.'}
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            {step === 1 && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500 delay-150 fill-mode-both">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Ιερά Μητρόπολη</Label>
-                    <Input placeholder="π.χ. Ιερά Μητρόπολις Αθηνών" value={formData.metropolisName} onChange={e => setFormData({...formData, metropolisName: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Ιερός Ναός</Label>
-                    <Input placeholder="π.χ. Ι.Ν. Αγίου Γεωργίου" value={formData.templeName} onChange={e => setFormData({...formData, templeName: e.target.value})} />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Τηλέφωνο Γραμματείας</Label>
-                  <Input placeholder="210..." value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
-                </div>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500 fill-mode-both">
-                <div className="space-y-2">
-                  <Label>Τρέχων Αριθμός Πρωτοκόλλου</Label>
-                  <Input type="number" placeholder="π.χ. 1" value={formData.protocolStart} onChange={e => setFormData({...formData, protocolStart: e.target.value})} />
-                  <p className="text-xs text-muted-foreground mt-1">Από αυτόν τον αριθμό θα ξεκινήσει η αρίθμηση των επόμενων εγγράφων.</p>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="py-8 text-center space-y-4 animate-in zoom-in-95 duration-500 fill-mode-both">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/10 mb-4">
-                  <CheckCircle2 className="w-10 h-10 text-green-500" />
-                </div>
-                <h3 className="text-xl font-medium text-foreground">Όλα έτοιμα!</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">
-                  Το ψηφιακό σας γραφείο είναι έτοιμο. Μπορείτε πλέον να οργανώσετε τα Μυστήρια και να εκδίδετε πιστοποιητικά αυτόματα.
-                </p>
-              </div>
-            )}
-          </CardContent>
-
-          <CardFooter className="flex justify-between border-t border-border/50 pt-6">
-            <Button variant="outline" onClick={handlePrev} disabled={step === 1 || step === 3}>
-              <ArrowLeft className="w-4 h-4 mr-2" /> Πίσω
-            </Button>
-            
-            {step < 3 ? (
-              <Button onClick={handleNext} disabled={(step === 1 && (!formData.templeName || !formData.metropolisName))}>
-                Επόμενο <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            ) : (
-              <Button onClick={handleComplete} disabled={saving} className="bg-primary hover:bg-primary/90 text-primary-foreground min-w-[150px]">
-                {saving ? 'Αποθήκευση...' : 'Μετάβαση στο Dashboard'}
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
       </div>
-      
-    </div>
-  );
-}
 
+      {/* Card */}
+      <div className="w-full max-w-xl bg-white rounded-3xl border border-[#e5dfd9] shadow-xl overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-[#59161a] to-[#c3a165]" style={{ width: `${(step / 4) * 100}%`, transition: 'width 0.5s ease' }} />
+
+        <div className="p-8">
+          <AnimatePresence mode="wait">
+            {/* STEP 1: Temple Details */}
+            {step === 1 && (
+              <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
+                <div>
+                  <h2 className="text-2xl font-black text-[#2b1f1a] font-heading">Στοιχεία Ναού</h2>
+                  <p className="text-[#736760] text-sm mt-1">Εισάγετε τα επίσημα στοιχεία του Ιερού Ναού σας.</p>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Ιερά Μητρόπολη *</label>
+                    <input value={formData.metropolisName} onChange={e => set('metropolisName', e.target.value)}
+                      placeholder="π.χ. Ιερά Μητρόπολις Αθηνών"
+                      className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Ονομασία Ναού *</label>
+                    <input value={formData.templeName} onChange={e => set('templeName', e.target.value)}
+                      placeholder="π.χ. Ι.Ν. Αγίου Γεωργίου Κάτω Πατησίων"
+                      className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Πόλη *</label>
+                      <input value={formData.city} onChange={e => set('city', e.target.value)}
+                        placeholder="Αθήνα"
+                        className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Τηλέφωνο</label>
+                      <input value={formData.phone} onChange={e => set('phone', e.target.value)}
+                        placeholder="210..."
+                        className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Email Ναού</label>
+                    <input value={formData.email} onChange={e => set('email', e.target.value)}
+                      placeholder="info@agiosgeorgios.gr" type="email"
+                      className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STEP 2: Admin User */}
+            {step === 2 && (
+              <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
+                <div>
+                  <h2 className="text-2xl font-black text-[#2b1f1a] font-heading">Λογαριασμός Διαχειριστή</h2>
+                  <p className="text-[#736760] text-sm mt-1">Δημιουργήστε τον κύριο λογαριασμό (Προϊστάμενος/Γραμματεία).</p>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Όνομα *</label>
+                      <input value={formData.adminFirstName} onChange={e => set('adminFirstName', e.target.value)}
+                        placeholder="Γεώργιος"
+                        className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Επώνυμο *</label>
+                      <input value={formData.adminLastName} onChange={e => set('adminLastName', e.target.value)}
+                        placeholder="Παπαδόπουλος"
+                        className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Email (για σύνδεση) *</label>
+                    <input value={formData.adminEmail} onChange={e => set('adminEmail', e.target.value)}
+                      placeholder="admin@agiosgeorgios.gr" type="email"
+                      className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Κωδικός Πρόσβασης * (τουλ. 6 χαρακτήρες)</label>
+                    <div className="relative">
+                      <input value={formData.adminPassword} onChange={e => set('adminPassword', e.target.value)}
+                        type={showPassword ? 'text' : 'password'} placeholder="••••••••"
+                        className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all pr-12" />
+                      <button onClick={() => setShowPassword(p => !p)} type="button"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#a89d96] hover:text-[#59161a] transition-colors">
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STEP 3: Settings */}
+            {step === 3 && (
+              <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
+                <div>
+                  <h2 className="text-2xl font-black text-[#2b1f1a] font-heading">Ρυθμίσεις Πρωτοκόλλου</h2>
+                  <p className="text-[#736760] text-sm mt-1">Από πού να ξεκινήσει η αρίθμηση των εγγράφων σας;</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Αρχικός Αριθμός Πρωτοκόλλου</label>
+                  <input value={formData.protocolStart} onChange={e => set('protocolStart', e.target.value)}
+                    type="number" min="1" placeholder="1"
+                    className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                  <p className="text-xs text-[#a89d96] mt-2">Αν έχετε ήδη πρωτόκολλο, εισάγετε τον τρέχοντα αριθμό για να συνεχίσει από εκεί.</p>
+                </div>
+
+                {/* Summary box */}
+                <div className="bg-[#fdfaf7] border border-[#e5dfd9] rounded-2xl p-5 space-y-2 text-sm">
+                  <p className="font-bold text-[#2b1f1a] mb-3">📋 Σύνοψη Ρύθμισης:</p>
+                  <div className="flex justify-between"><span className="text-[#736760]">Μητρόπολη:</span><span className="font-semibold text-[#2b1f1a]">{formData.metropolisName}</span></div>
+                  <div className="flex justify-between"><span className="text-[#736760]">Ναός:</span><span className="font-semibold text-[#2b1f1a]">{formData.templeName}</span></div>
+                  <div className="flex justify-between"><span className="text-[#736760]">Διαχειριστής:</span><span className="font-semibold text-[#2b1f1a]">{formData.adminFirstName} {formData.adminLastName}</span></div>
+                  <div className="flex justify-between"><span className="text-[#736760]">Email σύνδεσης:</span><span className="font-semibold text-[#2b1f1a]">{formData.adminEmail}</span></div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STEP 4: Success */}
+            {step === 4 && (
+              <motion.div key="step4" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-8 text-center space-y-4">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
+                  className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-emerald-50 border-4 border-emerald-200 mx-auto"
+                >
+                  <CheckCircle2 className="w-12 h-12 text-emerald-500" />
+                </motion.div>
+                <h2 className="text-2xl font-black text-[#2b1f1a] font-heading">Ο Ναός σας είναι έτοιμος!</h2>
+                <p className="text-[#736760]">Μεταφέρεστε στο Dashboard...</p>
+                <Loader2 className="w-6 h-6 animate-spin text-[#c3a165] mx-auto" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Navigation Buttons */}
+          {step < 4 && (
+            <div className="flex justify-between items-center mt-8 pt-6 border-t border-[#e5dfd9]">
+              <button onClick={() => setStep(s => s - 1)} disabled={step === 1}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#e5dfd9] text-[#736760] font-bold text-sm hover:border-[#c3a165] hover:text-[#59161a] transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                <ArrowLeft className="w-4 h-4" /> Πίσω
+              </button>
+
+              {step < 3 ? (
+                <button onClick={() => setStep(s => s + 1)} disabled={!canNext()}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#59161a] text-white font-bold text-sm hover:bg-[#7b2126] transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed">
+                  Επόμενο <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button onClick={handleComplete} disabled={saving}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#59161a] text-white font-bold text-sm hover:bg-[#7b2126] transition-all shadow-md disabled:opacity-60">
+                  {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Αποθήκευση...</> : <>Ολοκλήρωση <CheckCircle2 className="w-4 h-4" /></>}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <p className="mt-6 text-xs text-[#a89d96] text-center">
+        Έχετε ήδη λογαριασμό; <a href="/login" className="text-[#59161a] font-bold hover:underline">Σύνδεση</a>
+      </p>
+    </div>
+  )
+}

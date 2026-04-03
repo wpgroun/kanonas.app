@@ -87,3 +87,4 @@ export function declineGreekName(
   // Fallback: return as-is (for undeclensible / foreign names)
   return name;
 }
+

@@ -52,3 +52,4 @@ export async function logoutAction() {
   ;(await cookies()).delete('Kanonas_auth')
   return { success: true }
 }
+

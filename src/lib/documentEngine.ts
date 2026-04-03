@@ -58,3 +58,4 @@ export function generateDocxCertificate(
 
   return buf;
 }
+

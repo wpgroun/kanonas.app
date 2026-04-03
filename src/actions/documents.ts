@@ -35,3 +35,4 @@ export async function saveDocTemplate(id: string | null, docType: string, nameEl
     return { success: false }
   }
 }
+

@@ -27,3 +27,4 @@ export async function seedDummyTemple() {
     console.error("Η βάση δεν έχει συγχρονιστεί ακόμα.", e)
   }
 }
+

@@ -6,3 +6,4 @@ export default async function AdminDashboard() {
   
   return <DashboardClient stats={stats} />
 }
+

@@ -64,3 +64,4 @@ export async function upsertBudget(data: { year: number, category: string, estim
     return { success: false, error: err.message };
   }
 }
+

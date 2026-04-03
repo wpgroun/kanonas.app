@@ -51,7 +51,7 @@ export default function ContactPage() {
             <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm border border-white/50 group-hover:shadow-md transition-all">
               <Image src="/logo.png" alt="Κανόνας" fill className="object-cover" />
             </div>
-            <span style={{fontFamily:"'Playfair Display', serif"}} className="font-black text-2xl tracking-widest text-[#2b1f1a]">ΔΕΛΤΟΣ</span>
+            <span style={{fontFamily:"'Playfair Display', serif"}} className="font-black text-2xl tracking-widest text-[#2b1f1a]">ΚΑΝΟΝΑΣ</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-10">
@@ -206,7 +206,7 @@ export default function ContactPage() {
       {/* Footer strip */}
       <footer className="bg-[#1a1008] text-white/40 py-8 border-t border-[#c3a165]/10 text-center text-xs px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-          <p>© {new Date().getFullYear()} ΔΕΛΤΟΣ Software. Με επιφύλαξη παντός δικαιώματος.</p>
+          <p>© {new Date().getFullYear()} Kanonas Software. Με επιφύλαξη παντός δικαιώματος.</p>
           <div className="flex gap-6">
             <Link href="/#features" className="hover:text-white transition-colors">Δυνατότητες</Link>
             <Link href="/#pricing" className="hover:text-white transition-colors">Τιμοκατάλογος</Link>
@@ -232,3 +232,4 @@ function ContactInfoRow({ icon, label, value, sub, iconBg }: { icon: React.React
     </div>
   );
 }
+

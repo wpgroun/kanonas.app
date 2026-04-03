@@ -187,3 +187,4 @@ export default function FinanceBIClient({ currentYear, prevYear, byCategory, tot
     </div>
   );
 }
+

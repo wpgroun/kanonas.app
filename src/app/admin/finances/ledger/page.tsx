@@ -19,3 +19,4 @@ export default async function LedgerPage() {
 
   return <LedgerClient templeId={templeId} initialDonations={donations} initialExpenses={expenses} />;
 }
+

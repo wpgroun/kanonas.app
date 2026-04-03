@@ -51,3 +51,4 @@ export async function updateRolePermissions(roleId: string, permissions: {
     return { success: false, error: e.message }
   }
 }
+

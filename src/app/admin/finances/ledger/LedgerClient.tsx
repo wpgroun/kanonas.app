@@ -142,3 +142,4 @@ export default function LedgerClient({ templeId, initialDonations, initialExpens
     </div>
   )
 }
+

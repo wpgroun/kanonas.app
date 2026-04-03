@@ -5,3 +5,4 @@ export default async function AssetsPage() {
   const assets = await getAssets();
   return <AssetsClient initialAssets={assets} />
 }
+

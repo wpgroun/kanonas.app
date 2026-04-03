@@ -145,3 +145,4 @@ export default function VaultPanel({ templeId, parishionerId, initialDocuments }
     </Card>
   );
 }
+

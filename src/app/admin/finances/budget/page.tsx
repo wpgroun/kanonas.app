@@ -13,3 +13,4 @@ export default async function BudgetPage() {
 
   return <BudgetClient templeId={templeId} year={currentYear} initialBudgets={budgets} />;
 }
+

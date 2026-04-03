@@ -172,3 +172,4 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
     </div>
   )
 }
+

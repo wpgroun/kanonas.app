@@ -5,3 +5,4 @@ export default async function ProtocolPage() {
   const protocols = await getProtocols();
   return <ProtocolClient initialProtocols={protocols} />
 }
+

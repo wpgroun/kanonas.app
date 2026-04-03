@@ -8,3 +8,4 @@ export default async function PhilanthropyDashboard() {
 
   return <PhilanthropyClient stats={stats} beneficiaries={beneficiaries} inventory={inventory} />
 }
+

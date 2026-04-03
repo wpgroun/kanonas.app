@@ -242,3 +242,4 @@ export default function PhilanthropyClient({ stats, beneficiaries, inventory }: 
     </div>
   )
 }
+

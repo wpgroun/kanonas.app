@@ -253,3 +253,4 @@ export default function AssetsClient({ initialAssets }: { initialAssets: any[] }
     </div>
   )
 }
+

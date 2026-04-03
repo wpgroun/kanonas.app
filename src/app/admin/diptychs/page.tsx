@@ -6,3 +6,4 @@ export default async function DiptychsPage() {
   
   return <DiptychClient initialDiptychs={diptychs} />
 }
+

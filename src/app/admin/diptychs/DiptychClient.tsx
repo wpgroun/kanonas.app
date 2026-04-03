@@ -161,3 +161,4 @@ export default function DiptychClient({ initialDiptychs }: { initialDiptychs: an
     </div>
   )
 }
+

@@ -100,3 +100,4 @@ export default function BudgetClient({ templeId, year, initialBudgets }: { templ
     </div>
   )
 }
+

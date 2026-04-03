@@ -78,3 +78,4 @@ export async function deleteAsset(id: string) {
     return { success: false }
   }
 }
+

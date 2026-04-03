@@ -136,3 +136,4 @@ export default function DashboardClient({ initialTemples }: { initialTemples: an
     </div>
   );
 }
+

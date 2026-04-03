@@ -124,3 +124,4 @@ export async function addExpense(data: {
     return { success: false }
   }
 }
+

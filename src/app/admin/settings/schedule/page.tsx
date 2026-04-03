@@ -6,3 +6,4 @@ export default async function BookingSettingsPage() {
   
   return <BookingSettingsClient initialSettings={settings} templeId="cm0testtempleid0000000001" />
 }
+

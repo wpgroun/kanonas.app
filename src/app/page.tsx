@@ -61,9 +61,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-10 h-10 lg:w-12 lg:h-12 rounded-xl overflow-hidden shadow-sm border border-white/80 group-hover:shadow-md transition-all">
-              <Image src="/logo.png" alt="ΔΕΛΤΟΣ" fill className="object-cover" />
+              <Image src="/logo.png" alt="Kanonas" fill className="object-cover" />
             </div>
-            <span className="font-heading font-black text-xl lg:text-2xl tracking-widest text-[#2b1f1a]">ΔΕΛΤΟΣ</span>
+            <span className="font-heading font-black text-xl lg:text-2xl tracking-widest text-[#2b1f1a]">ΚΑΝΟΝΑΣ</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-10">
@@ -182,7 +182,7 @@ export default function Home() {
                  <div className="absolute top-10 inset-0 bg-[#f8f6f3] flex z-10">
                     {/* Sidebar skeleton */}
                     <div className="w-1/4 h-full bg-[#362a26] p-4 flex flex-col gap-3 border-r border-[#4f3d37]">
-                      <div className="w-full text-center py-2 mb-4 border-b border-[#4f3d37]"><span className="text-white/80 font-heading font-bold">ΔΕΛΤΟΣ</span></div>
+                      <div className="w-full text-center py-2 mb-4 border-b border-[#4f3d37]"><span className="text-white/80 font-heading font-bold">ΚΑΝΟΝΑΣ</span></div>
                       {[1,2,3,4,5].map(i => (
                         <div key={i} className="w-full h-8 bg-white/5 rounded-md"></div>
                       ))}
@@ -374,9 +374,9 @@ export default function Home() {
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6 opacity-90 hover:opacity-100 transition-opacity">
               <div className="w-10 h-10 relative overflow-hidden rounded-lg">
-                <Image src="/logo.png" alt="ΔΕΛΤΟΣ" fill className="object-cover" />
+                <Image src="/logo.png" alt="Kanonas" fill className="object-cover" />
               </div>
-              <span className="font-heading font-black text-2xl tracking-widest text-[#c3a165]">ΔΕΛΤΟΣ</span>
+              <span className="font-heading font-black text-2xl tracking-widest text-[#c3a165]">ΚΑΝΟΝΑΣ</span>
             </Link>
             <p className="text-sm leading-relaxed max-w-sm mb-6 text-white/60">
               Το Σύγχρονο Λογισμικό Οργάνωσης & Διοίκησης Ιερών Ναών και Μητροπόλεων. 
@@ -404,7 +404,7 @@ export default function Home() {
           
         </div>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-semibold text-white/40">
-          <p>© {new Date().getFullYear()} ΔΕΛΤΟΣ Software. Με επιφύλαξη παντός δικαιώματος.</p>
+          <p>© {new Date().getFullYear()} Kanonas Software. Με επιφύλαξη παντός δικαιώματος.</p>
           <div className="flex gap-6">
              <Link href="#" className="hover:text-white transition-colors">Όροι Σύμβασης</Link>
              <Link href="#" className="hover:text-white transition-colors">Πολιτική Απορρήτου (GDPR)</Link>
@@ -414,3 +414,4 @@ export default function Home() {
     </div>
   );
 }
+

@@ -49,7 +49,7 @@ export default function LoginPage() {
         <div className="relative z-20">
           <Link href="/" className="flex items-center gap-3 w-fit">
             <Image src="/logo.png" alt="Κανόνας" width={50} height={50} className="w-12 h-12 brightness-0 invert opacity-90" />
-            <span style={{fontFamily:"'Playfair Display', serif"}} className="font-black text-2xl tracking-widest text-white/90">ΔΕΛΤΟΣ</span>
+            <span style={{fontFamily:"'Playfair Display', serif"}} className="font-black text-2xl tracking-widest text-white/90">ΚΑΝΟΝΑΣ</span>
           </Link>
         </div>
 
@@ -74,7 +74,7 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col justify-center items-center p-6 md:p-12 relative">
         <Link href="/" className="md:hidden absolute top-6 left-6 flex items-center gap-2">
           <Image src="/logo.png" alt="Κανόνας" width={32} height={32} className="w-8 h-8 rounded-lg shadow-sm" />
-          <span style={{fontFamily:"'Playfair Display', serif"}} className="font-black text-lg tracking-widest text-[#2b1f1a]">ΔΕΛΤΟΣ</span>
+          <span style={{fontFamily:"'Playfair Display', serif"}} className="font-black text-lg tracking-widest text-[#2b1f1a]">ΚΑΝΟΝΑΣ</span>
         </Link>
         
         <div className="w-full max-w-[420px] animate-in fade-in slide-in-from-bottom-8 duration-700">
@@ -146,3 +146,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
