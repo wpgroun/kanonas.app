@@ -1,5 +1,3 @@
-'use server'
-
 // ─── CORE ───────────────────────────────────────────────────────────────────
 export { TEMP_TEMPLE_ID, getCurrentTempleId, seedDummyTemple } from '@/actions/core'
 

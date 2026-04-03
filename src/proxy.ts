@@ -5,7 +5,7 @@ import { jwtVerify } from 'jose';
 const secretKey = process.env.JWT_SECRET || 'super_secret_church_os_jwt_key_2026_dev_mode';
 const key = new TextEncoder().encode(secretKey);
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Ελεύθερα μονοπάτια (public routes)
@@ -67,5 +67,3 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
-
-
