@@ -27,7 +27,10 @@ export async function GET() {
       }
     });
 
-    // 3. Create Default Roles
+    // 3. Clean up existing roles to avoid unique constraint errors on partial runs
+    await prisma.role.deleteMany({ where: { templeId: temple.id } });
+
+    // Create Default Roles
     const priestRole = await prisma.role.create({
       data: {
         templeId: temple.id,
@@ -69,8 +72,10 @@ export async function GET() {
 
     // 4. Create the Head Priest (Admin)
     const passwordHash = await bcrypt.hash('amen123', 10);
-    const user = await prisma.user.create({
-      data: {
+    const user = await prisma.user.upsert({
+      where: { email: 'admin@kanonas.gr' },
+      update: { passwordHash },
+      create: {
         email: 'admin@kanonas.gr',
         passwordHash,
         firstName: 'Ιωάννης',
