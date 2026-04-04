@@ -36,4 +36,20 @@ export async function getSession() {
   return await decrypt(token);
 }
 
+export async function requireAuth() {
+  const session = await getSession();
+  if (!session || !session.userId) {
+    throw new Error('Unauthorized');
+  }
+  return session;
+}
+
+export async function requireSuperAdmin() {
+  const session = await requireAuth();
+  if (!session.isSuperAdmin) {
+    throw new Error('Forbidden: Superadmin access required');
+  }
+  return session;
+}
+
 

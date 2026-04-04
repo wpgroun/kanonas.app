@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { getCurrentTempleId } from './core'
-import { requireAuth, requireSuperAdmin } from '@/lib/requireAuth'
+import { requireAuth, requireSuperAdmin } from '@/lib/auth'
 
 export async function getAllTemples() {
   await requireSuperAdmin()
@@ -46,7 +46,11 @@ export async function updateRolePermissions(roleId: string, permissions: {
   canManageAssets?: boolean
 }) {
   await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
+    const existingRole = await prisma.role.findFirst({ where: { id: roleId, templeId } })
+    if (!existingRole) throw new Error("Unauthorized role update")
+    
     await prisma.role.update({ where: { id: roleId }, data: permissions })
     revalidatePath('/admin/settings/users')
     return { success: true }

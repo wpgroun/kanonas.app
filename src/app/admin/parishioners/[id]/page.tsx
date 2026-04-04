@@ -1,6 +1,7 @@
 import { getParishionerDetails } from '@/actions/parishioners'
 import { getParishionerBeneficiary } from '@/actions/philanthropy'
 import ParishionerProfileClient from './ParishionerProfileClient'
+import { getParishionerRelationships } from '@/actions/relationships'
 
 export default async function ParishionerProfile({ params }: { params: { id: string } }) {
   // Wait to resolve params dynamically in app router
@@ -14,6 +15,7 @@ export default async function ParishionerProfile({ params }: { params: { id: str
 
   // Fetch the related Beneficiary info for Sissitio Tab
   const beneficiary = await getParishionerBeneficiary(id);
+  const relationships = await getParishionerRelationships(id);
 
-  return <ParishionerProfileClient p={p} beneficiary={beneficiary} />;
+  return <ParishionerProfileClient p={p} beneficiary={beneficiary} relationships={relationships} />;
 }

@@ -11,9 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, User, Banknote, Euro, FileText, Activity, Utensils, Info } from 'lucide-react'
+import { ArrowLeft, User, Banknote, Euro, FileText, Activity, Utensils, Info, Share2, Trash2 } from 'lucide-react'
+import { deleteRelationship } from '@/actions/relationships'
 
-export default function ParishionerProfileClient({ p, beneficiary }: { p: any, beneficiary: any }) {
+export default function ParishionerProfileClient({ p, beneficiary, relationships }: { p: any, beneficiary: any, relationships: any }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
   const [isRegistering, setIsRegistering] = useState(false);
@@ -108,6 +109,43 @@ export default function ParishionerProfileClient({ p, beneficiary }: { p: any, b
               </CardHeader>
               <CardContent className="pt-6">
                 <TagsEditor parishionerId={p.id} initialRolesJson={p.roles} />
+              </CardContent>
+            </Card>
+            
+            <Card className="shadow-sm border-border/50">
+              <CardHeader className="border-b border-border/50 pb-4">
+                <CardTitle className="text-lg flex items-center gap-2"><Share2 className="w-5 h-5"/> Πνευματικές Συγγένειες</CardTitle>
+                <CardDescription>Λίστα αναδόχων, κουμπάρων και μελών οικογένειας. (Για προσθήκη νέων, μεταβείτε στις σχετικές σελίδες Μυστηρίων)</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-4">
+                {(!relationships?.sources.length && !relationships?.targets.length) ? (
+                   <p className="text-sm text-muted-foreground">Δεν έχουν καταχωρηθεί πνευματικές/οικογενειακές σχέσεις.</p>
+                ) : (
+                   <>
+                     {relationships.sources.map((rel: any) => (
+                       <div key={rel.id} className="flex justify-between items-center text-sm p-3 bg-muted/30 rounded-lg border border-border/40">
+                         <div>
+                            <span className="font-bold text-foreground">{rel.source.lastName} {rel.source.firstName}</span> 
+                            <span className="text-muted-foreground"> είναι {rel.relationshipType} του/της ενορίτη</span>
+                         </div>
+                         <button onClick={async () => {
+                           if(confirm('Διαγραφή σχέσης;')) { await deleteRelationship(rel.id); window.location.reload(); }
+                         }} className="text-red-500 hover:bg-red-50 p-1.5 rounded"><Trash2 className="w-4 h-4"/></button>
+                       </div>
+                     ))}
+                     {relationships.targets.map((rel: any) => (
+                       <div key={rel.id} className="flex justify-between items-center text-sm p-3 bg-muted/30 rounded-lg border border-border/40">
+                         <div>
+                            <span className="text-muted-foreground">Ο/Η ενορίτης είναι {rel.relationshipType} του/της </span>
+                            <span className="font-bold text-foreground">{rel.target.lastName} {rel.target.firstName}</span> 
+                         </div>
+                         <button onClick={async () => {
+                           if(confirm('Διαγραφή σχέσης;')) { await deleteRelationship(rel.id); window.location.reload(); }
+                         }} className="text-red-500 hover:bg-red-50 p-1.5 rounded"><Trash2 className="w-4 h-4"/></button>
+                       </div>
+                     ))}
+                   </>
+                )}
               </CardContent>
             </Card>
           </div>

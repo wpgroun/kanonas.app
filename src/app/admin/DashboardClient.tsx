@@ -9,7 +9,7 @@ import {
   Users, FileText, Banknote, AlertCircle, ArrowUpRight,
   ArrowDownRight, TrendingUp, HeartHandshake, Plus,
   ClipboardList, UserPlus, Clock, CheckCircle2,
-  ChevronRight, LayoutDashboard
+  ChevronRight, LayoutDashboard, Gift
 } from 'lucide-react'
 
 const CHART_COLORS = ['#7C3AED', '#4F46E5', '#3B82F6', '#10B981', '#F59E0B', '#EF4444']
@@ -237,7 +237,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
       </div>
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Recent Requests */}
         <div className="card p-5">
           <div className="flex justify-between items-center mb-4">
@@ -330,6 +330,43 @@ export default function DashboardClient({ stats }: { stats: any }) {
               <p className="text-xs text-[var(--text-muted)]">Σύνολο Μυστηρίων</p>
             </div>
           </div>
+        </div>
+
+        {/* Upcoming Namedays */}
+        <div className="card p-5">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-sm font-bold text-[var(--foreground)] flex items-center gap-2">
+              <Gift className="w-4 h-4 text-[var(--brand)]" />
+              Ποιμαντική
+            </h2>
+            <Link href="/admin/parishioners" className="text-xs font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
+              Ευχές <ChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+          {stats.upcomingNamedays?.length > 0 ? (
+            <div className="space-y-1">
+              {stats.upcomingNamedays.slice(0, 5).map((nd: any, i: number) => (
+                <div key={`${nd.parishionerId}-${i}`} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[var(--surface-hover)] transition-colors group cursor-pointer">
+                  <div className="w-8 h-8 rounded-full bg-[var(--brand-light)] flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs font-bold text-[var(--brand)]">{nd.firstName[0]}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[var(--foreground)] truncate">{nd.fullName}</p>
+                    <p className="text-xs text-[var(--text-muted)] truncate flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {new Date(nd.celebrationDate).toLocaleDateString('el-GR', { day: 'numeric', month: 'short' })} ({nd.feastStr})
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state py-6">
+              <Gift className="empty-state-icon" />
+              <p className="empty-state-title">Κανείς εορτάζων</p>
+              <p className="empty-state-desc">Τις επόμενες 7 ημέρες</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

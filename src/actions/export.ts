@@ -65,7 +65,7 @@ export async function exportFinancesCSV(type: 'donations' | 'expenses') {
   }
 
   if (type === 'donations') {
-    const records = await prisma.income.findMany({
+    const records = await prisma.donation.findMany({
       where: { templeId: session.templeId },
       include: { parishioner: true },
       orderBy: { date: 'desc' }
@@ -74,13 +74,13 @@ export async function exportFinancesCSV(type: 'donations' | 'expenses') {
     const formatted = records.map(r => ({
       'Ημερομηνία': new Date(r.date).toLocaleDateString('el-GR'),
       'Ποσό': r.amount.toString(),
-      'Αιτιολογία': r.description,
-      'Αριθμός Απόδειξης': r.voucherNumber || '-',
+      'Αιτιολογία': r.purpose || '-',
+      'Αριθμός Απόδειξης': r.receiptNumber || '-',
       'Ενορίτης / Δωρητής': r.parishioner ? `${r.parishioner.lastName} ${r.parishioner.firstName}` : 
                   (r.donorName || '-')
     }))
 
-    return { success: true, csv: toCSV(formatted), filename: `Incomes_${new Date().toISOString().split('T')[0]}.csv` }
+    return { success: true, csv: toCSV(formatted), filename: `Donations_${new Date().toISOString().split('T')[0]}.csv` }
   } else {
     const records = await prisma.expense.findMany({
       where: { templeId: session.templeId },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getSession } from '@/lib/auth';
 import fs from 'fs';
 import path from 'path';
 
@@ -7,14 +8,28 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
-    const templeId = formData.get('templeId') as string;
     const parishionerId = formData.get('parishionerId') as string | null;
     const tokenId = formData.get('tokenId') as string | null;
     const docType = formData.get('docType') as string;
     const label = formData.get('label') as string;
 
-    if (!file || !templeId) {
-      return NextResponse.json({ error: 'Missing required file or templeId' }, { status: 400 });
+    const session = await getSession();
+    if (!session || !session.templeId) {
+      return NextResponse.json({ error: 'Unauthorized. Login required.' }, { status: 401 });
+    }
+    const templeId = session.templeId;
+
+    if (!file) {
+      return NextResponse.json({ error: 'Missing required file' }, { status: 400 });
+    }
+
+    const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: 'Μη επιτρεπτός τύπος αρχείου. Δεχόμαστε μόνο PDF, JPG, PNG, WEBP.' }, { status: 400 });
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Το αρχείο υπερβαίνει το μέγιστο όριο των 10MB.' }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());

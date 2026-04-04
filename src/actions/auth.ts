@@ -111,7 +111,30 @@ export async function forgotPasswordAction(email: string) {
       data: { email: user.email, token, expires }
     })
 
-    console.log(`[DEV] Password reset link for ${email}: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password?token=${token}`)
+    if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+      const nodemailer = await import('nodemailer');
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure: process.env.SMTP_PORT === '465',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+      await transporter.sendMail({
+        from: `"Kanonas System" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+        to: user.email,
+        subject: 'Επαναφορά Κωδικού Πρόσβασης',
+        html: `<p>Γεια σας ${user.firstName || ''},</p><p>Για να επαναφέρετε τον κωδικό σας, πατήστε τον παρακάτω σύνδεσμο:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>Ο σύνδεσμος λήγει σε 1 ώρα.</p>`
+      });
+    } else if (process.env.NODE_ENV !== 'production') {
+      console.log(`[DEV] Password reset link for ${email}: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password?token=${token}`)
+    } else {
+      console.warn(`[WARN] Password reset requested for ${email} but SMTP is not configured.`);
+    }
 
     return { success: true, message: 'Σας έχει σταλεί email με οδηγίες ανάκτησης.' }
   } catch (e: any) {

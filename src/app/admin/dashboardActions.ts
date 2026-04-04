@@ -1,8 +1,12 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
+import { getSession } from '@/lib/auth'
+import { getUpcomingNamedays } from '@/actions/namedays'
 
-export async function getDashboardStats(templeId: string = 'cm0testtempleid0000000001') {
+export async function getDashboardStats() {
+  const session = await getSession()
+  const templeId = session?.templeId || 'cm0testtempleid0000000001'
   const now = new Date()
   const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
@@ -86,6 +90,8 @@ export async function getDashboardStats(templeId: string = 'cm0testtempleid00000
 
   const defaultSacramentsData: { name: string; value: number }[] = []
 
+  const upcomingNamedays = await getUpcomingNamedays(7)
+
   return {
     totalParishioners,
     totalMonthlyDonations,
@@ -100,6 +106,7 @@ export async function getDashboardStats(templeId: string = 'cm0testtempleid00000
     revenueTrend,
     recentTokens,
     recentParishioners,
+    upcomingNamedays
   }
 }
 

@@ -16,12 +16,18 @@ export async function setupTemple(data: {
   adminEmail: string
   adminPassword: string
   protocolStart?: number
+  masterPassword?: string
 }) {
   try {
     // Check if admin email already exists
     const existingUser = await prisma.user.findUnique({ where: { email: data.adminEmail } })
     if (existingUser) {
       return { success: false, error: 'Αυτό το email χρησιμοποιείται ήδη.' }
+    }
+
+    const requiredMaster = process.env.MASTER_ONBOARDING_PASSWORD;
+    if (requiredMaster && requiredMaster !== data.masterPassword) {
+      return { success: false, error: 'Λανθασμένος Κωδικός Εγκατάστασης (Master Password).' }
     }
 
     const passwordHash = await bcrypt.hash(data.adminPassword, 12)

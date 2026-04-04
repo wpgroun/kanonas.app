@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import ConnectForm from './ConnectForm';
+import ConnectTabs from './ConnectTabs';
 import { Church } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
@@ -38,7 +38,7 @@ export default async function PublicConnectPage({ params }: { params: { slug: st
          <div className="max-w-4xl mx-auto -mt-8 relative z-10 px-4 pb-20">
             <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-6 md:p-10">
                {/* Client Component Handle Form Logic */}
-               <ConnectForm slug={temple.slug as string} />
+               <ConnectTabs slug={temple.slug as string} />
             </div>
          </div>
       </div>

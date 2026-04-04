@@ -1,8 +1,10 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
+import { requireSuperAdmin } from '@/lib/auth'
 
 export async function getSuperAdminStats() {
+  await requireSuperAdmin()
   const [
     totalTemples,
     totalUsers,
@@ -56,6 +58,7 @@ export async function getSuperAdminStats() {
 
 export async function toggleSubscriptionStatus(templeId: string, currentStatus: string) {
   try {
+    await requireSuperAdmin()
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     await prisma.temple.update({
       where: { id: templeId },

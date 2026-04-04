@@ -6,7 +6,7 @@ import { jwtVerify } from 'jose';
 const secretKey = process.env.JWT_SECRET ?? 'kanonas_dev_only_fallback_do_not_use_in_prod';
 const key = new TextEncoder().encode(secretKey);
 
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Ελεύθερα μονοπάτια (public routes)

@@ -132,6 +132,7 @@ model Temple {
   citizenRequests          CitizenRequest[]
   parishionerRelationships ParishionerRelationship[]
   ecclesiasticalDivorces   EcclesiasticalDivorce[]
+  prayerRequests           PrayerRequest[]
 }
 
 model KanbanTask {
@@ -270,6 +271,7 @@ model Parishioner {
   relationshipsAsSource ParishionerRelationship[] @relation("SourceRelation")
   relationshipsAsTarget ParishionerRelationship[] @relation("TargetRelation")
   divorces              EcclesiasticalDivorce[]
+  prayerRequests        PrayerRequest[]
 
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -1006,4 +1008,27 @@ model CitizenRequest {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PrayerRequest {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  parishionerId String? // Αν υποβλήθηκε από γνωστό ενορίτη
+  parishioner   Parishioner? @relation(fields: [parishionerId], references: [id], onDelete: SetNull)
+
+  submitterName  String?
+  submitterEmail String?
+
+  type        String // π.χ. "LITURGY", "PARAKLISI", "ARTOKLASIA", "MNIMOSYNO"
+  livingNames String? // Υπέρ Υγείας
+  fallenNames String? // Υπέρ Αναπαύσεως
+
+  status         String @default("pending") // pending, read_at_altar
+  donationAmount Float?
+
+  requestedForDate DateTime?
+
+  createdAt DateTime @default(now())
 }

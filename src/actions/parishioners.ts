@@ -3,9 +3,10 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { getCurrentTempleId } from './core'
-import { requireAuth } from '@/lib/requireAuth'
+import { requireAuth } from '@/lib/auth'
 
 export async function getParishioners(page = 1, pageSize = 100) {
+  await requireAuth()
   const templeId = await getCurrentTempleId()
   try {
     return await prisma.parishioner.findMany({
@@ -55,9 +56,11 @@ export async function createParishioner(formData: {
 }
 
 export async function getParishionerDetails(id: string) {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
-    return await prisma.parishioner.findUnique({
-      where: { id },
+    return await prisma.parishioner.findFirst({
+      where: { id, templeId },
       include: {
         donations: { orderBy: { date: 'desc' } },
         ceremonyPersons: { include: { token: true } }
@@ -79,7 +82,11 @@ export async function updateParishionerDetails(id: string, data: {
   idNumber?: string
 }) {
   await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
+    const existing = await prisma.parishioner.findFirst({ where: { id, templeId } })
+    if(!existing) return { success: false, error: "Parishioner not found in your temple" }
+
     await prisma.parishioner.update({
       where: { id },
       data: {
@@ -104,7 +111,11 @@ export async function updateParishionerDetails(id: string, data: {
 
 export async function updateParishionerRoles(id: string, newRolesStr: string) {
   await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
+    const existing = await prisma.parishioner.findFirst({ where: { id, templeId } })
+    if(!existing) return { success: false, error: "Not authorized" }
+
     await prisma.parishioner.update({
       where: { id },
       data: { roles: newRolesStr }

@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { requireAuth } from '@/lib/requireAuth'
+import { requireAuth } from '@/lib/auth'
 import { getCurrentTempleId } from './core'
 import bcrypt from 'bcryptjs'
 
@@ -82,9 +82,14 @@ export async function removeStaffFromTemple(userTempleId: string) {
   if(!session.isHeadPriest && !session.isSuperAdmin) return { success: false, error: 'Μη Εξουσιοδοτημένη ενέργεια.' };
 
   try {
+     const templeId = await getCurrentTempleId()
      const ut = await prisma.userTemple.findUnique({ where: { id: userTempleId } });
      if (!ut || ut.isHeadPriest) {
        return { success: false, error: 'Δεν μπορείτε να αφαιρέσετε τον εαυτό σας ή τον Προϊστάμενο του Ναού.' }
+     }
+     
+     if (ut.templeId !== templeId) {
+       return { success: false, error: 'Ο χρήστης δε βρέθηκε στον Ναό σας!' }
      }
      
      await prisma.userTemple.delete({ where: { id: userTempleId } });
@@ -100,6 +105,12 @@ export async function updateStaffRole(userTempleId: string, roleId: string) {
   if(!session.isHeadPriest && !session.isSuperAdmin) return { success: false, error: 'Μη Εξουσιοδοτημένη ενέργεια.' };
 
   try {
+     const templeId = await getCurrentTempleId()
+     const ut = await prisma.userTemple.findUnique({ where: { id: userTempleId } });
+     if (!ut || ut.templeId !== templeId) {
+       return { success: false, error: 'Μη Εξουσιοδοτημένη ενέργεια.' }
+     }
+
      await prisma.userTemple.update({
         where: { id: userTempleId },
         data: { roleId }

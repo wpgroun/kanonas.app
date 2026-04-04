@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { getCurrentTempleId } from './core'
-import { requireAuth } from '@/lib/requireAuth'
+import { requireAuth } from '@/lib/auth'
 import { randomBytes } from 'crypto'
 
 export async function createSacramentRequest(formData: {
@@ -66,8 +66,9 @@ export async function getTokens() {
 
 export async function getRequestDetails(tokenId: string) {
   try {
-    return await prisma.token.findUnique({
-      where: { id: tokenId },
+    const templeId = await getCurrentTempleId()
+    return await prisma.token.findFirst({
+      where: { id: tokenId, templeId },
       include: {
         persons: { include: { parishioner: true } },
         ceremonyMeta: true
@@ -80,8 +81,12 @@ export async function getRequestDetails(tokenId: string) {
 
 export async function linkPersonToSacrament(tokenId: string, parishionerId: string, role: string) {
   await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
-    const p = await prisma.parishioner.findUnique({ where: { id: parishionerId } })
+    const token = await prisma.token.findFirst({ where: { id: tokenId, templeId } })
+    if(!token) return { success: false, error: "Μη Εξουσιοδοτημένη Ενέργεια" }
+
+    const p = await prisma.parishioner.findFirst({ where: { id: parishionerId, templeId } })
     if (!p) return { success: false, error: "Ο ενορίτης δεν βρέθηκε στο Μητρώο." }
 
     await prisma.ceremonyPerson.create({
@@ -107,6 +112,9 @@ export async function markTokenAsDocsGenerated(tokenId: string, assignedPriest: 
   await requireAuth()
   try {
     const templeId = await getCurrentTempleId()
+    
+    const userToken = await prisma.token.findFirst({ where: { id: tokenId, templeId } })
+    if(!userToken) throw new Error("Unauthorized Token");
 
     // --- PHASE 4: AUTO-ENROLMENT IN PARISHIONER REGISTRY ---
     const unlinkedPersons = await prisma.ceremonyPerson.findMany({
@@ -172,6 +180,7 @@ export async function savePublicTokenAnswers(tokenStr: string, answersStr: strin
   try {
     const token = await prisma.token.findUnique({ where: { tokenStr } })
     if (!token) return { success: false, error: 'Το αίτημα δεν υπάρχει πλέον.' }
+    if (token.submissionComplete) return { success: false, error: 'Το ερωτηματολόγιο έχει ήδη συμπληρωθεί. Αν θέλετε αλλαγές, καλέστε την Ενορία.' }
 
     await prisma.ceremonyMeta.upsert({
       where: { tokenId: token.id },
@@ -212,8 +221,9 @@ import { addServiceSchedule } from './schedule'
 
 export async function approveSacramentRequest(tokenId: string, date: Date | null, title: string) {
   await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
-    const token = await prisma.token.findUnique({ where: { id: tokenId } })
+    const token = await prisma.token.findFirst({ where: { id: tokenId, templeId } })
     if (!token) return { success: false, error: 'Δεν βρέθηκε' }
 
     // 1. Send Email with the link (using existing function sendFormLinkAction logic)
@@ -260,7 +270,11 @@ export async function approveSacramentRequest(tokenId: string, date: Date | null
 
 export async function rejectSacramentRequest(tokenId: string) {
   await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
+    const token = await prisma.token.findFirst({ where: { id: tokenId, templeId } })
+    if (!token) return { success: false, error: 'Not found' }
+    
     await prisma.token.delete({
       where: { id: tokenId }
     });

@@ -34,6 +34,7 @@ export default function OnboardingWizard() {
     adminEmail: '',
     adminPassword: '',
     protocolStart: '1',
+    masterPassword: '',
   })
 
   const set = (k: string, v: string) => setFormData(p => ({ ...p, [k]: v }))
@@ -209,6 +210,14 @@ export default function OnboardingWizard() {
                     type="number" min="1" placeholder="1"
                     className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
                   <p className="text-xs text-[#a89d96] mt-2">Αν έχετε ήδη πρωτόκολλο, εισάγετε τον τρέχοντα αριθμό για να συνεχίσει από εκεί.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Κωδικός Εγκατάστασης (Master Password) *</label>
+                  <input value={formData.masterPassword} onChange={e => set('masterPassword', e.target.value)}
+                    type="password" placeholder="••••••••"
+                    className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                  <p className="text-xs text-[#a89d96] mt-2">Απαιτείται ο κωδικός που σας έχει δοθεί από τη διαχείριση του συστήματος.</p>
                 </div>
 
                 {/* Summary box */}
