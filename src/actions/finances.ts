@@ -241,3 +241,90 @@ export async function sealFinancialYear(year: number) {
      return { success: false, error: 'Τεχνικό Σφάλμα Σφραγίσματος.' };
   }
 }
+
+// -- QUARTERLY TAXES (ΕΡΓΑΣΙΕΣ ΤΡΙΜΗΝΟΥ) -- //
+
+export async function calculateQuarterTaxes(year: number, quarter: number) {
+  await requireAuth();
+  const templeId = await getCurrentTempleId();
+  
+  // Calculate date range for the quarter
+  const startMonth = (quarter - 1) * 3; 
+  const startDate = new Date(year, startMonth, 1);
+  const endDate = new Date(year, startMonth + 3, 0);
+
+  try {
+     const incomes = await prisma.income.findMany({
+        where: {
+           templeId,
+           date: { gte: startDate, lte: endDate }
+        }
+     });
+
+     const totalIncome = incomes.reduce((acc: number, i: any) => acc + i.amount, 0);
+     
+     // The statutory percentages
+     const metropolisShare = totalIncome * 0.10; // 10%
+     const tpoekeShare = totalIncome * 0.02; // 2%
+     const apostolikiDiakonia = totalIncome * 0.01; // 1%
+
+     return {
+        success: true,
+        totalIncome,
+        taxes: [
+           { name: 'Ιερά Μητρόπολη (10%)', amount: metropolisShare },
+           { name: 'Τ.Π.Ο.Ε.Κ.Ε. (2%)', amount: tpoekeShare },
+           { name: 'Αποστολική Διακονία (1%)', amount: apostolikiDiakonia }
+        ]
+     };
+  } catch(e) {
+     return { success: false, error: 'Αποτυχία υπολογισμού τριμηνίας.' };
+  }
+}
+
+export async function payQuarterTaxes(year: number, quarter: number) {
+  const session = await requireAuth();
+  if(!session.canEditFinances) return { success: false, error: 'Μη εξουσιοδοτημένη ενέργεια' };
+
+  const templeId = await getCurrentTempleId();
+  
+  const calc = await calculateQuarterTaxes(year, quarter);
+  if (!calc.success || !calc.taxes) return { success: false, error: 'Αποτυχία ανάγνωσης φόρων' };
+
+  try {
+     // First ensure an 'Ecclesiastical Taxes' category exists
+     let taxCategory = await prisma.financialCategory.findFirst({
+         where: { templeId, type: 'EXPENSE', name: 'Υποχρεώσεις Τριμήνου & Νόμιμα Ποσοστά' }
+     });
+
+     if (!taxCategory) {
+         taxCategory = await prisma.financialCategory.create({
+            data: { templeId, type: 'EXPENSE', name: 'Υποχρεώσεις Τριμήνου & Νόμιμα Ποσοστά' }
+         });
+     }
+
+     const today = new Date();
+     const voucherNumber = `Q${quarter}-${year}-SYS`;
+
+     // Create an expense for each statutory body
+     for (const tax of calc.taxes) {
+         if (tax.amount > 0) {
+            await prisma.expense.create({
+               data: {
+                  templeId,
+                  categoryId: taxCategory.id,
+                  amount: tax.amount,
+                  date: today,
+                  description: `Εκκαθάριση Τριμήνου Q${quarter} ${year} - ${tax.name}`,
+                  voucherNumber: voucherNumber + '-' + tax.name.substring(0,3),
+                  vendor: tax.name
+               }
+            });
+         }
+     }
+
+     return { success: true };
+  } catch(e) {
+     return { success: false, error: 'Αποτυχία καταχώρησης πληρωμών.' };
+  }
+}

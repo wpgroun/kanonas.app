@@ -3,6 +3,7 @@ import TransactionDialog from './TransactionDialog'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Banknote, Wallet, PieChart, Receipt, ArrowUpRight, ArrowDownRight, BarChart3, Scale } from 'lucide-react';
 import FinanceBIClient from './FinanceBIClient'
+import QuarterlyWidget from './QuarterlyWidget'
 
 export default async function FinancesPage() {
   const ledger = await getLedgerTransactions();
@@ -73,7 +74,9 @@ export default async function FinancesPage() {
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         
         {/* RECENT TRANSACTIONS (LEDGER) */}
-        <div className="col-span-1 xl:col-span-3">
+        <div className="col-span-1 xl:col-span-3 space-y-6">
+          <QuarterlyWidget />
+
           <Card className="shadow-sm border-border/50">
             <CardHeader className="pb-3 border-b border-border/50 bg-muted/20">
                <CardTitle className="text-base flex items-center gap-2"><Receipt className="w-4 h-4" /> Γενικό Λογιστικό (Κινήσεις)</CardTitle>
