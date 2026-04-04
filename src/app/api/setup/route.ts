@@ -5,11 +5,11 @@ import bcrypt from 'bcryptjs';
 
 export async function GET() {
   try {
-    // 1. Check if user already exists
-    const existing = await prisma.user.findUnique({ where: { email: 'admin@kanonas.gr' } });
-    if (existing) {
-      return NextResponse.json({ message: 'Setup already completed. User exists.' });
-    }
+    // 1. Check if user already exists (Temporarily bypassed to force password reset)
+    // const existing = await prisma.user.findUnique({ where: { email: 'admin@kanonas.gr' } });
+    // if (existing) {
+    //   return NextResponse.json({ message: 'Setup already completed. User exists.' });
+    // }
 
     // 2. Create Metropolis & Temple
     const metropolis = await prisma.metropolis.create({
