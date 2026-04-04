@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 import { revalidatePath } from 'next/cache';
 import { startOfDay, endOfDay } from 'date-fns';
 

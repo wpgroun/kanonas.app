@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 import { revalidatePath } from 'next/cache';
 
 // Fetch Storage Items
@@ -29,9 +30,9 @@ export async function addInventoryItem(formData: any) {
          templeId,
          name: formData.name,
          category: formData.category,
-         unitOfMeasure: formData.unitOfMeasure,
+         unit: formData.unit,
          minThreshold: Number(formData.minThreshold) || 10,
-         currentStock: Number(formData.currentStock) || 0
+         quantity: Number(formData.quantity) || 0
        }
      });
 
@@ -39,7 +40,7 @@ export async function addInventoryItem(formData: any) {
        data: {
           templeId, userId: session.userId, userEmail: session.userId, 
           action: 'ΔΗΜΙΟΥΡΓΙΑ_ΕΙΔΟΥΣ', 
-          details: `Νέο είδος: ${formData.name} προστέθηκε στην αποθήκη.`
+          detail: `Νέο είδος: ${formData.name} προστέθηκε στην αποθήκη.`
        }
      });
 
@@ -64,7 +65,7 @@ export async function adjustStock(itemId: string, diff: number, reason: string) 
         const item = await tx.inventoryItem.findUnique({ where: { id: itemId }});
         if(!item) throw new Error("Δεν βρέθηκε υλικό");
 
-        const newStock = item.currentStock + diff;
+        const newStock = item.quantity + diff;
         if(newStock < 0) throw new Error("Η ποσότητα δεν επαρκεί στην αποθήκη.");
 
         await tx.inventoryCheckout.create({
@@ -77,12 +78,12 @@ export async function adjustStock(itemId: string, diff: number, reason: string) 
 
         return tx.inventoryItem.update({
            where: { id: itemId },
-           data: { currentStock: newStock }
+           data: { quantity: newStock }
         });
      });
 
      revalidatePath('/admin/philanthropy/inventory');
-     return { success: true, newStock: updated.currentStock };
+     return { success: true, newStock: updated.quantity };
   } catch(e: any) {
      return { success: false, error: e.message || 'Αποτυχία ενημέρωσης αποθέματος.' };
   }

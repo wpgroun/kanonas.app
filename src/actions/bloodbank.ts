@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 import { revalidatePath } from 'next/cache';
 
 export async function getBloodDonors() {
@@ -39,7 +40,7 @@ export async function addBloodDonor(formData: any) {
         data: {
            templeId, userId: session.userId, userEmail: session.userId,
            action: 'ΑΙΜΟΔΟΣΙΑ_ΕΓΓΡΑΦΗ',
-           details: `Νέος εθελοντής αιμοδότης: ${formData.lastName} (${formData.bloodType}).`
+           detail: `Νέος εθελοντής αιμοδότης: ${formData.lastName} (${formData.bloodType}).`
         }
      });
 

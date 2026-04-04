@@ -31,7 +31,7 @@ export async function seedDummyTemple() {
         data: {
           id: TEMP_TEMPLE_ID,
           name: "Ιερός Ναός Αγίου Δημητρίου (Δοκιμαστικός)",
-          city: "Αθήνα"
+          city: "Αθήνα", metropolisId: "cm0testmetropolis"
         }
       })
     }

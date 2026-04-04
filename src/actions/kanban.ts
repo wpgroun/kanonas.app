@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 
 export async function getKanbanTasks() {
   const templeId = await getCurrentTempleId();
@@ -38,7 +39,7 @@ export async function createKanbanTask(data: {
         userId: session.userId,
         userEmail: session.userId,
         action: 'CREATE_TASK',
-        details: `Δημιουργήθηκε νέα εργασία: ${data.title}`
+        detail: `Δημιουργήθηκε νέα εργασία: ${data.title}`
       }
     });
 

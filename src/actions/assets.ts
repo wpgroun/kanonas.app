@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 import { revalidatePath } from 'next/cache';
 
 // Fetch Assets with optional filters
@@ -48,7 +49,7 @@ export async function addAsset(formData: any) {
        data: {
           templeId, userId: session.userId, userEmail: session.userId, 
           action: 'ΚΑΤΑΧΩΡΗΣΗ_ΠΕΡΙΟΥΣΙΑΣ', 
-          details: `Καταχωρήθηκε νέο περιουσιακό στοιχείο: ${formData.name}.`
+          detail: `Καταχωρήθηκε νέο περιουσιακό στοιχείο: ${formData.name}.`
        }
     });
 

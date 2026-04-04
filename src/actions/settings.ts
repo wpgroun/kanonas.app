@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 
 export async function getTempleSettings() {
   const templeId = await getCurrentTempleId();
@@ -81,7 +82,7 @@ export async function updateTempleSettings(data: {
         userId: session.userId,
         userEmail: session.userId,
         action: 'UPDATE_SETTINGS',
-        details: 'Ενημερώθηκαν οι Κεντρικές Ρυθμίσεις (Settings & Integrations) του Ναού.'
+        detail: 'Ενημερώθηκαν οι Κεντρικές Ρυθμίσεις (Settings & Integrations) του Ναού.'
       }
     });
 

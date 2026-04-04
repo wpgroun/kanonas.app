@@ -98,7 +98,7 @@ export async function saveBudget(categoryId: string, year: number, estimatedAmt:
            userId: session.userId,
            userEmail: 'User', // Will be ignored safely or handled
            action: `ΑΝΑΔΙΑΜΟΡΦΩΣΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (${year})`,
-           details: `Κατηγορία [${categoryId}] από €${oldAmt} σε €${estimatedAmt}.`,
+           detail: `Κατηγορία [${categoryId}] από €${oldAmt} σε €${estimatedAmt}.`,
          }
        }).catch(() => {}); // catch harmlessly if context missing
     }
@@ -150,7 +150,7 @@ export async function addTransaction(data: { type: 'INCOME'|'EXPENSE', categoryI
           data: {
              templeId, userId: session.userId, userEmail: session.userId, 
              action: `NEA ЕГГРАФΗ ${data.type}`, 
-             details: `Kαταχώρηση €${data.amount} στο [${data.categoryId}]`
+             detail: `Kαταχώρηση €${data.amount} στο [${data.categoryId}]`
           }
         }).catch(()=>{});
 
@@ -229,7 +229,7 @@ export async function sealFinancialYear(year: number) {
           data: {
              templeId, userId: session.userId, userEmail: session.userId, 
              action: 'ΣΦΡΑΓΙΣΜΑ ΑΠΟΛΟΓΙΣΜΟΥ', 
-             details: `Οικονομικό Έτος ${year} Κλείδωσε μόνιμα.`
+             detail: `Οικονομικό Έτος ${year} Κλείδωσε μόνιμα.`
           }
         });
      });

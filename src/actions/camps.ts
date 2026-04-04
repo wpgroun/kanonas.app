@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 import { revalidatePath } from 'next/cache';
 
 // Fetch all camps and their children
@@ -42,7 +43,7 @@ export async function addCamp(formData: any) {
         data: {
            templeId, userId: session.userId, userEmail: session.userId,
            action: 'ΔΗΜΙΟΥΡΓΙΑ_ΚΑΤΑΣΚΗΝΩΣΗΣ',
-           details: `Νέα περίοδος κατασκηνώσεων: ${formData.name} (${formData.year})`
+           detail: `Νέα περίοδος κατασκηνώσεων: ${formData.name} (${formData.year})`
         }
      });
 

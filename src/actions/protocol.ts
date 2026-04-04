@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 import { revalidatePath } from 'next/cache';
 import fs from 'fs/promises';
 import path from 'path';
@@ -93,7 +94,7 @@ export async function addProtocolEntry(formData: FormData) {
         data: {
            templeId, userId: session.userId, userEmail: session.userId,
            action: `ΠΡΩΤΟΚΟΛΛΟ_${direction}`,
-           details: `Νέο έγγραφο Αρ. Πρωτ: ${nextNumber}/${year} (${owner}).`
+           detail: `Νέο έγγραφο Αρ. Πρωτ: ${nextNumber}/${year} (${owner}).`
         }
      });
 

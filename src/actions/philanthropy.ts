@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 import { revalidatePath } from 'next/cache';
 
 // Φορτώνει όλους τους Ωφελούμενους
@@ -44,7 +45,7 @@ export async function addBeneficiary(formData: any) {
        data: {
           templeId, userId: session.userId, userEmail: session.userId, 
           action: 'ΠΡΟΣΘΗΚΗ_ΩΦΕΛΟΥΜΕΝΟΥ', 
-          details: `Ο/Η ${formData.firstName} ${formData.lastName} προστέθηκε στο μητρώο απόρου.`
+          detail: `Ο/Η ${formData.firstName} ${formData.lastName} προστέθηκε στο μητρώο απόρου.`
        }
      });
 
@@ -74,7 +75,7 @@ export async function updateBeneficiaryStatus(id: string, status: string) {
        data: {
           templeId, userId: session.userId, userEmail: session.userId, 
           action: 'ΚΑΤΑΣΤΑΣΗ_ΩΦΕΛΟΥΜΕΝΟΥ', 
-          details: `Η κατάσταση του ${ben.firstName} ${ben.lastName} άλλαξε σε ${status}`
+          detail: `Η κατάσταση του ${ben.firstName} ${ben.lastName} άλλαξε σε ${status}`
        }
      });
 

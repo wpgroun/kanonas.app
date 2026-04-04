@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 import { generateLabelsPdf } from '@/lib/pdfEngine';
 
 export async function getMailingLists() {
@@ -48,7 +49,7 @@ export async function exportLabelsPdf(selectedIds: string[]) {
              userId: session.userId,
              userEmail: session.userId,
              action: 'ΕΚΤΥΠΩΣΗ_ΕΤΙΚΕΤΩΝ',
-             details: `Εκτυπώθηκαν ${selectedIds.length} ταχυδρομικές ετικέτες.`
+             detail: `Εκτυπώθηκαν ${selectedIds.length} ταχυδρομικές ετικέτες.`
          }
      });
 

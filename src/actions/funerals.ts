@@ -1,7 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { requireAuth } from '@/lib/requireAuth';
+import { getCurrentTempleId } from '@/actions/core';
 import { revalidatePath } from 'next/cache';
 
 export async function getDeceasedRegistry() {
@@ -46,7 +47,7 @@ export async function registerDeceased(payload: any) {
         data: {
            templeId, userId: session.userId, userEmail: session.userId,
            action: 'ΛΗΞΙΑΡΧΕΙΟ_ΘΑΝΑΤΩΝ',
-           details: `Νέα εγγραφή κεκοιμημένου: ${payload.lastName} ${payload.firstName}`
+           detail: `Νέα εγγραφή κεκοιμημένου: ${payload.lastName} ${payload.firstName}`
         }
      });
 
