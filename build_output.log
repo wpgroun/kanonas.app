@@ -1,0 +1,124 @@
+
+> orthodox-church-manager@0.1.0 build
+> npx prisma generate && next build && node -e "const fs=require('fs'); fs.mkdirSync('.next/standalone/.next', {recursive:true}); fs.cpSync('public', '.next/standalone/public', {recursive:true, force:true}); fs.cpSync('.next/static', '.next/standalone/.next/static', {recursive:true, force:true});"
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to .\node_modules\@prisma\client in 597ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+▲ Next.js 16.2.2 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 40s
+  Running TypeScript ...
+  Finished TypeScript in 111s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/38) ...
+Η βάση δεν έχει συγχρονιστεί ακόμα. Error [PrismaClientInitializationError]: 
+Invalid `prisma.temple.findUnique()` invocation:
+
+
+error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
+  -->  schema.prisma:4
+   | 
+ 3 |   provider = "postgresql"
+ 4 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:4)
+    at async g (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\_13o1ct6._.js:15:42811)
+    at async g (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\[root-of-the-server]__117lfof._.js:2:1832)
+    at async e (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\[root-of-the-server]__0tq_3ml._.js:1:2166) {
+  clientVersion: '6.19.3',
+  errorCode: undefined,
+  retryable: undefined
+}
+Η βάση δεν έχει συγχρονιστεί ακόμα. Error [PrismaClientInitializationError]: 
+Invalid `prisma.temple.findUnique()` invocation:
+
+
+error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
+  -->  schema.prisma:4
+   | 
+ 3 |   provider = "postgresql"
+ 4 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:4)
+    at async g (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\_13o1ct6._.js:15:42811)
+    at async i (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\[root-of-the-server]__0bhnjc9._.js:2:1932)
+    at async e (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\[root-of-the-server]__0q4ob8x._.js:1:2086) {
+  clientVersion: '6.19.3',
+  errorCode: undefined,
+  retryable: undefined
+}
+Η βάση δεν έχει συγχρονιστεί ακόμα. Error [PrismaClientInitializationError]: 
+Invalid `prisma.temple.findUnique()` invocation:
+
+
+error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
+  -->  schema.prisma:4
+   | 
+ 3 |   provider = "postgresql"
+ 4 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:4)
+    at async g (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\_13o1ct6._.js:15:42811)
+    at async g (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\[root-of-the-server]__0099f8b._.js:2:2651)
+    at async e (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\[root-of-the-server]__0b43lp_._.js:1:2098) {
+  clientVersion: '6.19.3',
+  errorCode: undefined,
+  retryable: undefined
+}
+Η βάση δεν έχει συγχρονιστεί ακόμα. Error [PrismaClientInitializationError]: 
+Invalid `prisma.temple.findUnique()` invocation:
+
+
+error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
+  -->  schema.prisma:4
+   | 
+ 3 |   provider = "postgresql"
+ 4 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:4)
+    at async g (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\_13o1ct6._.js:15:42811)
+    at async g (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\[root-of-the-server]__0099f8b._.js:2:2651)
+    at async e (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\[root-of-the-server]__0oqvdev._.js:1:1081) {
+  clientVersion: '6.19.3',
+  errorCode: undefined,
+  retryable: undefined
+}
+Error occurred prerendering page "/admin/settings/roles". Read more: https://nextjs.org/docs/messages/prerender-error
+Error [PrismaClientInitializationError]: 
+Invalid `prisma.role.findMany()` invocation:
+
+
+error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
+  -->  schema.prisma:4
+   | 
+ 3 |   provider = "postgresql"
+ 4 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:4)
+    at async e (C:\Users\user\.gemini\antigravity\scratch\orthodox-church-manager\.next\server\chunks\ssr\[root-of-the-server]__0yen5vr._.js:1:2144) {
+  clientVersion: '6.19.3',
+  errorCode: undefined,
+  retryable: undefined,
+  digest: '2613595717'
+}
+Export encountered an error on /admin/settings/roles/page: /admin/settings/roles, exiting the build.
+⨯ Next.js build worker exited with code: 1 and signal: null

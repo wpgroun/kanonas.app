@@ -1,51 +1,37 @@
 import { ReactNode, Suspense } from 'react';
-import { Inter } from 'next/font/google';
-import { cn } from '@/lib/utils';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { Toaster } from '@/components/ui/sonner';
 import { Metadata } from 'next';
-import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 
-import '@/styles/globals.css';
-const inter = Inter({ subsets: ['latin'] });
+import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Κανόνας',
-    default: 'Κανόνας', // a default is required when creating a template
+    template: '%s — Κανόνας',
+    default: 'Κανόνας — Ψηφιακή Διαχείριση Ιερών Ναών',
   },
+  description:
+    'Η σύγχρονη cloud πλατφόρμα για τη διαχείριση Ιερών Ναών. Μητρώο, πιστοποιητικά, οικονομικά, πρωτόκολλο — όλα σε ένα.',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
   return (
-    <html className="h-full" suppressHydrationWarning>
-      <body
-        suppressHydrationWarning
-        className={cn(
-          'antialiased flex h-full text-base text-foreground bg-background',
-          inter.className,
-        )}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          storageKey="nextjs-theme"
-          enableSystem
-          disableTransitionOnChange
-          enableColorScheme
-        >
-          <TooltipProvider delayDuration={0}>
-            <Suspense>{children}</Suspense>
-            <Toaster />
-          </TooltipProvider>
-        </ThemeProvider>       
+    <html lang="el" className="h-full">
+      <body className="h-full antialiased">
+        <Suspense>{children}</Suspense>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.875rem',
+            },
+          }}
+        />
       </body>
     </html>
   );
 }
-
-

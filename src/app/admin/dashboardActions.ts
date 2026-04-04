@@ -74,7 +74,7 @@ export async function getDashboardStats(templeId: string = 'cm0testtempleid00000
       .reduce((sum, d) => sum + d.amount, 0)
     return {
       name: label,
-      'Έσοδα': monthTotal || Math.floor(Math.random() * 800) + 200 // Demo fallback
+      'Έσοδα': monthTotal
     }
   })
 
@@ -84,16 +84,11 @@ export async function getDashboardStats(templeId: string = 'cm0testtempleid00000
     ? Math.round(((totalMonthlyDonations - lastMonthDonations) / lastMonthDonations) * 100)
     : 0
 
-  const defaultSacramentsData = [
-    { name: 'Γάμος', value: 4 },
-    { name: 'Βάπτιση', value: 12 },
-    { name: 'Κηδεία', value: 3 },
-    { name: 'Μνημόσυνο', value: 8 }
-  ]
+  const defaultSacramentsData: { name: string; value: number }[] = []
 
   return {
-    totalParishioners: totalParishioners > 0 ? totalParishioners : 120,
-    totalMonthlyDonations: totalMonthlyDonations > 0 ? totalMonthlyDonations : 450,
+    totalParishioners,
+    totalMonthlyDonations,
     lastMonthDonations,
     monthlyGrowth,
     pendingRequests,
