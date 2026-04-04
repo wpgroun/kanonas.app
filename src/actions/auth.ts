@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 import bcrypt from 'bcryptjs'
 import { encrypt } from '@/lib/auth'
-import { TEMP_TEMPLE_ID } from './core'
+import { TEMP_TEMPLE_ID } from '@/lib/constants'
 
 export async function loginAction(email: string, passwordPlain: string) {
   try {

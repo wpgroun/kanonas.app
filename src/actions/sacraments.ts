@@ -2,7 +2,8 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { seedDummyTemple, TEMP_TEMPLE_ID } from './core'
+import { TEMP_TEMPLE_ID } from '@/lib/constants'
+import { seedDummyTemple } from './core'
 
 export async function createSacramentRequest(formData: {
   type: string

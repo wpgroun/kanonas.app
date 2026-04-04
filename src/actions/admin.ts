@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { TEMP_TEMPLE_ID } from './core'
+import { TEMP_TEMPLE_ID } from '@/lib/constants'
 
 export async function getAllTemples() {
   return prisma.temple.findMany({

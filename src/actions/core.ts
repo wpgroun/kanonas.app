@@ -2,8 +2,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-
-export const TEMP_TEMPLE_ID = "cm0testtempleid0000000001"
+import { TEMP_TEMPLE_ID } from '@/lib/constants'
 
 export async function getCurrentTempleId() {
   const session = await getSession()
