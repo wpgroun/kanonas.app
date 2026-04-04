@@ -29,7 +29,7 @@ export default function OnboardingWizard() {
     city: '',
     address: '',
     templeEmail: '',
-    templePhone: '',
+
     metropolisName: '',
     priestFirstName: '',
     priestLastName: '',
@@ -148,14 +148,10 @@ export default function OnboardingWizard() {
                   <input className="input" placeholder="Οδός, Αριθμός" value={form.address} onChange={(e) => set('address', e.target.value)} />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Email Ναού</label>
                   <input className="input" type="email" placeholder="info@agios-dimitrios.gr" value={form.templeEmail} onChange={(e) => set('templeEmail', e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Τηλέφωνο</label>
-                  <input className="input" placeholder="2310 123 456" value={form.templePhone} onChange={(e) => set('templePhone', e.target.value)} />
                 </div>
               </div>
             </div>

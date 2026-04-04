@@ -26,7 +26,6 @@ export async function createTemple(data: {
   city?: string
   address?: string
   email?: string
-  phone?: string
   metropolisId: string
 }) {
   // @ts-ignore
@@ -36,7 +35,6 @@ export async function createTemple(data: {
       city: data.city || null,
       address: data.address || null,
       email: data.email || null,
-      phone: data.phone || null,
       metropolisId: data.metropolisId,
     },
   })
@@ -121,19 +119,24 @@ export async function createDefaultRoles(templeId: string) {
 // Step 5: Create default document templates
 export async function createDefaultTemplates(templeId: string) {
   const templates = [
-    { name: 'Αίτηση Τέλεσης Γάμου', serviceType: 'GAMOS', body: '' },
-    { name: 'Αίτηση Τέλεσης Βάπτισης', serviceType: 'VAPTISI', body: '' },
-    { name: 'Αίτηση Τέλεσης Κηδείας', serviceType: 'KIDEIA', body: '' },
-    { name: 'Αίτηση Τέλεσης Μνημοσύνου', serviceType: 'MNIMOSINO', body: '' },
+    { docType: 'GAMOS', nameEl: 'Αίτηση Τέλεσης Γάμου' },
+    { docType: 'VAPTISI', nameEl: 'Αίτηση Τέλεσης Βάπτισης' },
+    { docType: 'KIDEIA', nameEl: 'Αίτηση Τέλεσης Κηδείας' },
+    { docType: 'MNIMOSINO', nameEl: 'Αίτηση Τέλεσης Μνημοσύνου' },
   ]
 
   for (const tpl of templates) {
+    // Check if template already exists
     // @ts-ignore
-    await prisma.docTemplate.upsert({
-      where: { templeId_name: { templeId, name: tpl.name } },
-      update: {},
-      create: { templeId, ...tpl },
+    const exists = await prisma.docTemplate.findFirst({
+      where: { templeId, docType: tpl.docType },
     })
+    if (!exists) {
+      // @ts-ignore
+      await prisma.docTemplate.create({
+        data: { templeId, docType: tpl.docType, nameEl: tpl.nameEl },
+      })
+    }
   }
 
   return true
@@ -145,7 +148,6 @@ export async function completeOnboarding(data: {
   city: string
   address: string
   templeEmail: string
-  templePhone: string
   metropolisName: string
   priestFirstName: string
   priestLastName: string
@@ -162,7 +164,6 @@ export async function completeOnboarding(data: {
       city: data.city,
       address: data.address,
       email: data.templeEmail,
-      phone: data.templePhone,
       metropolisId: metro.id,
     })
 
