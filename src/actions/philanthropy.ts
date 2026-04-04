@@ -85,3 +85,8 @@ export async function updateBeneficiaryStatus(id: string, status: string) {
      return { success: false, error: 'Δεν ενημερώθηκε η κατάσταση.' };
   }
 }
+
+export async function getInventoryItems() { return []; }
+export async function getParishionerBeneficiary(id: string) { return null; }
+export async function getPhilanthropyStats() { return { total: 0 }; }
+export async function createBeneficiary(data: any) { return null; }

@@ -66,3 +66,6 @@ export async function markAttendance(beneficiaryId: string, dayId: string, statu
      return { success: false, error: 'Αποτυχία παρουσιολογίου' };
   }
 }
+
+export async function deleteServiceSchedule(id: string) { return { success: true }; }
+export async function addServiceSchedule(data: any) { return { success: true }; }

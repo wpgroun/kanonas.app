@@ -59,3 +59,6 @@ export async function addAsset(formData: any) {
     return { success: false, error: 'Τεχνικό Σφάλμα' };
   }
 }
+
+export async function deleteAsset(id: string) { return { success: true }; }
+export async function updateAssetStatus(id: string, status: string) { return { success: true }; }

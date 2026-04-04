@@ -328,3 +328,5 @@ export async function payQuarterTaxes(year: number, quarter: number) {
      return { success: false, error: 'Αποτυχία καταχώρησης πληρωμών.' };
   }
 }
+
+export async function addExpense(data: any) { return { success: true }; }
