@@ -1,0 +1,75 @@
+﻿node.exe : Environment var
+iables loaded from .env
+At line:1 char:1
++ & "C:\Program Files\node
+js/node.exe" "C:\Program F
+iles\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (E  
+  nvironment variables    
+ loaded from .env:Stri    
+ng) [], RemoteExcepti    o
+n
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+Prisma schema loaded from prisma\schema.prisma
+
+Error: Prisma schema valid
+ation - (validate wasm)
+Error code: P1012
+[1;91merror[0m: [1mErro
+r validating field `temple
+` in model `ParishionerRel
+ationship`: The relation f
+ield `temple` on model `Pa
+rishionerRelationship` is 
+missing an opposite relati
+on field on the model `Tem
+ple`. Either run `prisma f
+ormat` or add it manually.
+[0m
+  [1;94m-->[0m  [4mpris
+ma\schema.prisma:285[0m
+[1;94m   | [0m
+[1;94m284 | [0m  templeI
+d String
+[1;94m285 | [0m  [1;91m
+temple   Temple @relation(
+fields: [templeId], refere
+nces: [id], onDelete: Casc
+ade)[0m
+[1;94m286 | [0m
+[1;94m   | [0m
+[1;91merror[0m: [1mErro
+r validating field `temple
+` in model `Ecclesiastical
+Divorce`: The relation fie
+ld `temple` on model `Eccl
+esiasticalDivorce` is miss
+ing an opposite relation f
+ield on the model `Temple`
+. Either run `prisma forma
+t` or add it manually.[0m
+  [1;94m-->[0m  [4mpris
+ma\schema.prisma:502[0m
+[1;94m   | [0m
+[1;94m501 | [0m  templeI
+d String
+[1;94m502 | [0m  [1;91m
+temple   Temple @relation(
+fields: [templeId], refere
+nces: [id], onDelete: Casc
+ade)[0m
+[1;94m503 | [0m
+[1;94m   | [0m
+
+Validation Error Count: 2
+[Context: validate]
+
+Prisma CLI Version : 6.19.
+3

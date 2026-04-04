@@ -69,3 +69,5 @@ export async function markAttendance(beneficiaryId: string, dayId: string, statu
 
 export async function deleteServiceSchedule(id: string) { return { success: true }; }
 export async function addServiceSchedule(data: any) { return { success: true }; }
+
+export const getServiceSchedules = getSchedule;

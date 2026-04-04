@@ -91,3 +91,5 @@ export async function updateTempleSettings(data: {
     return { success: false, error: e.message || 'Αποτυχία ενημέρωσης ρυθμίσεων.' };
   }
 }
+
+export const saveTempleSettings = updateTempleSettings;
