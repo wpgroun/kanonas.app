@@ -4,7 +4,7 @@ import { Church } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
    const temple = await prisma.temple.findUnique({ where: { slug: params.slug } });
-   return { title: temple ? \`Kanonas Connect | \${temple.name}\` : 'Ο Ναός δεν βρέθηκε' };
+   return { title: temple ? `Kanonas Connect | ${temple.name}` : 'Ο Ναός δεν βρέθηκε' };
 }
 
 export default async function PublicConnectPage({ params }: { params: { slug: string } }) {

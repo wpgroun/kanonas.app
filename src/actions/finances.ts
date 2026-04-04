@@ -315,8 +315,8 @@ export async function payQuarterTaxes(year: number, quarter: number) {
                   categoryId: taxCategory.id,
                   amount: tax.amount,
                   date: today,
-                  description: `Εκκαθάριση Τριμήνου Q${quarter} ${year} - ${tax.name}`,
-                  voucherNumber: voucherNumber + '-' + tax.name.substring(0,3),
+                  purpose: `Εκκαθάριση Τριμήνου Q${quarter} ${year} - ${tax.name}`,
+                  receiptNumber: voucherNumber + '-' + tax.name.substring(0,3),
                   vendor: tax.name
                }
             });

@@ -55,7 +55,7 @@ export default function AdminRequestsClient({ initialRequests }: { initialReques
                   <div 
                      key={req.id} 
                      onClick={() => setSelectedReq(req)}
-                     className={\`p-4 rounded-2xl cursor-pointer transition-all \${selectedReq?.id === req.id ? 'bg-blue-100 border-blue-300 shadow-inner' : 'bg-white border-slate-200 hover:border-blue-300 shadow-sm'} border\`}
+                     className={`p-4 rounded-2xl cursor-pointer transition-all ${selectedReq?.id === req.id ? 'bg-blue-100 border-blue-300 shadow-inner' : 'bg-white border-slate-200 hover:border-blue-300 shadow-sm'} border`}
                   >
                      <div className="flex justify-between items-start mb-2">
                         <span className="text-xs font-bold text-slate-500 uppercase flex items-center justify-center gap-1">
@@ -89,7 +89,7 @@ export default function AdminRequestsClient({ initialRequests }: { initialReques
                            {selectedReq.applicantPhone && <span>📞 {selectedReq.applicantPhone}</span>}
                         </div>
                      </div>
-                     <span className={\`px-3 py-1 text-xs font-bold rounded-lg \${selectedReq.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : selectedReq.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}\`}>
+                     <span className={`px-3 py-1 text-xs font-bold rounded-lg ${selectedReq.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : selectedReq.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                         {selectedReq.status}
                      </span>
                   </div>
@@ -97,7 +97,7 @@ export default function AdminRequestsClient({ initialRequests }: { initialReques
                   <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8">
                      <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2"><FileText className="w-4 h-4 text-blue-500"/> Περιεχόμενο Αίτησης ({selectedReq.type})</h4>
                      <div className="space-y-3">
-                        {Object.entries(selectedReq.payload).map(([key, val]) => (
+                        {(Object.entries(selectedReq.payload || {}) as [string, any][]).map(([key, val]) => (
                            val && (
                            <div key={key}>
                               <span className="text-xs font-bold text-slate-400 uppercase block mb-1">{key}</span>

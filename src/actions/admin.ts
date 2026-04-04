@@ -10,7 +10,7 @@ export async function getAllTemples() {
   return prisma.temple.findMany({
     include: {
       _count: { select: { parishioners: true, tokens: true } },
-      donations: { select: { amount: true } }
+      incomes: { select: { amount: true } }
     },
     orderBy: { name: 'asc' }
   })

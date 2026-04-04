@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const article = kbArticles.find(a => a.id === params.id);
-  return { title: article ? \`\${article.title} | Kanonas KB\` : 'Άρθρο δεν βρέθηκε' };
+  return { title: article ? `${article.title} | Kanonas KB` : 'Άρθρο δεν βρέθηκε' };
 }
 
 export default function ArticlePage({ params }: { params: { id: string } }) {
@@ -51,7 +51,7 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
                          prose-h1:text-2xl prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:border-b prose-h2:border-slate-100 prose-h2:pb-2
                          prose-p:text-slate-600 prose-p:leading-relaxed
                          prose-li:text-slate-600">
-            {article.content.split('\\n').map((paragraph, idx) => {
+            {article.content.split('\n').map((paragraph, idx) => {
                if (paragraph.trim().startsWith('# ')) {
                   return <h1 key={idx}>{paragraph.replace('# ', '')}</h1>;
                }
