@@ -257,49 +257,90 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Basic */}
-            <div className="card p-8">
-              <h3 className="text-xl font-bold text-[var(--foreground)] mb-1">Basic</h3>
-              <p className="text-sm text-[var(--text-muted)] mb-6">Η βάση για μικρούς Ναούς</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {/* Free */}
+            <div className="card p-6 opacity-90">
+              <h3 className="text-lg font-bold text-[var(--foreground)] mb-1">Starter / Δοκιμή</h3>
+              <p className="text-xs text-[var(--text-muted)] mb-6">Γνωρίστε την πλατφόρμα δωρεάν</p>
               <div className="flex items-end gap-1 mb-8">
-                <span className="text-4xl font-extrabold text-[var(--foreground)]">29€</span>
-                <span className="text-[var(--text-muted)] mb-1 text-sm font-medium">/ μήνα</span>
+                <span className="text-4xl font-extrabold text-[var(--foreground)]">0€</span>
               </div>
               <ul className="space-y-3 mb-8">
-                {['Έως 500 ενορίτες', 'Πρωτόκολλο', 'Διαχείριση Συσσιτίου', 'Email υποστήριξη'].map(item => (
-                  <li key={item} className="flex items-center gap-2.5 text-sm text-[var(--text-secondary)]">
-                    <CheckCircle2 className="w-4 h-4 text-[var(--success)] flex-shrink-0" />
+                {['Έως 10 ενεργοί Ενορίτες', 'Δοκιμαστικά Ημερολόγια (Widget)', 'Αναζήτηση', 'Βασική υποστήριξη'].map(item => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-[var(--text-secondary)]">
+                    <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-gray-400 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
-              <Link href="/contact" className="block">
-                <button className="btn btn-secondary w-full">Επικοινωνία</button>
+              <Link href="/login" className="block mt-auto">
+                <button className="btn btn-secondary w-full text-sm">Δημιουργία Ναού</button>
+              </Link>
+            </div>
+
+            {/* Basic */}
+            <div className="card p-6">
+              <h3 className="text-lg font-bold text-[var(--foreground)] mb-1">Βασική Ενορία</h3>
+              <p className="text-xs text-[var(--text-muted)] mb-6">Ιδανικό για χωριά / μικρούς Ναούς</p>
+              <div className="flex items-end gap-1 mb-8">
+                <span className="text-4xl font-extrabold text-[var(--foreground)]">29€</span>
+                <span className="text-[var(--text-muted)] mb-1 text-xs font-medium">/ μήνα</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                {['Έως 500 ενορίτες', 'Ληξιαρχείο (Βαπτίσεις, Γάμοι)', 'Βασικά Πιστοποιητικά (PDF)', 'Πρωτόκολλο', 'Email υποστήριξη'].map(item => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-[var(--text-secondary)]">
+                    <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-[var(--success)] flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/contact" className="block mt-auto">
+                <button className="btn btn-secondary w-full text-sm">Επικοινωνία</button>
               </Link>
             </div>
 
             {/* Premium */}
-            <div className="relative card p-8 border-[var(--brand)] border-2 shadow-lg">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] text-white text-xs font-bold rounded-full">
+            <div className="relative card p-6 border-[var(--brand)] border-2 shadow-lg">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] text-white text-[10px] uppercase font-extrabold rounded-full tracking-wider">
                 Προτεινόμενο
               </div>
-              <h3 className="text-xl font-bold text-[var(--foreground)] mb-1">Premium</h3>
-              <p className="text-sm text-[var(--text-muted)] mb-6">Πλήρης σουίτα αυτοματισμών</p>
+              <h3 className="text-lg font-bold text-[var(--foreground)] mb-1">Premium Ναός</h3>
+              <p className="text-xs text-[var(--text-muted)] mb-6">Η Σουίτα των μεγάλων Ενοριών</p>
               <div className="flex items-end gap-1 mb-8">
-                <span className="text-4xl font-extrabold text-[var(--foreground)]">49€</span>
-                <span className="text-[var(--text-muted)] mb-1 text-sm font-medium">/ μήνα</span>
+                <span className="text-4xl font-extrabold text-[var(--foreground)] text-transparent bg-clip-text bg-gradient-to-br from-[#7C3AED] to-[#4F46E5]">59€</span>
+                <span className="text-[var(--text-muted)] mb-1 text-xs font-medium">/ μήνα</span>
               </div>
               <ul className="space-y-3 mb-8">
-                {['Απεριόριστοι ενορίτες', 'Kanonas PDF & Αυτόματα Έγγραφα', 'Συσσίτια & Αιμοδοσία', 'Μητρώο Κατασκηνώσεων', 'Εκτύπωση Ετικετών (ΕΛΤΑ)', 'Ληξιαρχείο (Βαπτίσεις, Γάμοι, Κηδείες)', 'Priority υποστήριξη'].map(item => (
-                  <li key={item} className="flex items-center gap-2.5 text-sm text-[var(--text-secondary)]">
-                    <CheckCircle2 className="w-4 h-4 text-[var(--brand)] flex-shrink-0" />
+                {['Απεριόριστοι Ενορίτες', 'Κεντρικό Ταμείο (Charts & Export)', 'Ετικέτες ΕΛΤΑ (Mailing Labels)', 'Εργαλεία Φιλόπτωχου & Συσσιτίων', 'Kanban Board Διαχείρισης', 'Public Website (Mini-Site)', 'Διασύνδεση SMS / Twilio'].map(item => (
+                  <li key={item} className="flex items-start gap-2 text-[11px] font-semibold text-[var(--text-secondary)]">
+                    <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-[var(--brand)] flex-shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
-              <Link href="/contact" className="block">
-                <button className="btn btn-primary w-full">Ξεκινήστε τώρα</button>
+              <Link href="/contact" className="block mt-auto">
+                <button className="btn btn-primary w-full text-sm py-2">Ξεκινήστε τώρα</button>
+              </Link>
+            </div>
+
+            {/* Metropolis / Enterprise */}
+            <div className="card p-6 bg-slate-900 text-white border-0">
+               <h3 className="text-lg font-bold text-white mb-1">Ιερά Μητρόπολη</h3>
+               <p className="text-xs text-slate-400 mb-6">Κεντρική Εποπτεία Επαρχίας</p>
+               <div className="flex items-end gap-1 mb-8">
+                <span className="text-3xl font-extrabold text-blue-400">800€+</span>
+                <span className="text-slate-500 mb-1 text-xs font-medium">/ έτος</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                {['Metropolis "Hawk\'s Eye" Dashboard', 'Κεντρικός Έλεγχος всех Ναών', 'Αθροιστικά KPIs / Στατιστικά', 'Super Admin "Dive-In"', 'Bulk Licensing για 50+ Ναούς'].map(item => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-blue-500 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/contact" className="block mt-auto">
+                <button className="bg-white text-slate-900 w-full rounded-md py-2 text-sm font-bold hover:bg-slate-200 transition">Sales & Demo</button>
               </Link>
             </div>
           </div>
