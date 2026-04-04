@@ -74,7 +74,7 @@ export default function ContactPage() {
               <ContactRow
                 icon={<MapPin className="w-4 h-4 text-[var(--brand)]" />}
                 label="Έδρα"
-                value="Θεσσαλονίκη, Ελλάδα"
+                value="Θεμιστοκλή Σοφούλη 57, 55131, Καλαμαριά"
               />
             </div>
             <div className="pt-5 border-t border-[var(--border)] space-y-2.5">

@@ -24,6 +24,7 @@ const navItems = [
 
 const secondaryItems = [
   { href: '/admin/settings', icon: Settings, label: 'Ρυθμίσεις' },
+  { href: '/admin/super', icon: ShieldCheck, label: 'Super Admin' },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

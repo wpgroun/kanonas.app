@@ -354,7 +354,7 @@ export default function Home() {
               <ul className="space-y-2.5 text-sm">
                 <li>info@kanonas.app</li>
                 <li>231 231 1359</li>
-                <li>Θεσσαλονίκη, Ελλάδα</li>
+                <li>Θεμιστοκλή Σοφούλη 57, 55131, Καλαμαριά</li>
               </ul>
             </div>
           </div>
