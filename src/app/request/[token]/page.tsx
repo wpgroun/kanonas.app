@@ -1,4 +1,4 @@
-import { verifyTokenByHash } from '../../actions'
+import { verifyTokenByHash } from '@/actions/sacraments'
 import FormClient from './FormClient'
 import { redirect } from 'next/navigation'
 

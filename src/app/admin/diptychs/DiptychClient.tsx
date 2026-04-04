@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { addDiptychNames, deleteDiptychName, clearDiptychs, editDiptychName } from '../../actions'
+import { addDiptychNames, deleteDiptychName, clearDiptychs, editDiptychName } from '@/actions/diptychs'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

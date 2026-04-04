@@ -1,4 +1,6 @@
-import { getServiceSchedules, getDocTemplates, getTempleSettings } from '../../../actions'
+import { getServiceSchedules } from '@/actions/schedule'
+import { getDocTemplates } from '@/actions/documents'
+import { getTempleSettings } from '@/actions/settings'
 
 export default async function SchedulePrintPage() {
   const schedules = await getServiceSchedules();

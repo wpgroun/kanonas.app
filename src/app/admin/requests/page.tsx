@@ -1,4 +1,4 @@
-import { getTokens } from '../../actions'
+import { getTokens } from '@/actions/sacraments'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

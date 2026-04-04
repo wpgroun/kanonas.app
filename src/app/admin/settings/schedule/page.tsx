@@ -1,4 +1,4 @@
-import { getTempleSettings } from '../../../actions';
+import { getTempleSettings } from '@/actions/settings';
 import BookingSettingsClient from './BookingSettingsClient';
 
 export default async function BookingSettingsPage() {

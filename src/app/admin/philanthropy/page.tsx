@@ -1,4 +1,4 @@
-import { getPhilanthropyStats, getBeneficiaries, getInventoryItems } from '../../actions'
+import { getPhilanthropyStats, getBeneficiaries, getInventoryItems } from '@/actions/philanthropy'
 import PhilanthropyClient from './PhilanthropyClient'
 
 export default async function PhilanthropyDashboard() {

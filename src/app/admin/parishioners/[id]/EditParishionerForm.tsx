@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { updateParishionerDetails } from '../../../actions'
+import { updateParishionerDetails } from '@/actions/parishioners'
 import { useRouter } from 'next/navigation'
 
 export default function EditParishionerForm({ parishioner }: { parishioner: any }) {

@@ -6,7 +6,7 @@ import { el } from 'date-fns/locale';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { CalendarIcon, UserIcon, UsersIcon, SearchIcon, CheckCircleIcon } from 'lucide-react';
 // Usually we use Server Actions to save this:
-// import { assignPriestToToken } from '../../../actions';
+// import { assignPriestToToken } from '@/app/actions';
 
 export default function AssignmentsClient({ initialTokens, staffMembers }: { initialTokens: any[], staffMembers: any[] }) {
   const [tokens, setTokens] = useState(initialTokens);

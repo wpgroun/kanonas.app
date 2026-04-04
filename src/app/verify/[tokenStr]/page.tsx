@@ -1,4 +1,4 @@
-import { verifyTokenByHash } from '../../actions'
+import { verifyTokenByHash } from '@/actions/sacraments'
 import Link from 'next/link'
 
 export default async function PublicVerifyPage({ params }: { params: { tokenStr: string } }) {

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Mail, Lock, Loader2, ArrowLeft, ShieldCheck } from 'lucide-react';
 
-import { loginAction } from '../actions';
+import { loginAction } from '@/actions/auth';
 
 export default function LoginPage() {
   const router = useRouter();

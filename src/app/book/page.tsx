@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createSacramentRequest } from '../actions'
+import { createSacramentRequest } from '@/actions/sacraments'
 
 // --- GREEK AUTO-DECLENSION ENGINE ---
 function getGenitive(nom: string, gender: 'M' | 'F'): string {

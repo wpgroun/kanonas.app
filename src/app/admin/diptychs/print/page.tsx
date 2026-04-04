@@ -1,4 +1,5 @@
-import { getDiptychs, getTempleSettings } from '../../../actions'
+import { getDiptychs } from '@/actions/diptychs'
+import { getTempleSettings } from '@/actions/settings'
 
 export default async function DiptychPrintPage() {
   const diptychs = await getDiptychs();

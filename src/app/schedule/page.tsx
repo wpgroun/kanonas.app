@@ -1,4 +1,5 @@
-import { getServiceSchedules, getTempleSettings } from '../actions'
+import { getServiceSchedules } from '@/actions/schedule'
+import { getTempleSettings } from '@/actions/settings'
 
 export default async function PublicSchedulePage() {
   const schedules = await getServiceSchedules();

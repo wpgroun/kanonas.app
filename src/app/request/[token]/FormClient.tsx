@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { savePublicTokenAnswers } from '../../actions'
+import { savePublicTokenAnswers } from '@/actions/sacraments'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

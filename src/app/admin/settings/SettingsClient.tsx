@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { saveTempleSettings } from '../../actions'
+import { saveTempleSettings } from '@/actions/settings'
 import { declineGreekName } from '../../../lib/greekDeclension'
 
 export default function SettingsClient({ initialSettings }: { initialSettings: any }) {

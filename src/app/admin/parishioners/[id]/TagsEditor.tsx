@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { updateParishionerRoles } from '../../../actions'
+import { updateParishionerRoles } from '@/actions/parishioners'
 
 interface TagsEditorProps {
   parishionerId: string;

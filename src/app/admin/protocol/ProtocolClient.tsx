@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { addProtocolEntry } from '../../actions'
+import { addProtocolEntry } from '@/actions/protocol'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

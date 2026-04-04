@@ -1,4 +1,4 @@
-import { getDiptychs } from '../../actions'
+import { getDiptychs } from '@/actions/diptychs'
 import DiptychClient from './DiptychClient'
 
 export default async function DiptychsPage() {

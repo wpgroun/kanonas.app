@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { addAsset, deleteAsset, updateAssetStatus } from '../../actions'
+import { addAsset, deleteAsset, updateAssetStatus } from '@/actions/assets'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

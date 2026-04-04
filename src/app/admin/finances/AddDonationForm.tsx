@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { createDonation } from '../../actions'
+import { createDonation } from '@/actions/finances'
 import { useRouter } from 'next/navigation'
 
 export default function AddDonationForm({ parishioners }: { parishioners: any[] }) {

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, ArrowDownRight, Printer, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { el } from 'date-fns/locale';
-import { addExpense } from '../actions';
+import { addExpense } from '@/actions/finances';
 import { Button } from '@/components/ui/button';
 
 export default function LedgerClient({ templeId, initialDonations, initialExpenses }: { templeId: string, initialDonations: any[], initialExpenses: any[] }) {

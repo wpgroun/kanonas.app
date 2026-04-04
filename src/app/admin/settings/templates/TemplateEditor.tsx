@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { saveDocTemplate } from '../../../actions'
+import { saveDocTemplate } from '@/actions/documents'
 
 export default function TemplateEditor({ initialTemplates }: { initialTemplates: any[] }) {
   const [templates, setTemplates] = useState(initialTemplates);

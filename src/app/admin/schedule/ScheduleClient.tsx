@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { addServiceSchedule, deleteServiceSchedule } from '../../actions'
+import { addServiceSchedule, deleteServiceSchedule } from '@/actions/schedule'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

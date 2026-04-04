@@ -1,4 +1,4 @@
-import { getAssets } from '../../actions'
+import { getAssets } from '@/actions/assets'
 import AssetsClient from './AssetsClient'
 
 export default async function AssetsPage() {

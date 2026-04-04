@@ -1,4 +1,4 @@
-import { getServiceSchedules } from '../../actions'
+import { getServiceSchedules } from '@/actions/schedule'
 import ScheduleClient from './ScheduleClient'
 
 export default async function SchedulePage() {

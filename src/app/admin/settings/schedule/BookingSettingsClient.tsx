@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { saveTempleSettings } from '../../../actions';
+import { saveTempleSettings } from '@/actions/settings';
 import { CalendarIcon, CodeIcon, ClockIcon, SaveIcon, CopyIcon, SettingsIcon, AlertTriangleIcon } from 'lucide-react';
 
 export default function BookingSettingsClient({ initialSettings, templeId }: { initialSettings: any, templeId: string }) {

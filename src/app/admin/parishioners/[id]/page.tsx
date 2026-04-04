@@ -1,4 +1,5 @@
-import { getParishionerDetails, getParishionerBeneficiary } from '../../../actions'
+import { getParishionerDetails } from '@/actions/parishioners'
+import { getParishionerBeneficiary } from '@/actions/philanthropy'
 import ParishionerProfileClient from './ParishionerProfileClient'
 
 export default async function ParishionerProfile({ params }: { params: { id: string } }) {

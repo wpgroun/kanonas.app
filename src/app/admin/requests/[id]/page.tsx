@@ -1,4 +1,5 @@
-import { getRequestDetails, getParishioners } from '../../../actions'
+import { getRequestDetails } from '@/actions/sacraments'
+import { getParishioners } from '@/actions/parishioners'
 import Link from 'next/link'
 import AddPersonForm from './AddPersonForm'
 import AdminMetaForm from './AdminMetaForm'

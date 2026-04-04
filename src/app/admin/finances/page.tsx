@@ -1,4 +1,5 @@
-import { getDonations, getParishioners, getDonationStats } from '../../actions'
+import { getDonations, getDonationStats } from '@/actions/finances'
+import { getParishioners } from '@/actions/parishioners'
 import AddDonationForm from './AddDonationForm'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
