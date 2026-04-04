@@ -26,7 +26,7 @@ export default function MyAccountPage() {
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center">
-              <span className="text-white font-extrabold text-sm">Κ</span>
+              <span className="text-white font-extrabold text-sm" style={{fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.3em", paddingRight: "2px"}}>κ</span>
             </div>
             <span className="font-bold text-[var(--foreground)] text-lg tracking-tight">Κανόνας</span>
           </Link>

@@ -2,127 +2,242 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { TEMP_TEMPLE_ID } from '@/lib/constants'
-import { seedDummyTemple } from './core'
+import { requireAuth } from '@/lib/requireAuth'
+import { getCurrentTempleId } from './core'
 
-export async function createDonation(data: {
-  amount: number
-  purpose: string
-  receiptNumber?: string
-  parishionerId?: string
-}) {
-  await seedDummyTemple()
+// -- Categories -- //
+
+export async function getFinancialCategories() {
+  await requireAuth();
+  const templeId = await getCurrentTempleId();
   try {
-    const donation = await prisma.donation.create({
-      data: {
-        templeId: TEMP_TEMPLE_ID,
-        amount: data.amount,
-        purpose: data.purpose,
-        receiptNumber: data.receiptNumber,
-        parishionerId: data.parishionerId || null,
-        donorName: data.parishionerId ? undefined : 'Ανώνυμο / Γενικό Έσοδο',
-      }
-    })
-    revalidatePath('/admin/finances')
-    if (data.parishionerId) revalidatePath(`/admin/parishioners/${data.parishionerId}`)
-    return { success: true, donation }
-  } catch (error) {
-    console.error("Σφάλμα δημιουργίας εσόδου:", error)
-    return { success: false, error: "Αποτυχία καταχώρησης εσόδου." }
-  }
-}
-
-export async function getDonations() {
-  await seedDummyTemple()
-  try {
-    return await prisma.donation.findMany({
-      where: { templeId: TEMP_TEMPLE_ID },
-      orderBy: { date: 'desc' },
-      include: {
-        parishioner: { select: { firstName: true, lastName: true } }
-      }
-    })
-  } catch (error) {
-    return []
-  }
-}
-
-export async function getDonationStats(year?: number) {
-  await seedDummyTemple()
-  const currentYear = year || new Date().getFullYear()
-  const prevYear = currentYear - 1
-
-  const currentStart = new Date(`${currentYear}-01-01T00:00:00`)
-  const currentEnd = new Date(`${currentYear}-12-31T23:59:59`)
-  const prevStart = new Date(`${prevYear}-01-01T00:00:00`)
-  const prevEnd = new Date(`${prevYear}-12-31T23:59:59`)
-
-  const [currentDons, prevDons] = await Promise.all([
-    prisma.donation.findMany({ where: { templeId: TEMP_TEMPLE_ID, date: { gte: currentStart, lte: currentEnd } } }),
-    prisma.donation.findMany({ where: { templeId: TEMP_TEMPLE_ID, date: { gte: prevStart, lte: prevEnd } } }),
-  ])
-
-  const groupByMonth = (dons: any[]) => {
-    const months: Record<number, { total: number; count: number }> = {}
-    dons.forEach(d => {
-      const m = new Date(d.date).getMonth() + 1
-      if (!months[m]) months[m] = { total: 0, count: 0 }
-      months[m].total += d.amount
-      months[m].count++
-    })
-    const monthNames = ['','Ιαν','Φεβ','Μαρ','Απρ','Μαΐ','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ']
-    return Object.entries(months).map(([m, v]) => ({
-      month: parseInt(m),
-      monthName: monthNames[parseInt(m)],
-      ...v
-    })).sort((a, b) => a.month - b.month)
-  }
-
-  const catMap: Record<string, number> = {}
-  currentDons.forEach(d => {
-    const key = d.purpose || 'Αδιευκρίνιστη'
-    catMap[key] = (catMap[key] || 0) + d.amount
-  })
-  const byCategory = Object.entries(catMap).map(([purpose, total]) => ({ purpose, total }))
-
-  return {
-    currentYear: groupByMonth(currentDons),
-    prevYear: groupByMonth(prevDons),
-    byCategory,
-    totalCurrentYear: currentDons.reduce((s, d) => s + d.amount, 0),
-    totalPrevYear: prevDons.reduce((s, d) => s + d.amount, 0),
-    year: currentYear,
-  }
-}
-
-// addExpense is used in LedgerClient
-export async function addExpense(data: {
-  purpose: string
-  amount: number
-  category?: string
-  vendor?: string
-  receiptNumber?: string
-  date?: string
-}) {
-  await seedDummyTemple()
-  try {
-    await prisma.expense.create({
-      data: {
-        templeId: TEMP_TEMPLE_ID,
-        purpose: data.purpose,
-        amount: data.amount,
-        category: data.category || null,
-        vendor: data.vendor || null,
-        receiptNumber: data.receiptNumber || null,
-        date: data.date ? new Date(data.date) : new Date(),
-      }
-    })
-    revalidatePath('/admin/finances')
-    revalidatePath('/admin/finances/ledger')
-    return { success: true }
+    return await prisma.financialCategory.findMany({
+      where: { templeId },
+      orderBy: [ { type: 'asc' }, { name: 'asc' } ]
+    });
   } catch (e) {
-    console.error(e)
-    return { success: false }
+    return [];
   }
 }
 
+export async function addFinancialCategory(data: { name: string, type: string }) {
+  const session = await requireAuth();
+  if(!session.canEditFinances) return { success: false, error: 'Μη Εξουσιοδοτημένη ενέργεια' };
+  
+  const templeId = await getCurrentTempleId();
+  try {
+    const entry = await prisma.financialCategory.create({
+      data: { templeId, name: data.name, type: data.type }
+    });
+    revalidatePath('/admin/finances/categories');
+    return { success: true, entry };
+  } catch(e) {
+    return { success: false, error: 'Σφάλμα δημιουργίας' };
+  }
+}
+
+export async function deleteFinancialCategory(id: string) {
+  const session = await requireAuth();
+  if(!session.canEditFinances) return { success: false, error: 'Μη Εξουσιοδοτημένη ενέργεια' };
+
+  try {
+    // Check if it's used in budgets/expenses/incomes
+    const incomeCount = await prisma.income.count({ where: { categoryId: id } });
+    const expenseCount = await prisma.expense.count({ where: { categoryId: id } });
+    if(incomeCount > 0 || expenseCount > 0) {
+       return { success: false, error: 'Δεν μπορεί να διαγραφεί (υπάρχουν έσοδα/έξοδα). Διαβάψτε τα πρώτα ή μεταφέρετέ τα.'}
+    }
+    await prisma.financialCategory.delete({ where: { id } });
+    revalidatePath('/admin/finances/categories');
+    return { success: true };
+  } catch(e) {
+    return { success: false, error: 'Oops! Σφάλμα διαγραφής.' };
+  }
+}
+
+// -- Budgets & Restructuring -- //
+
+export async function getBudgets(year: number) {
+  await requireAuth();
+  const templeId = await getCurrentTempleId();
+  try {
+    return await prisma.budget.findMany({
+      where: { templeId, year },
+      include: { category: true },
+      orderBy: { category: { name: 'asc' } }
+    });
+  } catch (e) {
+    return [];
+  }
+}
+
+export async function saveBudget(categoryId: string, year: number, estimatedAmt: number, oldAmt: number = 0) {
+  const session = await requireAuth();
+  if(!session.canEditFinances) return { success: false, error: 'Μη Εξουσιοδοτημένη' };
+  
+  const templeId = await getCurrentTempleId();
+
+  // Check if year is sealed
+  const fy = await prisma.financialYear.findUnique({ where: { templeId_year: { templeId, year } } });
+  if (fy?.isSealed) {
+    return { success: false, error: 'Το Οικονομικό Έτος είναι σφραγισμένο. Καμία αλλαγή δε μπορεί να γίνει.' };
+  }
+
+  try {
+    const budget = await prisma.budget.upsert({
+      where: { templeId_year_categoryId: { templeId, year, categoryId } },
+      update: { estimatedAmt },
+      create: { templeId, year, categoryId, estimatedAmt, actualAmt: 0 }
+    });
+
+    // If it's an update and value changed, log it (Restructuring)
+    if (oldAmt !== estimatedAmt && oldAmt > 0) {
+       await prisma.auditLog.create({
+         data: {
+           templeId,
+           userId: session.userId,
+           userEmail: 'User', // Will be ignored safely or handled
+           action: `ΑΝΑΔΙΑΜΟΡΦΩΣΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (${year})`,
+           details: `Κατηγορία [${categoryId}] από €${oldAmt} σε €${estimatedAmt}.`,
+         }
+       }).catch(() => {}); // catch harmlessly if context missing
+    }
+
+    revalidatePath('/admin/finances/budget');
+    return { success: true, budget };
+  } catch(e) {
+    return { success: false, error: 'Σφάλμα αποθήκευσης προϋπολογισμού' };
+  }
+}
+
+// -- Income / Expense & Actuals -- //
+
+export async function addTransaction(data: { type: 'INCOME'|'EXPENSE', categoryId: string, amount: number, date: Date, purpose?: string, donorOrVendor?: string, receiptNumber?: string }) {
+  const session = await requireAuth();
+  if(!session.canEditFinances) return { success: false, error: 'Μη Εξουσιοδοτημένη' };
+
+  const templeId = await getCurrentTempleId();
+  const year = new Date(data.date).getFullYear();
+
+  // Seal Check
+  const fy = await prisma.financialYear.findUnique({ where: { templeId_year: { templeId, year } } });
+  if (fy?.isSealed) return { success: false, error: `Το ${year} είναι Σφραγισμένο.` };
+
+  try {
+     // Transaction
+     return await prisma.$transaction(async (tx) => {
+        if(data.type === 'INCOME') {
+           await tx.income.create({ data: {
+             templeId, categoryId: data.categoryId, amount: data.amount, date: data.date,
+             description: data.purpose, donorName: data.donorOrVendor, receiptNumber: data.receiptNumber
+           } });
+        } else {
+           await tx.expense.create({ data: {
+             templeId, categoryId: data.categoryId, amount: data.amount, date: data.date,
+             purpose: data.purpose || 'Γενικό Έξοδο', vendor: data.donorOrVendor, receiptNumber: data.receiptNumber
+           } });
+        }
+
+        // Update Actuals in Budget
+        await tx.budget.upsert({
+           where: { templeId_year_categoryId: { templeId, year, categoryId: data.categoryId } },
+           update: { actualAmt: { increment: data.amount } },
+           create: { templeId, year, categoryId: data.categoryId, estimatedAmt: 0, actualAmt: data.amount }
+        });
+
+        // Add an audit log automatically
+        await tx.auditLog.create({
+          data: {
+             templeId, userId: session.userId, userEmail: session.userId, 
+             action: `NEA ЕГГРАФΗ ${data.type}`, 
+             details: `Kαταχώρηση €${data.amount} στο [${data.categoryId}]`
+          }
+        }).catch(()=>{});
+
+        return { success: true };
+     });
+  } catch(e) {
+     return { success: false, error: 'Τεχνικό Σφάλμα κατά την αποθήκευση.' };
+  }
+}
+
+export async function getLedgerTransactions() {
+  await requireAuth();
+  const templeId = await getCurrentTempleId();
+  try {
+    const incs = await prisma.income.findMany({ where: { templeId }, include: { category: true }});
+    const exps = await prisma.expense.findMany({ where: { templeId }, include: { category: true }});
+    
+    // Unify them for the timeline
+    const all = [
+      ...incs.map(i => ({ ...i, type: 'INCOME' as 'INCOME'|'EXPENSE'})),
+      ...exps.map(e => ({ ...e, type: 'EXPENSE' as 'INCOME'|'EXPENSE'}))
+    ];
+
+    // Sort by date descending
+    all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return all;
+  } catch (e) {
+    return [];
+  }
+}
+
+export async function getFinanceStats() {
+  await requireAuth();
+  const templeId = await getCurrentTempleId();
+  try {
+    const year = new Date().getFullYear();
+    const prevYear = year - 1;
+
+    const incomes = await prisma.income.findMany({ where: { templeId }, include: { category: true }});
+    const expenses = await prisma.expense.findMany({ where: { templeId }, include: { category: true }});
+
+    const totalIncome = incomes.reduce((s: number, i: any) => s + i.amount, 0);
+    const totalExpense = expenses.reduce((s: number, e: any) => s + e.amount, 0);
+
+    const totalCurrentYear = incomes.filter((i: any) => new Date(i.date).getFullYear() === year).reduce((s: number,i: any) => s + i.amount, 0);
+    const totalPrevYear = incomes.filter((i: any) => new Date(i.date).getFullYear() === prevYear).reduce((s: number,i: any) => s + i.amount, 0);
+
+    const byCategory = incomes.reduce((acc: any, i: any) => {
+       const catName = i.category?.name || 'Ακατηγοριοποίητα';
+       acc[catName] = (acc[catName] || 0) + i.amount;
+       return acc;
+    }, {} as Record<string, number>);
+
+    return { totalIncome, totalExpense, totalCurrentYear, totalPrevYear, byCategory, currentYear: year, prevYear, year };
+  } catch(e) {
+    return { totalIncome: 0, totalExpense: 0, totalCurrentYear: 0, totalPrevYear: 0, byCategory: {}, currentYear: 2026, prevYear: 2025, year: 2026 };
+  }
+}
+
+export async function sealFinancialYear(year: number) {
+  const session = await requireAuth();
+  if(!session.isSuperAdmin && !session.isHeadPriest) {
+     return { success: false, error: 'Μόνο ο Προϊστάμενος του Ναού μπορεί να σφραγίσει τη χρονιά.' };
+  }
+  
+  const templeId = await getCurrentTempleId();
+  try {
+     await prisma.$transaction(async (tx) => {
+        await tx.financialYear.upsert({
+           where: { templeId_year: { templeId, year } },
+           update: { isSealed: true, sealedAt: new Date(), sealedBy: session.userId },
+           create: { templeId, year, isSealed: true, sealedAt: new Date(), sealedBy: session.userId }
+        });
+
+        await tx.auditLog.create({
+          data: {
+             templeId, userId: session.userId, userEmail: session.userId, 
+             action: 'ΣΦΡΑΓΙΣΜΑ ΑΠΟΛΟΓΙΣΜΟΥ', 
+             details: `Οικονομικό Έτος ${year} Κλείδωσε μόνιμα.`
+          }
+        });
+     });
+
+     revalidatePath('/admin/finances');
+     revalidatePath('/admin/finances/budget');
+     return { success: true };
+  } catch(e) {
+     return { success: false, error: 'Τεχνικό Σφάλμα Σφραγίσματος.' };
+  }
+}

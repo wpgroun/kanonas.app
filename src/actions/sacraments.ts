@@ -2,8 +2,9 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { TEMP_TEMPLE_ID } from '@/lib/constants'
-import { seedDummyTemple } from './core'
+import { getCurrentTempleId } from './core'
+import { requireAuth } from '@/lib/requireAuth'
+import { randomBytes } from 'crypto'
 
 export async function createSacramentRequest(formData: {
   type: string
@@ -13,12 +14,13 @@ export async function createSacramentRequest(formData: {
   phone: string
   metaStr?: string
 }) {
-  await seedDummyTemple()
-  const randomHash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+  const randomHash = randomBytes(32).toString('hex')
   try {
     const token = await prisma.token.create({
       data: {
-        templeId: TEMP_TEMPLE_ID,
+        templeId,
         tokenStr: randomHash,
         serviceType: formData.type,
         status: "pending",
@@ -39,9 +41,10 @@ export async function createSacramentRequest(formData: {
 }
 
 export async function getPendingRequests() {
+  const templeId = await getCurrentTempleId()
   try {
     return await prisma.token.findMany({
-      where: { templeId: TEMP_TEMPLE_ID, status: "pending" },
+      where: { templeId, status: "pending" },
       orderBy: { createdAt: 'desc' }
     })
   } catch (e) {
@@ -50,10 +53,10 @@ export async function getPendingRequests() {
 }
 
 export async function getTokens() {
-  await seedDummyTemple()
+  const templeId = await getCurrentTempleId()
   try {
     return await prisma.token.findMany({
-      where: { templeId: TEMP_TEMPLE_ID },
+      where: { templeId },
       orderBy: { createdAt: 'desc' }
     })
   } catch (e) {
@@ -76,6 +79,7 @@ export async function getRequestDetails(tokenId: string) {
 }
 
 export async function linkPersonToSacrament(tokenId: string, parishionerId: string, role: string) {
+  await requireAuth()
   try {
     const p = await prisma.parishioner.findUnique({ where: { id: parishionerId } })
     if (!p) return { success: false, error: "Ο ενορίτης δεν βρέθηκε στο Μητρώο." }
@@ -99,25 +103,56 @@ export async function linkPersonToSacrament(tokenId: string, parishionerId: stri
   }
 }
 
-export async function markTokenAsDocsGenerated(tokenId: string, assignedPriest: string, bookNumber?: string) {
+export async function markTokenAsDocsGenerated(tokenId: string, assignedPriest: string, bookNumber?: string, protocolNumber?: string) {
+  await requireAuth()
   try {
+    const templeId = await getCurrentTempleId()
+
+    // --- PHASE 4: AUTO-ENROLMENT IN PARISHIONER REGISTRY ---
+    const unlinkedPersons = await prisma.ceremonyPerson.findMany({
+      where: { tokenId, parishionerId: null }
+    });
+
+    for (const p of unlinkedPersons) {
+      if (!p.firstName || !p.lastName) continue;
+      
+      const newParishioner = await prisma.parishioner.create({
+        data: {
+          templeId,
+          firstName: p.firstName,
+          lastName: p.lastName,
+          fathersName: p.fathersName || undefined,
+          roles: JSON.stringify(["enoriths"])
+        }
+      });
+      
+      await prisma.ceremonyPerson.update({
+        where: { id: p.id },
+        data: { parishionerId: newParishioner.id }
+      });
+    }
+    // ----------------------------------------------------
+
     await prisma.token.update({
       where: { id: tokenId },
       data: {
         status: 'docs_generated',
         assignedPriest,
-        ...(bookNumber ? { bookNumber } : {})
+        ...(bookNumber ? { bookNumber } : {}),
+        ...(protocolNumber ? { protocolNumber } : {})
       }
     })
     revalidatePath(`/admin/requests/${tokenId}`)
     revalidatePath('/admin/requests')
     return { success: true }
   } catch (e) {
+    console.error("Auto enrol or markToken error", e);
     return { success: false }
   }
 }
 
 export async function verifyTokenByHash(tokenStr: string) {
+  // Public — no auth required (used by end-users filling in the form)
   try {
     return await prisma.token.findUnique({
       where: { tokenStr },
@@ -132,7 +167,8 @@ export async function verifyTokenByHash(tokenStr: string) {
   }
 }
 
-export async function savePublicTokenAnswers(tokenStr: string, answersStr: string) {
+export async function savePublicTokenAnswers(tokenStr: string, answersStr: string, personsArr?: {role: string, firstName: string, lastName: string, fathersName?: string, mothersName?: string}[]) {
+  // Public — no auth required (used by end-users filling in the form)
   try {
     const token = await prisma.token.findUnique({ where: { tokenStr } })
     if (!token) return { success: false, error: 'Το αίτημα δεν υπάρχει πλέον.' }
@@ -142,6 +178,29 @@ export async function savePublicTokenAnswers(tokenStr: string, answersStr: strin
       create: { tokenId: token.id, dataJson: answersStr },
       update: { dataJson: answersStr }
     })
+
+    if (personsArr && personsArr.length > 0) {
+      // Clear old
+      await prisma.ceremonyPerson.deleteMany({ where: { tokenId: token.id } });
+      // Create new
+      await prisma.ceremonyPerson.createMany({
+        data: personsArr.map(p => ({
+          tokenId: token.id,
+          role: p.role,
+          firstName: p.firstName,
+          lastName: p.lastName,
+          fathersName: p.fathersName || null,
+          mothersName: p.mothersName || null
+        }))
+      });
+    }
+
+    // Mark as complete for priest to review
+    await prisma.token.update({
+      where: { id: token.id },
+      data: { submissionComplete: true, status: 'pending' /* priest needs to generate */ }
+    });
+
     return { success: true }
   } catch (error) {
     console.error("Σφάλμα αποθήκευσης questionnaire:", error)
@@ -149,7 +208,72 @@ export async function savePublicTokenAnswers(tokenStr: string, answersStr: strin
   }
 }
 
+import { addServiceSchedule } from './schedule'
+
+export async function approveSacramentRequest(tokenId: string, date: Date | null, title: string) {
+  await requireAuth()
+  try {
+    const token = await prisma.token.findUnique({ where: { id: tokenId } })
+    if (!token) return { success: false, error: 'Δεν βρέθηκε' }
+
+    // 1. Send Email with the link (using existing function sendFormLinkAction logic)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const tokenUrl = `${baseUrl}/request/${token.tokenStr}`
+    const { sendFormLinkEmail } = await import('@/lib/emailService')
+    const temple = await prisma.temple.findUnique({ where: { id: token.templeId } })
+    
+    if (temple && token.customerEmail) {
+      await sendFormLinkEmail({
+        to: token.customerEmail,
+        familyName: token.customerName || 'Οικογένεια',
+        serviceType: token.serviceType as 'GAMOS' | 'VAPTISI',
+        tokenUrl,
+        ceremonyDate: token.ceremonyDate?.toLocaleDateString('el-GR'),
+        templeName: temple.name,
+      }).catch(console.error)
+    }
+
+    // 2. Add to Schedule
+    if (date) {
+      await addServiceSchedule({
+        date: date.toISOString(),
+        title: title,
+        description: `Δεσμευμένο από αίτηση #${tokenId.slice(-6).toUpperCase()}`,
+        isMajor: false
+      });
+    }
+
+    // 3. Mark as accepted
+    await prisma.token.update({
+      where: { id: tokenId },
+      data: { status: 'accepted' }
+    });
+
+    revalidatePath(`/admin/requests/${tokenId}`)
+    revalidatePath('/admin/requests')
+    revalidatePath('/admin/schedule')
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
+}
+
+export async function rejectSacramentRequest(tokenId: string) {
+  await requireAuth()
+  try {
+    await prisma.token.delete({
+      where: { id: tokenId }
+    });
+    revalidatePath('/admin/requests')
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
+}
+
 export async function sendFormLinkAction(tokenId: string) {
+  // Keeping this for backwards compatibility if needed
+  await requireAuth()
   try {
     const token = await prisma.token.findUnique({
       where: { id: tokenId },
@@ -174,4 +298,3 @@ export async function sendFormLinkAction(tokenId: string) {
     return { success: false, error: e.message }
   }
 }
-

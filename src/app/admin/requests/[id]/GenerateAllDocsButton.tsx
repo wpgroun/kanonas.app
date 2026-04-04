@@ -31,7 +31,7 @@ function downloadAll(docs: GeneratedDoc[]) {
   });
 }
 
-export default function GenerateAllDocsButton({ tokenId, serviceType }: { tokenId: string, serviceType: string }) {
+export default function GenerateAllDocsButton({ tokenId, serviceType, hasProtocol=false }: { tokenId: string, serviceType: string, hasProtocol?: boolean }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [docs, setDocs] = useState<GeneratedDoc[]>([]);
@@ -41,6 +41,7 @@ export default function GenerateAllDocsButton({ tokenId, serviceType }: { tokenI
   const label = isGamos ? 'Γάμου' : 'Βάπτισης';
 
   async function handleGenerate() {
+    if (!hasProtocol) return;
     setLoading(true);
     setError('');
     setDocs([]);
@@ -71,11 +72,13 @@ export default function GenerateAllDocsButton({ tokenId, serviceType }: { tokenI
     <>
       <Button
         onClick={handleOpen}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
+        disabled={!hasProtocol}
+        className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 disabled:opacity-50"
+        title={!hasProtocol ? 'Εκδώστε πρώτα Πρωτόκολλο για να ξεκλειδώσει το κουμπί.' : ''}
         size="lg"
       >
         <FolderOpen className="w-4 h-4" />
-        Παραγωγή Όλων των Εγγράφων {label}
+        {hasProtocol ? `Παραγωγή Όλων των Εγγράφων ${label}` : 'Απαιτείται Πρωτόκολλο'}
       </Button>
 
       <Dialog open={open} onOpenChange={(v) => { if (!loading) setOpen(v); }}>

@@ -3,7 +3,7 @@ export { TEMP_TEMPLE_ID } from '@/lib/constants'
 export { getCurrentTempleId, seedDummyTemple } from '@/actions/core'
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────
-export { loginAction, logoutAction } from '@/actions/auth'
+export { loginAction, logoutAction, forgotPasswordAction, resetPasswordAction } from '@/actions/auth'
 
 // ─── PARISHIONERS ────────────────────────────────────────────────────────────
 export {

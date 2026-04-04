@@ -5,39 +5,39 @@ import { motion } from 'motion/react';
 import {
   ArrowRight, Users, FileText, Banknote, ShieldCheck,
   BarChart3, Calendar, BookOpen, CheckCircle2, Zap,
-  ChevronRight, Globe, Lock
+  ChevronRight, Globe, Lock, HeartPulse, Tent, Mail, ScanFace
 } from 'lucide-react';
 
 const features = [
   {
     icon: <Users className="w-5 h-5" />,
-    title: 'Μητρώο Ενοριτών',
-    desc: 'Πλήρης καρτέλα για κάθε ενορίτη με ιστορικό μυστηρίων, δωρεών και εγγράφων.',
+    title: 'Μητρώο Ενοριτών & Κεκοιμημένων',
+    desc: 'Πλήρης καρτέλα ενοριτών, δωρητών και διαχείριση Ληξιαρχείου / Μνημοσύνων.',
   },
   {
     icon: <FileText className="w-5 h-5" />,
-    title: 'Αυτόματα Πιστοποιητικά',
-    desc: 'Δημιουργία αιτήσεων, αδειών γάμου και πιστοποιητικών βάπτισης με ένα κλικ.',
+    title: 'Αυτόματα Πιστοποιητικά & Ιστορικό',
+    desc: 'PDF Engine για Πιστοποιητικά Αγαμίας, Γάμου, Βάπτισης, Εκδημίας με ένα κλικ.',
   },
   {
     icon: <Banknote className="w-5 h-5" />,
-    title: 'Οικονομική Διαχείριση',
-    desc: 'Παρακολούθηση εσόδων, εξόδων, δωρεών και ισολογισμών σε πραγματικό χρόνο.',
+    title: 'Οικονομική & Υλική Διαχείριση',
+    desc: 'Έλεγχος εσόδων, εξόδων και πλήρες ψηφιακό Περιουσιολόγιο Ακινήτων και Κειμηλίων.',
   },
   {
-    icon: <Calendar className="w-5 h-5" />,
-    title: 'Πρόγραμμα Ακολουθιών',
-    desc: 'Ημερολόγιο λειτουργιών, αναθέσεις ιερέων και ψαλτών, εκτυπώσιμο πρόγραμμα.',
+    icon: <HeartPulse className="w-5 h-5" />,
+    title: 'Φιλόπτωχο & Συσσίτια',
+    desc: 'Οργάνωση αναξιοπαθούντων αδελφών, διαχείριση αποθήκης μερίδων και δελτίων χορηγίας.',
   },
   {
-    icon: <BookOpen className="w-5 h-5" />,
-    title: 'Ηλεκτρονικό Πρωτόκολλο',
-    desc: 'Αρίθμηση εισερχομένων/εξερχομένων εγγράφων με αυτόματη αρχειοθέτηση.',
+    icon: <Tent className="w-5 h-5" />,
+    title: 'Νεανικό Έργο (Κατασκηνώσεις)',
+    desc: 'Ψηφιακό Μητρώο εγγραφής κατασκηνωτών, ιατρικών ιστορικών και περιόδων νεολαίας.',
   },
   {
-    icon: <BarChart3 className="w-5 h-5" />,
-    title: 'Αναφορές & Στατιστικά',
-    desc: 'Dashboards με KPIs, τάσεις εσόδων, κατανομή μυστηρίων και πολλά ακόμα.',
+    icon: <ScanFace className="w-5 h-5" />,
+    title: 'Πρωτόκολλο & Mobile Scanner',
+    desc: 'Αυτόματη αρίθμηση και σάρωση φυσικών εγγράφων κατευθείαν από την κάμερα του κινητού.',
   },
 ];
 
@@ -50,7 +50,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center">
-              <span className="text-white font-extrabold text-sm">Κ</span>
+              <span className="text-white font-extrabold text-sm" style={{fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.3em", paddingRight: "2px"}}>κ</span>
             </div>
             <span className="font-bold text-[var(--foreground)] text-lg tracking-tight">Κανόνας</span>
           </Link>
@@ -138,7 +138,7 @@ export default function Home() {
               </span>
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-[var(--success)]" />
-                ISO 27001
+                SSL/TLS Encrypted
               </span>
               <span className="flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5 text-[var(--success)]" />
@@ -291,7 +291,7 @@ export default function Home() {
                 <span className="text-[var(--text-muted)] mb-1 text-sm font-medium">/ μήνα</span>
               </div>
               <ul className="space-y-3 mb-8">
-                {['Απεριόριστοι ενορίτες', 'Smart PDF πιστοποιητικά', 'Booking Widget', 'Vault αρχείων', 'Οικονομικό Module', 'Priority υποστήριξη'].map(item => (
+                {['Απεριόριστοι ενορίτες', 'Kanonas PDF & Αυτόματα Έγγραφα', 'Συσσίτια & Αιμοδοσία', 'Μητρώο Κατασκηνώσεων', 'Εκτύπωση Ετικετών (ΕΛΤΑ)', 'Ληξιαρχείο (Βαπτίσεις, Γάμοι, Κηδείες)', 'Priority υποστήριξη'].map(item => (
                   <li key={item} className="flex items-center gap-2.5 text-sm text-[var(--text-secondary)]">
                     <CheckCircle2 className="w-4 h-4 text-[var(--brand)] flex-shrink-0" />
                     {item}
@@ -332,7 +332,7 @@ export default function Home() {
             <div>
               <Link href="/" className="flex items-center gap-2.5 mb-4">
                 <div className="w-7 h-7 rounded-md bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center">
-                  <span className="text-white font-extrabold text-xs">Κ</span>
+                  <span className="text-white font-extrabold text-xs" style={{fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.3em", paddingRight: "2px"}}>κ</span>
                 </div>
                 <span className="font-bold text-white text-base">Κανόνας</span>
               </Link>

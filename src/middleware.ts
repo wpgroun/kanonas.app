@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const secretKey = process.env.JWT_SECRET || 'super_secret_church_os_jwt_key_2026_dev_mode';
+// Must match src/lib/auth.ts exactly
+const secretKey = process.env.JWT_SECRET ?? 'kanonas_dev_only_fallback_do_not_use_in_prod';
 const key = new TextEncoder().encode(secretKey);
 
 export async function proxy(req: NextRequest) {

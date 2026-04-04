@@ -1,55 +1,67 @@
-'use server'
+'use server';
 
-import { prisma } from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
-import { TEMP_TEMPLE_ID } from '@/lib/constants'
-import { seedDummyTemple } from './core'
+import { prisma } from '@/lib/prisma';
+import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { revalidatePath } from 'next/cache';
+import { startOfDay, endOfDay } from 'date-fns';
 
-export async function getServiceSchedules() {
-  await seedDummyTemple()
+export async function getSchedule(dateStr: string) {
+  const templeId = await getCurrentTempleId();
+  const date = new Date(dateStr);
+  const start = startOfDay(date);
+  const end = endOfDay(date);
+
   try {
-    return await prisma.serviceSchedule.findMany({
-      where: { templeId: TEMP_TEMPLE_ID },
-      orderBy: { date: 'asc' }
-    })
-  } catch (e) {
-    return []
+     const schedule = await prisma.sissitioDay.findFirst({
+        where: { templeId, date: { gte: start, lte: end } },
+        include: {
+           attendances: {
+             include: { beneficiary: true }
+           }
+        }
+     });
+
+     const activeBeneficiaries = await prisma.beneficiary.findMany({
+       where: { templeId, status: 'APPROVED' }
+     });
+
+     return { success: true, schedule, activeBeneficiaries };
+  } catch(e) {
+     return { success: false, error: 'Σφάλμα ανάκτησης ημερησίου προγράμματος.' };
   }
 }
 
-export async function addServiceSchedule(data: {
-  date: string
-  title: string
-  description?: string
-  isMajor?: boolean
-}) {
-  await seedDummyTemple()
+export async function createOrUpdateSchedule(dateStr: string, mealName: string, planned: number) {
+  const session = await requireAuth();
+  const templeId = await getCurrentTempleId();
+  const date = startOfDay(new Date(dateStr));
+
   try {
-    await prisma.serviceSchedule.create({
-      data: {
-        templeId: TEMP_TEMPLE_ID,
-        date: new Date(data.date),
-        title: data.title,
-        description: data.description || null,
-        isMajor: data.isMajor || false
-      }
-    })
-    revalidatePath('/admin/schedule')
-    revalidatePath('/schedule')
-    return { success: true }
-  } catch (e) {
-    return { success: false }
+     const day = await prisma.sissitioDay.upsert({
+       where: { templeId_date: { templeId, date } },
+       update: { mealName, portionsPlanned: planned },
+       create: { templeId, date, mealName, portionsPlanned: planned }
+     });
+     
+     revalidatePath('/admin/philanthropy/schedule');
+     return { success: true, day };
+  } catch(e) {
+     return { success: false, error: 'Αποτυχία ενημέρωσης μενού' };
   }
 }
 
-export async function deleteServiceSchedule(id: string) {
+export async function markAttendance(beneficiaryId: string, dayId: string, status: string) {
+  const session = await requireAuth();
   try {
-    await prisma.serviceSchedule.delete({ where: { id } })
-    revalidatePath('/admin/schedule')
-    revalidatePath('/schedule')
-    return { success: true }
-  } catch (e) {
-    return { success: false }
+     const att = await prisma.sissitioAttendance.upsert({
+        where: { beneficiaryId_sissitioDayId: { beneficiaryId, sissitioDayId: dayId } },
+        update: { status },
+        create: { beneficiaryId, sissitioDayId: dayId, status }
+     });
+
+     revalidatePath('/admin/philanthropy/schedule');
+     return { success: true, data: att };
+  } catch(e) {
+     return { success: false, error: 'Αποτυχία παρουσιολογίου' };
   }
 }
-

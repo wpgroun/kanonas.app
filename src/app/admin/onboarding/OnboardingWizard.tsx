@@ -78,7 +78,7 @@ export default function OnboardingWizard() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2.5 mb-4">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center">
-              <span className="text-white font-extrabold text-sm">Κ</span>
+              <span className="text-white font-extrabold text-sm" style={{fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.3em", paddingRight: "2px"}}>κ</span>
             </div>
             <span className="font-bold text-[var(--foreground)] text-xl tracking-tight">Κανόνας</span>
           </div>

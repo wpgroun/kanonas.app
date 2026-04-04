@@ -2,8 +2,8 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { TEMP_TEMPLE_ID } from '@/lib/constants'
-import { seedDummyTemple } from './core'
+import { getCurrentTempleId } from './core'
+import { requireAuth } from '@/lib/requireAuth'
 
 export async function upsertAssignment(data: {
   date: string
@@ -14,14 +14,15 @@ export async function upsertAssignment(data: {
   notes?: string
   tokenId?: string
 }) {
-  await seedDummyTemple()
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
   const date = new Date(data.date)
   const startOfDay = new Date(date); startOfDay.setHours(0, 0, 0, 0)
   const endOfDay = new Date(date); endOfDay.setHours(23, 59, 59, 999)
 
   try {
     const existing = await prisma.assignment.findFirst({
-      where: { templeId: TEMP_TEMPLE_ID, date: { gte: startOfDay, lte: endOfDay }, serviceType: data.serviceType }
+      where: { templeId, date: { gte: startOfDay, lte: endOfDay }, serviceType: data.serviceType }
     })
 
     if (existing) {
@@ -36,7 +37,7 @@ export async function upsertAssignment(data: {
     } else {
       await prisma.assignment.create({
         data: {
-          templeId: TEMP_TEMPLE_ID, date, serviceType: data.serviceType,
+          templeId, date, serviceType: data.serviceType,
           priest: data.priest || null, psaltis: data.psaltis || null,
           neokomos: data.neokomos || null, notes: data.notes || null,
           tokenId: data.tokenId || null,
@@ -49,4 +50,3 @@ export async function upsertAssignment(data: {
     return { success: false, error: e.message }
   }
 }
-

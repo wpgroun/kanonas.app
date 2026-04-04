@@ -4,6 +4,7 @@ import Link from 'next/link'
 import AddPersonForm from './AddPersonForm'
 import AdminMetaForm from './AdminMetaForm'
 import GenerateAllDocsButton from './GenerateAllDocsButton'
+import ApproveRejectButtons from './ApproveRejectButtons'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -55,7 +56,7 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
                  </div>
               </div>
               <div className="flex items-center gap-3 mt-4 md:mt-0">
-                <GenerateAllDocsButton tokenId={token.id} serviceType={token.serviceType} />
+                <GenerateAllDocsButton tokenId={token.id} serviceType={token.serviceType} hasProtocol={!!token.protocolNumber} />
                 <Badge variant="outline" className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200">
                   <Clock className="w-3 h-3 mr-1" /> Σε Εκκρεμότητα
                 </Badge>
@@ -73,6 +74,14 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
                    <div className="text-muted-foreground text-xs">{token.customerEmail}</div>
                  </div>
                </div>
+
+               <ApproveRejectButtons 
+                 tokenId={token.id} 
+                 status={token.status} 
+                 date={token.ceremonyDate} 
+                 title={isGamos ? `Γάμος (${token.customerName})` : `Βάπτιση (${token.customerName})`} 
+                 isAccepted={token.status === 'accepted'} 
+               />
             </CardContent>
           </Card>
 
@@ -93,15 +102,17 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
                         {meta.groomStatus && (
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 border-b border-border/50 pb-2">
                             <span className="text-muted-foreground">Κατάσταση Γαμπρού:</span>
-                            <span className="font-semibold col-span-2">{meta.groomStatus === 'agamos' ? 'Άγαμος' : meta.groomStatus === 'diazevmenos' ? 'Διαζευγμένος' : 'Χήρος'}</span>
+                            <span className="font-semibold col-span-2">{meta.groomStatus === 'agamos' ? 'Άγαμος' : meta.groomStatus === 'diazevmenos' ? 'Διαζευγμένος' : meta.groomStatus === 'symfono' ? 'Σύμφωνο Συμβίωσης' : 'Χήρος'}</span>
                             {meta.groomDivorceRef && <><span className="text-muted-foreground">Διαζευκτήριο Γαμπ.:</span><span className="font-medium col-span-2">{meta.groomDivorceRef}</span></>}
+                            {meta.groomSymfonoRef && <><span className="text-muted-foreground">Σύμφωνο Γαμπρού:</span><span className="font-medium col-span-2">{meta.groomSymfonoRef}</span></>}
                           </div>
                         )}
                         {meta.brideStatus && (
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 border-b border-border/50 pb-2">
                             <span className="text-muted-foreground">Κατάσταση Νύφης:</span>
-                            <span className="font-semibold col-span-2">{meta.brideStatus === 'agami' ? 'Άγαμη' : meta.brideStatus === 'diazevmeni' ? 'Διαζευγμένη' : 'Χήρα'}</span>
+                            <span className="font-semibold col-span-2">{meta.brideStatus === 'agami' ? 'Άγαμη' : meta.brideStatus === 'diazevmeni' ? 'Διαζευγμένη' : meta.brideStatus === 'symfono' ? 'Σύμφωνο Συμβίωσης' : 'Χήρα'}</span>
                             {meta.brideDivorceRef && <><span className="text-muted-foreground">Διαζευκτήριο Νύφ.:</span><span className="font-medium col-span-2">{meta.brideDivorceRef}</span></>}
+                            {meta.brideSymfonoRef && <><span className="text-muted-foreground">Σύμφωνο Νύφης:</span><span className="font-medium col-span-2">{meta.brideSymfonoRef}</span></>}
                           </div>
                         )}
                         {meta.childName && (

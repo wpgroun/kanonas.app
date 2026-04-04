@@ -1,67 +1,75 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendSMS } from '@/lib/sms';
+import { sendCeremonyReminderEmail } from '@/lib/emailService';
 
-// Vercel CRON Jobs or external services (cron-job.org) can hit this endpoint daily.
-// Protect it using an Authorization header to avoid spam
-export async function GET(req: Request) {
+/**
+ * Cron endpoint — called daily by Railway/Vercel scheduler.
+ * Finds tokens with ceremony dates in the next 3 days and sends reminder emails.
+ *
+ * Security: protected by CRON_SECRET header.
+ * Railway config: set CRON_SECRET env var and schedule daily at 08:00.
+ */
+export async function GET(req: NextRequest) {
+  // Validate the cron secret to prevent unauthorized triggering
+  const authHeader = req.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const now = new Date();
+  const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+  const fourDaysFromNow = new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000);
+
   try {
-    // 1. Authorization check
-    const authHeader = req.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET || 'secret_cron_key_123'}`) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    // 2. Compute date for "3 days from now"
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 3);
-    
-    const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
-
-    // 3. Find all Memorials (Μνημόσυνα) booked on that date
-    const upcomingMemorials = await prisma.sacrament.findMany({
+    // Find tokens whose ceremony is in ~3 days AND haven't been completed yet
+    const upcomingTokens = await prisma.token.findMany({
       where: {
-        sacramentType: {
-          contains: 'μνημόσυνο'
+        ceremonyDate: {
+          gte: threeDaysFromNow,
+          lt: fourDaysFromNow,
         },
-        sacramentDate: {
-          gte: startOfDay,
-          lte: endOfDay
-        }
+        status: { not: 'completed' },
+        customerEmail: { not: null },
       },
       include: {
-        parishioner: true,
-        temple: true
-      }
+        temple: { select: { name: true } },
+      },
     });
 
-    const logs = [];
+    const results: { id: string; status: 'sent' | 'skipped' | 'error'; reason?: string }[] = [];
 
-    // 4. Dispatch SMS
-    for (const memorial of upcomingMemorials) {
-      if (memorial.parishioner.mobile) {
-        const dateStr = memorial.sacramentDate?.toLocaleDateString('el-GR');
-        const timeStr = memorial.sacramentDate?.toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' });
-        
-        const message = `ΕΝΟΡΙΑ: Σας υπενθυμίζουμε ότι το Μνημόσυνο που έχετε προγραμματίσει έχει οριστεί για τις ${dateStr} ώρα ${timeStr}.`;
-        
-        await sendSMS([memorial.parishioner.mobile], message);
-        logs.push(`Sent SMS directly to ${memorial.parishioner.mobile} for Memorial ID ${memorial.id}`);
-      } else {
-        logs.push(`Skipped Memorial ID ${memorial.id}: No mobile number on file for ${memorial.parishioner.firstName}`);
+    for (const token of upcomingTokens) {
+      if (!token.customerEmail || !token.ceremonyDate) {
+        results.push({ id: token.id, status: 'skipped', reason: 'No email or date' });
+        continue;
+      }
+
+      try {
+        await sendCeremonyReminderEmail({
+          to: token.customerEmail,
+          familyName: token.customerName || 'Αγαπητή Οικογένεια',
+          serviceType: token.serviceType as 'GAMOS' | 'VAPTISI',
+          ceremonyDate: token.ceremonyDate.toLocaleDateString('el-GR'),
+          templeName: token.temple.name,
+        });
+        results.push({ id: token.id, status: 'sent' });
+      } catch (emailError) {
+        console.error(`[Cron] Failed to send reminder for token ${token.id}:`, emailError);
+        results.push({ id: token.id, status: 'error', reason: String(emailError) });
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      processed: upcomingMemorials.length, 
-      logs 
-    });
+    console.log(`[Cron /api/cron/reminders] Processed ${upcomingTokens.length} tokens:`, results);
 
-  } catch (error: any) {
-    console.error('CRON Memorials error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({
+      ok: true,
+      processed: upcomingTokens.length,
+      results,
+      timestamp: now.toISOString(),
+    });
+  } catch (error) {
+    console.error('[Cron] Fatal error in reminders cron:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

@@ -1,169 +1,202 @@
-'use client'
-import { useState } from 'react'
-import { addProtocolEntry } from '@/actions/protocol'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Stamp, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
+import { FileText, Camera, Upload, ArrowRight, ArrowLeft, Search, PlusCircle, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
 
-export default function ProtocolClient({ initialProtocols }: { initialProtocols: any[] }) {
+export default function ProtocolClient({ initialRecords, currentOwner, currentPage, totalPages }: any) {
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [direction, setDirection] = useState('IN');
-  const [subject, setSubject] = useState('');
-  const [sender, setSender] = useState('');
-  const [receiver, setReceiver] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredProtocols = initialProtocols.filter(p => {
-    const q = searchTerm.toLowerCase();
-    const isMatch = (p.subject || '').toLowerCase().includes(q) ||
-                    (p.sender || '').toLowerCase().includes(q) ||
-                    (p.receiver || '').toLowerCase().includes(q) ||
-                    p.number.toString().includes(q) ||
-                    p.year.toString().includes(q);
-    return isMatch;
-  });
+  const handleFilter = (ownerType: string) => {
+     const params = new URLSearchParams(window.location.search);
+     params.set('owner', ownerType);
+     params.set('page', '1');
+     router.push(`?${params.toString()}`);
+  };
 
-  const handleAdd = async (e: any) => {
-    e.preventDefault();
-    if (!subject) return;
-    setLoading(true);
-    await addProtocolEntry({ direction, subject, sender, receiver });
-    setSubject('');
-    setSender('');
-    setReceiver('');
-    setLoading(false);
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+     e.preventDefault();
+     const query = new FormData(e.currentTarget).get('query') as string;
+     const params = new URLSearchParams(window.location.search);
+     if (query) params.set('q', query);
+     else params.delete('q');
+     router.push(`?${params.toString()}`);
   };
 
   return (
-    <div className="container-fluid mt-6 space-y-6">
-      
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            Κεντρικό Πρωτόκολλο
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Καταχώρηση προστιθέμενων και εξερχόμενων εγγράφων.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Form Container */}
-        <div className="col-span-1">
-          <Card className="shadow-sm border-border/50 sticky top-6">
-            <CardHeader>
-              <CardTitle>Νέα Πράξη Πρωτοκόλλου</CardTitle>
-              <CardDescription>Καταχωρήστε τη διακίνηση του εγγράφου</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleAdd} className="space-y-5">
-                
-                <div className="space-y-2">
-                  <Label>Κατεύθυνση (Είδος)</Label>
-                  <select 
-                    value={direction} 
-                    onChange={e => setDirection(e.target.value)} 
-                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  >
-                    <option value="IN">📥 Εισερχόμενο</option>
-                    <option value="OUT">📤 Εξερχόμενο</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Σύντομο Θέμα / Περιγραφή *</Label>
-                  <Input required value={subject} onChange={e => setSubject(e.target.value)} placeholder="π.χ. Αίτηση ενορίτη, Άδεια γάμου" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Αποστολέας</Label>
-                  <Input value={sender} onChange={e => setSender(e.target.value)} placeholder="Από ποιον ήρθε;" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Παραλήπτης</Label>
-                  <Input value={receiver} onChange={e => setReceiver(e.target.value)} placeholder="Προς τα πού στάλθηκε;" />
-                </div>
-
-                <Button type="submit" disabled={loading} className="w-full">
-                  <Stamp className="w-4 h-4 mr-2" />
-                  {loading ? 'Καταχώρηση...' : 'Καταχώρηση'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* DataGrid Container */}
-        <div className="col-span-1 lg:col-span-2 flex flex-col gap-4">
-          <div className="flex w-full max-w-sm items-center space-x-2">
-            <Input 
-              type="text" 
-              placeholder="Αναζήτηση Πρωτοκόλλου (Αρ., Θέμα, Ονόματα)..." 
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="bg-white"
-            />
+    <div className="space-y-6">
+       
+       {/* Toolbar */}
+       <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-border gap-4">
+          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+             <button 
+                onClick={() => handleFilter('TEMPLE')}
+                className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${currentOwner === 'TEMPLE' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:text-gray-900'}`}>
+                Ιερός Ναός
+             </button>
+             <button 
+                onClick={() => handleFilter('PHILOPTOCHOS')}
+                className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${currentOwner === 'PHILOPTOCHOS' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:text-gray-900'}`}>
+                Φιλόπτωχο Ταμείο
+             </button>
           </div>
 
-          <Card className="shadow-sm border-border/50">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-muted-foreground uppercase bg-secondary/50 border-b border-border">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold">Αρ. Πρωτοκόλλου</th>
-                    <th className="px-6 py-4 font-semibold">Είδος</th>
-                    <th className="px-6 py-4 font-semibold">Θέμα</th>
-                    <th className="px-6 py-4 font-semibold">Συναλλασσόμενος</th>
-                    <th className="px-6 py-4 font-semibold">Ημερομηνία</th>
-                  </tr>
+          <form onSubmit={handleSearch} className="flex-1 max-w-sm flex">
+             <div className="relative w-full">
+                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input 
+                   name="query"
+                   placeholder="Αναζήτηση Αποστολέα ή Θέματος..."
+                   className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-slate-50 dark:bg-gray-950 focus:ring-1 focus:ring-primary outline-none"
+                />
+             </div>
+          </form>
+
+          <Button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary/90 text-white gap-2">
+             <PlusCircle className="w-5 h-5" /> Νέο Έγγραφο
+          </Button>
+       </div>
+
+       {/* Protocol Matrix */}
+       <Card className="rounded-xl border border-border shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+             <table className="w-full text-sm text-left">
+                <thead className="bg-gray-50 dark:bg-gray-800 text-gray-600 border-b border-border">
+                   <tr>
+                      <th className="p-4 font-bold text-center w-24">Αριθμός</th>
+                      <th className="p-4 font-bold w-12">Τύπος</th>
+                      <th className="p-4 font-bold min-w-[200px]">Θέμα</th>
+                      <th className="p-4 font-bold">Αποστολέας / Παραλήπτης</th>
+                      <th className="p-4 font-bold">Ημερομηνία</th>
+                      <th className="p-4 font-bold text-center">Αρχείο</th>
+                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {filteredProtocols.map(p => (
-                    <tr key={p.id} className="bg-card hover:bg-muted/50 transition-colors">
-                      <td className="px-6 py-4 font-bold text-foreground">
-                        {p.number} / {p.year}
-                      </td>
-                      <td className="px-6 py-4">
-                        {p.direction === 'IN' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                            <ArrowDownToLine className="w-3 h-3" /> Εισερχόμενο
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                            <ArrowUpFromLine className="w-3 h-3" /> Εξερχόμενο
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 font-medium text-foreground">{p.subject}</td>
-                      <td className="px-6 py-4 text-muted-foreground">
-                        {p.direction === 'IN' ? `Από: ${p.sender || '-'}` : `Προς: ${p.receiver || '-'}`}
-                      </td>
-                      <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
-                        {new Date(p.date).toLocaleDateString('el-GR')}
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredProtocols.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
-                        <Stamp className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
-                        Δεν βρέθηκαν αποτελέσματα.
-                      </td>
-                    </tr>
-                  )}
+                   {initialRecords.length === 0 ? (
+                      <tr><td colSpan={6} className="p-12 text-center text-gray-500">Δεν βρέθηκαν έγγραφα στο πρωτόκολλο αυτού του βιβλίου.</td></tr>
+                   ) : initialRecords.map((doc: any) => (
+                      <tr key={doc.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                         <td className="p-4 text-center">
+                            <span className="font-mono bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg font-bold text-gray-700 dark:text-gray-300">
+                               {doc.number}/{doc.year}
+                            </span>
+                         </td>
+                         <td className="p-4 flex items-center justify-center">
+                            {doc.direction === 'IN' ? (
+                               <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center" title="Εισερχόμενο"><ArrowRight className="w-4 h-4"/></div>
+                            ) : (
+                               <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center" title="Εξερχόμενο"><ArrowLeft className="w-4 h-4"/></div>
+                            )}
+                         </td>
+                         <td className="p-4 font-semibold text-gray-800 dark:text-gray-100">
+                            {doc.subject}
+                         </td>
+                         <td className="p-4 text-gray-600">
+                            {doc.direction === 'IN' ? doc.sender || '-' : doc.receiver || '-'}
+                         </td>
+                         <td className="p-4 text-gray-500 tabular-nums">
+                            {new Date(doc.date).toLocaleDateString("el-GR")}
+                         </td>
+                         <td className="p-4 flex items-center justify-center">
+                            {doc.fileUrl ? (
+                               <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-primary transition-colors hover:bg-slate-100 p-2 rounded-md">
+                                  <FileText className="w-5 h-5"/>
+                               </a>
+                            ) : (
+                               <span className="text-gray-300">-</span>
+                            )}
+                         </td>
+                      </tr>
+                   ))}
                 </tbody>
-              </table>
-            </div>
-          </Card>
-        </div>
+             </table>
+          </div>
+       </Card>
 
-      </div>
+       {/* Slide-over / Modal for New Document */}
+       {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="p-6 border-b border-border flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                   <div>
+                     <h2 className="text-xl font-bold">Πρωτοκόλληση Εγγράφου</h2>
+                     <p className="text-sm text-gray-500">Βιβλίο: <span className="font-semibold text-primary">{currentOwner === 'TEMPLE' ? 'Ιερού Ναού' : 'Φιλοπτώχου'}</span></p>
+                   </div>
+                   <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-red-500 text-2xl leading-none">&times;</button>
+                </div>
+                
+                <form action={async (formData) => {
+                   formData.append('owner', currentOwner);
+                   const { addProtocolEntry } = await import('@/actions/protocol');
+                   toast.promise(addProtocolEntry(formData), {
+                      loading: 'Πρωτοκόλληση...',
+                      success: (res) => {
+                        if(!res.success) throw new Error(res.error);
+                        setIsModalOpen(false);
+                        return `Επιτυχία! Το έγγραφο έλαβε αριθμό ${res.protocolNumber}`;
+                      },
+                      error: (err) => err.message
+                   });
+                }} className="p-6 overflow-y-auto space-y-6">
+                   
+                   <div className="flex gap-4 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                      <button type="button" onClick={() => setDirection('IN')} className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-md font-semibold transition ${direction==='IN'?'bg-white shadow text-blue-600':'text-gray-500 hover:text-gray-800'}`}>
+                         <ArrowRight className="w-4 h-4"/> Εισερχόμενο
+                      </button>
+                      <button type="button" onClick={() => setDirection('OUT')} className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-md font-semibold transition ${direction==='OUT'?'bg-white shadow text-amber-600':'text-gray-500 hover:text-gray-800'}`}>
+                         <ArrowLeft className="w-4 h-4"/> Εξερχόμενο
+                      </button>
+                   </div>
+                   <input type="hidden" name="direction" value={direction} />
+
+                   <div className="space-y-4">
+                      <div>
+                         <label className="block text-sm font-semibold mb-1">Θέμα (Περιεχόμενο)</label>
+                         <input required name="subject" className="w-full p-3 border border-border rounded-lg" placeholder="π.χ. Αίτηση αποδεικτικού στοιχείου..." />
+                      </div>
+
+                      {direction === 'IN' ? (
+                         <div>
+                            <label className="block text-sm font-semibold mb-1">Αποστολέας (Αρχή ή Συγγενής)</label>
+                            <input name="sender" className="w-full p-3 border border-border rounded-lg" placeholder="π.χ. Ιερά Μητρόπολις" />
+                         </div>
+                      ) : (
+                         <div>
+                            <label className="block text-sm font-semibold mb-1">Παραλήπτης (Προς)</label>
+                            <input name="receiver" className="w-full p-3 border border-border rounded-lg" placeholder="π.χ. Δήμος Αθηναίων" />
+                         </div>
+                      )}
+
+                      <div>
+                         <label className="block text-sm font-semibold mb-1">Ημερομηνία</label>
+                         <input required name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} className="w-full p-3 border border-border rounded-lg" />
+                      </div>
+
+                      {/* Native HTML5 Web Scanner (capture="environment") */}
+                      <div className="pt-4 border-t border-border border-dashed">
+                         <label className="block text-sm font-semibold mb-2">Web Scanner (Επισύναψη)</label>
+                         <div className="relative group cursor-pointer w-full h-32 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center hover:bg-primary/10 transition-colors">
+                            <input type="file" name="document" accept="image/*,application/pdf" capture="environment" className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                            <Camera className="w-8 h-8 text-primary mb-2 opacity-80 group-hover:scale-110 transition-transform" />
+                            <span className="text-sm font-semibold text-primary">Λήψη Φωτογραφίας ή Επιλογή Αρχείου</span>
+                            <span className="text-xs text-primary/60 mt-1">Αν ανοιχτεί από κινητό, θα ανοίξει την κάμερα!</span>
+                         </div>
+                      </div>
+                   </div>
+
+                   <div className="flex gap-4 pt-4">
+                      <Button type="button" onClick={() => setIsModalOpen(false)} variant="outline" className="flex-1 py-6">Ακύρωση</Button>
+                      <Button type="submit" className="flex-1 py-6 text-lg font-bold">Πρωτοκόλληση</Button>
+                   </div>
+                </form>
+             </div>
+          </div>
+       )}
     </div>
-  )
+  );
 }
-

@@ -33,7 +33,8 @@ export default function AdminMetaForm({ token }: { token: any }) {
     });
 
     if (res.success && res.entry) {
-       await markTokenAsDocsGenerated(token.id, priest, book);
+       const protoStr = `${res.entry.number}`;
+       await markTokenAsDocsGenerated(token.id, priest, book, protoStr);
        alert(`Το πιστοποιητικό εκδόθηκε με επιτυχία! Αριθμός Πρωτοκόλλου: ${res.entry.number}/${res.entry.year}`);
        router.push(`/admin/requests/${token.id}`);
     } else {

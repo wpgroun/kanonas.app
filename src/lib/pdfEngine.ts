@@ -36,6 +36,10 @@ async function buildDocumentPage(pdfDoc: PDFDocument, options: {
   body: { label: string; value: string; wide?: boolean }[];
   footerText?: string;
   signatureLabel?: string;
+  /** Optional verification URL (for QR/hash reference in footer) */
+  verificationUrl?: string;
+  /** Optional document hash to display as reference number */
+  docHash?: string;
 }): Promise<void> {
   const page = pdfDoc.addPage(PageSizes.A4);
   const { width, height } = page.getSize();
@@ -108,11 +112,33 @@ async function buildDocumentPage(pdfDoc: PDFDocument, options: {
 
   // Signature area
   const sigLabel = options.signatureLabel || 'Ο Εφημέριος';
-  page.drawText(sigLabel, { x: width - 180, y: 80, size: 10, font: fontBold, color: rgb(0.2, 0.2, 0.2) });
-  page.drawLine({ start: { x: width - 220, y: 70 }, end: { x: width - marginX, y: 70 }, thickness: 0.5, color: rgb(0.5, 0.5, 0.5) });
+  page.drawText(sigLabel, { x: width - 180, y: 95, size: 10, font: fontBold, color: rgb(0.2, 0.2, 0.2) });
+  page.drawLine({ start: { x: width - 220, y: 85 }, end: { x: width - marginX, y: 85 }, thickness: 0.5, color: rgb(0.5, 0.5, 0.5) });
 
-  // Date bottom left
-  page.drawText(`Ημερομηνία: ${formatShortDate(new Date())}`, { x: marginX, y: 80, size: 9, font, color: rgb(0.5, 0.5, 0.5) });
+  // Date bottom left  
+  page.drawText(`Ημερομηνία: ${formatShortDate(new Date())}`, { x: marginX, y: 95, size: 9, font, color: rgb(0.5, 0.5, 0.5) });
+
+  // ── Verification footer ──────────────────────────────────────────────────────
+  // A verification URL with the document hash allows anyone to confirm authenticity.
+  if (options.verificationUrl) {
+    page.drawLine({
+      start: { x: marginX, y: 60 },
+      end: { x: width - marginX, y: 60 },
+      thickness: 0.3,
+      color: rgb(0.8, 0.8, 0.8),
+    });
+    page.drawText('✓ Επαλήθευση Γνησιότητας Εγγράφου:', {
+      x: marginX, y: 48, size: 7, font: fontBold, color: rgb(0.4, 0.4, 0.4)
+    });
+    page.drawText(options.verificationUrl, {
+      x: marginX, y: 38, size: 7, font, color: rgb(0.1, 0.1, 0.6)
+    });
+    if (options.docHash) {
+      page.drawText(`Κωδικός Εγγράφου: ${options.docHash.substring(0, 16).toUpperCase()}`, {
+        x: marginX, y: 28, size: 6, font, color: rgb(0.6, 0.6, 0.6)
+      });
+    }
+  }
 }
 
 // ─── Data loader ───────────────────────────────────────────────────────────────
@@ -161,13 +187,15 @@ async function genAitisiGamou(t: TokenData, settings: any): Promise<Buffer> {
       { label: 'Αρ. Βιβλίου Γάμων', value: t.bookNumber || BLANK },
       { label: 'Ημερομηνία Τέλεσης', value: formatGreekDate(t.ceremonyDate) },
       { label: 'Νυμφίος (Γαμπρός)', value: groom ? `${groom.firstName} ${groom.lastName} του ${declineGreekName(groom.fathersName || '', 'genitive', 'male')}` : BLANK },
-      { label: 'Οικ. Κατάσταση Νυμφίου', value: meta.groomStatus === 'diazevmenos' ? `Διαζευγμένος (${meta.groomDivorceRef || ''})` : meta.groomStatus === 'xiros' ? 'Χήρος' : 'Άγαμος' },
+      { label: 'Οικ. Κατάσταση Νυμφίου', value: meta.groomStatus === 'diazevmenos' ? `Διαζευγμένος (${meta.groomDivorceRef || ''})` : meta.groomStatus === 'xiros' ? 'Χήρος' : meta.groomStatus === 'symfono' ? `Μετά Συμφώνου Συμβίωσης (${meta.groomSymfonoRef || ''})` : 'Άγαμος' },
       { label: 'Νύμφη', value: bride ? `${bride.firstName} ${bride.lastName} του ${declineGreekName(bride.fathersName || '', 'genitive', 'male')}` : BLANK },
-      { label: 'Οικ. Κατάσταση Νύμφης', value: meta.brideStatus === 'diazevmeni' ? `Διαζευγμένη (${meta.brideDivorceRef || ''})` : meta.brideStatus === 'xira' ? 'Χήρα' : 'Άγαμη' },
+      { label: 'Οικ. Κατάσταση Νύμφης', value: meta.brideStatus === 'diazevmeni' ? `Διαζευγμένη (${meta.brideDivorceRef || ''})` : meta.brideStatus === 'xira' ? 'Χήρα' : meta.brideStatus === 'symfono' ? `Μετά Συμφώνου Συμβίωσης (${meta.brideSymfonoRef || ''})` : 'Άγαμη' },
       { label: 'Κουμπάρος Ορθόδοξος', value: meta.koumparosIsOrthodox === 'yes' ? 'Ναι' : meta.koumparosIsOrthodox === 'no' ? 'Όχι' : BLANK },
       { label: 'Εφημέριος', value: t.assignedPriest || settings.priests?.[0]?.name || BLANK },
     ],
     footerText: 'Παρακαλώ να γίνουν δεκτοί και τελεσθεί ο Ιερός Γάμος σύμφωνα με τους Ιερούς Κανόνες και τη νομοθεσία της Εκκλησίας.',
+    verificationUrl: settings._verificationUrl,
+    docHash: settings._docHash,
   });
 
   return Buffer.from(await pdfDoc.save());
@@ -179,8 +207,8 @@ async function genDilosiGamou(t: TokenData, settings: any, who: 'groom' | 'bride
   const isGroom = who === 'groom';
   const meta = parseSettings(t.ceremonyMeta?.dataJson);
   const oikStatus = isGroom
-    ? (meta.groomStatus === 'diazevmenos' ? 'Διαζευγμένος' : meta.groomStatus === 'xiros' ? 'Χήρος' : 'Άγαμος')
-    : (meta.brideStatus === 'diazevmeni' ? 'Διαζευγμένη' : meta.brideStatus === 'xira' ? 'Χήρα' : 'Άγαμη');
+    ? (meta.groomStatus === 'diazevmenos' ? 'Διαζευγμένος' : meta.groomStatus === 'symfono' ? 'Σύμφωνο Συμβίωσης' : meta.groomStatus === 'xiros' ? 'Χήρος' : 'Άγαμος')
+    : (meta.brideStatus === 'diazevmeni' ? 'Διαζευγμένη' : meta.brideStatus === 'symfono' ? 'Σύμφωνο Συμβίωσης' : meta.brideStatus === 'xira' ? 'Χήρα' : 'Άγαμη');
 
   await buildDocumentPage(pdfDoc, {
     metropolisHeader: settings.metropolisName || 'Ιερά Μητρόπολη',
@@ -197,6 +225,8 @@ async function genDilosiGamou(t: TokenData, settings: any, who: 'groom' | 'bride
     ],
     footerText: 'Δηλώνω υπεύθυνα ότι τα ανωτέρω στοιχεία είναι αληθή και ακριβή. Γνωρίζω ότι ψευδής δήλωση επιφέρει νόμιμες κυρώσεις.',
     signatureLabel: isGroom ? 'Ο Δηλών (Νυμφίος)' : 'Η Δηλούσα (Νύμφη)',
+    verificationUrl: settings._verificationUrl,
+    docHash: settings._docHash,
   });
 
   return Buffer.from(await pdfDoc.save());
@@ -214,14 +244,16 @@ async function genBebaiosiGamou(t: TokenData, settings: any): Promise<Buffer> {
     protocolLabel: `Αρ. Πρωτ.: ${t.protocolNumber || BLANK}`,
     body: [
       { label: 'Βεβαιώνεται ότι τελέσθηκε Ιερός Γάμος', value: '', wide: true },
-      { label: 'Μεταξύ:', value: groom ? `${groom.firstName} ${groom.lastName}` : BLANK },
-      { label: 'Καί:', value: bride ? `${bride.firstName} ${bride.lastName}` : BLANK },
+      { label: 'Μεταξύ:', value: groom ? `${declineGreekName(groom.firstName, 'genitive', 'male')} ${declineGreekName(groom.lastName, 'genitive', 'male')}` : BLANK },
+      { label: 'Καί:', value: bride ? `${declineGreekName(bride.firstName, 'genitive', 'female')} ${declineGreekName(bride.lastName, 'genitive', 'female')}` : BLANK },
       { label: 'Ημερομηνία Τέλεσης', value: formatGreekDate(t.ceremonyDate) },
       { label: 'Αρ. Βιβλίου Γάμων', value: t.bookNumber || BLANK },
       { label: 'Αρ. Πρωτοκόλλου', value: t.protocolNumber || BLANK },
       { label: 'Εφημέριος', value: t.assignedPriest || settings.priests?.[0]?.name || BLANK },
     ],
     footerText: 'Εκδίδεται κατόπιν αιτήσεως για χρήση ενώπιον κάθε αρχής.',
+    verificationUrl: settings._verificationUrl,
+    docHash: settings._docHash,
   });
 
   return Buffer.from(await pdfDoc.save());
@@ -241,13 +273,15 @@ async function genGamilionGramma(t: TokenData, settings: any): Promise<Buffer> {
     body: [
       { label: 'Προς τον Σεβ. Μητροπολίτη', value: `κ.κ. ${bishopGen || settings.bishopName || BLANK}` },
       { label: 'Ανακοινούται ότι ετελέσθη Γάμος', value: '' },
-      { label: 'Νυμφίου', value: groom ? `${groom.firstName} ${groom.lastName}` : BLANK },
-      { label: 'Νύμφης', value: bride ? `${bride.firstName} ${bride.lastName}` : BLANK },
+      { label: 'Νυμφίου', value: groom ? `${declineGreekName(groom.firstName, 'genitive', 'male')} ${declineGreekName(groom.lastName, 'genitive', 'male')}` : BLANK },
+      { label: 'Νύμφης', value: bride ? `${declineGreekName(bride.firstName, 'genitive', 'female')} ${declineGreekName(bride.lastName, 'genitive', 'female')}` : BLANK },
       { label: 'Ημερομηνία', value: formatGreekDate(t.ceremonyDate) },
       { label: 'Αρ. Βιβλίου Γάμων', value: t.bookNumber || BLANK },
       { label: 'Ιερός Ναός', value: t.temple.name },
       { label: 'Εφημέριος', value: t.assignedPriest || settings.priests?.[0]?.name || BLANK },
     ],
+    verificationUrl: settings._verificationUrl,
+    docHash: settings._docHash,
   });
 
   return Buffer.from(await pdfDoc.save());
@@ -284,6 +318,8 @@ async function genPinakasSynthikon(t: TokenData, settings: any): Promise<Buffer>
     ],
     footerText: 'Βεβαιώνεται η κανονική τέλεση του μυστηρίου κατά τους Ιερούς Κανόνες. Ο Ναός ευθύνεται για την ακρίβεια των στοιχείων.',
     signatureLabel: 'Ο Προϊστάμενος',
+    verificationUrl: settings._verificationUrl,
+    docHash: settings._docHash,
   });
 
   return Buffer.from(await pdfDoc.save());
@@ -398,18 +434,28 @@ export interface GeneratedDoc {
   filename: string;
 }
 
+/** Build the base URL for document verification links */
+function buildVerificationUrl(tokenStr: string): string {
+  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://kanonas.app';
+  return `${base}/api/verify/${tokenStr}`;
+}
+
 export async function generateAllGamosDocs(t: TokenData): Promise<GeneratedDoc[]> {
   const settings = parseSettings(t.temple.settings);
   const familySlug = t.customerName.replace(/\s+/g, '_').slice(0, 20);
+  const verificationUrl = buildVerificationUrl(t.id);
   const docs: GeneratedDoc[] = [];
 
+  // Inject verification URL into settings so individual generators can use it
+  const settingsWithVerify = { ...settings, _verificationUrl: verificationUrl, _docHash: t.id };
+
   const pairs: [string, string, () => Promise<Buffer>][] = [
-    ['pinakas_synthikon', 'Πίνακας Συνθηκών', () => genPinakasSynthikon(t, settings)],
-    ['aitisi', 'Αίτηση Γάμου', () => genAitisiGamou(t, settings)],
-    ['dilosi_gampr', 'Δήλωση Γαμπρού', () => genDilosiGamou(t, settings, 'groom')],
-    ['dilosi_nyfis', 'Δήλωση Νύφης', () => genDilosiGamou(t, settings, 'bride')],
-    ['bebaiosi', 'Βεβαίωση Γάμου', () => genBebaiosiGamou(t, settings)],
-    ['gamilion', 'Γαμήλιο Γράμμα', () => genGamilionGramma(t, settings)],
+    ['pinakas_synthikon', 'Πίνακας Συνθηκών', () => genPinakasSynthikon(t, settingsWithVerify)],
+    ['aitisi', 'Αίτηση Γάμου', () => genAitisiGamou(t, settingsWithVerify)],
+    ['dilosi_gampr', 'Δήλωση Γαμπρού', () => genDilosiGamou(t, settingsWithVerify, 'groom')],
+    ['dilosi_nyfis', 'Δήλωση Νύφης', () => genDilosiGamou(t, settingsWithVerify, 'bride')],
+    ['bebaiosi', 'Βεβαίωση Γάμου', () => genBebaiosiGamou(t, settingsWithVerify)],
+    ['gamilion', 'Γαμήλιο Γράμμα', () => genGamilionGramma(t, settingsWithVerify)],
   ];
 
   for (const [key, label, fn] of pairs) {
@@ -424,16 +470,48 @@ export async function generateAllGamosDocs(t: TokenData): Promise<GeneratedDoc[]
   return docs;
 }
 
+export async function genFinancialStatementPdf(stats: any, year: number, settings: any): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  
+  // Format categories
+  const categoryFields = Object.entries(stats.byCategory || {}).map(([k,v]: any) => ({
+    label: ` - ${k}`, value: `€ ${Number(v).toFixed(2)}`, wide: true
+  }));
+
+  const isSealedStr = stats.isSealed ? `(ΟΡΙΣΤΙΚΟΠΟΙΗΜΕΝΟ Y/A ${stats.sealedBy || ''})` : '(ΠΡΟΣΩΡΙΝΟ)';
+
+  await buildDocumentPage(pdfDoc, {
+    metropolisHeader: settings?.metropolisName || 'Ιερά Μητρόπολη',
+    templeHeader: settings?.templeName || 'Ιερός Ναός',
+    title: `ΟΙΚΟΝΟΜΙΚΟΣ ΑΠΟΛΟΓΙΣΜΟΣ ${year}`,
+    subtitle: isSealedStr,
+    body: [
+      { label: 'Συνολικά Έσοδα Ταμείου', value: `€ ${(stats.totalIncome || 0).toFixed(2)}`, wide: true },
+      { label: 'Συνολικά Έξοδα Ναού', value: `€ ${(stats.totalExpense || 0).toFixed(2)}`, wide: true },
+      { label: 'Καθαρό Υπόλοιπο', value: `€ ${((stats.totalIncome || 0) - (stats.totalExpense || 0)).toFixed(2)}`, wide: true },
+      { label: '----------------------------', value: '----', wide: true },
+      { label: 'ΑΝΑΛΥΣΗ ΕΣΟΔΩΝ', value: '', wide: true },
+      ...categoryFields
+    ],
+    footerText: 'Το παρόν έγγραφο αποτελεί τον επίσημο απολογισμό εσόδων-εξόδων του Ναού προς κατάθεση στη Μητρόπολη.',
+    signatureLabel: 'Ο Πρόεδρος του Εκκλ. Συμβουλίου'
+  });
+
+  return Buffer.from(await pdfDoc.save());
+}
 export async function generateAllBaptisiDocs(t: TokenData): Promise<GeneratedDoc[]> {
   const settings = parseSettings(t.temple.settings);
   const familySlug = t.customerName.replace(/\s+/g, '_').slice(0, 20);
+  const verificationUrl = buildVerificationUrl(t.id);
   const docs: GeneratedDoc[] = [];
 
+  const settingsWithVerify = { ...settings, _verificationUrl: verificationUrl, _docHash: t.id };
+
   const pairs: [string, string, () => Promise<Buffer>][] = [
-    ['baptistiko', 'Βαπτιστικό Πιστοποιητικό', () => genBaptistiko(t, settings)],
-    ['dilosi_anadoxou', 'Δήλωση Αναδόχου', () => genDilosiBaptiseos(t, settings)],
-    ['bebaiosi', 'Βεβαίωση Βάπτισης', () => genBebaiosiBaptiseos(t, settings)],
-    ['apantitikon', 'Απαντητικόν', () => genApantitikon(t, settings)],
+    ['baptistiko', 'Βαπτιστικό Πιστοποιητικό', () => genBaptistiko(t, settingsWithVerify)],
+    ['dilosi_anadoxou', 'Δήλωση Αναδόχου', () => genDilosiBaptiseos(t, settingsWithVerify)],
+    ['bebaiosi', 'Βεβαίωση Βάπτισης', () => genBebaiosiBaptiseos(t, settingsWithVerify)],
+    ['apantitikon', 'Απαντητικόν', () => genApantitikon(t, settingsWithVerify)],
   ];
 
   for (const [key, label, fn] of pairs) {
@@ -447,5 +525,99 @@ export async function generateAllBaptisiDocs(t: TokenData): Promise<GeneratedDoc
 
   return docs;
 }
+
+// ─── FUNERALS & MEMORIALS ───────────────────────────────────────────────────
+
+export async function generateFuneralCert(deceased: any, templeSettings: any, templeName: string): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  
+  await buildDocumentPage(pdfDoc, {
+    metropolisHeader: templeSettings.metropolisName || 'Ιερά Μητρόπολη',
+    templeHeader: templeName,
+    title: 'ΠΙΣΤΟΠΟΙΗΤΙΚΟ ΕΚΔΗΜΙΑΣ',
+    subtitle: '(ΒΙΒΛΙΟ ΚΕΚΟΙΜΗΜΕΝΩΝ)',
+    protocolLabel: `Αρ. Πράξης: ${deceased.bookNumber || '___'}`,
+    body: [
+      { label: 'Ονοματεπώνυμο Κεκοιμημένου', value: `${deceased.lastName} ${deceased.firstName}` },
+      { label: 'Πατρώνυμο', value: deceased.fathersName || 'Άγνωστο' },
+      { label: 'Ημερομηνία Εκδημίας', value: deceased.dateOfDeath ? formatGreekDate(new Date(deceased.dateOfDeath)) : 'Άγνωστη' },
+      { label: 'Τόπος & Ημερομηνία Ταφής', value: `${deceased.placeOfFuneral || 'Νεκροταφείο'} / ${deceased.dateOfFuneral ? new Date(deceased.dateOfFuneral).toLocaleDateString("el-GR") : '-'}` },
+      { label: 'Συγγενής / Επικοινωνία', value: deceased.nextOfKinName ? `${deceased.nextOfKinName} (${deceased.nextOfKinPhone || ''})` : '-' },
+    ],
+    footerText: 'Βεβαιούται η εκδημία και η τέλεση της Εξοδίου Ακολουθίας υπό της Ενορίας μας.',
+    signatureLabel: 'Ο Εφημέριος',
+  });
+
+  return Buffer.from(await pdfDoc.save());
+}
+
+export async function generateMemorialPermit(memorial: any, deceased: any, templeSettings: any, templeName: string): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  
+  await buildDocumentPage(pdfDoc, {
+    metropolisHeader: templeSettings.metropolisName || 'Ιερά Μητρόπολη',
+    templeHeader: templeName,
+    title: 'ΑΔΕΙΑ ΤΕΛΕΣΗΣ ΜΝΗΜΟΣΥΝΟΥ',
+    subtitle: memorial.type === '40MH' ? '(Τεσσαρακονθήμερον)' : memorial.type === '1YEAR' ? '(Ετήσιον)' : '(Μνημόσυνον)',
+    protocolLabel: `Ημερομηνία Τέλεσης: ${new Date(memorial.date).toLocaleDateString("el-GR")}`,
+    body: [
+      { label: 'Υπέρ αναπαύσεως', value: `${deceased.lastName} ${deceased.firstName}` },
+      { label: 'Ώρα Τέλεσης', value: memorial.time || '10:00 π.μ.' },
+      { label: 'Τόπος', value: deceased.placeOfFuneral || 'Ενορία' },
+      { label: 'Εφημέριος', value: memorial.officiantPriest || 'Ιερατείον' },
+    ],
+    footerText: 'Παρέχεται η άδεια δια την τέλεσιν του Ιερού Μνημοσύνου σύμφωνα με τους κανόνες της Εκκλησίας.',
+    signatureLabel: 'Ο Προϊστάμενος',
+  });
+
+  return Buffer.from(await pdfDoc.save());
+}
+
+// ─── MAILING & LABELS ───────────────────────────────────────────────────────
+
+export async function generateLabelsPdf(people: any[]): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+  // Standard Avery-style 3x7 Grid (21 labels per A4 page)
+  const COLS = 3;
+  const ROWS = 7;
+  const LABELS_PER_PAGE = COLS * ROWS;
+  const PAGE_WIDTH = 595.28; // A4 pt width
+  const PAGE_HEIGHT = 841.89; // A4 pt height
+
+  const MARGIN_X = 14.17; // ~5mm margin
+  const MARGIN_Y = 42.5; // ~15mm top/bottom margin
+  
+  const LABEL_WIDTH = (PAGE_WIDTH - (MARGIN_X * 2)) / COLS;
+  const LABEL_HEIGHT = (PAGE_HEIGHT - (MARGIN_Y * 2)) / ROWS;
+
+  for (let i = 0; i < people.length; i += LABELS_PER_PAGE) {
+    const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    const chunk = people.slice(i, i + LABELS_PER_PAGE);
+
+    chunk.forEach((person, index) => {
+      const col = index % COLS;
+      const row = Math.floor(index / COLS);
+      
+      const x = MARGIN_X + (col * LABEL_WIDTH) + 15;
+      const y = PAGE_HEIGHT - MARGIN_Y - (row * LABEL_HEIGHT) - 30;
+
+      const fullName = `${person.lastName || ''} ${person.firstName || ''}`.trim();
+      page.drawText(fullName.substring(0, 30), { x, y, size: 10, font: fontBold, color: rgb(0,0,0) });
+      page.drawText(person.address ? person.address.substring(0, 35) : '(Χωρίς Διεύθυνση)', { x, y: y - 14, size: 9, font, color: rgb(0.2,0.2,0.2) });
+      page.drawText(`Τ.Κ. ${person.postalCode || '____'} - ${person.city || ''}`, { x, y: y - 26, size: 9, font, color: rgb(0.2,0.2,0.2) });
+    });
+  }
+
+  if (people.length === 0) {
+      const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+      page.drawText("No records selected.", { x: 50, y: PAGE_HEIGHT - 50, size: 12, font });
+  }
+
+  return Buffer.from(await pdfDoc.save());
+}
+
 
 

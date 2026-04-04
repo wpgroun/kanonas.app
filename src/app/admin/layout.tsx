@@ -2,36 +2,51 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode, useState } from 'react';
-import {
-  LayoutDashboard, Users, FileText, Banknote, Calendar,
+import { ReactNode, useState, useEffect } from 'react';
+import { LayoutDashboard, Users, FileText, Banknote, Calendar,
   BookOpen, HeartHandshake, Package, ClipboardList, Settings,
   LogOut, ChevronLeft, Menu, Bell, ShieldCheck
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
-
-const navItems = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Επισκόπηση' },
-  { href: '/admin/requests', icon: FileText, label: 'Αιτήματα' },
-  { href: '/admin/parishioners', icon: Users, label: 'Μητρώο' },
-  { href: '/admin/finances', icon: Banknote, label: 'Οικονομικά' },
-  { href: '/admin/schedule', icon: Calendar, label: 'Πρόγραμμα' },
-  { href: '/admin/protocol', icon: ClipboardList, label: 'Πρωτόκολλο' },
-  { href: '/admin/diptychs', icon: BookOpen, label: 'Δίπτυχα' },
-  { href: '/admin/philanthropy', icon: HeartHandshake, label: 'Φιλόπτωχο' },
-  { href: '/admin/assets', icon: Package, label: 'Περιουσιολόγιο' },
-];
-
-const secondaryItems = [
-  { href: '/admin/settings', icon: Settings, label: 'Ρυθμίσεις' },
-  { href: '/admin/super', icon: ShieldCheck, label: 'Super Admin' },
-];
+import { fetchSessionClient } from '@/actions/clientSession';
+import { useDict } from '@/i18n/TranslationProvider';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const dict = useDict();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [perms, setPerms] = useState<any>(null);
+
+  useEffect(() => {
+    fetchSessionClient().then(data => setPerms(data));
+  }, []);
+
+  // Show nothing or skeleton while loading session logic initially
+  if (!perms) return <div className="h-screen w-screen flex items-center justify-center bg-background"><div className="w-8 h-8 rounded-full border-t-2 border-primary animate-spin"></div></div>;
+
+  const navItems = [
+    { href: '/admin', icon: LayoutDashboard, label: dict.nav.dashboard, requiredPerm: null },
+    { href: '/admin/requests', icon: FileText, label: dict.nav.requests, requiredPerm: 'canManageRequests' },
+    { href: '/admin/parishioners', icon: Users, label: dict.nav.parishioners, requiredPerm: 'canManageRegistry' },
+    { href: '/admin/finances', icon: Banknote, label: dict.nav.finances, requiredPerm: 'canViewFinances' },
+    { href: '/admin/schedule', icon: Calendar, label: dict.nav.calendar, requiredPerm: 'canManageSchedule' },
+    { href: '/admin/protocol', icon: ClipboardList, label: dict.nav.documents, requiredPerm: 'canManageProtocol' },
+    { href: '/admin/diptychs', icon: BookOpen, label: dict.nav.diptychs, requiredPerm: null },
+    { href: '/admin/philanthropy', icon: HeartHandshake, label: dict.nav.philanthropy, requiredPerm: 'canViewBeneficiaries' },
+    { href: '/admin/assets', icon: Package, label: dict.nav.assets, requiredPerm: 'canManageAssets' },
+  ].filter(item => !item.requiredPerm || perms[item.requiredPerm] === true || perms.isSuperAdmin || perms.isHeadPriest);
+
+  const secondaryItems = [
+    { href: '/admin/settings', icon: Settings, label: dict.nav.settings, requiredPerm: 'isHeadPriest' },
+    { href: '/admin/users', icon: Users, label: 'Προσωπικό & Ρόλοι', requiredPerm: 'isHeadPriest' },
+    { href: '/admin/super', icon: ShieldCheck, label: dict.nav.superAdmin, requiredPerm: 'isSuperAdmin' },
+  ].filter(item => {
+     if (item.requiredPerm === 'isHeadPriest') return perms.isHeadPriest || perms.isSuperAdmin;
+     if (item.requiredPerm === 'isSuperAdmin') return perms.isSuperAdmin;
+     return true;
+  });
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin';
@@ -64,11 +79,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="sidebar-header flex items-center justify-between">
           <Link href="/admin" className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-extrabold text-sm">Κ</span>
+              <span className="text-white font-extrabold text-sm" style={{fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.3em", paddingRight: "2px"}}>κ</span>
             </div>
             {!collapsed && (
               <span className="font-bold text-[var(--foreground)] text-base tracking-tight truncate">
-                Κανόνας
+                {dict.general.appName}
               </span>
             )}
           </Link>
@@ -82,7 +97,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         {/* Main nav */}
         <nav className="sidebar-nav mt-1">
-          {!collapsed && <div className="sidebar-section-label">Διαχείριση</div>}
+          {!collapsed && <div className="sidebar-section-label">{dict.nav.sectionManagement}</div>}
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -96,7 +111,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </Link>
           ))}
 
-          {!collapsed && <div className="sidebar-section-label mt-2">Σύστημα</div>}
+          {!collapsed && <div className="sidebar-section-label mt-2">{dict.nav.sectionSystem}</div>}
           {secondaryItems.map((item) => (
             <Link
               key={item.href}
@@ -118,7 +133,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             className="nav-item w-full text-[var(--danger)] hover:bg-[var(--danger-light)]"
           >
             <LogOut className="nav-icon" />
-            {!collapsed && <span>Αποσύνδεση</span>}
+            {!collapsed && <span>{dict.nav.logout}</span>}
           </button>
         </div>
       </aside>
@@ -136,7 +151,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <button className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-[var(--surface-hover)] text-[var(--text-muted)] relative">
+            <button 
+              onClick={async () => {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                  new Notification('Κανόνας', {
+                    body: 'Οι PWA Ειδοποιήσεις είναι ενεργοποιημένες!',
+                    icon: '/icon.png'
+                  });
+                } else {
+                  alert('Πρέπει να επιτρέψεις τις ειδοποιήσεις στον browser!');
+                }
+              }}
+              className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-[var(--surface-hover)] text-[var(--text-muted)] relative tooltip tooltip-bottom"
+              title="Ενεργοποίηση Web Push Ειδοποιήσεων"
+              data-tip="Ειδοποιήσεις"
+            >
               <Bell className="w-[18px] h-[18px]" />
             </button>
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center">

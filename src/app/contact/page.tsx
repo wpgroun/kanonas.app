@@ -2,14 +2,36 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Send, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { submitContactForm } from '@/actions/contact';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    temple: '',
+    message: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setError('');
+    setLoading(true);
+    
+    try {
+      const res = await submitContactForm(formData);
+      if (!res.success) throw new Error(res.error);
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -20,7 +42,7 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center">
-              <span className="text-white font-extrabold text-sm">Κ</span>
+              <span className="text-white font-extrabold text-sm" style={{fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.3em", paddingRight: "2px"}}>κ</span>
             </div>
             <span className="font-bold text-[var(--foreground)] text-lg tracking-tight">Κανόνας</span>
           </Link>
@@ -106,35 +128,41 @@ export default function ContactPage() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <h3 className="text-lg font-bold text-[var(--foreground)] mb-2">Φόρμα Επικοινωνίας</h3>
+                  
+                  {error && (
+                    <div className="p-3 bg-[var(--danger-light)] border border-[var(--danger)]/20 text-[var(--danger)] text-sm rounded-lg text-center font-medium">
+                      {error}
+                    </div>
+                  )}
 
                   <div>
-                    <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Ονοματεπώνυμο / Ιδιότητα</label>
-                    <input type="text" required placeholder="π.χ. π. Ιωάννης Παπαδόπουλος" className="input" />
+                    <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Ονοματεπώνυμο / Ιδιότητα *</label>
+                    <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="π.χ. π. Ιωάννης Παπαδόπουλος" className="input" />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Email</label>
-                      <input type="email" required placeholder="email@example.com" className="input" />
+                      <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Email *</label>
+                      <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@example.com" className="input" />
                     </div>
                     <div>
                       <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Τηλέφωνο</label>
-                      <input type="text" required placeholder="69..." className="input" />
+                      <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="69..." className="input" />
                     </div>
                   </div>
 
                   <div>
                     <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Ιερός Ναός / Μητρόπολη</label>
-                    <input type="text" required placeholder="Ι.Ν. Αγίου..." className="input" />
+                    <input type="text" value={formData.temple} onChange={e => setFormData({...formData, temple: e.target.value})} placeholder="Ι.Ν. Αγίου..." className="input" />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Μήνυμα</label>
-                    <textarea required rows={4} placeholder="Πώς μπορούμε να βοηθήσουμε;" className="input resize-none" />
+                    <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Μήνυμα *</label>
+                    <textarea required rows={4} value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} placeholder="Πώς μπορούμε να βοηθήσουμε;" className="input resize-none" />
                   </div>
 
-                  <button type="submit" className="btn btn-primary w-full">
-                    <Send className="w-4 h-4" /> Αποστολή
+                  <button type="submit" disabled={loading} className="btn btn-primary w-full disabled:opacity-50">
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Αποστολή στο info@kanonas.app</>}
                   </button>
 
                   <p className="text-xs text-center text-[var(--text-muted)]">

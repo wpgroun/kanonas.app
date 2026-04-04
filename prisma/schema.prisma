@@ -13,26 +13,88 @@ generator client {
 // =======================
 
 model Metropolis {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   name      String
+  // Unique short code used in URLs and reports (e.g. "thessaloniki")
+  slug      String?          @unique
+  city      String?
+  email     String?
+  phone     String?
   temples   Temple[]
+  // Users with Metropolis-level access (read-only across all temples)
+  users     MetropolisUser[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+// Metropolis-level admin users (supervisory access, read-only)
+model MetropolisUser {
+  id           String     @id @default(cuid())
+  metropolisId String
+  metropolis   Metropolis @relation(fields: [metropolisId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role         String     @default("viewer") // "viewer", "admin"
+  createdAt    DateTime   @default(now())
+
+  @@unique([metropolisId, userId])
+}
+
+// =======================
+// SUBSCRIPTION PLANS (admin-configurable)
+// =======================
+
+model SubscriptionPlan {
+  id String @id @default(cuid())
+
+  // e.g. "Ενορία Basic", "Ενορία Premium", "Μητρόπολη"
+  name String @unique
+  slug String @unique // "basic", "premium", "mitrópoli"
+
+  // Pricing
+  priceMonthly Float @default(0) // EUR per month
+  priceYearly  Float @default(0) // EUR per year (discounted)
+
+  // Metropolis plans are manually activated by super admin only
+  isMetropolis Boolean @default(false)
+
+  // Features included (stored as JSON array of feature keys)
+  features String @default("[]") // JSON
+
+  // Stripe product/price IDs (set by super admin after creating in Stripe Dashboard)
+  stripePriceMonthlyId String?
+  stripePriceYearlyId  String?
+
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  subscriptions Subscription[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Temple {
-  id           String      @id @default(cuid())
-  metropolisId String?
-  metropolis   Metropolis? @relation(fields: [metropolisId], references: [id])
+  id           String     @id @default(cuid())
+  // Every temple MUST belong to a Metropolis — this is NOT optional.
+  metropolisId String
+  metropolis   Metropolis @relation(fields: [metropolisId], references: [id])
   name         String
+  slug         String?    @unique // Δημόσιο URL για το mini-site του Ναού π.χ. "agios-nikolaos"
+  taxId        String?    // ΑΦΜ
+  phoneNumber  String?    // Τηλέφωνο Επικοινωνίας
   address      String?
   city         String?
   email        String?
 
-  // Settings (stored as JSON for flexibility, like gsils credentials, custom numbering logic etc)
+  // Settings (stored as JSON for flexibility, e.g., smtpHost, smsToken, viberToken)
   settings String? @default("{}") // JSON string
 
   // SaaS Multi-tenancy relations
+  subscriptionStatus  String    @default("active") // "active", "inactive", "trial"
+  subscriptionPlan    String    @default("basic") // "basic", "premium"
+  subscriptionEndDate DateTime?
+
   users        UserTemple[]
   parishioners Parishioner[]
   sacraments   Sacrament[]
@@ -51,11 +113,37 @@ model Temple {
   assignments  Assignment[]
   vaultDocs    VaultDocument[]
 
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  beneficiaries  Beneficiary[]
-  sissitioDays   SissitioDay[]
-  inventoryItems InventoryItem[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  beneficiaries       Beneficiary[]
+  sissitioDays        SissitioDay[]
+  inventoryItems      InventoryItem[]
+  subscriptions       Subscription[]
+  auditLogs           AuditLog[]
+  financialYears      FinancialYear[]
+  financialCategories FinancialCategory[]
+  incomes             Income[]
+
+  philoptochosMembers PhiloptochosMember[]
+  parishCamps         ParishCamp[]
+  bloodDonors         BloodDonor[]
+  deceasedPersons     DeceasedPerson[]
+  kanbanTasks         KanbanTask[]
+}
+
+model KanbanTask {
+  id          String   @id @default(cuid())
+  templeId    String
+  temple      Temple   @relation(fields: [templeId], references: [id])
+  title       String
+  description String?
+  status      String   @default("TODO") // TODO, IN_PROGRESS, DONE
+  priority    String   @default("NORMAL") // LOW, NORMAL, HIGH
+  assignee    String?  // Name or ID of whoever is responsible
+  dueDate     DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model User {
@@ -70,8 +158,19 @@ model User {
 
   temples UserTemple[]
 
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  metropolisUsers MetropolisUser[]
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  @@unique([email, token])
 }
 
 model UserTemple {
@@ -81,11 +180,17 @@ model UserTemple {
   templeId String
   temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
-  roleId   String?
-  role     Role?  @relation(fields: [roleId], references: [id], onDelete: SetNull)
-  
+  roleId String?
+  role   Role?   @relation(fields: [roleId], references: [id], onDelete: SetNull)
+
   isHeadPriest Boolean @default(false)
   status       String  @default("active") // active, pending, inactive
+
+  // HR Details for Clergy & Staff
+  ordinationDiaconate  DateTime?
+  ordinationPriesthood DateTime?
+  offikia              String?
+  hireDate             DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -97,18 +202,25 @@ model Role {
   id       String @id @default(cuid())
   templeId String
   temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
-  
-  name     String // e.g., "Γραμματεία", "Εφημέριος"
-  
-  // Permissions
-  canViewFinances    Boolean @default(false)
-  canEditFinances    Boolean @default(false)
-  canManageRequests  Boolean @default(false)
-  canManageRegistry  Boolean @default(false)
-  canManageSchedule  Boolean @default(false)
-  canManageAssets    Boolean @default(false)
-  
-  users    UserTemple[]
+
+  name              String // e.g., "Γραμματεία", "Εφημέριος"
+  // Permissions (Admin)
+  canViewFinances   Boolean @default(false)
+  canEditFinances   Boolean @default(false)
+  canManageRequests Boolean @default(false) // Sacraments approvals
+  canManageProtocol Boolean @default(false) // Protocol Book
+  canManageRegistry Boolean @default(false) // Parishioner CRM
+  canManageSchedule Boolean @default(false) // Calendars
+  canManageAssets   Boolean @default(false) // Inventory Assets
+
+  // Permissions (Philanthropy & Volunteering)
+  canViewBeneficiaries   Boolean @default(false) // See names in daily sissitio
+  canViewBeneficiaryDocs Boolean @default(false) // See Vault documents (e.g., E1)
+  canManageBeneficiaries Boolean @default(false) // Edit beneficiary data
+  canViewInventory       Boolean @default(false) // See Food Inventory
+  canManageInventory     Boolean @default(false) // Add/Edit Food Inventory
+
+  users UserTemple[]
 
   @@unique([templeId, name])
 }
@@ -139,6 +251,7 @@ model Parishioner {
 
   profession   String?
   familyStatus String? // oik_katastasis
+  isConvert    Boolean @default(false) // Ορθόδοξος εξ Ετεροδόξων
 
   roles String? // JSON array: '["enoriths", "psaltis"]'
 
@@ -147,10 +260,14 @@ model Parishioner {
   sacramentHistory Sacrament[]
   ceremonyPersons  CeremonyPerson[]
   vaultDocs        VaultDocument[]
+  campRegistrations CampRegistration[]
+  bloodDonor        BloodDonor?
 
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   beneficiary Beneficiary?
+  deceasedRecord DeceasedPerson?
+
 
   @@unique([email, templeId])
 }
@@ -172,7 +289,7 @@ model Token {
   customerEmail String?
   ceremonyDate  DateTime?
 
-  assignedPriest String?
+  assignedPriest   String?
   assignedPsaltis  String?
   assignedNeokomos String?
 
@@ -242,9 +359,9 @@ model Document {
 // =======================
 
 model DocTemplate {
-  id          String  @id @default(cuid())
-  templeId    String? // If null, it's a global SaaS template!
-  temple      Temple? @relation(fields: [templeId], references: [id], onDelete: Cascade)
+  id       String  @id @default(cuid())
+  templeId String? // If null, it's a global SaaS template!
+  temple   Temple? @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
   docType     String
   nameEl      String
@@ -270,8 +387,57 @@ model DocTemplateSetting {
 }
 
 // =======================
-// FINANCES
+// FINANCES (ENTERPRISE)
 // =======================
+
+model FinancialYear {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  year     Int
+  isSealed Boolean   @default(false)
+  sealedAt DateTime?
+  sealedBy String? // user ID
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([templeId, year])
+}
+
+model FinancialCategory {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  name String // e.g. "Παγκάρι", "Μισθοδοσία"
+  type String // "INCOME" or "EXPENSE"
+
+  // Linkages
+  expenses Expense[]
+  incomes  Income[]
+  budgets  Budget[]
+
+  @@unique([templeId, name, type])
+}
+
+model Income {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   FinancialCategory @relation(fields: [categoryId], references: [id])
+
+  amount        Float
+  date          DateTime @default(now())
+  receiptNumber String?
+  description   String?
+  donorName     String?
+
+  createdAt DateTime @default(now())
+}
 
 model Donation {
   id       String @id @default(cuid())
@@ -310,11 +476,13 @@ model Expense {
   templeId String
   temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
+  categoryId String?
+  category   FinancialCategory? @relation(fields: [categoryId], references: [id])
+
   purpose       String
   amount        Float
   date          DateTime @default(now())
   receiptNumber String?
-  category      String?  // e.g. "Λειτουργικά", "Μισθοδοσία", "ΔΕΚΟ", "Συντήρηση"
   vendor        String?
 
   createdAt DateTime @default(now())
@@ -325,14 +493,16 @@ model Budget {
   templeId String
   temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
-  year          Int
-  category      String // "ΕΣΟΔΑ_ΠΑΓΚΑΡΙ", "ΕΞΟΔΑ_ΜΙΣΘΟΔΟΣΙΑ" κλπ
-  estimatedAmt  Float
-  actualAmt     Float @default(0) // Can be updated by a cron or manually
+  year       Int
+  categoryId String
+  category   FinancialCategory @relation(fields: [categoryId], references: [id])
+
+  estimatedAmt Float
+  actualAmt    Float @default(0) // Automatically updated
 
   createdAt DateTime @default(now())
-  
-  @@unique([templeId, year, category])
+
+  @@unique([templeId, year, categoryId])
 }
 
 // =======================
@@ -450,17 +620,17 @@ model Diptych {
   templeId String
   temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
-  type        String  // "ygeias" or "anapauseos"
-  name        String  // The first name to commemorate
-  
-  isActive    Boolean @default(true) // Set to false after Proskomidi if they clear the list
-  notes       String?
+  type String // "ygeias" or "anapauseos"
+  name String // The first name to commemorate
+
+  isActive Boolean @default(true) // Set to false after Proskomidi if they clear the list
+  notes    String?
 
   submittedBy String?
   email       String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // =======================
@@ -472,19 +642,24 @@ model Protocol {
   templeId String
   temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
+  owner    String @default("TEMPLE") // TEMPLE, PHILOPTOCHOS
   number   Int
   year     Int
-  
+
   direction String // "IN" (Εισερχόμενο) or "OUT" (Εξερχόμενο)
   subject   String // Θέμα
   sender    String? // Αποστολέας
   receiver  String? // Παραλήπτης
+
+  tokenId String? // Optional connection to a Sacrament request
   
-  tokenId   String? // Optional connection to a Sacrament request
-  
-  date      DateTime @default(now())
-  
-  @@unique([templeId, year, number])
+  // Web Scanner attachment
+  fileUrl  String?
+  fileName String?
+
+  date DateTime @default(now())
+
+  @@unique([templeId, owner, year, number])
 }
 
 // =======================
@@ -499,9 +674,9 @@ model ServiceSchedule {
   date        DateTime
   title       String
   description String?
-  isMajor     Boolean @default(false)
-  
-  createdAt   DateTime @default(now())
+  isMajor     Boolean  @default(false)
+
+  createdAt DateTime @default(now())
 }
 
 // =======================
@@ -513,17 +688,109 @@ model Asset {
   templeId String
   temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
-  name           String
-  category       String // "REAL_ESTATE", "RELIC", "VESSEL", "OTHER"
-  description    String?
-  location       String?
+  owner           String @default("TEMPLE") // TEMPLE, PHILOPTOCHOS
+  assetType       String @default("MOVABLE") // MOVABLE, IMMOVABLE
+
+  name            String
+  category        String // e.g. "RELIC", "VESSEL", "APARTMENT", "LAND"
+  description     String?
+  location        String?
   acquisitionDate DateTime?
-  estimatedValue Float?
-  imageUrl       String?
-  status         String @default("ACTIVE") // "ACTIVE", "MAINTENANCE", "INACTIVE"
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  estimatedValue  Float?
+  imageUrl        String?
+  status          String    @default("ACTIVE") // "ACTIVE", "MAINTENANCE", "INACTIVE"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =======================
+// PHILOPTOCHOS BOARD
+// =======================
+model PhiloptochosMember {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  firstName String
+  lastName  String
+  role      String   // Πρόεδρος, Αντιπρόεδρος, Ταμίας, Μέλος
+  startDate DateTime
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =======================
+// CAMPS (ΚΑΤΑΣΚΗΝΩΣΕΙΣ)
+// =======================
+model ParishCamp {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  name       String
+  year       Int
+  startDate  DateTime
+  endDate    DateTime
+  location   String?
+
+  registrations CampRegistration[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CampRegistration {
+  id       String @id @default(cuid())
+  campId   String
+  camp     ParishCamp @relation(fields: [campId], references: [id], onDelete: Cascade)
+
+  parishionerId String
+  parishioner   Parishioner @relation(fields: [parishionerId], references: [id], onDelete: Cascade)
+
+  medicalNotes String?
+  status       String @default("REGISTERED") // REGISTERED, ATTENDED, CANCELLED
+
+  createdAt DateTime @default(now())
+}
+
+// =======================
+// BLOOD BANK (ΑΙΜΟΔΟΣΙΑ)
+// =======================
+
+model BloodDonor {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  parishionerId String? @unique
+  parishioner   Parishioner? @relation(fields: [parishionerId], references: [id], onDelete: SetNull)
+
+  firstName String
+  lastName  String
+  phone     String?
+  bloodType String // "A+", "O-", etc.
+
+  lastDonation DateTime?
+  isActive     Boolean   @default(true)
+
+  donations BloodDonation[]
+
+  createdAt DateTime @default(now())
+}
+
+model BloodDonation {
+  id       String @id @default(cuid())
+  donorId  String
+  donor    BloodDonor @relation(fields: [donorId], references: [id], onDelete: Cascade)
+
+  date     DateTime
+  hospital String? // Νοσοκομείο
+  notes    String?
+
+  createdAt DateTime @default(now())
 }
 
 // =======================
@@ -531,23 +798,23 @@ model Asset {
 // =======================
 
 model Assignment {
-  id          String   @id @default(cuid())
-  templeId    String
-  temple      Temple   @relation(fields: [templeId], references: [id], onDelete: Cascade)
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
   date        DateTime
-  serviceType String   // "GAMOS", "VAPTISI", "LITURGY", "MNIMOSINO", "OTHER"
+  serviceType String // "GAMOS", "VAPTISI", "LITURGY", "MNIMOSINO", "OTHER"
 
-  tokenId     String?
-  token       Token?   @relation(fields: [tokenId], references: [id], onDelete: SetNull)
+  tokenId String?
+  token   Token?  @relation(fields: [tokenId], references: [id], onDelete: SetNull)
 
-  priest      String?
-  psaltis     String?
-  neokomos    String?
-  notes       String?
+  priest   String?
+  psaltis  String?
+  neokomos String?
+  notes    String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // =======================
@@ -555,22 +822,121 @@ model Assignment {
 // =======================
 
 model VaultDocument {
-  id            String   @id @default(cuid())
-  templeId      String
-  temple        Temple   @relation(fields: [templeId], references: [id], onDelete: Cascade)
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
-  tokenId       String?
-  token         Token?    @relation(fields: [tokenId], references: [id], onDelete: SetNull)
+  tokenId String?
+  token   Token?  @relation(fields: [tokenId], references: [id], onDelete: SetNull)
 
   parishionerId String?
   parishioner   Parishioner? @relation(fields: [parishionerId], references: [id], onDelete: SetNull)
 
-  docType       String   // "TAUTOTITA", "DIAZEYKTIRIO", "PISTOPOIITIKO", "ALLO"
-  label         String?  // Φιλικό όνομα
-  fileName      String
-  filePath      String
-  fileSize      Int      @default(0)
-  mimeType      String   @default("application/octet-stream")
+  docType  String // "TAUTOTITA", "DIAZEYKTIRIO", "PISTOPOIITIKO", "ALLO"
+  label    String? // Φιλικό όνομα
+  fileName String
+  filePath String
+  fileSize Int     @default(0)
+  mimeType String  @default("application/octet-stream")
 
-  uploadedAt    DateTime @default(now())
+  uploadedAt DateTime @default(now())
+}
+
+// =======================
+// SUBSCRIPTIONS
+// =======================
+
+model Subscription {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  planId String
+  plan   SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  status String @default("active") // "active", "cancelled", "past_due", "trialing", "pending_manual"
+
+  // Billing period
+  billingCycle String @default("monthly") // "monthly" or "yearly"
+
+  // Stripe fields (null for manually activated subscriptions like Metropolis)
+  stripeSubscriptionId String?   @unique
+  stripeCustomerId     String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+
+  // Manual activation (for Metropolis plans)
+  activatedBy String? // userId of super admin who activated
+  activatedAt DateTime?
+  expiresAt   DateTime? // for manually set expiry
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([templeId, status]) // Only one active subscription per temple
+}
+
+// =======================
+// AUDIT LOG
+// =======================
+
+model AuditLog {
+  id       String  @id @default(cuid())
+  templeId String?
+  temple   Temple? @relation(fields: [templeId], references: [id], onDelete: SetNull)
+
+  userId     String? // Who performed the action
+  userEmail  String?
+  action     String // e.g. "CREATE_PARISHIONER", "DELETE_TOKEN", "LOGIN"
+  entityType String? // e.g. "Parishioner", "Token", "Donation"
+  entityId   String? // The ID of the affected entity
+  detail     String? // Human-readable description
+  ipAddress  String?
+
+  createdAt DateTime @default(now())
+}
+
+// =======================
+// DECEASED REGISTRY (ΜΗΤΡΩΟ ΚΕΚΟΙΜΗΜΕΝΩΝ & ΜΝΗΜΟΣΥΝΑ)
+// =======================
+
+model DeceasedPerson {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  parishionerId String? @unique
+  parishioner   Parishioner? @relation(fields: [parishionerId], references: [id], onDelete: SetNull)
+
+  firstName     String
+  lastName      String
+  fathersName   String?
+  dateOfDeath   DateTime
+  dateOfFuneral DateTime?
+  placeOfFuneral String?  // e.g., Νεκροταφείο Ζωγράφου
+  graveDetails   String?  // e.g., Τομέας Β, Τάφος 42
+  
+  nextOfKinName  String?
+  nextOfKinPhone String?
+  causeOfDeath   String?
+
+  bookNumber     String?  // Αριθμός Πράξης
+
+  memorials      MemorialService[]
+
+  createdAt DateTime @default(now())
+}
+
+model MemorialService {
+  id               String @id @default(cuid())
+  deceasedPersonId String
+  deceasedPerson   DeceasedPerson @relation(fields: [deceasedPersonId], references: [id], onDelete: Cascade)
+
+  type         String // "40MH", "1YEAR", "3YEARS", "OTHER"
+  date         DateTime
+  time         String?
+  officiantPriest String?
+  notes        String?
+
+  createdAt DateTime @default(now())
 }

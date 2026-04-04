@@ -1,82 +1,60 @@
-'use server'
+'use server';
 
-import { prisma } from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
-import fs from 'fs/promises'
-import path from 'path'
-import { TEMP_TEMPLE_ID } from '@/lib/constants'
-import { seedDummyTemple } from './core'
+import { prisma } from '@/lib/prisma';
+import { requireAuth, getCurrentTempleId } from '@/lib/session';
+import { revalidatePath } from 'next/cache';
 
-export async function getAssets(category?: string) {
-  await seedDummyTemple()
+// Fetch Assets with optional filters
+export async function getAssets(owner?: string, assetType?: string, category?: string) {
+  const templeId = await getCurrentTempleId();
   try {
-    const whereClause: any = { templeId: TEMP_TEMPLE_ID }
-    if (category && category !== 'ALL') whereClause.category = category
-    return await prisma.asset.findMany({ where: whereClause, orderBy: { createdAt: 'desc' } })
+    return await prisma.asset.findMany({
+      where: {
+        templeId,
+        ...(owner && owner !== 'ALL' ? { owner } : {}),
+        ...(assetType && assetType !== 'ALL' ? { assetType } : {}),
+        ...(category && category !== 'ALL' ? { category } : {})
+      },
+      orderBy: { createdAt: 'desc' }
+    });
   } catch (e) {
-    return []
+    return [];
   }
 }
 
-export async function addAsset(formData: FormData) {
-  await seedDummyTemple()
+// Add Asset for Temple or Philoptochos
+export async function addAsset(formData: any) {
+  const session = await requireAuth();
+  const templeId = await getCurrentTempleId();
   try {
-    const name = formData.get('name') as string
-    const category = formData.get('category') as string
-    const description = formData.get('description') as string
-    const location = formData.get('location') as string
-    const estimatedValueStr = formData.get('estimatedValue') as string
-    const estimatedValue = estimatedValueStr ? parseFloat(estimatedValueStr) : null
-    const acquisitionDateStr = formData.get('acquisitionDate') as string
-    const status = (formData.get('status') as string) || 'ACTIVE'
-
-    let imageUrl = null
-    const imageFile = formData.get('image') as File | null
-    if (imageFile && imageFile.name && imageFile.size > 0) {
-      const arrayBuffer = await imageFile.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'assets')
-      try { await fs.mkdir(uploadDir, { recursive: true }) } catch (e) {}
-      const filename = `${Date.now()}-${imageFile.name.replace(/[^a-zA-Z0-9_\.-]/g, '_')}`
-      await fs.writeFile(path.join(uploadDir, filename), buffer)
-      imageUrl = `/uploads/assets/${filename}`
-    }
-
+    const estimatedValue = formData.estimatedValue ? parseFloat(formData.estimatedValue) : null;
+    
     await prisma.asset.create({
       data: {
-        templeId: TEMP_TEMPLE_ID, name, category,
-        description: description || null,
-        location: location || null,
+        templeId,
+        name: formData.name,
+        category: formData.category,
+        owner: formData.owner || "TEMPLE",
+        assetType: formData.assetType || "MOVABLE",
+        description: formData.description || null,
+        location: formData.location || null,
         estimatedValue: (estimatedValue && !isNaN(estimatedValue)) ? estimatedValue : null,
-        acquisitionDate: acquisitionDateStr ? new Date(acquisitionDateStr) : null,
-        status, imageUrl
+        acquisitionDate: formData.acquisitionDate ? new Date(formData.acquisitionDate) : null,
+        status: formData.status || 'ACTIVE'
       }
-    })
-    revalidatePath('/admin/assets')
-    return { success: true }
+    });
+
+    await prisma.auditLog.create({
+       data: {
+          templeId, userId: session.userId, userEmail: session.userId, 
+          action: 'ΚΑΤΑΧΩΡΗΣΗ_ΠΕΡΙΟΥΣΙΑΣ', 
+          details: `Καταχωρήθηκε νέο περιουσιακό στοιχείο: ${formData.name}.`
+       }
+    });
+
+    revalidatePath('/admin/registry/assets');
+    return { success: true };
   } catch (e) {
-    console.error(e)
-    return { success: false, error: String(e) }
+    return { success: false, error: 'Τεχνικό Σφάλμα' };
   }
 }
-
-export async function updateAssetStatus(id: string, newStatus: string) {
-  try {
-    await prisma.asset.update({ where: { id }, data: { status: newStatus } })
-    revalidatePath('/admin/assets')
-    return { success: true }
-  } catch (e) {
-    return { success: false }
-  }
-}
-
-export async function deleteAsset(id: string) {
-  try {
-    await prisma.asset.delete({ where: { id } })
-    revalidatePath('/admin/assets')
-    return { success: true }
-  } catch (e) {
-    return { success: false }
-  }
-}
-

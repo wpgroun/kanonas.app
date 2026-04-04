@@ -2,9 +2,11 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { TEMP_TEMPLE_ID } from '@/lib/constants'
+import { getCurrentTempleId } from './core'
+import { requireAuth, requireSuperAdmin } from '@/lib/requireAuth'
 
 export async function getAllTemples() {
+  await requireSuperAdmin()
   return prisma.temple.findMany({
     include: {
       _count: { select: { parishioners: true, tokens: true } },
@@ -22,10 +24,11 @@ export async function createRole(name: string, permissions: {
   canManageSchedule?: boolean
   canManageAssets?: boolean
 }) {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
-    // @ts-ignore
     const role = await prisma.role.create({
-      data: { templeId: TEMP_TEMPLE_ID, name, ...permissions }
+      data: { templeId, name, ...permissions }
     })
     revalidatePath('/admin/settings/users')
     return { success: true, role }
@@ -42,8 +45,8 @@ export async function updateRolePermissions(roleId: string, permissions: {
   canManageSchedule?: boolean
   canManageAssets?: boolean
 }) {
+  await requireAuth()
   try {
-    // @ts-ignore
     await prisma.role.update({ where: { id: roleId }, data: permissions })
     revalidatePath('/admin/settings/users')
     return { success: true }
@@ -51,4 +54,3 @@ export async function updateRolePermissions(roleId: string, permissions: {
     return { success: false, error: e.message }
   }
 }
-

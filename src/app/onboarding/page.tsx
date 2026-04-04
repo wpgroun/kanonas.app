@@ -72,7 +72,7 @@ export default function OnboardingWizard() {
       <div className="mb-10 text-center">
         <div className="inline-flex items-center gap-3 mb-3">
           <div className="w-12 h-12 rounded-xl bg-[#59161a] flex items-center justify-center shadow-lg">
-            <span className="text-white font-black text-xl">Κ</span>
+            <span className="text-white font-black text-xl" style={{fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.3em", paddingRight: "2px"}}>κ</span>
           </div>
           <span className="font-heading font-black text-3xl tracking-widest text-[#2b1f1a]">ΚΑΝΟΝΑΣ</span>
         </div>

@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File | null;
     const templeId = formData.get('templeId') as string;
     const parishionerId = formData.get('parishionerId') as string | null;
+    const tokenId = formData.get('tokenId') as string | null;
     const docType = formData.get('docType') as string;
     const label = formData.get('label') as string;
 
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
       data: {
         templeId,
         parishionerId: parishionerId || null,
+        tokenId: tokenId || null,
         docType: docType || 'OTHER',
         label: label || 'Ανέβασμα Αρχείου',
         fileName: file.name,

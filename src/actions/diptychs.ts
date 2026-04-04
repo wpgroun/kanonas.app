@@ -2,14 +2,14 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { TEMP_TEMPLE_ID } from '@/lib/constants'
-import { seedDummyTemple } from './core'
+import { getCurrentTempleId } from './core'
+import { requireAuth } from '@/lib/requireAuth'
 
 export async function getDiptychs() {
-  await seedDummyTemple()
+  const templeId = await getCurrentTempleId()
   try {
     return await prisma.diptych.findMany({
-      where: { templeId: TEMP_TEMPLE_ID, isActive: true },
+      where: { templeId, isActive: true },
       orderBy: { createdAt: 'asc' }
     })
   } catch (e) {
@@ -18,12 +18,13 @@ export async function getDiptychs() {
 }
 
 export async function addDiptychNames(type: string, namesStr: string) {
-  await seedDummyTemple()
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
     const rawNames = namesStr.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length >= 2)
     if (!rawNames.length) return { success: false, error: 'Δεν βρέθηκαν έγκυρα ονόματα' }
     await prisma.diptych.createMany({
-      data: rawNames.map(name => ({ templeId: TEMP_TEMPLE_ID, type, name, isActive: true, submittedBy: 'Admin' }))
+      data: rawNames.map(name => ({ templeId, type, name, isActive: true, submittedBy: 'Admin' }))
     })
     revalidatePath('/admin/diptychs')
     return { success: true, count: rawNames.length }
@@ -34,6 +35,7 @@ export async function addDiptychNames(type: string, namesStr: string) {
 }
 
 export async function toggleDiptychActive(id: string, newStatus: boolean) {
+  await requireAuth()
   try {
     await prisma.diptych.update({ where: { id }, data: { isActive: newStatus } })
     revalidatePath('/admin/diptychs')
@@ -44,6 +46,7 @@ export async function toggleDiptychActive(id: string, newStatus: boolean) {
 }
 
 export async function editDiptychName(id: string, newName: string) {
+  await requireAuth()
   try {
     await prisma.diptych.update({ where: { id }, data: { name: newName } })
     revalidatePath('/admin/diptychs')
@@ -54,6 +57,7 @@ export async function editDiptychName(id: string, newName: string) {
 }
 
 export async function deleteDiptychName(id: string) {
+  await requireAuth()
   try {
     await prisma.diptych.delete({ where: { id } })
     revalidatePath('/admin/diptychs')
@@ -64,9 +68,11 @@ export async function deleteDiptychName(id: string) {
 }
 
 export async function clearDiptychs(type: string) {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
     await prisma.diptych.updateMany({
-      where: { templeId: TEMP_TEMPLE_ID, type, isActive: true },
+      where: { templeId, type, isActive: true },
       data: { isActive: false }
     })
     revalidatePath('/admin/diptychs')
@@ -75,4 +81,3 @@ export async function clearDiptychs(type: string) {
     return { success: false }
   }
 }
-

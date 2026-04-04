@@ -1,0 +1,34 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+Error: Prisma schema validation - (validate wasm)
+Error code: P1012
+[1;91merror[0m: [1mThe model "Beneficiary" cannot be defined because a model with that name already exists.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:771[0m
+[1;94m   | [0m
+[1;94m770 | [0m
+[1;94m771 | [0mmodel [1;91mBeneficiary[0m {
+[1;94m   | [0m
+[1;91merror[0m: [1mThe model "InventoryItem" cannot be defined because a model with that name already exists.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:799[0m
+[1;94m   | [0m
+[1;94m798 | [0m
+[1;94m799 | [0mmodel [1;91mInventoryItem[0m {
+[1;94m   | [0m
+[1;91merror[0m: [1mThe model "SissitioDay" cannot be defined because a model with that name already exists.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:816[0m
+[1;94m   | [0m
+[1;94m815 | [0m
+[1;94m816 | [0mmodel [1;91mSissitioDay[0m {
+[1;94m   | [0m
+[1;91merror[0m: [1mThe model "SissitioAttendance" cannot be defined because a model with that name already exists.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:832[0m
+[1;94m   | [0m
+[1;94m831 | [0m
+[1;94m832 | [0mmodel [1;91mSissitioAttendance[0m {
+[1;94m   | [0m
+
+Validation Error Count: 4
+[Context: validate]
+
+Prisma CLI Version : 6.19.3

@@ -2,14 +2,17 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { TEMP_TEMPLE_ID } from '@/lib/constants'
-import { seedDummyTemple } from './core'
+import { getCurrentTempleId } from './core'
+import { requireAuth } from '@/lib/requireAuth'
 
-export async function getParishioners() {
+export async function getParishioners(page = 1, pageSize = 100) {
+  const templeId = await getCurrentTempleId()
   try {
     return await prisma.parishioner.findMany({
-      where: { templeId: TEMP_TEMPLE_ID },
-      orderBy: { createdAt: 'desc' }
+      where: { templeId },
+      orderBy: { lastName: 'asc' },
+      take: pageSize,
+      skip: (page - 1) * pageSize,
     })
   } catch (e) {
     return []
@@ -26,11 +29,12 @@ export async function createParishioner(formData: {
   city?: string
   afm?: string
 }) {
-  await seedDummyTemple()
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
     const p = await prisma.parishioner.create({
       data: {
-        templeId: TEMP_TEMPLE_ID,
+        templeId,
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email || null,
@@ -74,6 +78,7 @@ export async function updateParishionerDetails(id: string, data: {
   afm?: string
   idNumber?: string
 }) {
+  await requireAuth()
   try {
     await prisma.parishioner.update({
       where: { id },
@@ -98,6 +103,7 @@ export async function updateParishionerDetails(id: string, data: {
 }
 
 export async function updateParishionerRoles(id: string, newRolesStr: string) {
+  await requireAuth()
   try {
     await prisma.parishioner.update({
       where: { id },
@@ -110,4 +116,3 @@ export async function updateParishionerRoles(id: string, newRolesStr: string) {
     return { success: false, error: "Αποτυχία ενημέρωσης" }
   }
 }
-
