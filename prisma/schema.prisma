@@ -961,12 +961,22 @@ model BloodDonor {
   firstName String
   lastName  String
   phone     String?
-  bloodType String // "A+", "O-", etc.
+  email     String?
+  address   String?
+  bloodType String // "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"
 
-  lastDonation DateTime?
-  isActive     Boolean   @default(true)
+  dateOfBirth   DateTime?
+  gender        String?   // "M" | "F"
+  hemoglobin    Float?    // g/dL — eligibility threshold
 
-  donations BloodDonation[]
+  lastDonation     DateTime?
+  nextEligibleDate DateTime? // auto-calculated: lastDonation + 56 days
+  totalDonations   Int       @default(0)
+  isActive         Boolean   @default(true)
+  notes            String?
+
+  donations     BloodDonation[]
+  driveSignups  BloodDriveParticipant[]
 
   createdAt DateTime @default(now())
 }
@@ -976,13 +986,31 @@ model BloodDonation {
   donorId String
   donor   BloodDonor @relation(fields: [donorId], references: [id], onDelete: Cascade)
 
-  date     DateTime
-  hospital String? // Νοσοκομείο
-  notes    String?
+  date            DateTime
+  hospital        String?
+  certificateNo   String? // AIM-2026-001
+  hemoglobinLevel Float?
+  units           Float   @default(1) // φιάλες
+  notes           String?
 
-  createdAt    DateTime    @default(now())
   bloodDrive   BloodDrive? @relation(fields: [bloodDriveId], references: [id])
   bloodDriveId String?
+
+  createdAt DateTime @default(now())
+}
+
+model BloodDriveParticipant {
+  id      String     @id @default(cuid())
+  driveId String
+  drive   BloodDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  donorId String
+  donor   BloodDonor @relation(fields: [donorId], references: [id], onDelete: Cascade)
+
+  donated   Boolean  @default(false)
+  notes     String?
+  signedUp  DateTime @default(now())
+
+  @@unique([driveId, donorId])
 }
 
 // =======================
@@ -1346,12 +1374,25 @@ model BloodDrive {
   templeId String
   temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
-  name     String // e.g. Εαρινή Αιμοδοσία
-  date     DateTime
-  location String?
-  target   Int? // Στόχος σε φιάλες
+  name        String // e.g. Εαρινή Αιμοδοσία
+  date        DateTime
+  endDate     DateTime?
+  location    String?
+  target      Int?    // Στόχος σε φιάλες
+  status      String  @default("PLANNED") // PLANNED, ACTIVE, COMPLETED, CANCELLED
 
-  donations BloodDonation[]
+  // Hospital Partner
+  hospitalName    String?
+  hospitalContact String?
+  hospitalPhone   String?
+  hospitalEmail   String?
+
+  timeStart String? // "09:00"
+  timeEnd   String? // "14:00"
+
+  notes     String?
+  donations    BloodDonation[]
+  participants BloodDriveParticipant[]
 
   createdAt DateTime @default(now())
 }
