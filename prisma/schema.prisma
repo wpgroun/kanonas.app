@@ -76,9 +76,9 @@ model SubscriptionPlan {
 
 model Temple {
   id           String     @id @default(cuid())
-  // Every temple MUST belong to a Metropolis — this is NOT optional.
-  metropolisId String
-  metropolis   Metropolis @relation(fields: [metropolisId], references: [id])
+  // Every temple SHOULD belong to a Metropolis
+  metropolisId String?
+  metropolis   Metropolis? @relation(fields: [metropolisId], references: [id])
   name         String
   slug         String?    @unique // Δημόσιο URL για το mini-site του Ναού π.χ. "agios-nikolaos"
   taxId        String? // ΑΦΜ
