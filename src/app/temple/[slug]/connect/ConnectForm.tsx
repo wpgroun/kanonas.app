@@ -7,6 +7,7 @@ import { CheckCircle2, FileText, Send, User, Phone, Mail } from 'lucide-react';
 export default function ConnectForm({ slug }: { slug: string }) {
    const [type, setType] = useState('CERT_AGAMIAS');
    const [status, setStatus] = useState<'IDLE' | 'LOADING' | 'SUCCESS'>('IDLE');
+   const [trackingId, setTrackingId] = useState<string>('');
 
    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault();
@@ -27,7 +28,8 @@ export default function ConnectForm({ slug }: { slug: string }) {
       };
 
       try {
-         await submitCitizenRequest(data);
+         const id = await submitCitizenRequest(data);
+         setTrackingId(id);
          setStatus('SUCCESS');
       } catch (err) {
          console.error(err);
@@ -43,9 +45,17 @@ export default function ConnectForm({ slug }: { slug: string }) {
                <CheckCircle2 className="w-10 h-10 text-emerald-600" />
             </div>
             <h3 className="text-2xl font-bold text-slate-800 mb-2">Το Αίτημά σας Υποβλήθηκε!</h3>
-            <p className="text-slate-500 max-w-md mx-auto">
-               Το αίτημα καταχωρήθηκε επιτυχώς στη γραμματεία του Ναού. Θα ενημερωθείτε σύντομα για την εξέλιξή του μέσω email ή τηλεφώνου.
+            <p className="text-slate-500 max-w-md mx-auto mb-6">
+               Το αίτημα καταχωρήθηκε επιτυχώς στη γραμματεία του Ναού. Μπορείτε να παρακολουθήσετε την εξέλιξή του ανά πάσα στιγμή με τον παρακάτω Αριθμό Αναζήτησης:
             </p>
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 inline-block font-mono text-lg font-bold text-slate-800 shadow-inner">
+               {trackingId}
+            </div>
+            <div className="mt-8">
+               <a href={`/temple/${slug}/connect/track?id=${trackingId}`} className="text-blue-600 font-bold hover:underline text-sm">
+                  Μετάβαση στην Αναζήτηση Πορείας
+               </a>
+            </div>
          </div>
       );
    }

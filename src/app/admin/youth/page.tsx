@@ -1,29 +1,39 @@
 import { getYouthPrograms, getParticipants } from '@/actions/youth'
 import YouthClient from './YouthClient'
+import { getTempleFeatures } from '@/lib/planFeatures'
+import { getSession } from '@/lib/auth'
+import UpgradeGate from '@/components/UpgradeGate'
 
 export const metadata = {
   title: 'Νεολαία & Κατασκηνώσεις - Kanonas'
 }
 
 export default async function YouthPage() {
-   const programs = await getYouthPrograms()
-   const participants = await getParticipants()
+  const session = await getSession()
+  const features = await getTempleFeatures(session?.templeId as string)
 
-   return (
-     <div className="container-fluid mt-6 animate-in fade-in duration-500">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            Νεολαία & Κατασκηνώσεις
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Διαχείριση περιόδων κατασκήνωσης, κατηχητικού και μητρώο νέων.
-          </p>
-        </div>
-        
-        <YouthClient 
-           initialPrograms={programs} 
-           initialParticipants={participants} 
-        />
-     </div>
-   )
+  if (!features.youth) {
+    return <UpgradeGate feature="youth" />
+  }
+
+  const programs = await getYouthPrograms()
+  const participants = await getParticipants()
+
+  return (
+    <div className="container-fluid mt-6 animate-in fade-in duration-500">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          Νεολαία &amp; Κατασκηνώσεις
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Διαχείριση περιόδων κατασκήνωσης, κατηχητικού και μητρώο νέων.
+        </p>
+      </div>
+
+      <YouthClient
+        initialPrograms={programs}
+        initialParticipants={participants}
+      />
+    </div>
+  )
 }

@@ -156,4 +156,28 @@ export async function sendTestEmail(to: string): Promise<void> {
   });
 }
 
+/** Bulk email to a list of parishioners — called from the mailing action.
+ *  Supports template variables: {{firstName}}, {{lastName}}, {{fullName}} */
+export async function sendBulkParishionerEmail(
+  recipients: Array<{ firstName: string; lastName: string; email: string }>,
+  subject: string,
+  bodyHtml: string
+): Promise<void> {
+  const transporter = getTransporter();
+  // Send sequentially to respect SMTP rate limits
+  for (const recipient of recipients) {
+    const personalizedBody = bodyHtml
+      .replace(/\{\{firstName\}\}/g, recipient.firstName)
+      .replace(/\{\{lastName\}\}/g, recipient.lastName)
+      .replace(/\{\{fullName\}\}/g, `${recipient.firstName} ${recipient.lastName}`)
+
+    await transporter.sendMail({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+      to: recipient.email,
+      subject,
+      html: htmlWrapper(subject, personalizedBody),
+    });
+  }
+}
+
 

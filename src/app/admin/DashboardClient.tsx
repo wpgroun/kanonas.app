@@ -11,6 +11,7 @@ import {
   ClipboardList, UserPlus, Clock, CheckCircle2,
   ChevronRight, LayoutDashboard, Gift
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 const CHART_COLORS = ['#7C3AED', '#4F46E5', '#3B82F6', '#10B981', '#F59E0B', '#EF4444']
 
@@ -107,27 +108,60 @@ export default function DashboardClient({ stats }: { stats: any }) {
         </div>
       </div>
 
-      {/* Alert Banner */}
-      {stats.pendingRequests > 0 && (
-        <div className="flex items-center justify-between gap-4 p-3.5 bg-[var(--warning-light)] border border-[var(--warning)]/20 rounded-lg">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-md bg-[var(--warning)]/15 flex items-center justify-center">
-              <AlertCircle className="w-4 h-4 text-[var(--warning)]" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[#92400E]">
-                {stats.pendingRequests} εκκρεμή αιτήματα
-              </p>
-              <p className="text-xs text-[#92400E]/70">Χρειάζονται επεξεργασία</p>
-            </div>
-          </div>
-          <Link href="/admin/requests">
-            <button className="btn btn-sm bg-[var(--warning)] text-white hover:bg-[#D97706]">
-              Προβολή <ChevronRight className="w-3 h-3" />
-            </button>
-          </Link>
+      {/* Smart Action Center */}
+      <div className="card p-5 border border-indigo-100 bg-gradient-to-r from-indigo-50/50 to-blue-50/50 mb-6">
+        <h2 className="text-sm font-bold text-indigo-900 flex items-center gap-2 mb-4">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+          </span>
+          Έξυπνος Βοηθός (Action Center)
+        </h2>
+        
+        <div className="space-y-3">
+           {stats.pendingRequests > 0 ? (
+             <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-warning/20 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center gap-3">
+                   <div className="p-2 bg-warning/10 rounded-md text-warning"><AlertCircle className="w-5 h-5"/></div>
+                   <div>
+                     <p className="text-sm font-bold text-foreground">Εκκρεμούν {stats.pendingRequests} αιτήσεις</p>
+                     <p className="text-xs text-muted-foreground">Απαιτείται έγκριση δικαιολογητικών.</p>
+                   </div>
+                </div>
+                <Link href="/admin/requests"><Button size="sm" variant="outline" className="h-8">Διαχείριση</Button></Link>
+             </div>
+           ) : (
+             <div className="flex items-center gap-3 p-3 bg-white rounded-lg border shadow-sm">
+                <div className="p-2 bg-emerald-100 rounded-md text-emerald-600"><CheckCircle2 className="w-5 h-5"/></div>
+                <div><p className="text-sm font-bold text-foreground">Δεν υπάρχουν εκκρεμή αιτήματα.</p></div>
+             </div>
+           )}
+
+           {stats.upcomingNamedays?.length > 0 && (
+             <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-200 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center gap-3">
+                   <div className="p-2 bg-blue-50 rounded-md text-blue-600"><Gift className="w-5 h-5"/></div>
+                   <div>
+                     <p className="text-sm font-bold text-foreground">Πλησιάζουν {stats.upcomingNamedays.length} Εορτές Ενοριτών</p>
+                     <p className="text-xs text-muted-foreground">Ευκαιρία για μαζική αποστολή ευχετηρίων!</p>
+                   </div>
+                </div>
+                <Link href="/admin/mailing"><Button size="sm" variant="outline" className="h-8 text-blue-600 border-blue-200">Mailing Ευχών</Button></Link>
+             </div>
+           )}
+           
+           <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-purple-200 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center gap-3">
+                   <div className="p-2 bg-purple-50 rounded-md text-purple-600"><HeartHandshake className="w-5 h-5"/></div>
+                   <div>
+                     <p className="text-sm font-bold text-foreground">Έλεγχος Πλάνου Διακονιών</p>
+                     <p className="text-xs text-muted-foreground">Μην ξεχάσετε να οργανώσετε τις βάρδιες εθελοντών.</p>
+                   </div>
+                </div>
+                <Link href="/admin/ministries"><Button size="sm" variant="outline" className="h-8 text-purple-600 border-purple-200">Βάρδιες</Button></Link>
+           </div>
         </div>
-      )}
+      </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

@@ -5,6 +5,37 @@ import { revalidatePath } from 'next/cache'
 import { requireAuth, requireSuperAdmin } from '@/lib/requireAuth'
 import { getCurrentTempleId } from './core'
 
+// ─── Subscription Expiry Warning ───────────────────────────────────────────────
+
+export type ExpiryWarning = {
+  daysLeft: number
+  level: 'warning' | 'danger'
+} | null
+
+/**
+ * Returns subscription expiry warning for the current temple.
+ * Used in the admin layout to show a banner before the subscription lapses.
+ */
+export async function getSubscriptionExpiryWarning(templeId: string): Promise<ExpiryWarning> {
+  if (!templeId) return null
+  try {
+    const sub = await prisma.subscription.findFirst({
+      where: { templeId, status: 'active' },
+      select: { expiresAt: true, stripeSubscriptionId: true }
+    })
+    // No subscription or Stripe-managed auto-renewing → no warning needed
+    if (!sub || !sub.expiresAt || sub.stripeSubscriptionId) return null
+
+    const daysLeft = Math.ceil((sub.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    if (daysLeft <= 0) return null // Already expired — handled by feature gate
+    if (daysLeft <= 7) return { daysLeft, level: 'danger' }
+    if (daysLeft <= 30) return { daysLeft, level: 'warning' }
+    return null
+  } catch {
+    return null
+  }
+}
+
 // ─── PUBLIC — Plan listing ─────────────────────────────────────────────────────
 
 /** Get all active subscription plans (for the pricing page and onboarding) */
