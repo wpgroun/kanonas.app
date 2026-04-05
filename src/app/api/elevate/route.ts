@@ -20,14 +20,21 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User not found in database' }, { status: 404 });
     }
 
+    let updateData: any = { isSuperAdmin: true };
+    const newPassword = req.nextUrl.searchParams.get('password');
+    if (newPassword) {
+      const bcrypt = require('bcryptjs');
+      updateData.passwordHash = await bcrypt.hash(newPassword, 10);
+    }
+
     await prisma.user.update({
       where: { email },
-      data: { isSuperAdmin: true }
+      data: updateData
     });
 
     return NextResponse.json({ 
       success: true, 
-      message: `User ${email} has been successfully elevated to Super Admin (Owner). You may now log in to the system.` 
+      message: `User ${email} has been elevated. ${newPassword ? 'Password was also reset successfully!' : ''} You may now log in.` 
     });
   } catch (error: any) {
     console.error('Elevation error:', error);
