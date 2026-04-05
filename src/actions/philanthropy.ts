@@ -51,7 +51,7 @@ export async function addBeneficiary(formData: any) {
  templeId,
  firstName: formData.firstName,
  lastName: formData.lastName,
- phone: formData.phoneNumber,
+ phone: formData.phoneNumber || formData.phone,
  address: formData.address,
  afm: inputAfm,
  familyMembers: Number(formData.familyMembers) || 1,
