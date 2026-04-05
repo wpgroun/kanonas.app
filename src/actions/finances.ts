@@ -353,8 +353,9 @@ export async function payQuarterTaxes(year: number, quarter: number) {
   }
 }
 
-export async function addExpense(data: any) { return { success: true }; }
-
+export async function addExpense(data: any) {
+  return addTransaction({ type: 'EXPENSE', ...data });
+}
 export async function getDonations() {
   await requireAuth();
   const templeId = await getCurrentTempleId();

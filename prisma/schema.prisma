@@ -103,6 +103,7 @@ model Temple {
   expenses     Expense[]
   budgets      Budget[]
   documents    Document[]
+  schedules    ServiceSchedule[]
   docTemplates DocTemplate[]
   settingsDocs DocTemplateSetting[]
   diptychs     Diptych[]
@@ -1173,4 +1174,17 @@ model ProgramEnrollment {
   notes          String?
 
   @@unique([programId, participantId])
+}
+
+model ServiceSchedule {
+  id          String   @id @default(cuid())
+  templeId    String
+  temple      Temple   @relation(fields: [templeId], references: [id], onDelete: Cascade)
+  date        DateTime
+  title       String
+  isMajor     Boolean  @default(false)
+  description String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -102,9 +102,9 @@ export default function Home() {
             <Link href="/login" className="text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors hidden sm:block">
               Είσοδος
             </Link>
-            <Link href="/contact">
+            <Link href="/register">
               <button className="btn btn-primary btn-sm">
-                Δοκιμή <ArrowRight className="w-3.5 h-3.5" />
+                Εγγραφή Ναού <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </Link>
           </div>
@@ -143,9 +143,9 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link href="/contact">
+                <Link href="/register">
                   <button className="btn btn-primary btn-lg w-full sm:w-auto">
-                    Δωρεάν Επίδειξη <ArrowRight className="w-4 h-4" />
+                    Δωρεάν Εγγραφή <ArrowRight className="w-4 h-4" />
                   </button>
                 </Link>
                 <Link href="#features">
@@ -432,8 +432,8 @@ export default function Home() {
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-white/30">
             <p>© {new Date().getFullYear()} Kanonas Software. Με επιφύλαξη παντός δικαιώματος.</p>
             <div className="flex gap-6">
-              <Link href="#" className="hover:text-white/60 transition-colors">Όροι Χρήσης</Link>
-              <Link href="#" className="hover:text-white/60 transition-colors">Πολιτική Απορρήτου</Link>
+              <Link href="/terms" className="hover:text-white/60 transition-colors">Όροι Χρήσης</Link>
+              <Link href="/privacy" className="hover:text-white/60 transition-colors">Πολιτική Απορρήτου</Link>
             </div>
           </div>
         </div>
