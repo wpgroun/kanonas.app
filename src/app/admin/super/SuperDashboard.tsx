@@ -16,7 +16,8 @@ import {
   TrendingUp,
   Search,
   Filter,
-  ArrowUpRight
+  ArrowUpRight,
+  CheckCircle2
 } from "lucide-react";
 import { getSuperAdminStats, toggleSubscriptionStatus } from "@/actions/superadmin";
 
@@ -158,9 +159,9 @@ export default function SuperDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={\`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black uppercase \${
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black uppercase ${
                       temple.subscriptionStatus === "active" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-                    }\`}>
+                    }`}>
                       {temple.subscriptionStatus === "active" ? <CheckCircle2 className="w-3 h-3"/> : <PowerOff className="w-3 h-3"/>}
                       {temple.subscriptionStatus === "active" ? "Ενεργος" : "Ανενεργος"}
                     </span>
@@ -174,11 +175,11 @@ export default function SuperDashboard() {
                   <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => handleToggleStatus(temple.id, temple.subscriptionStatus)}
-                      className={\`px-3 py-1.5 rounded text-xs font-bold transition-colors \${
+                      className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${
                         temple.subscriptionStatus === "active"
                           ? "bg-rose-50 text-rose-600 hover:bg-rose-100"
                           : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                      }\`}
+                      }`}
                     >
                       {temple.subscriptionStatus === "active" ? "Αναστολή" : "Ενεργοποίηση"}
                     </button>

@@ -116,9 +116,9 @@ export default function SubscriptionClient({ currentSub, allPlans, invoices, sea
                         <td className="px-6 py-4 font-mono font-medium text-slate-700">{inv.number}</td>
                         <td className="px-6 py-4 text-slate-600">{new Date(inv.date).toLocaleDateString('el-GR')}</td>
                         <td className="px-6 py-4">
-                          <span className={\`text-xs font-bold px-2.5 py-1 rounded-full \${
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                             inv.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-                          }\`}>
+                          }`}>
                             {inv.status === 'paid' ? 'Εξοφλημένο' : 'Εκκρεμεί'}
                           </span>
                         </td>
@@ -158,9 +158,9 @@ export default function SubscriptionClient({ currentSub, allPlans, invoices, sea
               try { features = JSON.parse(plan.features); } catch(e) {}
               
               return (
-                <Card key={plan.id} className={\`relative flex flex-col p-6 transition-all duration-300 \${
+                <Card key={plan.id} className={`relative flex flex-col p-6 transition-all duration-300 ${
                   isCurrent ? 'ring-2 ring-indigo-600 shadow-xl scale-105 z-10' : 'hover:shadow-lg border-slate-200'
-                }\`}>
+                }`}>
                   {isCurrent && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] uppercase tracking-widest font-black px-4 py-1 rounded-full shadow-sm">
                       ΤΡΕΧΟΝ ΠΑΚΕΤΟ
