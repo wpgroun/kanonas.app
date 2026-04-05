@@ -32,8 +32,9 @@ export async function addInventoryItem(formData: any) {
  category: formData.category,
  unit: formData.unit,
  minStock: Number(formData.minThreshold) || 10,
- quantity: Number(formData.quantity) || 0
- }
+ quantity: Number(formData.quantity) || 0,
+        expiryDate: formData.expiryDate ? new Date(formData.expiryDate) : null
+      }
  });
 
  await prisma.auditLog.create({

@@ -16,7 +16,7 @@ export default function PrintPreviewModal({ record, templates, onClose }: any) {
   // Merge the template HTML with the dynamic variables
   let finalHtml = tpl?.htmlContent || 'Δεν υπάρχει πρότυπο';
   if (tpl) {
-    finalHtml = finalHtml.replace(/\{\{([^}]+)\}\}/g, (match, tagContents) => {
+    finalHtml = finalHtml.replace(/\{\{([^}]+)\}\}/g, (match: string, tagContents: string) => {
       const parts = tagContents.trim().split(':');
       const baseKey = parts[0];
       const modifier = parts[1];
