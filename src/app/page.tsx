@@ -6,14 +6,14 @@ import {
   ArrowRight, Users, FileText, Banknote, ShieldCheck,
   BarChart3, Calendar, BookOpen, CheckCircle2, Zap,
   ChevronRight, Globe, Lock, HeartPulse, Tent, Mail, ScanFace,
-  Layout, KanbanSquare
+  Layout, KanbanSquare, Search, Box
 } from 'lucide-react';
 
 const features = [
   {
     icon: <Users className="w-5 h-5" />,
     title: 'Μητρώο Ενοριτών & Κεκοιμημένων',
-    desc: 'Πλήρης καρτέλα ενοριτών, δωρητών και διαχείριση Ληξιαρχείου / Μνημοσύνων.',
+    desc: 'Πλήρης καρτέλα ενοριτών, διαχείριση Ληξιαρχείου (Βαπτίσεις, Γάμοι) & Μνημοσύνων.',
   },
   {
     icon: <FileText className="w-5 h-5" />,
@@ -31,9 +31,9 @@ const features = [
     desc: 'Οργάνωση αναξιοπαθούντων αδελφών, διαχείριση αποθήκης μερίδων και δελτίων χορηγίας.',
   },
   {
-    icon: <ScanFace className="w-5 h-5" />,
-    title: 'Πρωτόκολλο & Mobile Scanner',
-    desc: 'Αυτόματη αρίθμηση και σάρωση φυσικών εγγράφων κατευθείαν από την κάμερα του κινητού.',
+    icon: <KanbanSquare className="w-5 h-5" />,
+    title: 'Kanban Μυστηρίων & Εργασιών',
+    desc: 'Οπτικός πίνακας εργασιών (tasks) για γρήγορη οργάνωση των μυστηρίων και επιτροπών.',
   },
   {
     icon: <BookOpen className="w-5 h-5" />,
@@ -41,19 +41,34 @@ const features = [
     desc: 'Εκτύπωση ονομάτων Υπέρ Υγείας και Υπέρ Αναπαύσεως για την Αγία Πρόθεση.',
   },
   {
-    icon: <Mail className="w-5 h-5" />,
-    title: 'Mailing & Ετικέτες ΕΛΤΑ',
-    desc: 'Μαζική προσθήκη ενοριτών σε λίστες και εκτύπωση ετικετών για αλληλογραφία.',
+    icon: <Search className="w-5 h-5" />,
+    title: 'Οικουμενική Αναζήτηση (Global Search)',
+    desc: 'Βρείτε ενορίτες, πιστοποιητικά, έγγραφα ή πρωτόκολλα στιγμιαία με το πάτημα του Ctrl+K.',
   },
   {
-    icon: <KanbanSquare className="w-5 h-5" />,
-    title: 'Kanban Διαχείρισης',
-    desc: 'Οπτικός πίνακας εργασιών (tasks) για οργάνωση των επιτροπών του ναού.',
+    icon: <Zap className="w-5 h-5" />,
+    title: 'Έξυπνο Action Center (Smart API)',
+    desc: 'Το σύστημα αναγνωρίζει εκκρεμότητες και ειδοποιεί προληπτικά για τις εργασίες σας.',
+  },
+  {
+    icon: <ShieldCheck className="w-5 h-5" />,
+    title: 'Απομόνωση & RBAC Ασφάλεια',
+    desc: 'Multi-tenant απομόνωση ανά Ναό, με αυστηρούς ρόλους πρόσβασης (Role-Based) για κάθε χρήστη.',
+  },
+  {
+    icon: <Box className="w-5 h-5" />,
+    title: 'Document Vault & Bulk PDF',
+    desc: 'Ασφαλής αρχειοθήκη (Vault) για τα έγγραφα του Ναού με δυνατότητα μαζικής παραγωγής.',
+  },
+  {
+    icon: <ScanFace className="w-5 h-5" />,
+    title: 'Πρωτόκολλο & Mobile Scanner',
+    desc: 'Αυτόματη αρίθμηση και σάρωση φυσικών εγγράφων κατευθείαν από την κάμερα του κινητού.',
   },
   {
     icon: <Layout className="w-5 h-5" />,
-    title: 'Δημόσια Mini-Sites & Widgets',
-    desc: 'Αυτόματη δημιουργία Mini-Site του Ναού και ενσωμάτωση ημερολογίου σε website.',
+    title: 'Δημόσια Web-Widgets',
+    desc: 'Αυτόματη ενσωμάτωση widget ημερολογίου ή φορμών επικοινωνίας στο site του ναού.',
   },
 ];
 
