@@ -125,6 +125,8 @@ export async function getServiceSchedules() {
 export async function deleteServiceSchedule(id: string) { 
   const templeId = await getCurrentTempleId();
   try {
+    const existing = await prisma.serviceSchedule.findFirst({ where: { id, templeId } });
+    if (!existing) return { success: false, error: 'Unauthorized' };
     await prisma.serviceSchedule.delete({ where: { id } });
     revalidatePath('/admin/schedule');
     return { success: true };

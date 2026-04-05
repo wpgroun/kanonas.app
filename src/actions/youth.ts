@@ -39,7 +39,10 @@ export async function createYouthProgram(data: { name: string, description?: str
 
 export async function deleteYouthProgram(id: string) {
   await requireAuth();
+  const templeId = await getCurrentTempleId();
   try {
+    const existing = await prisma.youthProgram.findFirst({ where: { id, templeId } });
+    if (!existing) return { success: false, error: 'Unauthorized' };
     await prisma.youthProgram.delete({ where: { id } });
     revalidatePath('/admin/youth');
     return { success: true };
@@ -85,7 +88,10 @@ export async function createParticipant(data: { firstName: string, lastName: str
 
 export async function deleteParticipant(id: string) {
   await requireAuth();
+  const templeId = await getCurrentTempleId();
   try {
+    const existing = await prisma.youthParticipant.findFirst({ where: { id, templeId } });
+    if (!existing) return { success: false, error: 'Unauthorized' };
     await prisma.youthParticipant.delete({ where: { id } });
     revalidatePath('/admin/youth');
     return { success: true };
@@ -94,7 +100,10 @@ export async function deleteParticipant(id: string) {
 
 export async function updateConsent(id: string, hasConsent: boolean) {
    await requireAuth();
+   const templeId = await getCurrentTempleId();
    try {
+     const existing = await prisma.youthParticipant.findFirst({ where: { id, templeId } });
+     if (!existing) return { success: false, error: 'Unauthorized' };
      await prisma.youthParticipant.update({
         where: { id },
         data: { parentConsentDate: hasConsent ? new Date() : null }

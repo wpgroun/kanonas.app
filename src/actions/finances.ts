@@ -41,7 +41,11 @@ export async function deleteFinancialCategory(id: string) {
   const session = await requireAuth();
   if(!session.canEditFinances) return { success: false, error: 'Μη Εξουσιοδοτημένη ενέργεια' };
 
+  const templeId = await getCurrentTempleId();
   try {
+    const existing = await prisma.financialCategory.findFirst({ where: { id, templeId } });
+    if (!existing) return { success: false, error: 'Unauthorized' };
+
     // Check if it's used in budgets/expenses/incomes
     const incomeCount = await prisma.income.count({ where: { categoryId: id } });
     const expenseCount = await prisma.expense.count({ where: { categoryId: id } });

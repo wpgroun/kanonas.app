@@ -25,6 +25,8 @@ export async function saveDocTemplate(id: string | null, docType: string, nameEl
   const templeId = await getCurrentTempleId()
   try {
     if (id) {
+      const existing = await prisma.docTemplate.findFirst({ where: { id, templeId } });
+      if (!existing) return { success: false, error: 'Unauthorized' };
       await prisma.docTemplate.update({ where: { id }, data: { docType, nameEl, htmlContent } })
     } else {
       await prisma.docTemplate.create({

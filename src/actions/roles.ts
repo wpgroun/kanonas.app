@@ -50,7 +50,10 @@ export async function createTempleRole(data: { name: string; permissions: Record
 export async function updateTempleRole(id: string, data: { name: string; permissions: Record<string, boolean> }) {
   const session = await requireAuth();
   if(!session.isHeadPriest && !session.isSuperAdmin) return { success: false, error: 'Μη Εξουσιοδοτημένη ενέργεια' };
+  const templeId = await getCurrentTempleId();
   try {
+    const existing = await prisma.role.findFirst({ where: { id, templeId } });
+    if (!existing) return { success: false, error: 'Unauthorized' };
     await prisma.role.update({
       where: { id },
       data: {
@@ -70,7 +73,11 @@ export async function deleteTempleRole(id: string) {
   const session = await requireAuth();
   if(!session.isHeadPriest && !session.isSuperAdmin) return { success: false, error: 'Μη Εξουσιοδοτημένη ενέργεια' };
   
+  const templeId = await getCurrentTempleId();
   try {
+    const existing = await prisma.role.findFirst({ where: { id, templeId } });
+    if (!existing) return { success: false, error: 'Unauthorized' };
+
     // Check if users exist for this role
     const usersCount = await prisma.userTemple.count({ where: { roleId: id } });
     if (usersCount > 0) {

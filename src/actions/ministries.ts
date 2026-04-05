@@ -40,7 +40,10 @@ export async function addMinistry(data: { name: string, description?: string, co
 
 export async function deleteMinistry(id: string) {
   await requireAuth();
+  const templeId = await getCurrentTempleId();
   try {
+    const existing = await prisma.ministry.findFirst({ where: { id, templeId } });
+    if (!existing) return { success: false, error: 'Unauthorized' };
     await prisma.ministry.delete({ where: { id } });
     revalidatePath('/admin/ministries');
     return { success: true };
@@ -92,7 +95,10 @@ export async function addVolunteer(data: { firstName: string, lastName: string, 
 
 export async function deleteVolunteer(id: string) {
   await requireAuth();
+  const templeId = await getCurrentTempleId();
   try {
+    const existing = await prisma.volunteer.findFirst({ where: { id, templeId } });
+    if (!existing) return { success: false, error: 'Unauthorized' };
     await prisma.volunteer.delete({ where: { id } });
     revalidatePath('/admin/ministries');
     return { success: true };
