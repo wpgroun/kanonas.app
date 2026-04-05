@@ -20,11 +20,11 @@ const COMPATIBILITY: Record<string, string[]> = {
   'AB+': ['AB+'],
 };
 
-export function getCompatibleRecipients(donorType: string): string[] {
+function getCompatibleRecipients(donorType: string): string[] {
   return COMPATIBILITY[donorType] || [];
 }
 
-export function getCompatibleDonors(recipientType: string): string[] {
+function getCompatibleDonors(recipientType: string): string[] {
   return Object.entries(COMPATIBILITY)
     .filter(([, recipients]) => recipients.includes(recipientType))
     .map(([donor]) => donor);

@@ -13,7 +13,7 @@ import {
   Droplet, Users, Plus, Search, Calendar, HeartPulse, Building2, Clock, CheckCircle2, TrendingUp, Filter, AlertCircle
 } from 'lucide-react';
 import {
-  addBloodDonor, recordDonation, createBloodDrive, getCompatibleRecipients, updateDriveStatus
+  addBloodDonor, recordDonation, createBloodDrive, updateDriveStatus
 } from '@/actions/bloodbank';
 
 // ─── MAIN COMPONENT ─────────────────────────────────────────────
@@ -330,7 +330,7 @@ function DrivesView({ drives }: { drives: any[] }) {
                     <h4 className="font-bold text-lg">{d.name}</h4>
                     <span className="text-xs text-muted-foreground flex items-center gap-1 mt-1"><Calendar className="w-3 h-3"/>{new Date(d.date).toLocaleDateString('el-GR')} {d.location && `• ${d.location}`}</span>
                   </div>
-                  <Badge variant={d.status === 'COMPLETED' ? 'outline' : 'default'} className={d.status === 'PLANNED' ? 'bg-amber-100 text-amber-700 hover:bg-amber-100' : ''}>
+                  <Badge variant={d.status === 'COMPLETED' ? 'outline' : 'primary'} className={d.status === 'PLANNED' ? 'bg-amber-100 text-amber-700 hover:bg-amber-100' : ''}>
                     {d.status === 'PLANNED' ? 'Προσεχής' : d.status === 'ACTIVE' ? 'Σε εξέλιξη' : 'Ολοκληρωμένη'}
                   </Badge>
                 </div>
@@ -365,8 +365,6 @@ function EmergencyView() {
     setLoading(true);
     setTimeout(() => setLoading(false), 500);
   };
-
-  const compats = getCompatibleRecipients(bloodType);
 
   return (
     <div className="space-y-6 animate-in fade-in max-w-3xl">
