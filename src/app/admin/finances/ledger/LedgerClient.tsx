@@ -33,7 +33,7 @@ export default function LedgerClient({ templeId, initialDonations, initialExpens
  setShowAdd(false);
  setNewExp({ purpose: '', amount: '', date: new Date().toISOString().split('T')[0], categoryId: '', vendor: '', receiptNumber: '' });
  } else {
- alert(res.error || 'Σφάλμα');
+ alert((res as any).error || 'Σφάλμα');
  }
  });
  };
