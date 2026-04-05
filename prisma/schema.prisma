@@ -143,6 +143,7 @@ model Temple {
   volunteers               Volunteer[]
   youthPrograms            YouthProgram[]
   youthParticipants        YouthParticipant[]
+  bookingSlots             BookingSlot[]
 }
 
 model KanbanTask {
