@@ -26,6 +26,7 @@ export default function DocTemplateForm({ template, onClose }: { template?: any,
     nameEl: template?.nameEl || '',
     docType: template?.docType || 'vaptisi',
     htmlContent: template?.htmlContent || '<h1>Πιστοποιητικό Βαπτίσεως</h1>\n<p>Ο/Η κάτωθι <b>{{IEΡΕΑΣ_ΟΝΟΜΑ}}</b>, εφημέριος του ναού...</p>\n<p>Τέκνο του <b>{{ΠΑΤΕΡΑΣ_ΟΝΟΜΑ}}</b> και της <b>{{ΜΗΤΕΡΑ_ΟΝΟΜΑ}}</b></p>',
+    conditionRules: template?.conditionRules || ''
   });
 
   const extractVariables = (text: string) => {
@@ -48,7 +49,7 @@ export default function DocTemplateForm({ template, onClose }: { template?: any,
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const res = await saveDocTemplate(template?.id || null, form.docType, form.nameEl, form.htmlContent);
+    const res = await saveDocTemplate(template?.id || null, form.docType, form.nameEl, form.htmlContent, form.conditionRules);
     if (!res.success) {
       alert('Αποτυχία αποθήκευσης.');
     } else {
@@ -94,6 +95,19 @@ export default function DocTemplateForm({ template, onClose }: { template?: any,
                   {DOC_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                 </select>
               </div>
+            </div>
+            
+            <div className="space-y-2 pb-4 border-b border-gray-100">
+              <Label>📌 Κανόνας Παραγωγής (Rule Engine) <span className="text-gray-400 font-normal italic">- Πότε παράγεται αυτό το έγγραφο;</span></Label>
+              <Input
+                value={form.conditionRules}
+                onChange={e => setForm(p => ({ ...p, conditionRules: e.target.value }))}
+                placeholder="π.χ. {{OIKOG_KATASTASI}} == 'ΧΗΡΕΙΑ'.  Αφήστε κενό αν βγαίνει πάντα!"
+                className="font-mono text-sm border-amber-200 focus:border-amber-400"
+              />
+              <p className="text-xs text-slate-500">
+                Αν συμπληρώσετε αυτό το πεδίο, το έγγραφο θα δημιουργηθεί στο Connect Φόρμα <b>ΜΟΝΟ</b> εάν η συνθήκη αληθεύει.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full min-h-[400px]">

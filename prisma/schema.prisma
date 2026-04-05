@@ -403,8 +403,37 @@ model Document {
   createdAt DateTime @default(now())
 }
 
+
+// =======================
+// BOOKING SLOTS (CALENDLY STYLE)
+// =======================
+model BookingSlot {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  // e.g. "GAMOS", "BAPTISM"
+  serviceType String 
+  
+  // The start time of the slot
+  startTime DateTime
+  // The estimated end time
+  endTime   DateTime?
+
+  // Optionally specify which priest is handling it
+  priestId String?
+
+  // Is it booked? If booked, connectTokenHash points to the connect Request
+  isBooked Boolean @default(false)
+  connectTokenHash String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // =======================
 // TEMPLATES
+
 // =======================
 
 model DocTemplate {
@@ -417,6 +446,7 @@ model DocTemplate {
   htmlContent String?
   fileUrl     String?
   context     String?
+  conditionRules String? // JSON logic mapping IF variables THEN render
 
   settingsDocs DocTemplateSetting[]
 
