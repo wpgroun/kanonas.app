@@ -11,6 +11,7 @@ import { LayoutDashboard, Users, FileText, Banknote, Calendar,
 import { logoutAction } from '@/actions/auth';
 import { useDict } from '@/i18n/TranslationProvider';
 import type { ExpiryWarning } from '@/actions/subscriptions';
+import GlobalSearch from '@/components/GlobalSearch';
 
 interface AdminShellProps {
   children: ReactNode
@@ -173,6 +174,11 @@ export default function AdminShell({ children, perms, subscriptionWarning }: Adm
               <Menu className="w-5 h-5" />
             </button>
           </div>
+          
+          <div className="flex-1 flex justify-center px-4">
+             <GlobalSearch />
+          </div>
+          
           <div className="flex items-center gap-2">
             <button
               onClick={async () => {

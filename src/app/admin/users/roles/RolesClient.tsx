@@ -123,7 +123,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: any[] }) {
       
       {/* ΛΙΣΤΑ ΡΟΛΩΝ */}
       <div className={`col-span-1 lg:col-span-4 flex flex-col gap-4 ${editingId ? 'opacity-50 pointer-events-none' : ''}`}>
-         <Button onClick={startNewRole} className="w-full h-12 shadow-sm mb-2" variant="primary">
+         <Button onClick={startNewRole} className="w-full h-12 shadow-md mb-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white border-0">
            <Plus className="w-4 h-4 mr-2" /> Δημιουργία Νέου Ρόλου
          </Button>
 

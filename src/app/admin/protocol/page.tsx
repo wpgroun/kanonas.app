@@ -14,9 +14,12 @@ export default async function ProtocolPage({ searchParams }: { searchParams: { o
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Γενικό Πρωτόκολλο & Ψηφιακό Αρχείο</h1>
-        <p className="text-sm text-gray-500">Βιβλία Εισερχομένων-Εξερχομένων με αυτόματη αρίθμηση και σάρωση (Scanner)</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">Γενικό Πρωτόκολλο & Ψηφιακό Αρχείο</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Βιβλία Εισερχομένων-Εξερχομένων με αυτόματη αρίθμηση και σάρωση (Scanner)</p>
+        </div>
+        {/* Actions inside client component */}
       </div>
 
       <ProtocolClient 

@@ -144,7 +144,7 @@ export default function NewRequestButtons() {
         <Button
           size="lg"
           onClick={() => openFor('GAMOS')}
-          className="h-auto py-4 flex flex-col items-start gap-1 justify-center bg-blue-600 hover:bg-blue-700 text-white"
+          className="h-auto py-4 flex flex-col items-start gap-1 justify-center bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md border-0"
         >
           <span className="text-lg font-bold flex items-center gap-2">💍 Νέα Αίτηση Γάμου</span>
           <span className="text-xs font-normal opacity-80">Δημιουργία token & αποστολή link</span>

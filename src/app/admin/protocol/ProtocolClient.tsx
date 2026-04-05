@@ -32,8 +32,8 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
     <div className="space-y-6">
        
        {/* Toolbar */}
-       <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-border gap-4">
-          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+       <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-border gap-4">
+          <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
              <button 
                 onClick={() => handleFilter('TEMPLE')}
                 className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${currentOwner === 'TEMPLE' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:text-gray-900'}`}>
@@ -52,12 +52,12 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
                 <input 
                    name="query"
                    placeholder="Αναζήτηση Αποστολέα ή Θέματος..."
-                   className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-slate-50 dark:bg-gray-950 focus:ring-1 focus:ring-primary outline-none"
+                   className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-slate-50 focus:ring-1 focus:ring-primary outline-none"
                 />
              </div>
           </form>
 
-          <Button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary/90 text-white gap-2">
+          <Button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md border-0 gap-2">
              <PlusCircle className="w-5 h-5" /> Νέο Έγγραφο
           </Button>
        </div>

@@ -56,7 +56,7 @@ export default function AssetsClient({ initialAssets, currentOwner, currentType 
           </div>
           
           <div className="flex items-end">
-             <Button className="bg-primary hover:bg-primary/90 text-white gap-2 h-[38px]">
+             <Button className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md border-0 gap-2 h-[38px]">
                <Plus className="w-4 h-4"/> Πάγιο / Κειμήλιο
              </Button>
           </div>

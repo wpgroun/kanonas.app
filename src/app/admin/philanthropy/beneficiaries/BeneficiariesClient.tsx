@@ -37,7 +37,7 @@ export default function BeneficiariesClient({ initialData }: { initialData: any[
   return (
     <div className="space-y-4">
        <div className="flex justify-end">
-          <Button className="gap-2 bg-primary hover:bg-primary/90 text-white shadow-lg">
+          <Button className="gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md border-0">
             <Plus className="w-4 h-4"/> Νέα Αίτηση Ένταξης
           </Button>
        </div>

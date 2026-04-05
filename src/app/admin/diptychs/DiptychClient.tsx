@@ -67,7 +67,7 @@ export default function DiptychClient({ initialDiptychs, pendingRequests = [] }:
           </p>
         </div>
         <Link href="/admin/diptychs/print" target="_blank">
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md border-0">
             <Printer className="w-4 h-4 mr-2" /> Εκτύπωση Διπτύχων
           </Button>
         </Link>

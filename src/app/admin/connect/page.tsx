@@ -22,10 +22,17 @@ export default async function AdminConnectPage() {
    });
 
    return (
-      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-         <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Kanonas Connect (e-Gov & Συμμετοχές)</h1>
-            <p className="text-slate-500 text-sm">Διαχειριστείτε τις αιτήσεις πιστοποιητικών και τις συμμετοχές στις δράσεις της Ενορίας που υποβλήθηκαν μέσω της Ψηφιακής Θυρίδας (Mini-Site).</p>
+      <div className="container-fluid mt-6 space-y-6 animate-in fade-in slide-in-from-bottom-4">
+         
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+               <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                 Kanonas Connect (e-Gov & Συμμετοχές)
+               </h1>
+               <p className="text-muted-foreground mt-1 text-sm">
+                 Διαχειριστείτε τις αιτήσεις πιστοποιητικών και τις συμμετοχές στις δράσεις της Ενορίας που υποβλήθηκαν μέσω της Ψηφιακής Θυρίδας (Mini-Site).
+               </p>
+            </div>
          </div>
 
          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
