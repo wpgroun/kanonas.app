@@ -144,6 +144,13 @@ model Temple {
   youthPrograms            YouthProgram[]
   youthParticipants        YouthParticipant[]
   bookingSlots             BookingSlot[]
+
+  // Sissitio Expanded
+  sissitioRecipients       SissitioRecipient[]
+  sissitioMenus            SissitioMenu[]
+  sissitioRecipes          SissitioRecipe[]
+  sissitioPortionLogs      SissitioPortionLog[]
+  sissitioInventoryItems   SissitioInventoryItem[]
 }
 
 model KanbanTask {
@@ -1347,4 +1354,197 @@ model BloodDrive {
   donations BloodDonation[]
 
   createdAt DateTime @default(now())
+}
+
+// =======================
+// SISSITIO (ΣΥΣΣΙΤΙΟ - EXPANDED)
+// =======================
+
+model SissitioRecipient {
+  id           String    @id @default(cuid())
+  templeId     String
+  temple       Temple    @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  firstName    String
+  lastName     String
+  fatherName   String?
+  dateOfBirth  DateTime?
+  gender       String?  // "M" | "F"
+  afm          String?  @unique
+  address      String?
+  city         String?
+  phone        String?
+  email        String?
+  category     String   @default("taktikos") // "taktikos" | "ektaktos" | "episkeptis"
+  familyMembers Int     @default(1)
+  isActive     Boolean  @default(true)
+  registeredAt DateTime @default(now())
+  notes        String?
+
+  medicalProfile SissitioMedical?
+  attendances    SissitioAttendance[]
+  payments       SissitioPayment[]
+  documents      SissitioDocument[]
+
+  createdAt DateTime @default(now())
+}
+
+model SissitioMedical {
+  id          String            @id @default(cuid())
+  recipientId String            @unique
+  recipient   SissitioRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  allergies    String?
+  dietaryNeeds String? // χορτοφάγος, νηστεία, διαβήτης
+  conditions   String?
+  medications  String?
+  doctorName   String?
+  doctorPhone  String?
+  notes        String?
+}
+
+model SissitioDocument {
+  id          String            @id @default(cuid())
+  recipientId String
+  recipient   SissitioRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  docType    String // "aitisi" | "pistopoiitiko" | "tautotita" | "allo"
+  fileName   String
+  fileUrl    String?
+  uploadedAt DateTime @default(now())
+  notes      String?
+}
+
+model SissitioAttendance {
+  id          String            @id @default(cuid())
+  recipientId String
+  recipient   SissitioRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  date          DateTime
+  present       Boolean @default(true)
+  absenceType   String? // "dikaiologimeni" | "adikaiologiti"
+  absenceReason String?
+  notes         String?
+
+  @@unique([recipientId, date])
+}
+
+model SissitioPayment {
+  id          String            @id @default(cuid())
+  recipientId String
+  recipient   SissitioRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  amount    Float
+  month     Int    // 1-12
+  year      Int
+  method    String? // "cash" | "bank" | "dorean"
+  paidAt    DateTime @default(now())
+  receiptNo String?  // SIS-2025-001
+  notes     String?
+}
+
+model SissitioMenu {
+  id        String          @id @default(cuid())
+  templeId  String
+  temple    Temple          @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  weekStart DateTime
+  notes     String?
+  days      SissitioMenuDay[]
+  createdAt DateTime @default(now())
+}
+
+model SissitioMenuDay {
+  id          String       @id @default(cuid())
+  menuId      String
+  menu        SissitioMenu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  dayOfWeek   Int      // 1=Δευτέρα ... 7=Κυριακή
+  date        DateTime
+  firstCourse String?  // σούπα / ορεκτικό
+  mainCourse  String?  // κυρίως
+  salad       String?
+  dessert     String?
+  bread       Boolean  @default(true)
+  isNistisimo Boolean  @default(false)
+  notes       String?
+
+  recipes SissitioMenuDayRecipe[]
+}
+
+model SissitioRecipe {
+  id           String    @id @default(cuid())
+  templeId     String
+  temple       Temple    @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  name         String
+  category     String // "kyrios" | "soupa" | "salata" | "epidorpio"
+  servings     Int    @default(10)
+  isNistisimo  Boolean @default(false)
+  ingredients  String  @default("[]") // JSON: [{name, qty, unit}]
+  instructions String?
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  menuDays SissitioMenuDayRecipe[]
+  portions SissitioPortionRecipe[]
+}
+
+model SissitioMenuDayRecipe {
+  id        String          @id @default(cuid())
+  menuDayId String
+  menuDay   SissitioMenuDay @relation(fields: [menuDayId], references: [id], onDelete: Cascade)
+  recipeId  String
+  recipe    SissitioRecipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model SissitioPortionLog {
+  id            String    @id @default(cuid())
+  templeId      String
+  temple        Temple    @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  date          DateTime
+  totalPortions Int
+  servedPortions Int
+  leftover      Int?
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  recipes SissitioPortionRecipe[]
+}
+
+model SissitioPortionRecipe {
+  id           String             @id @default(cuid())
+  portionLogId String
+  portionLog   SissitioPortionLog @relation(fields: [portionLogId], references: [id], onDelete: Cascade)
+  recipeId     String
+  recipe       SissitioRecipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  portions     Int
+}
+
+model SissitioInventoryItem {
+  id          String    @id @default(cuid())
+  templeId    String
+  temple      Temple    @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  name        String
+  category    String // "kreatika" | "lahanika" | "bakalika" | "galaktokomika" | "alla"
+  unit        String // "kg" | "lt" | "tem" | "kout"
+  quantity    Float   @default(0)
+  minQuantity Float?
+  notes       String?
+  updatedAt   DateTime @updatedAt
+
+  movements SissitioInventoryMovement[]
+}
+
+model SissitioInventoryMovement {
+  id       String                @id @default(cuid())
+  itemId   String
+  item     SissitioInventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  moveType String // "eisagogi" | "eksagogi" | "diorthosi"
+  quantity Float
+  date     DateTime @default(now())
+  notes    String?
 }
