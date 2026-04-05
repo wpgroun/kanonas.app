@@ -7,12 +7,20 @@ async function main() {
   const adminEmail = 'admin@kanonas.gr';
   
   // Check if test temple exists
+  let metropolis = await prisma.metropolis.findFirst();
+  if (!metropolis) {
+    metropolis = await prisma.metropolis.create({
+      data: { name: 'Ιερά Μητρόπολη Δοκιμών', slug: 'dokimon' }
+    });
+  }
+
   let temple = await prisma.temple.findUnique({ where: { id: 'cm0testtempleid0000000001' } });
   if (!temple) {
     temple = await prisma.temple.create({
       data: {
         id: 'cm0testtempleid0000000001',
         name: 'Ιερός Ναός Δοκιμών',
+        metropolisId: metropolis.id
       }
     });
     console.log('Created Template Temple.');

@@ -238,10 +238,10 @@ export default function ParishionerProfileClient({ p, beneficiary, relationships
                 <Button 
                   onClick={async () => {
                     setIsRegistering(true);
-                    const res = await createBeneficiary({ firstName: p.firstName, lastName: p.lastName, phone: p.phone, address: p.address, portions: 1, parishionerId: p.id });
+                    const res = await createBeneficiary({ firstName: p.firstName, lastName: p.lastName, phone: p.phone, address: p.address, portions: 1, parishionerId: p.id }) as any;
                     setIsRegistering(false);
-                    if (res.success) router.refresh();
-                    else alert("Σφάλμα εγγραφής: " + res.error);
+                    if (res && res.success) router.refresh();
+                    else alert("Σφάλμα εγγραφής: " + (res?.error || 'Άγνωστο'));
                   }}
                   disabled={isRegistering}
                   size="lg"

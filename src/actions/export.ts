@@ -91,10 +91,10 @@ export async function exportFinancesCSV(type: 'donations' | 'expenses') {
     const formatted = records.map(r => ({
       'Ημερομηνία': new Date(r.date).toLocaleDateString('el-GR'),
       'Ποσό': r.amount.toString(),
-      'Αιτιολογία': r.description,
+      'Αιτιολογία': r.purpose,
       'Κατηγορία': r.category ? r.category.name : '-',
       'Προμηθευτής': r.vendor || '-',
-      'Αριθμός Απόδειξης': r.voucherNumber || '-'
+      'Αριθμός Απόδειξης': r.receiptNumber || '-'
     }))
 
     return { success: true, csv: toCSV(formatted), filename: `Expenses_${new Date().toISOString().split('T')[0]}.csv` }

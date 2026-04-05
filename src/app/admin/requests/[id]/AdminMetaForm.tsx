@@ -25,17 +25,18 @@ export default function AdminMetaForm({ token }: { token: any }) {
     setSaving(true);
     
     // Generate Protocol
-    const res = await addProtocolEntry({
-      direction: 'OUT',
-      subject: `Πιστοποιητικό ${token.serviceType === 'GAMOS' ? 'Γάμου' : 'Βάπτισης'} (${token.customerName})`,
-      receiver: token.customerName,
-      tokenId: token.id
-    });
+    const fd = new FormData();
+    fd.append('direction', 'OUT');
+    fd.append('subject', `Πιστοποιητικό ${token.serviceType === 'GAMOS' ? 'Γάμου' : 'Βάπτισης'} (${token.customerName})`);
+    fd.append('receiver', token.customerName);
+    fd.append('tokenId', token.id);
 
-    if (res.success && res.entry) {
-       const protoStr = `${res.entry.number}`;
+    const res = await addProtocolEntry(fd);
+
+    if (res.success && res.protocolNumber) {
+       const protoStr = res.protocolNumber;
        await markTokenAsDocsGenerated(token.id, priest, book, protoStr);
-       alert(`Το πιστοποιητικό εκδόθηκε με επιτυχία! Αριθμός Πρωτοκόλλου: ${res.entry.number}/${res.entry.year}`);
+       alert(`Το πιστοποιητικό εκδόθηκε με επιτυχία! Αριθμός Πρωτοκόλλου: ${res.protocolNumber}`);
        router.push(`/admin/requests/${token.id}`);
     } else {
        alert("Σφάλμα έκδοσης πρωτοκόλλου");

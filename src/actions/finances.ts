@@ -148,7 +148,7 @@ export async function addTransaction(data: { type: 'INCOME'|'EXPENSE', categoryI
         // Add an audit log automatically
         await tx.auditLog.create({
           data: {
-             templeId, userId: session.userId, userEmail: session.userId, 
+             templeId, userId: session.userId, userEmail: session.userEmail, 
              action: `NEA ЕГГРАФΗ ${data.type}`, 
              detail: `Kαταχώρηση €${data.amount} στο [${data.categoryId}]`
           }
@@ -204,9 +204,28 @@ export async function getFinanceStats() {
        return acc;
     }, {} as Record<string, number>);
 
-    return { totalIncome, totalExpense, totalCurrentYear, totalPrevYear, byCategory, currentYear: year, prevYear, year };
+    const monthNames = ['Ιαν', 'Φεβ', 'Μαρ', 'Απρ', 'Μαΐ', 'Ιουν', 'Ιουλ', 'Αυγ', 'Σεπ', 'Οκτ', 'Νοε', 'Δεκ'];
+    const currentYearData = monthNames.map((name, index) => ({ month: index + 1, monthName: name, total: 0, count: 0 }));
+    const prevYearData = monthNames.map((name, index) => ({ month: index + 1, monthName: name, total: 0, count: 0 }));
+
+    incomes.forEach((i: any) => {
+       const d = new Date(i.date);
+       const y = d.getFullYear();
+       const m = d.getMonth();
+       if (y === year) {
+           currentYearData[m].total += i.amount;
+           currentYearData[m].count += 1;
+       } else if (y === prevYear) {
+           prevYearData[m].total += i.amount;
+           prevYearData[m].count += 1;
+       }
+    });
+
+    const categoryDataArray = Object.entries(byCategory).map(([purpose, total]) => ({ purpose, total: total as number }));
+
+    return { totalIncome, totalExpense, totalCurrentYear, totalPrevYear, byCategory: categoryDataArray, currentYearData, prevYearData, year };
   } catch(e) {
-    return { totalIncome: 0, totalExpense: 0, totalCurrentYear: 0, totalPrevYear: 0, byCategory: {}, currentYear: 2026, prevYear: 2025, year: 2026 };
+    return { totalIncome: 0, totalExpense: 0, totalCurrentYear: 0, totalPrevYear: 0, byCategory: [], currentYearData: [], prevYearData: [], year: 2026 };
   }
 }
 
@@ -227,7 +246,7 @@ export async function sealFinancialYear(year: number) {
 
         await tx.auditLog.create({
           data: {
-             templeId, userId: session.userId, userEmail: session.userId, 
+             templeId, userId: session.userId, userEmail: session.userEmail, 
              action: 'ΣΦΡΑΓΙΣΜΑ ΑΠΟΛΟΓΙΣΜΟΥ', 
              detail: `Οικονομικό Έτος ${year} Κλείδωσε μόνιμα.`
           }
@@ -330,3 +349,58 @@ export async function payQuarterTaxes(year: number, quarter: number) {
 }
 
 export async function addExpense(data: any) { return { success: true }; }
+
+export async function getDonations() {
+  await requireAuth();
+  const templeId = await getCurrentTempleId();
+  try {
+    return await prisma.donation.findMany({
+      where: { templeId },
+      include: { parishioner: true },
+      orderBy: { date: 'desc' }
+    });
+  } catch (e) {
+    return [];
+  }
+}
+
+export async function createDonation(data: { amount: number; purpose?: string; date: Date; receiptNumber?: string; donorName?: string; parishionerId?: string }) {
+  const session = await requireAuth();
+  const templeId = await getCurrentTempleId();
+  try {
+    const donation = await prisma.donation.create({
+      data: {
+        templeId,
+        amount: data.amount,
+        purpose: data.purpose,
+        date: data.date,
+        receiptNumber: data.receiptNumber,
+        donorName: data.donorName,
+        parishionerId: data.parishionerId,
+      }
+    });
+    revalidatePath('/admin/finances');
+    return { success: true, donation };
+  } catch (e) {
+    return { success: false, error: 'Σφάλμα καταχώρησης' };
+  }
+}
+
+export async function getDonationStats() {
+  await requireAuth();
+  const templeId = await getCurrentTempleId();
+  try {
+    const total = await prisma.donation.aggregate({
+      where: { templeId },
+      _sum: { amount: true }
+    });
+    const currentYear = new Date().getFullYear();
+    const yearly = await prisma.donation.aggregate({
+      where: { templeId, date: { gte: new Date(currentYear, 0, 1) } },
+      _sum: { amount: true }
+    });
+    return { total: total._sum.amount || 0, yearly: yearly._sum.amount || 0 };
+  } catch (e) {
+    return { total: 0, yearly: 0 };
+  }
+}

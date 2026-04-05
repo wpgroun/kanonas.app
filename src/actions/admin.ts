@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { getCurrentTempleId } from './core'
-import { requireAuth, requireSuperAdmin } from '@/lib/auth'
+import { requireAuth, requireSuperAdmin } from '@/lib/requireAuth'
 
 export async function getAllTemples() {
   await requireSuperAdmin()

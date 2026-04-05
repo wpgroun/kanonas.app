@@ -40,8 +40,17 @@ export async function POST(req: NextRequest) {
       fs.mkdirSync(baseUploadDir, { recursive: true });
     }
 
-    // Sanitize filename and create unique path
-    const safeFilename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-]/g, '_')}`;
+    // [SECURITY MED-5] Strict filename sanitization:
+    // - Strip leading dots/dashes to prevent .htaccess, .env etc.
+    // - Whitelist only safe characters
+    // - Block dangerous extensions regardless of MIME type
+    const DANGEROUS_EXTENSIONS = /\.(html|htm|php|phtml|php3|php4|php5|js|jsx|ts|tsx|sh|bash|exe|bat|cmd|py|rb)$/i;
+    const originalName = file.name.replace(/^[.\-]+/, ''); // strip leading dots/dashes
+    if (DANGEROUS_EXTENSIONS.test(originalName)) {
+      return NextResponse.json({ error: 'Μη επιτρεπτό είδος αρχείου.' }, { status: 400 });
+    }
+    const safeBasename = originalName.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const safeFilename = `${Date.now()}-${safeBasename}`;
     const filePath = path.join(baseUploadDir, safeFilename);
 
     // Write file to local storage (In prod, use S3/Supabase Storage)

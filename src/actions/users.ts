@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { requireAuth } from '@/lib/auth'
+import { requireAuth } from '@/lib/requireAuth'
 import { getCurrentTempleId } from './core'
 import bcrypt from 'bcryptjs'
 

@@ -47,7 +47,7 @@ export async function addAsset(formData: any) {
 
     await prisma.auditLog.create({
        data: {
-          templeId, userId: session.userId, userEmail: session.userId, 
+          templeId, userId: session.userId, userEmail: session.userEmail, 
           action: 'ΚΑΤΑΧΩΡΗΣΗ_ΠΕΡΙΟΥΣΙΑΣ', 
           detail: `Καταχωρήθηκε νέο περιουσιακό στοιχείο: ${formData.name}.`
        }

@@ -14,7 +14,7 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
     const reason = diff > 0 ? "Εισερχόμενη Δωρεά" : "Ανάλωση/Μαγειρική";
     const res = await adjustStock(id, diff, reason);
     if(res.success) {
-       setItems(prev => prev.map(i => i.id === id ? { ...i, currentStock: res.newStock } : i));
+       setItems(prev => prev.map(i => i.id === id ? { ...i, quantity: res.newStock } : i));
     } else {
        alert(res.error);
     }
@@ -42,7 +42,7 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredItems.map(item => {
-             const isLow = item.currentStock <= item.minThreshold;
+             const isLow = item.quantity <= item.minStock;
              return (
                <Card key={item.id} className={`p-4 flex flex-col gap-4 border ${isLow ? 'border-rose-300 bg-rose-50 dark:bg-rose-950/20' : 'border-border'}`}>
                   <div className="flex justify-between items-start">
@@ -50,14 +50,14 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
                        <h3 className="font-bold text-gray-800 dark:text-white">{item.name}</h3>
                        <p className="text-xs text-gray-500">{item.category}</p>
                      </div>
-                     {isLow && <AlertTriangle className="w-5 h-5 text-rose-500" title="Χαμηλό Απόθεμα"/>}
+                     {isLow && <div title="Χαμηλό Απόθεμα"><AlertTriangle className="w-5 h-5 text-rose-500" /></div>}
                   </div>
 
                   <div className="text-center py-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner">
                      <span className={`text-3xl font-black ${isLow ? 'text-rose-600' : 'text-slate-700 dark:text-slate-200'}`}>
-                        {item.currentStock}
+                        {item.quantity}
                      </span>
-                     <span className="text-sm text-gray-500 ml-1 block">{item.unitOfMeasure}</span>
+                     <span className="text-sm text-gray-500 ml-1 block">{item.unit}</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 mt-auto">

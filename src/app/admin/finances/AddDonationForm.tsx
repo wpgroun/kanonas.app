@@ -32,9 +32,10 @@ export default function AddDonationForm({ parishioners }: { parishioners: any[] 
     const res = await createDonation({
       amount: Number(amount),
       purpose,
+      date: new Date(),
       receiptNumber: receiptNumber || undefined,
       parishionerId: parishionerId || undefined
-    });
+    }) as any;
     setLoading(false);
 
     if (res.success) {

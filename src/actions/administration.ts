@@ -25,8 +25,15 @@ export async function getStaff() {
 // Update priest ordinations or staff details
 export async function updateStaffDetails(userTempleId: string, payload: any) {
   const session = await requireAuth();
-  
+  const templeId = await getCurrentTempleId();
+
   try {
+    // [SECURITY] Tenant isolation — ensure the userTemple record belongs to this temple
+    const ut = await prisma.userTemple.findUnique({ where: { id: userTempleId } });
+    if (!ut || ut.templeId !== templeId) {
+      return { success: false, error: 'Μη εξουσιοδοτημένη ενέργεια.' };
+    }
+
      const updated = await prisma.userTemple.update({
        where: { id: userTempleId },
        data: {

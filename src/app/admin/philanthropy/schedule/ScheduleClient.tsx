@@ -34,7 +34,7 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
   const getAttendanceStatus = (benId: string) => {
      if(!schedule || !schedule.attendances) return 'EXPECTED';
      const att = schedule.attendances.find((a: any) => a.beneficiaryId === benId);
-     return att ? att.status : 'EXPECTED';
+     return att ? (att.wasAbsent ? 'ABSENT' : 'SERVED') : 'EXPECTED';
   };
 
   return (
@@ -90,23 +90,17 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
                      </div>
                      <div className="flex gap-2">
                         <Button 
-                          variant={status === 'SERVED' ? 'default' : 'outline'}
+                          variant={status === 'SERVED' ? 'primary' : 'outline'}
                           className={status === 'SERVED' ? 'bg-emerald-600 text-white' : ''}
                           onClick={() => handleAttendance(ben.id, 'SERVED')}
                         >
                            <CheckCircle2 className="w-4 h-4 mr-2"/> Παρέλαβε
                         </Button>
                         <Button 
-                          variant={status === 'ABSENT_UNJUSTIFIED' ? 'destructive' : 'outline'}
-                          onClick={() => handleAttendance(ben.id, 'ABSENT_UNJUSTIFIED')}
+                          variant={status === 'ABSENT' ? 'destructive' : 'outline'}
+                          onClick={() => handleAttendance(ben.id, 'ABSENT')}
                         >
                            <XCircle className="w-4 h-4 mr-2"/> Απουσία
-                        </Button>
-                        <Button 
-                          variant={status === 'ABSENT_JUSTIFIED' ? 'secondary' : 'outline'}
-                          onClick={() => handleAttendance(ben.id, 'ABSENT_JUSTIFIED')}
-                        >
-                           <AlertCircle className="w-4 h-4 mr-2"/> Δικαιολογημένος
                         </Button>
                      </div>
                   </div>

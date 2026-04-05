@@ -20,7 +20,7 @@ export async function addExpense(data: { purpose: string, amount: number, date: 
         purpose: data.purpose,
         amount: data.amount,
         date: new Date(data.date),
-        category: data.category,
+        categoryId: data.category,
         vendor: data.vendor,
         receiptNumber: data.receiptNumber
       }
@@ -38,7 +38,7 @@ export async function upsertBudget(data: { year: number, category: string, estim
     
     // Check if exists
     const existing = await prisma.budget.findFirst({
-      where: { templeId, year: data.year, category: data.category }
+      where: { templeId, year: data.year, categoryId: data.category }
     });
 
     if (existing) {
@@ -51,7 +51,7 @@ export async function upsertBudget(data: { year: number, category: string, estim
         data: {
           templeId,
           year: data.year,
-          category: data.category,
+          categoryId: data.category,
           estimatedAmt: data.estimatedAmt,
           actualAmt: data.actualAmt
         }

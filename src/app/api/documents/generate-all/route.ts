@@ -7,6 +7,12 @@ import path from 'path';
 
 export async function POST(req: NextRequest) {
   try {
+    // [SECURITY] Require authenticated session
+    const session = await getSession();
+    if (!session?.templeId) {
+      return NextResponse.json({ error: 'Unauthorized. Login required.' }, { status: 401 });
+    }
+
     const { tokenId } = await req.json();
     if (!tokenId) return NextResponse.json({ error: 'tokenId required' }, { status: 400 });
 
@@ -16,6 +22,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (!token) return NextResponse.json({ error: 'Token not found' }, { status: 404 });
+
+    // [SECURITY] Tenant isolation — token must belong to the authenticated user's temple
+    if (token.templeId !== (session.templeId as string)) {
+      return NextResponse.json({ error: 'Forbidden: Access denied.' }, { status: 403 });
+    }
 
     const customTemplates = await prisma.docTemplate.findMany({
       where: { templeId: token.templeId }

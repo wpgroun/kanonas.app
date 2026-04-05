@@ -41,7 +41,7 @@ export async function addCamp(formData: any) {
 
      await prisma.auditLog.create({
         data: {
-           templeId, userId: session.userId, userEmail: session.userId,
+           templeId, userId: session.userId, userEmail: session.userEmail,
            action: 'ΔΗΜΙΟΥΡΓΙΑ_ΚΑΤΑΣΚΗΝΩΣΗΣ',
            detail: `Νέα περίοδος κατασκηνώσεων: ${formData.name} (${formData.year})`
         }

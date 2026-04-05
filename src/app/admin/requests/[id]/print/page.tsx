@@ -10,7 +10,7 @@ export default async function CertificatePrintPage({ params }: { params: { id: s
   if (!token) return <div>Το αίτημα δεν βρέθηκε.</div>;
 
   const isGamos = token.serviceType === 'GAMOS';
-  const templeName = settings.templeName || 'Ιερός Ναός';
+  const templeName = settings.name || 'Ενοριακός Ναός';
   const metropolisName = settings.metropolisName || 'Ιερά Μητρόπολις';
   const todayGr = new Date().toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' });
 

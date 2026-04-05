@@ -92,7 +92,7 @@ export default function BudgetClient({ year, initialBudgets, categories }: { yea
                              onChange={(e) => setValues({...values, [c.id]: e.target.value})}
                            />
                            {hasChanged && (
-                             <Button size="sm" variant="default" className="h-8 shadow-sm" onClick={() => handleSaveRow(c)} disabled={loading === c.id}>
+                             <Button size="sm" variant="primary" className="h-8 shadow-sm" onClick={() => handleSaveRow(c)} disabled={loading === c.id}>
                                {loading === c.id ? '...' : <Save className="w-3.5 h-3.5"/>}
                              </Button>
                            )}

@@ -31,14 +31,14 @@ export async function addInventoryItem(formData: any) {
          name: formData.name,
          category: formData.category,
          unit: formData.unit,
-         minThreshold: Number(formData.minThreshold) || 10,
+         minStock: Number(formData.minThreshold) || 10,
          quantity: Number(formData.quantity) || 0
        }
      });
 
      await prisma.auditLog.create({
        data: {
-          templeId, userId: session.userId, userEmail: session.userId, 
+          templeId, userId: session.userId, userEmail: session.userEmail, 
           action: 'ΔΗΜΙΟΥΡΓΙΑ_ΕΙΔΟΥΣ', 
           detail: `Νέο είδος: ${formData.name} προστέθηκε στην αποθήκη.`
        }
@@ -68,13 +68,15 @@ export async function adjustStock(itemId: string, diff: number, reason: string) 
         const newStock = item.quantity + diff;
         if(newStock < 0) throw new Error("Η ποσότητα δεν επαρκεί στην αποθήκη.");
 
-        await tx.inventoryCheckout.create({
+        await tx.auditLog.create({
           data: {
-             inventoryItemId: item.id,
-             quantity: diff,
-             reason: reason
+             templeId,
+             userId: session.userId,
+             userEmail: session.userEmail,
+             action: 'ΑΛΛΑΓΗ_ΑΠΟΘΕΜΑΤΟΣ',
+             detail: `Είδος: ${item.name}, Αλλαγή: ${diff}, Νέο υπόλοιπο: ${newStock}. Λόγος: ${reason}`
           }
-        });
+        }).catch(() => {});
 
         return tx.inventoryItem.update({
            where: { id: itemId },

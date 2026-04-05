@@ -22,7 +22,8 @@ export async function logAction(opts: {
       data: {
         templeId: session.templeId as string,
         userId: session.userId as string,
-        userEmail: (session as any).email ?? null,
+        // [FIX MED-2] userEmail is now correctly in the JWT session payload
+        userEmail: (session as any).userEmail ?? null,
         action: opts.action,
         entityType: opts.entityType ?? null,
         entityId: opts.entityId ?? null,

@@ -25,9 +25,14 @@ export async function setupTemple(data: {
       return { success: false, error: 'Αυτό το email χρησιμοποιείται ήδη.' }
     }
 
+    // [SECURITY] MASTER_ONBOARDING_PASSWORD check:
+    // In production, this env var MUST be set — rejects all registrations if not configured.
     const requiredMaster = process.env.MASTER_ONBOARDING_PASSWORD;
+    if (process.env.NODE_ENV === 'production' && !requiredMaster) {
+      return { success: false, error: 'Η αυτόματη εγγραφή δεν είναι ενεργοποιημένη. Επικοινωνήστε με την υποστήριξη.' };
+    }
     if (requiredMaster && requiredMaster !== data.masterPassword) {
-      return { success: false, error: 'Λανθασμένος Κωδικός Εγκατάστασης (Master Password).' }
+      return { success: false, error: 'Λανθασμένος Κωδικός Εγκατάστασης (Master Password).' };
     }
 
     const passwordHash = await bcrypt.hash(data.adminPassword, 12)

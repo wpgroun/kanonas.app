@@ -36,7 +36,11 @@ export async function addDiptychNames(type: string, namesStr: string) {
 
 export async function toggleDiptychActive(id: string, newStatus: boolean) {
   await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
+    // [SECURITY] Tenant isolation — only update if diptych belongs to this temple
+    const existing = await prisma.diptych.findFirst({ where: { id, templeId } })
+    if (!existing) return { success: false, error: 'Η εγγραφή δεν βρέθηκε ή δεν έχετε δικαίωμα.' }
     await prisma.diptych.update({ where: { id }, data: { isActive: newStatus } })
     revalidatePath('/admin/diptychs')
     return { success: true }
@@ -47,7 +51,11 @@ export async function toggleDiptychActive(id: string, newStatus: boolean) {
 
 export async function editDiptychName(id: string, newName: string) {
   await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
+    // [SECURITY] Tenant isolation
+    const existing = await prisma.diptych.findFirst({ where: { id, templeId } })
+    if (!existing) return { success: false, error: 'Η εγγραφή δεν βρέθηκε ή δεν έχετε δικαίωμα.' }
     await prisma.diptych.update({ where: { id }, data: { name: newName } })
     revalidatePath('/admin/diptychs')
     return { success: true }
@@ -58,7 +66,11 @@ export async function editDiptychName(id: string, newName: string) {
 
 export async function deleteDiptychName(id: string) {
   await requireAuth()
+  const templeId = await getCurrentTempleId()
   try {
+    // [SECURITY] Tenant isolation
+    const existing = await prisma.diptych.findFirst({ where: { id, templeId } })
+    if (!existing) return { success: false, error: 'Η εγγραφή δεν βρέθηκε ή δεν έχετε δικαίωμα.' }
     await prisma.diptych.delete({ where: { id } })
     revalidatePath('/admin/diptychs')
     return { success: true }

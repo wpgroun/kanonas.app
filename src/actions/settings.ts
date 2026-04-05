@@ -80,7 +80,7 @@ export async function updateTempleSettings(data: {
       data: {
         templeId,
         userId: session.userId,
-        userEmail: session.userId,
+        userEmail: session.userEmail,
         action: 'UPDATE_SETTINGS',
         detail: 'Ενημερώθηκαν οι Κεντρικές Ρυθμίσεις (Settings & Integrations) του Ναού.'
       }

@@ -12,7 +12,7 @@ export default async function CalendarWidgetPage({ params }: { params: Promise<{
     include: {
       schedules: {
         where: { date: { gte: new Date(new Date().setHours(0,0,0,0)) } },
-        orderBy: [{ date: 'asc' }, { time: 'asc' }],
+        orderBy: [{ date: 'asc' }],
         take: 8
       }
     }
@@ -37,10 +37,10 @@ export default async function CalendarWidgetPage({ params }: { params: Promise<{
 
        {/* Schedule List */}
        <div className="divide-y divide-border">
-          {temple.schedules.length === 0 ? (
+           {temple.schedules.length === 0 ? (
              <div className="p-6 text-center text-gray-500 text-sm">Δεν υπάρχουν προσεχείς ακολουθίες.</div>
           ) : (
-             temple.schedules.map((schedule) => {
+             temple.schedules.map((schedule: any) => {
                 const isSunday = schedule.date.getDay() === 0;
                 return (
                   <div key={schedule.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-2">
@@ -49,17 +49,12 @@ export default async function CalendarWidgetPage({ params }: { params: Promise<{
                              {getDayName(schedule.date)}, {schedule.date.toLocaleDateString("el-GR")}
                          </div>
                          <div className="flex items-center gap-1 text-sm bg-slate-100 px-2 py-1 rounded-md text-gray-700 font-mono">
-                            <Clock className="w-3.5 h-3.5"/> {schedule.time || '07:00'}
+                            <Clock className="w-3.5 h-3.5"/> {schedule.date.toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' })}
                          </div>
                      </div>
                      <div className="font-semibold text-gray-900 leading-tight">
-                         {schedule.name}
+                         {schedule.title}
                      </div>
-                     {schedule.officiant && (
-                         <div className="text-xs text-gray-500">
-                            Λειτουργός: {schedule.officiant}
-                         </div>
-                     )}
                   </div>
                 );
              })

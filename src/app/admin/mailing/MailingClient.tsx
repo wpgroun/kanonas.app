@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Printer, Search, Users, Mail, CheckCircle2 } from 'lucide-react';
+import { Printer, Search, Users, Mail, CheckCircle2, MapPin } from 'lucide-react';
 import { exportLabelsPdf } from '@/actions/mailing';
 import { toast } from 'sonner';
 

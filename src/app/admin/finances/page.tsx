@@ -132,13 +132,13 @@ export default async function FinancesPage() {
             </CardHeader>
             <CardContent className="px-0 py-2 flex-grow overflow-y-auto">
               <div className="divide-y divide-border/50">
-                {Object.entries(biStats.byCategory).sort((a: any, b: any) => b[1] - a[1]).map(([purpose, amount]: any) => (
-                  <div key={purpose} className="flex justify-between items-center py-3 px-5 hover:bg-muted/30 transition-colors">
-                     <span className="text-sm font-medium">{purpose}</span>
-                     <strong className="text-sm font-mono text-emerald-600">€ {amount.toFixed(2)}</strong>
+                {biStats.byCategory.slice(0, 5).map((c: any) => (
+                  <div key={c.purpose} className="flex justify-between items-center py-3 px-5 hover:bg-muted/30 transition-colors">
+                     <span className="text-sm font-medium">{c.purpose}</span>
+                     <strong className="text-sm font-mono text-emerald-600">€ {c.total.toFixed(2)}</strong>
                   </div>
                 ))}
-                {Object.keys(biStats.byCategory).length === 0 && (
+                {biStats.byCategory.length === 0 && (
                   <div className="py-6 text-center text-muted-foreground text-sm">Καμία κίνηση.</div>
                 )}
               </div>
@@ -155,8 +155,8 @@ export default async function FinancesPage() {
           Επισκόπηση Business Intelligence
         </h2>
         <FinanceBIClient
-          currentYear={biStats.currentYear}
-          prevYear={biStats.prevYear}
+          currentYear={biStats.currentYearData}
+          prevYear={biStats.prevYearData}
           byCategory={biStats.byCategory}
           totalCurrentYear={biStats.totalCurrentYear}
           totalPrevYear={biStats.totalPrevYear}

@@ -5,7 +5,7 @@ export default async function DiptychPrintPage() {
   const diptychs = await getDiptychs();
   const settings = await getTempleSettings();
   
-  const templeName = settings.templeName || 'Ιερός Ναός';
+  const templeName = settings.name || 'Ιερός Ναός';
   const todayGr = new Date().toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const ygeias = diptychs.filter((d: any) => d.type === 'ygeias');

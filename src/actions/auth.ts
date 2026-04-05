@@ -1,20 +1,71 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import bcrypt from 'bcryptjs'
 import { encrypt } from '@/lib/auth'
 import { TEMP_TEMPLE_ID } from '@/lib/constants'
 
+// [SECURITY LOW-5] Simple in-memory rate limiter — max 10 failed login attempts per IP per 15 minutes.
+// For multi-instance deployments, replace with Redis/Upstash-based solution.
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfterSecs?: number } {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    loginAttempts.set(ip, { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true };
+  }
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return { allowed: false, retryAfterSecs: Math.ceil((entry.resetAt - now) / 1000) };
+  }
+  return { allowed: true };
+}
+
+function recordFailedAttempt(ip: string) {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    loginAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+  } else {
+    entry.count += 1;
+  }
+}
+
+function clearFailedAttempts(ip: string) {
+  loginAttempts.delete(ip);
+}
+
 export async function loginAction(email: string, passwordPlain: string) {
   try {
+    // [SECURITY LOW-5] Rate limiting — get IP from headers
+    const headerStore = await headers();
+    const ip = headerStore.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const rateCheck = checkRateLimit(ip);
+    if (!rateCheck.allowed) {
+      return {
+        success: false,
+        error: `Πολλές αποτυχημένες προσπάθειες. Δοκιμάστε ξανά σε ${Math.ceil((rateCheck.retryAfterSecs || 900) / 60)} λεπτά.`
+      };
+    }
+
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user || !user.passwordHash) {
-      return { success: false, error: 'Λάθος στοιχεία (χρήστης δεν βρέθηκε)' }
+      recordFailedAttempt(ip);
+      return { success: false, error: 'Λάθος email ή κωδικός πρόσβασης.' }
     }
 
     const isValid = await bcrypt.compare(passwordPlain, user.passwordHash)
-    if (!isValid) return { success: false, error: 'Λάθος κωδικός πρόσβασης' }
+    if (!isValid) {
+      recordFailedAttempt(ip);
+      return { success: false, error: 'Λάθος email ή κωδικός πρόσβασης.' }
+    }
+
+    // Successful login — clear failed attempts
+    clearFailedAttempts(ip);
 
     // Log the event silently
     const { logAction } = await import('@/lib/audit')
@@ -48,6 +99,7 @@ export async function loginAction(email: string, passwordPlain: string) {
 
     const sessionPayload = {
       userId: user.id,
+      userEmail: user.email,
       templeId: resolvedTempleId,
       isSuperAdmin: user.isSuperAdmin,
       isHeadPriest: userTemple?.isHeadPriest || false,
@@ -86,7 +138,9 @@ export async function loginAction(email: string, passwordPlain: string) {
 
     return { success: true }
   } catch (e: any) {
-    return { success: false, error: e?.message || 'Σφάλμα σύνδεσης' }
+    // [SECURITY LOW-4] Never expose internal error details (Prisma errors, stack traces) to the client
+    console.error('[loginAction] Error:', e);
+    return { success: false, error: 'Σφάλμα σύνδεσης. Παρακαλώ δοκιμάστε ξανά.' }
   }
 }
 
@@ -163,6 +217,8 @@ export async function resetPasswordAction(token: string, newPasswordPlain: strin
 
     return { success: true }
   } catch (e: any) {
+    // [SECURITY LOW-4] Log internally, never expose Prisma error details
+    console.error('[resetPasswordAction] Error:', e);
     return { success: false, error: 'Σφάλμα κατά την επαναφορά κωδικού.' }
   }
 }

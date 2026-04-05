@@ -37,7 +37,7 @@ export async function createKanbanTask(data: {
       data: {
         templeId,
         userId: session.userId,
-        userEmail: session.userId,
+        userEmail: session.userEmail,
         action: 'CREATE_TASK',
         detail: `Δημιουργήθηκε νέα εργασία: ${data.title}`
       }

@@ -49,7 +49,7 @@ export default function TransactionDialog({ categories }: { categories: any[] })
       router.refresh();
       // Also maybe push to dashboard to see changes
     } else {
-      alert(res.error);
+      alert((res as any).error || "Εμφανίστηκε σφάλμα");
     }
   }
 

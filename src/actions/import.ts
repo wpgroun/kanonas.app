@@ -27,6 +27,12 @@ export interface ImportResult {
  * Supports both comma and semicolon delimiters.
  */
 export async function parseCSVParishioners(csvContent: string): Promise<ImportedParishioner[]> {
+  // [SECURITY MED-7] Reject oversized payloads to prevent DoS
+  const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
+  if (Buffer.byteLength(csvContent, 'utf8') > MAX_SIZE_BYTES) {
+    throw new Error('Το αρχείο CSV υπερβαίνει το μέγιστο επιτρεπτό μέγεθος (2MB).');
+  }
+
   const lines = csvContent.trim().split(/\r?\n/)
   if (lines.length < 2) return []
 

@@ -38,7 +38,7 @@ export async function addBloodDonor(formData: any) {
 
      await prisma.auditLog.create({
         data: {
-           templeId, userId: session.userId, userEmail: session.userId,
+           templeId, userId: session.userId, userEmail: session.userEmail,
            action: 'ΑΙΜΟΔΟΣΙΑ_ΕΓΓΡΑΦΗ',
            detail: `Νέος εθελοντής αιμοδότης: ${formData.lastName} (${formData.bloodType}).`
         }
@@ -53,7 +53,12 @@ export async function addBloodDonor(formData: any) {
 
 export async function recordDonation(donorId: string, payload: any) {
   const session = await requireAuth();
+  const templeId = await getCurrentTempleId();
   try {
+     // [SECURITY] Tenant isolation — verify donor belongs to this temple
+     const donor = await prisma.bloodDonor.findFirst({ where: { id: donorId, templeId } });
+     if (!donor) return { success: false, error: 'Ο αιμοδότης δεν βρέθηκε στο Ναό σας.' };
+
      const dateObj = new Date(payload.date);
      
      await prisma.bloodDonation.create({

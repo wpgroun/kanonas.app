@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateDocxCertificate } from '@/lib/documentEngine';
+import { getSession } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
+    // [SECURITY] Require authenticated session
+    const session = await getSession();
+    if (!session?.templeId) {
+      return NextResponse.json({ error: 'Unauthorized. Login required.' }, { status: 401 });
+    }
+
     const { tokenId, templateName } = await req.json();
 
     if (!tokenId) {
@@ -18,7 +25,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (!token) {
-      return NextResponse.json({ error: 'Mυστήριο δεν βρέθηκε.' }, { status: 404 });
+      return NextResponse.json({ error: 'Μυστήριο δεν βρέθηκε.' }, { status: 404 });
+    }
+
+    // [SECURITY] Tenant isolation — ensure the token belongs to the user's temple
+    if (token.templeId !== (session.templeId as string)) {
+      return NextResponse.json({ error: 'Forbidden: Access denied.' }, { status: 403 });
     }
 
     // Determine default templates based on sacrament type
@@ -41,14 +53,13 @@ export async function POST(req: NextRequest) {
     } catch (docxError: any) {
       console.error('Docxtemplater error:', docxError);
       return NextResponse.json(
-        { error: `Σφάλμα προτύπου: Βεβαιωθείτε ότι υπάρχει το αρχείο ${fileName} στο φάκελο public/templates.` }, 
+        { error: `Σφάλμα προτύπου: Βεβαιωθείτε ότι υπάρχει το αρχείο ${fileName} στο φάκελο public/templates.` },
         { status: 500 }
       );
     }
 
   } catch (error: any) {
     console.error('Error generating document route:', error);
-    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
-

@@ -4,7 +4,10 @@ import { getSession } from '@/lib/auth';
 
 export async function GET(req: Request) {
   const session = await getSession();
-  if (!session?.templeId || !session?.isSuperAdmin && !session?.isHeadPriest) {
+  // [SECURITY] Fixed operator precedence — parentheses required for correct OR/AND evaluation.
+  // Without them: (!templeId || !isSuperAdmin) && !isHeadPriest — incorrect.
+  // With them:    (!templeId || (!isSuperAdmin && !isHeadPriest))  — correct.
+  if (!session?.templeId || (!session?.isSuperAdmin && !session?.isHeadPriest)) {
     return NextResponse.json({ error: 'Μη εξουσιοδοτημένη πρόσβαση - Απαιτούνται δικαιώματα διαχειριστή.' }, { status: 401 });
   }
 

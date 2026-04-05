@@ -10,7 +10,7 @@ export default async function SchedulePrintPage() {
   const hasTemplate = templates && templates.length > 0;
   
   const settings = await getTempleSettings();
-  const templeName = settings.templeName || 'Ιερός Ναός';
+  const templeName = settings.name || 'Ιερός Ναός';
 
   // Build the schedules table HTML for replacement
   let scheduleHtml = `<table style="width:100%; border-collapse: collapse; margin-top: 1cm; font-size: 14pt;">`;

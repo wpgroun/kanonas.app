@@ -45,7 +45,7 @@ export async function registerDeceased(payload: any) {
 
      await prisma.auditLog.create({
         data: {
-           templeId, userId: session.userId, userEmail: session.userId,
+           templeId, userId: session.userId, userEmail: session.userEmail,
            action: 'ΛΗΞΙΑΡΧΕΙΟ_ΘΑΝΑΤΩΝ',
            detail: `Νέα εγγραφή κεκοιμημένου: ${payload.lastName} ${payload.firstName}`
         }

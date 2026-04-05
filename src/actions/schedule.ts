@@ -38,10 +38,10 @@ export async function createOrUpdateSchedule(dateStr: string, mealName: string, 
   const date = startOfDay(new Date(dateStr));
 
   try {
-     const day = await prisma.sissitioDay.upsert({
+      const day = await prisma.sissitioDay.upsert({
        where: { templeId_date: { templeId, date } },
-       update: { mealName, portionsPlanned: planned },
-       create: { templeId, date, mealName, portionsPlanned: planned }
+       update: { menu: mealName, totalPortions: planned },
+       create: { templeId, date, menu: mealName, totalPortions: planned }
      });
      
      revalidatePath('/admin/philanthropy/schedule');
@@ -54,10 +54,11 @@ export async function createOrUpdateSchedule(dateStr: string, mealName: string, 
 export async function markAttendance(beneficiaryId: string, dayId: string, status: string) {
   const session = await requireAuth();
   try {
+     const isAbsent = status === 'ABSENT';
      const att = await prisma.sissitioAttendance.upsert({
-        where: { beneficiaryId_sissitioDayId: { beneficiaryId, sissitioDayId: dayId } },
-        update: { status },
-        create: { beneficiaryId, sissitioDayId: dayId, status }
+        where: { sissitioDayId_beneficiaryId: { beneficiaryId, sissitioDayId: dayId } },
+        update: { wasAbsent: isAbsent },
+        create: { beneficiaryId, sissitioDayId: dayId, wasAbsent: isAbsent }
      });
 
      revalidatePath('/admin/philanthropy/schedule');
@@ -67,7 +68,44 @@ export async function markAttendance(beneficiaryId: string, dayId: string, statu
   }
 }
 
-export async function deleteServiceSchedule(id: string) { return { success: true }; }
-export async function addServiceSchedule(data: any) { return { success: true }; }
+export async function getServiceSchedules() {
+  const templeId = await getCurrentTempleId();
+  try {
+    return await prisma.serviceSchedule.findMany({
+      where: { templeId },
+      orderBy: { date: 'asc' }
+    });
+  } catch (e) {
+    return [];
+  }
+}
 
-export const getServiceSchedules = getSchedule;
+export async function deleteServiceSchedule(id: string) { 
+  const templeId = await getCurrentTempleId();
+  try {
+    await prisma.serviceSchedule.delete({ where: { id } });
+    revalidatePath('/admin/schedule');
+    return { success: true };
+  } catch(e) {
+    return { success: false };
+  }
+}
+
+export async function addServiceSchedule(data: any) { 
+  const templeId = await getCurrentTempleId();
+  try {
+    await prisma.serviceSchedule.create({
+      data: {
+        templeId,
+        date: new Date(data.date),
+        title: data.title,
+        description: data.description,
+        isMajor: data.isMajor || false
+      }
+    });
+    revalidatePath('/admin/schedule');
+    return { success: true };
+  } catch(e) {
+    return { success: false, error: 'Failed to add' };
+  }
+}

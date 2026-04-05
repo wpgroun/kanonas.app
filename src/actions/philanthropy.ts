@@ -33,17 +33,17 @@ export async function addBeneficiary(formData: any) {
          templeId,
          firstName: formData.firstName,
          lastName: formData.lastName,
-         phoneNumber: formData.phoneNumber,
+         phone: formData.phoneNumber,
          address: formData.address,
          familyMembers: Number(formData.familyMembers) || 1,
-         needsScore: Number(formData.needsScore) || 50,
+         criteriaScore: Number(formData.needsScore) || 50,
          status: 'PENDING'
        }
      });
 
      await prisma.auditLog.create({
        data: {
-          templeId, userId: session.userId, userEmail: session.userId, 
+          templeId, userId: session.userId, userEmail: session.userEmail, 
           action: 'ΠΡΟΣΘΗΚΗ_ΩΦΕΛΟΥΜΕΝΟΥ', 
           detail: `Ο/Η ${formData.firstName} ${formData.lastName} προστέθηκε στο μητρώο απόρου.`
        }
@@ -73,7 +73,7 @@ export async function updateBeneficiaryStatus(id: string, status: string) {
 
      await prisma.auditLog.create({
        data: {
-          templeId, userId: session.userId, userEmail: session.userId, 
+          templeId, userId: session.userId, userEmail: session.userEmail, 
           action: 'ΚΑΤΑΣΤΑΣΗ_ΩΦΕΛΟΥΜΕΝΟΥ', 
           detail: `Η κατάσταση του ${ben.firstName} ${ben.lastName} άλλαξε σε ${status}`
        }
@@ -86,7 +86,27 @@ export async function updateBeneficiaryStatus(id: string, status: string) {
   }
 }
 
-export async function getInventoryItems() { return []; }
-export async function getParishionerBeneficiary(id: string) { return null; }
-export async function getPhilanthropyStats() { return { total: 0 }; }
-export async function createBeneficiary(data: any) { return null; }
+export async function getInventoryItems(): Promise<any[]> { return []; }
+export async function getParishionerBeneficiary(id: string): Promise<any> { return null; }
+export async function getPhilanthropyStats(): Promise<any> { return { total: 0 }; }
+export async function createBeneficiary(data: any): Promise<any> { 
+  const templeId = await getCurrentTempleId();
+  try {
+     const created = await prisma.beneficiary.create({
+       data: {
+         templeId,
+         firstName: data.firstName,
+         lastName: data.lastName,
+         phone: data.phone,
+         address: data.address,
+         familyMembers: Number(data.portions) || 1,
+         criteriaScore: 50,
+         status: 'APPROVED',
+         parishionerId: data.parishionerId
+       }
+     });
+     return { success: true, data: created };
+  } catch(e: any) {
+     return { success: false, error: e.message || 'Σφάλμα εγγραφής' };
+  }
+}

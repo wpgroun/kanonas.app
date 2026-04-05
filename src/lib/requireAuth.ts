@@ -12,6 +12,7 @@ export async function requireAuth() {
   }
   return session as {
     userId: string;
+    userEmail: string;
     templeId: string;
     isSuperAdmin: boolean;
     isHeadPriest: boolean;

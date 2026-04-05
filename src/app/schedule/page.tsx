@@ -5,7 +5,7 @@ export default async function PublicSchedulePage() {
   const schedules = await getServiceSchedules();
   const settings = await getTempleSettings();
   
-  const templeName = settings.templeName || 'Ιερός Ναός';
+  const templeName = settings.name || 'Ιερός Ναός';
 
   // Group by month
   const grouped: Record<string, any[]> = {};

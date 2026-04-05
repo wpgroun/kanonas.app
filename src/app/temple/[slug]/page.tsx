@@ -13,7 +13,7 @@ export default async function TemplePublicPage({ params }: { params: Promise<{ s
       metropolis: true,
       schedules: {
         where: { date: { gte: new Date(new Date().setHours(0,0,0,0)) } },
-        orderBy: [{ date: 'asc' }, { time: 'asc' }],
+        orderBy: [{ date: 'asc' }],
         take: 12
       }
     }
@@ -74,19 +74,18 @@ export default async function TemplePublicPage({ params }: { params: Promise<{ s
                </h3>
                
                <div className="bg-white border text-left border-border rounded-2xl shadow-sm overflow-hidden">
-                  <div className="divide-y divide-gray-100">
+                   <div className="divide-y divide-gray-100">
                      {temple.schedules.length === 0 ? (
                         <div className="p-10 text-center text-gray-500">Το πρόγραμμα δεν έχει ανακοινωθεί ακόμη.</div>
                      ) : (
-                        temple.schedules.map(schedule => (
+                        temple.schedules.map((schedule: any) => (
                            <div key={schedule.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
                                <div>
                                   <div className="text-sm font-bold text-gray-500 mb-1">{schedule.date.toLocaleDateString('el-GR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
-                                  <div className="font-extrabold text-lg text-gray-800">{schedule.name}</div>
-                                  {schedule.officiant && <div className="text-sm text-gray-500 mt-1">Ιερέας: {schedule.officiant}</div>}
+                                  <div className="font-extrabold text-lg text-gray-800">{schedule.title}</div>
                                </div>
                                <div className="bg-blue-50 text-blue-700 font-mono font-bold px-4 py-2 rounded-xl flex items-center gap-2 w-fit">
-                                  <Clock className="w-4 h-4"/> {schedule.time || '07:00'}
+                                  <Clock className="w-4 h-4"/> {schedule.date.toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' })}
                                </div>
                            </div>
                         ))

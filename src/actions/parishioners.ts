@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { getCurrentTempleId } from './core'
-import { requireAuth } from '@/lib/auth'
+import { requireAuth } from '@/lib/requireAuth'
 
 export async function getParishioners(page = 1, pageSize = 100) {
   await requireAuth()

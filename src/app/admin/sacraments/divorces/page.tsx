@@ -21,7 +21,7 @@ export default async function DivorcesPage() {
 
       <DivorcesClient 
         initialData={divorces} 
-        parishioners={parishionersRes.data} 
+        parishioners={parishionersRes} 
       />
     </div>
   )

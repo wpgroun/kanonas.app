@@ -47,7 +47,7 @@ export async function exportLabelsPdf(selectedIds: string[]) {
          data: {
              templeId: templeId,
              userId: session.userId,
-             userEmail: session.userId,
+             userEmail: session.userEmail,
              action: 'ΕΚΤΥΠΩΣΗ_ΕΤΙΚΕΤΩΝ',
              detail: `Εκτυπώθηκαν ${selectedIds.length} ταχυδρομικές ετικέτες.`
          }

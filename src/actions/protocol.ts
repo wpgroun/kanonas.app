@@ -92,7 +92,7 @@ export async function addProtocolEntry(formData: FormData) {
 
      await prisma.auditLog.create({
         data: {
-           templeId, userId: session.userId, userEmail: session.userId,
+           templeId, userId: session.userId, userEmail: session.userEmail,
            action: `ΠΡΩΤΟΚΟΛΛΟ_${direction}`,
            detail: `Νέο έγγραφο Αρ. Πρωτ: ${nextNumber}/${year} (${owner}).`
         }
