@@ -42,7 +42,7 @@ export default function OnboardingWizard() {
   const canNext = () => {
     if (step === 1) return formData.metropolisName.trim() && formData.templeName.trim() && formData.city.trim()
     if (step === 2) return formData.adminFirstName.trim() && formData.adminLastName.trim()
-      && formData.adminEmail.includes('@') && formData.adminPassword.length >= 6
+      && formData.adminEmail.includes('@') && formData.adminPassword.length >= 10
     return true
   }
 

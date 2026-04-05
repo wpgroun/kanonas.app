@@ -4,7 +4,15 @@ import { useState } from 'react'
 import { updateMyProfile, changeMyPassword } from '@/actions/users'
 import { Save, Lock, Loader2, CheckCircle2 } from 'lucide-react'
 
-export default function ProfileClient({ user }: { user: { firstName: string, lastName: string, email: string } }) {
+export default function ProfileClient({ 
+  user, 
+  sessions, 
+  currentSessionId 
+}: { 
+  user: { firstName: string, lastName: string, email: string },
+  sessions?: any[],
+  currentSessionId?: string
+}) {
   // Profile State
   const [firstName, setFirstName] = useState(user.firstName)
   const [lastName, setLastName] = useState(user.lastName)
@@ -111,11 +119,11 @@ export default function ProfileClient({ user }: { user: { firstName: string, las
           </div>
           <div className="pt-2 border-t border-slate-50">
             <label className="block text-sm font-bold text-slate-700 mb-1">Νέος Κωδικός</label>
-            <input required type="password" minLength={6} value={newPass} onChange={e => setNewPass(e.target.value)} placeholder="••••••••" className="data-input w-full" />
+            <input required type="password" minLength={10} value={newPass} onChange={e => setNewPass(e.target.value)} placeholder="Τουλάχιστον 10 χαρακτήρες" className="data-input w-full" />
           </div>
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-1">Επιβεβαίωση Νέου Κωδικού</label>
-            <input required type="password" minLength={6} value={confirmPass} onChange={e => setConfirmPass(e.target.value)} placeholder="••••••••" className="data-input w-full" />
+            <input required type="password" minLength={10} value={confirmPass} onChange={e => setConfirmPass(e.target.value)} placeholder="Τουλάχιστον 10 χαρακτήρες" className="data-input w-full" />
           </div>
 
           <div className="flex items-center justify-between pt-4">
@@ -129,6 +137,50 @@ export default function ProfileClient({ user }: { user: { firstName: string, las
           </div>
         </form>
       </div>
+
+      {/* Session Management */}
+      {sessions && sessions.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <h2 className="text-lg font-bold text-slate-800">Ενεργές Συνεδρίες (Sessions)</h2>
+              <p className="text-sm text-slate-500">Οι συσκευές στις οποίες είστε συνδεδεμένοι.</p>
+            </div>
+            <button 
+              onClick={async () => {
+                if (!confirm('Θέλετε σίγουρα να αποσυνδεθείτε από όλες τις άλλες συσκευές;')) return;
+                const { revokeAllOtherSessions } = await import('@/actions/auth');
+                const res = await revokeAllOtherSessions();
+                if (res.success) {
+                  alert('Επιτυχής αποσύνδεση από άλλες συσκευές.');
+                  window.location.reload();
+                } else alert(res.error);
+              }}
+              className="bg-rose-50 text-rose-600 hover:bg-rose-100 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+            >
+              Αποσύνδεση Παντού
+            </button>
+          </div>
+          <div className="space-y-3">
+            {sessions.map((s) => (
+              <div key={s.id} className="flex justify-between items-center bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                <div>
+                  <div className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    {s.userAgent?.includes('Mobi') ? '📱 Mobile' : '💻 Desktop'} 
+                    <span className="text-xs text-slate-500 font-normal">({s.userAgent})</span>
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1 font-mono">
+                    IP: {s.ipAddress} • Τελευταία δραστηριότητα: {new Date(s.lastActive).toLocaleString('el-GR')}
+                  </div>
+                </div>
+                {s.id === currentSessionId && (
+                  <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">Αυτή η συσκευή</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
     </div>
   )

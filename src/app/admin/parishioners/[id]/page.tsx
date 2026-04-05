@@ -17,5 +17,11 @@ export default async function ParishionerProfile({ params }: { params: { id: str
   const beneficiary = await getParishionerBeneficiary(id);
   const relationships = await getParishionerRelationships(id);
 
-  return <ParishionerProfileClient p={p} beneficiary={beneficiary} relationships={relationships} />;
+  const { prisma } = await import('@/lib/prisma');
+  const auditLogs = await prisma.auditLog.findMany({
+    where: { entityType: 'Parishioner', entityId: id },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  return <ParishionerProfileClient p={p} beneficiary={beneficiary} relationships={relationships} auditLogs={auditLogs} />;
 }

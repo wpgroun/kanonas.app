@@ -1,99 +1,104 @@
-// Kanonas Service Worker
-// Provides offline support and caching for the admin dashboard.
+/**
+ * Kanonas SaaS — Service Worker
+ * Minimal Implementation for PWA Installability and Web Push Notifications
+ */
 
-const CACHE_NAME = 'kanonas-v1';
-const STATIC_ASSETS = [
-  '/',
-  '/admin',
-  '/login',
-  '/manifest.json',
-];
+const CACHE_NAME = 'kanonas-cache-v1';
+const OFFLINE_URL = '/';
 
-// Install: pre-cache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      // Pre-cache core files
+      return cache.addAll([
+        OFFLINE_URL,
+        '/favicon.ico',
+        '/icon-192.png',
+        '/icon-512.png',
+      ]);
     })
   );
+  // Force the waiting service worker to become the active service worker.
   self.skipWaiting();
 });
 
-// Activate: clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      )
-    )
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
+      );
+    })
   );
+  // Tell the active service worker to take control of the page immediately.
   self.clients.claim();
 });
 
-// Fetch: Network-first strategy for API, cache-first for static assets
+// Network-first strategy for navigation requests.
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Skip non-GET and cross-origin requests
-  if (request.method !== 'GET' || url.origin !== location.origin) return;
-
-  // Network-first for API and server actions
-  if (url.pathname.startsWith('/api/') || url.pathname.includes('_next/data')) {
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match(request))
-    );
-    return;
-  }
-
-  // Cache-first for static assets (_next/static)
-  if (url.pathname.startsWith('/_next/static')) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        return cached || fetch(request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        });
+      fetch(event.request).catch(() => {
+        return caches.match(OFFLINE_URL);
       })
     );
-    return;
-  }
-
-  // Network-first with cache fallback for pages
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        }
-        return response;
+  } else {
+    // For other requests, try network first, then cache.
+    event.respondWith(
+      fetch(event.request).catch(() => {
+         return caches.match(event.request);
       })
-      .catch(() => caches.match(request))
-  );
+    );
+  }
 });
 
-// Push notifications support
+// ─── Web Push Notifications ──────────────────────────────────────────────────
+
 self.addEventListener('push', (event) => {
   if (!event.data) return;
-  const data = event.data.json();
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'Κανόνας', {
-      body: data.body || '',
-      icon: '/icons/icon-192.png',
-      badge: '/icons/icon-72.png',
-      data: data.url ? { url: data.url } : undefined,
-    })
-  );
+
+  try {
+    const data = event.data.json();
+    
+    const options = {
+      body: data.body,
+      icon: data.icon || '/icon-192.png',
+      badge: data.badge || '/icon-192.png',
+      vibrate: [100, 50, 100],
+      data: {
+        url: data.url || '/',
+      },
+      requireInteraction: true // Keep notification until user interacts
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(data.title || 'Kanonas', options)
+    );
+  } catch (e) {
+    console.error('[SW] Error parsing push data', e);
+  }
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  if (event.notification.data?.url) {
-    event.waitUntil(clients.openWindow(event.notification.data.url));
-  }
+
+  const targetUrl = event.notification.data.url;
+
+  // This looks to see if the current is already open and focuses if it is
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Check if there is already a window/tab open with the target URL
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        // If so, just focus it.
+        if (client.url === targetUrl && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // If not, then open the target URL in a new window/tab.
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
 });

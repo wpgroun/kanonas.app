@@ -2,16 +2,24 @@ import { requireAuth } from '@/lib/requireAuth';
 import { getTempleRequests } from '@/actions/connect';
 import ConnectClient from './ConnectClient';
 
+import { prisma } from '@/lib/prisma';
+
 export const metadata = {
   title: 'Kanonas Connect (e-Gov) | Kanonas',
 };
 
 export default async function AdminConnectPage() {
    // Validate session ensures they are inside Kanonas Admin
-   await requireAuth();
+   const session = await requireAuth();
 
    // Fetch data via Server Action pattern
    const requests = await getTempleRequests();
+   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kanonas.app';
+   
+   const temple = await prisma.temple.findUnique({
+     where: { id: session.templeId },
+     select: { slug: true }
+   });
 
    return (
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
@@ -21,7 +29,7 @@ export default async function AdminConnectPage() {
          </div>
 
          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-            <ConnectClient initialRequests={requests} />
+            <ConnectClient initialRequests={requests} appUrl={appUrl} slug={temple?.slug || ''} />
          </div>
       </div>
    );

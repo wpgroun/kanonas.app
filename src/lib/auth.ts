@@ -33,7 +33,22 @@ export async function getSession() {
   const cookieStore = await cookies();
   const token = cookieStore.get('Kanonas_auth')?.value;
   if (!token) return null;
-  return await decrypt(token);
+  const payload = await decrypt(token);
+  if (!payload || !payload.sessionId) return payload;
+
+  // Real-time Session Validation (Check if revoked from DB)
+  try {
+     const { prisma } = await import('@/lib/prisma');
+     const sessionRecord = await prisma.userSession.findUnique({
+        where: { id: payload.sessionId }
+     });
+     if (!sessionRecord) return null; // Session revoked or invalid
+     await prisma.userSession.update({ where: { id: payload.sessionId }, data: { lastActive: new Date() } });
+  } catch (e) {
+     // If DB isn't reachable, fail open for stateless mode
+  }
+
+  return payload;
 }
 
 export async function requireAuth() {

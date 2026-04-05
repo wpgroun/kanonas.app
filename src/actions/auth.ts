@@ -97,8 +97,56 @@ export async function loginAction(email: string, passwordPlain: string) {
 
     const isSuperOrHead = userTemple?.isHeadPriest || user.isSuperAdmin || !!metropolisUser;
 
+    // --- 2FA Foundation ---
+    if (isSuperOrHead) {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expires = Date.now() + 1000 * 60 * 5; // 5 mins
+      const tempPayload = { userId: user.id, email: user.email, otp, expires, resolvedTempleId };
+      const tempToken = await encrypt(tempPayload);
+      
+      const cookieStore = await cookies();
+      cookieStore.set('Kanonas_2fa_temp', tempToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 5 });
+
+      // Send Email
+      if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+        const nodemailer = await import('nodemailer');
+        const transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST,
+          port: Number(process.env.SMTP_PORT) || 587,
+          secure: process.env.SMTP_PORT === '465',
+          auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+        });
+        await transporter.sendMail({
+          from: `"Kanonas Security" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+          to: user.email,
+          subject: 'Κωδικός 2FA για Kanonas',
+          html: `<p>Γεια σας ${user.firstName || ''},</p><p>Ο κωδικός επαλήθευσης (One-Time Password) για τη σύνδεσή σας είναι:</p><h2>${otp}</h2><p>Ισχύει για 5 λεπτά.</p>`
+        }).catch(console.error);
+      } else {
+        console.log(`[2FA DEV ONLY] OTP for ${user.email} is: ${otp}`);
+      }
+      return { success: true, require2FA: true };
+    }
+    // -----------------------
+
+    return await finalizeLogin(user, resolvedTempleId, userTemple, isSuperOrHead, ip, (metropolisUser as any)?.metropolis?.name || null);
+  } catch (e: any) {
+    // [SECURITY LOW-4] Never expose internal error details (Prisma errors, stack traces) to the client
+    console.error('[loginAction] Error:', e);
+    return { success: false, error: 'Σφάλμα σύνδεσης. Παρακαλώ δοκιμάστε ξανά.' }
+  }
+}
+
+async function finalizeLogin(user: any, resolvedTempleId: string, userTemple: any, isSuperOrHead: boolean, ip: string, metropolisName: string | null) {
+    const headerStore = await headers();
+    const userAgent = headerStore.get('user-agent') || 'Unknown Device';
+    const sessionRecord = await prisma.userSession.create({
+      data: { userId: user.id, userAgent, ipAddress: ip }
+    });
+
     const sessionPayload = {
       userId: user.id,
+      sessionId: sessionRecord.id,
       userEmail: user.email,
       templeId: resolvedTempleId,
       isSuperAdmin: user.isSuperAdmin,
@@ -116,32 +164,46 @@ export async function loginAction(email: string, passwordPlain: string) {
       canViewInventory: userTemple?.role?.canViewInventory || isSuperOrHead,
       canManageInventory: userTemple?.role?.canManageInventory || isSuperOrHead,
       roleName: user.isSuperAdmin ? 'Platform Admin' : 
-                metropolisUser ? `Μητρόπολη: ${metropolisUser.metropolis.name}` :
+                metropolisName ? `Μητρόπολη: ${metropolisName}` :
                 (userTemple?.role?.name || (userTemple?.isHeadPriest ? 'Προϊστάμενος' : 'Γραμματεία'))
     }
 
-    const token = await encrypt(sessionPayload)
+    const { encrypt } = await import('@/lib/auth');
+    const token = await encrypt(sessionPayload);
     const cookieStore = await cookies();
     cookieStore.set('Kanonas_auth', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7
-    })
+      httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 60 * 24 * 7
+    });
     
-    // Attempt audit log, ignoring errors if templeId is empty
     if (resolvedTempleId) {
        await prisma.auditLog.create({
          data: { templeId: resolvedTempleId, userId: user.id, userEmail: user.email, action: 'LOGIN' }
        }).catch(() => {})
     }
+    return { success: true };
+}
 
-    return { success: true }
-  } catch (e: any) {
-    // [SECURITY LOW-4] Never expose internal error details (Prisma errors, stack traces) to the client
-    console.error('[loginAction] Error:', e);
-    return { success: false, error: 'Σφάλμα σύνδεσης. Παρακαλώ δοκιμάστε ξανά.' }
-  }
+export async function verify2FAAction(otp: string) {
+    const cookieStore = await cookies();
+    const tempCookie = cookieStore.get('Kanonas_2fa_temp')?.value;
+    if (!tempCookie) return { success: false, error: 'Η συνεδρία 2FA έχει λήξει.' };
+
+    const { decrypt } = await import('@/lib/auth');
+    const payload = await decrypt(tempCookie);
+    if (!payload || Date.now() > payload.expires) return { success: false, error: 'Ο κωδικός έληξε.' };
+    
+    if (payload.otp !== otp) return { success: false, error: 'Λανθασμένος κωδικός.' };
+
+    const headerStore = await headers();
+    const ip = headerStore.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+
+    const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+    const userTemple = await prisma.userTemple.findFirst({ where: { userId: payload.userId, status: 'active', templeId: payload.resolvedTempleId }, include: { role: true } });
+    const metropolisUser = await prisma.metropolisUser.findFirst({ where: { userId: payload.userId }, include: { metropolis: true } });
+    
+    cookieStore.delete('Kanonas_2fa_temp');
+
+    return await finalizeLogin(user, payload.resolvedTempleId, userTemple, true, ip, (metropolisUser as any)?.metropolis?.name || null);
 }
 
 export async function logoutAction() {
@@ -220,5 +282,35 @@ export async function resetPasswordAction(token: string, newPasswordPlain: strin
     // [SECURITY LOW-4] Log internally, never expose Prisma error details
     console.error('[resetPasswordAction] Error:', e);
     return { success: false, error: 'Σφάλμα κατά την επαναφορά κωδικού.' }
+  }
+}
+
+export async function getMySessions() {
+  const { requireAuth } = await import('@/lib/auth');
+  const session = await requireAuth();
+  const sessions = await prisma.userSession.findMany({
+    where: { userId: session.userId },
+    orderBy: { lastActive: 'desc' },
+    select: { id: true, userAgent: true, ipAddress: true, lastActive: true, createdAt: true }
+  });
+  return sessions;
+}
+
+export async function revokeAllOtherSessions() {
+  try {
+    const { requireAuth } = await import('@/lib/auth');
+    const session = await requireAuth();
+    if (!session || !session.sessionId) return { success: false, error: 'Τρέχουσα συνεδρία μη διαθέσιμη.' };
+
+    await prisma.userSession.deleteMany({
+      where: { 
+        userId: session.userId,
+        id: { not: session.sessionId }
+      }
+    });
+
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: 'Απέτυχε η αποσύνδεση των άλλων συσκευών.' };
   }
 }

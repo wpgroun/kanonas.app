@@ -133,6 +133,10 @@ model Temple {
   parishionerRelationships ParishionerRelationship[]
   ecclesiasticalDivorces   EcclesiasticalDivorce[]
   prayerRequests           PrayerRequest[]
+  ministries               Ministry[]
+  volunteers               Volunteer[]
+  youthPrograms            YouthProgram[]
+  youthParticipants        YouthParticipant[]
 }
 
 model KanbanTask {
@@ -165,6 +169,17 @@ model User {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   metropolisUsers MetropolisUser[]
+  sessions        UserSession[]
+}
+
+model UserSession {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent  String?
+  ipAddress  String?
+  lastActive DateTime @default(now())
+  createdAt  DateTime @default(now())
 }
 
 model PasswordResetToken {
@@ -1038,69 +1053,69 @@ model PrayerRequest {
 // =======================
 
 model Ministry {
-  id          String   @id @default(cuid())
-  templeId    String
-  temple      Temple   @relation(fields: [templeId], references: [id], onDelete: Cascade)
-  
-  name        String   // e.g. "Καθαριότητα", "Συσσίτιο"
-  description String?
-  color       String?  // hex for UI
-  
-  volunteers  MinistryVolunteer[]
-  shifts      Shift[]
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
+  name        String // e.g. "Καθαριότητα", "Συσσίτιο"
+  description String?
+  color       String? // hex for UI
+
+  volunteers MinistryVolunteer[]
+  shifts     Shift[]
+
+  createdAt DateTime @default(now())
 }
 
 model Volunteer {
-  id          String   @id @default(cuid())
-  templeId    String
-  temple      Temple   @relation(fields: [templeId], references: [id], onDelete: Cascade)
-  
-  firstName   String
-  lastName    String
-  phone       String?
-  email       String?
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
-  ministries  MinistryVolunteer[]
-  shifts      ShiftAssignment[]
+  firstName String
+  lastName  String
+  phone     String?
+  email     String?
 
-  createdAt   DateTime @default(now())
+  ministries MinistryVolunteer[]
+  shifts     ShiftAssignment[]
+
+  createdAt DateTime @default(now())
 }
 
 model MinistryVolunteer {
-  id          String     @id @default(cuid())
+  id          String    @id @default(cuid())
   ministryId  String
-  ministry    Ministry   @relation(fields: [ministryId], references: [id], onDelete: Cascade)
+  ministry    Ministry  @relation(fields: [ministryId], references: [id], onDelete: Cascade)
   volunteerId String
-  volunteer   Volunteer  @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
-  
+  volunteer   Volunteer @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+
   @@unique([ministryId, volunteerId])
 }
 
 model Shift {
-  id          String     @id @default(cuid())
-  ministryId  String
-  ministry    Ministry   @relation(fields: [ministryId], references: [id], onDelete: Cascade)
-  
-  date        DateTime
-  startTime   String?
-  endTime     String?
-  notes       String?
+  id         String   @id @default(cuid())
+  ministryId String
+  ministry   Ministry @relation(fields: [ministryId], references: [id], onDelete: Cascade)
+
+  date      DateTime
+  startTime String?
+  endTime   String?
+  notes     String?
 
   assignments ShiftAssignment[]
 }
 
 model ShiftAssignment {
-  id          String     @id @default(cuid())
-  shiftId     String
-  shift       Shift      @relation(fields: [shiftId], references: [id], onDelete: Cascade)
-  
+  id      String @id @default(cuid())
+  shiftId String
+  shift   Shift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
   volunteerId String
-  volunteer   Volunteer  @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
-  
-  status      String     @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED
-  
+  volunteer   Volunteer @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+
+  status String @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED
+
   @@unique([shiftId, volunteerId])
 }
 
@@ -1109,54 +1124,53 @@ model ShiftAssignment {
 // =======================
 
 model YouthProgram {
-  id          String   @id @default(cuid())
-  templeId    String
-  temple      Temple   @relation(fields: [templeId], references: [id], onDelete: Cascade)
-  
-  name        String   // e.g. "Κατασκήνωση Ιουλίου", "Κατηχητικό Δημοτικού"
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  name        String // e.g. "Κατασκήνωση Ιουλίου", "Κατηχητικό Δημοτικού"
   description String?
   startDate   DateTime?
   endDate     DateTime?
-  
+
   enrollments ProgramEnrollment[]
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model YouthParticipant {
-  id          String   @id @default(cuid())
-  templeId    String
-  temple      Temple   @relation(fields: [templeId], references: [id], onDelete: Cascade)
-  
-  firstName   String
-  lastName    String
-  birthDate   DateTime?
-  
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  firstName String
+  lastName  String
+  birthDate DateTime?
+
   parentName  String?
   parentPhone String?
   parentEmail String?
-  
+
   schoolGrade String? // Τάξη Σχολείου
-  
+
   medicalNotes      String? // Αλλεργίες / Ιατρικό Ιστορικό
   parentConsentDate DateTime? // Ημερομηνία υπογραφής συναίνεσης
 
   enrollments ProgramEnrollment[]
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model ProgramEnrollment {
-  id              String           @id @default(cuid())
-  programId       String
-  program         YouthProgram     @relation(fields: [programId], references: [id], onDelete: Cascade)
-  participantId   String
-  participant     YouthParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  
-  enrollmentDate  DateTime         @default(now())
-  paymentStatus   String           @default("PENDING") // PENDING, PAID, FREE
-  notes           String?
-  
+  id            String           @id @default(cuid())
+  programId     String
+  program       YouthProgram     @relation(fields: [programId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   YouthParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  enrollmentDate DateTime @default(now())
+  paymentStatus  String   @default("PENDING") // PENDING, PAID, FREE
+  notes          String?
+
   @@unique([programId, participantId])
 }
-

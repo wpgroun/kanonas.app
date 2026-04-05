@@ -4,14 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Loader2 } from 'lucide-react';
-import { loginAction } from '@/actions/auth';
+import { loginAction, verify2FAAction } from '@/actions/auth';
 import { useDict } from '@/i18n/TranslationProvider';
 
 export default function LoginPage() {
   const router = useRouter();
   const dict = useDict();
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -21,10 +23,29 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await loginAction(email, password);
+      const res = await loginAction(email, password) as any;
       if (!res.success) {
         throw new Error(res.error || 'Αποτυχία σύνδεσης / Login failed');
       }
+      if (res.require2FA) {
+        setStep(2);
+        setLoading(false);
+        return;
+      }
+      router.push('/admin');
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const handleVerify2FA = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await verify2FAAction(otp) as any;
+      if (!res.success) throw new Error(res.error || 'Σφάλμα 2FA');
       router.push('/admin');
     } catch (err: any) {
       setError(err.message);
@@ -46,74 +67,106 @@ export default function LoginPage() {
             </div>
             <span className="font-bold text-[var(--foreground)] text-xl tracking-tight">{dict.general.appName}</span>
           </Link>
-          <h1 className="text-2xl font-bold text-[var(--foreground)] mb-1">{dict.login.title}</h1>
-          <p className="text-sm text-[var(--text-muted)]">{dict.login.subtitle}</p>
+          <h1 className="text-2xl font-bold text-[var(--foreground)] mb-1">{step === 1 ? dict.login.title : 'Επαλήθευση Συνδεσης'}</h1>
+          <p className="text-sm text-[var(--text-muted)]">{step === 1 ? dict.login.subtitle : 'Εισάγετε τον 6-ψήφιο κωδικό από το email σας.'}</p>
         </div>
 
         {/* Card */}
         <div className="card p-6">
-          <form onSubmit={handleLogin} className="space-y-4">
-            {error && (
-              <div className="p-3 bg-[var(--danger-light)] border border-[var(--danger)]/20 text-[var(--danger)] text-sm rounded-lg text-center font-medium">
-                {error}
-              </div>
-            )}
-            
-            {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('registered') === '1' && (
-              <div className="p-3 bg-[var(--success-light)] border border-[var(--success)]/20 text-[var(--success)] text-sm rounded-lg text-center font-medium">
-                Η εγγραφή ολοκληρώθηκε! Συνδεθείτε με τον λογαριασμό σας.
-              </div>
-            )}
+          {step === 1 ? (
+            <form onSubmit={handleLogin} className="space-y-4">
+              {error && (
+                <div className="p-3 bg-[var(--danger-light)] border border-[var(--danger)]/20 text-[var(--danger)] text-sm rounded-lg text-center font-medium">
+                  {error}
+                </div>
+              )}
+              
+              {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('registered') === '1' && (
+                <div className="p-3 bg-[var(--success-light)] border border-[var(--success)]/20 text-[var(--success)] text-sm rounded-lg text-center font-medium">
+                  Η εγγραφή ολοκληρώθηκε! Συνδεθείτε με τον λογαριασμό σας.
+                </div>
+              )}
 
-            {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('reset_success') === '1' && (
-              <div className="p-3 bg-[var(--success-light)] border border-[var(--success)]/20 text-[var(--success)] text-sm rounded-lg text-center font-medium">
-                Ο κωδικός σας άλλαξε με επιτυχία.
-              </div>
-            )}
+              {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('reset_success') === '1' && (
+                <div className="p-3 bg-[var(--success-light)] border border-[var(--success)]/20 text-[var(--success)] text-sm rounded-lg text-center font-medium">
+                  Ο κωδικός σας άλλαξε με επιτυχία.
+                </div>
+              )}
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[var(--foreground)]">{dict.login.emailLabel}</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-[var(--foreground)]">{dict.login.emailLabel}</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                  <input
+                    type="email"
+                    placeholder={dict.login.emailPlaceholder}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input pl-10"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-medium text-[var(--foreground)]">{dict.login.passwordLabel}</label>
+                  <Link href="/forgot-password" className="text-xs font-medium text-[var(--brand)] hover:text-[var(--brand-dark)]">
+                    {dict.login.forgotPassword}
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                  <input
+                    type="password"
+                    placeholder={dict.login.passwordPlaceholder}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input pl-10"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn btn-primary w-full mt-2 disabled:opacity-60"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : dict.login.submitButton}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerify2FA} className="space-y-4">
+              {error && (
+                <div className="p-3 bg-[var(--danger-light)] border border-[var(--danger)]/20 text-[var(--danger)] text-sm rounded-lg text-center font-medium">
+                  {error}
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-[var(--foreground)]">Κωδικός Ασφαλείας (OTP)</label>
                 <input
-                  type="email"
-                  placeholder={dict.login.emailPlaceholder}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input pl-10"
+                  type="text"
+                  placeholder="6-ψήφιος κωδικός"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="input tracking-widest text-center font-mono text-lg"
+                  maxLength={6}
                   required
                 />
               </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium text-[var(--foreground)]">{dict.login.passwordLabel}</label>
-                <Link href="/forgot-password" className="text-xs font-medium text-[var(--brand)] hover:text-[var(--brand-dark)]">
-                  {dict.login.forgotPassword}
-                </Link>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                <input
-                  type="password"
-                  placeholder={dict.login.passwordPlaceholder}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input pl-10"
-                  required
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary w-full mt-2 disabled:opacity-60"
-            >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : dict.login.submitButton}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn btn-primary w-full mt-2 disabled:opacity-60"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Επιβεβαίωση & Είσοδος'}
+              </button>
+              <button type="button" onClick={() => {setStep(1); setOtp(''); setError('');}} className="text-xs text-[var(--text-muted)] text-center w-full mt-4 hover:underline">
+                Ακύρωση και επιστροφή
+              </button>
+            </form>
+          )}
         </div>
 
         <p className="text-center text-sm text-[var(--text-muted)] mt-6">

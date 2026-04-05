@@ -12,15 +12,17 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, User, Banknote, Euro, FileText, Activity, Utensils, Info, Share2, Trash2 } from 'lucide-react'
+import { History } from 'lucide-react'
 import { deleteRelationship } from '@/actions/relationships'
 
-export default function ParishionerProfileClient({ p, beneficiary, relationships }: { p: any, beneficiary: any, relationships: any }) {
+export default function ParishionerProfileClient({ p, beneficiary, relationships, auditLogs }: { p: any, beneficiary: any, relationships: any, auditLogs: any[] }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
   const [isRegistering, setIsRegistering] = useState(false);
 
   // Υπολογισμός Συνόλου Δωρεών
   const totalDonations = p.donations?.reduce((s: number, d: any) => s + d.amount, 0) || 0;
+
 
   return (
     <div className="container-fluid mt-6 space-y-6 max-w-6xl animate-in fade-in duration-500">
@@ -70,6 +72,9 @@ export default function ParishionerProfileClient({ p, beneficiary, relationships
            </TabsTrigger>
            <TabsTrigger value="sissitio" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2 font-medium">
              Φιλόπτωχο
+           </TabsTrigger>
+           <TabsTrigger value="history" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2 font-medium">
+             Ιστορικό Αλλαγών
            </TabsTrigger>
            <TabsTrigger value="vault" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2 font-medium">
              Αρχειοθήκη
@@ -292,6 +297,42 @@ export default function ParishionerProfileClient({ p, beneficiary, relationships
               </Card>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="history">
+          <Card className="shadow-sm border-border/50">
+            <CardHeader className="pb-4 border-b border-border/50">
+               <CardTitle className="text-lg flex items-center gap-2"><History className="w-5 h-5"/> Ιστορικό Μεταβολών Ενορίτη</CardTitle>
+               <CardDescription>Καταγραφή αλλαγών στα στοιχεία της καρτέλας, βάσει της Αρχής Ιχνηλασιμότητας και του GDPR.</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+               {!auditLogs || auditLogs.length === 0 ? (
+                 <div className="text-center py-8 text-muted-foreground">Καμία καταγεγραμμένη μεταβολή στο ιστορικό.</div>
+               ) : (
+                 <div className="space-y-6">
+                   {auditLogs.map((log: any) => (
+                     <div key={log.id} className="relative pl-6 sm:pl-8 border-l-2 border-primary/20 last:border-l-transparent pb-6 last:pb-0">
+                       <span className="absolute -left-[9px] top-1 h-4 w-4 rounded-full border-2 border-background bg-primary" />
+                       <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between mb-1">
+                         <div className="font-bold text-foreground">
+                           <div>{log.action}</div>
+                           <div className="text-xs text-muted-foreground font-normal">από {log.userEmail || log.userId}</div>
+                         </div>
+                         <span className="text-xs font-mono text-muted-foreground mt-1 sm:mt-0">
+                           {new Date(log.createdAt).toLocaleString('el-GR')}
+                         </span>
+                       </div>
+                       <div className="mt-2 text-sm text-foreground bg-muted/30 p-3 rounded-lg border border-border/40 font-mono">
+                           {log.detail.split('|').map((change: string, idx: number) => (
+                               <div key={idx} className="mb-1 last:mb-0">{change.trim()}</div>
+                           ))}
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="vault">

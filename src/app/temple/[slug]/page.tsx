@@ -19,6 +19,8 @@ export default async function TemplePublicPage({ params }: { params: Promise<{ s
     }
   });
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kanonas.app';
+
   if (!temple) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 flex-col gap-4">
        <span className="text-4xl">⛪</span>
@@ -99,14 +101,13 @@ export default async function TemplePublicPage({ params }: { params: Promise<{ s
                <div className="bg-gradient-to-br from-indigo-900 to-blue-900 rounded-2xl p-6 text-white shadow-xl">
                   <h3 className="text-xl font-bold mb-4 flex items-center gap-2">Ψηφιακές Δράσεις</h3>
                   <div className="space-y-3">
-                     <button className="w-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors rounded-xl p-3 text-sm font-medium text-left flex items-center justify-between cursor-not-allowed opacity-80 mt-2">
-                        Online Αίτηση Πιστοποιητικού <ShieldCheck className="w-4 h-4"/>
-                     </button>
-                     <button className="w-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors rounded-xl p-3 text-sm font-medium text-left flex items-center justify-between cursor-not-allowed opacity-80 mt-2">
-                        Εγγραφή στο Συσσίτιο <Heart className="w-4 h-4 text-red-300"/>
-                     </button>
+                     <Link href={`/temple/${slug}/connect`} className="w-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors rounded-xl p-3 text-sm font-medium text-left flex items-center justify-between mt-2">
+                        <span>Ψηφιακό Γραφείο (e-Connect)</span> <ShieldCheck className="w-4 h-4"/>
+                     </Link>
+                     <a href={`webcal://${appUrl.replace(/https?:\/\//, '')}/api/schedule/ical/${slug}`} className="w-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors rounded-xl p-3 text-sm font-medium text-left flex items-center justify-between mt-2">
+                        <span>Προσθήκη στο Ημερολόγιο</span> <Calendar className="w-4 h-4 text-blue-200"/>
+                     </a>
                   </div>
-                  <p className="text-xs text-white/50 mt-6 font-mono text-center">ΛΕΙΤΟΥΡΓΙΕΣ ΥΠΟ ΚΑΤΑΣΚΕΥΗ</p>
                </div>
            </div>
 

@@ -162,6 +162,22 @@ export default async function FinancesPage() {
 
       </div>
 
+      {/* ΔΙΑΧΕΙΡΙΣΗ ΕΡΑΝΩΝ (FUNDRAISERS) - PLACEHOLDER */}
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6 shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+             <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2">
+               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+               Διαχείριση Εράνων & Εκστρατειών (Collections)
+             </h2>
+             <p className="text-amber-700/80 text-sm mt-1">Σύνδεσμος εισφορών και εσόδων (π.χ. Πανηγύρι, Πάσχα) σε συγκεκριμένες καμπάνιες με στόχους.</p>
+          </div>
+          <div className="flex gap-2">
+            <span className="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-200">Προσεχώς στο επερχόμενο Update</span>
+          </div>
+        </div>
+      </div>
+
       {/* Separator / BI */}
       <div className="border-t border-border/50 pt-8 hidden sm:block">
         <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 mb-6 text-foreground">

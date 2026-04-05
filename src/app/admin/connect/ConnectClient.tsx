@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { updateRequestStatus } from '@/actions/connect';
 import { Mail, CheckCircle2, XCircle, Clock, FileText } from 'lucide-react';
 
+import { QRCodeSVG } from 'qrcode.react';
+
 type RequestData = {
    id: string;
    type: string;
@@ -15,10 +17,12 @@ type RequestData = {
    createdAt: Date;
 };
 
-export default function ConnectClient({ initialRequests }: { initialRequests: RequestData[] }) {
+export default function ConnectClient({ initialRequests, appUrl, slug }: { initialRequests: RequestData[], appUrl: string, slug: string }) {
    const [requests, setRequests] = useState<RequestData[]>(initialRequests);
    const [filter, setFilter] = useState('ALL');
    const [selectedReq, setSelectedReq] = useState<RequestData | null>(null);
+
+   const connectUrl = `${appUrl}/temple/${slug}/connect`;
 
    const filtered = requests.filter(r => filter === 'ALL' || r.status === filter);
 
@@ -49,7 +53,16 @@ export default function ConnectClient({ initialRequests }: { initialRequests: Re
                   <option value="APPROVED">Εγκεκριμένα</option>
                </select>
             </div>
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            {slug && (
+               <div className="p-4 bg-white m-3 rounded-2xl shadow-sm border border-slate-200 text-center flex flex-col items-center">
+                  <span className="text-xs font-bold text-slate-500 mb-2 uppercase">QR Code (Για πόρτα Ναού)</span>
+                  <div className="bg-white p-2 border border-slate-100 rounded-xl mb-2">
+                     <QRCodeSVG value={connectUrl} size={100} level="H" includeMargin={true} />
+                  </div>
+                  <p className="text-[10px] text-slate-400 break-all">{connectUrl}</p>
+               </div>
+            )}
+            <div className="flex-1 overflow-y-auto p-3 space-y-2 pt-0">
                {filtered.length === 0 && <p className="text-center text-slate-400 mt-10 text-sm">Κανένα αίτημα.</p>}
                {filtered.map(req => (
                   <div 

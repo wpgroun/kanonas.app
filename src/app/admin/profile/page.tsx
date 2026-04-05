@@ -1,4 +1,5 @@
 import { getMyProfile } from '@/actions/users'
+import { getMySessions } from '@/actions/auth'
 import { requireAuth } from '@/lib/requireAuth'
 import ProfileClient from './ProfileClient'
 import { UserCircle } from 'lucide-react'
@@ -8,8 +9,9 @@ export const metadata = {
 }
 
 export default async function ProfilePage() {
-  await requireAuth()
+  const sessionData = await requireAuth()
   const user = await getMyProfile()
+  const sessions = await getMySessions()
 
   if (!user) return <div>Χρήστης δεν βρέθηκε</div>
 
@@ -19,15 +21,17 @@ export default async function ProfilePage() {
         <h1 className="text-2xl font-bold flex items-center gap-2 text-[var(--foreground)]">
           <UserCircle className="w-6 h-6 text-[var(--brand)]" /> Ο Λογαριασμός Μου
         </h1>
-        <p className="text-sm text-[var(--text-muted)] mt-1">Επεξεργαστείτε τα προσωπικά σας στοιχεία και αλλάξτε τον κωδικό πρόσβασής σας.</p>
+        <p className="text-sm text-[var(--text-muted)] mt-1">Επεξεργαστείτε τα προσωπικά σας στοιχεία, ελέγξτε τις συνεδρίες και αλλάξτε τον κωδικό πρόσβασής σας.</p>
       </div>
 
       <ProfileClient 
         user={{ 
-          firstName: user.firstName, 
-          lastName: user.lastName, 
+          firstName: user.firstName || '', 
+          lastName: user.lastName || '', 
           email: user.email 
-        }} 
+        }}
+        sessions={sessions}
+        currentSessionId={sessionData.sessionId}
       />
     </div>
   )

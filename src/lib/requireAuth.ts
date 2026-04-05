@@ -12,6 +12,7 @@ export async function requireAuth() {
   }
   return session as {
     userId: string;
+    sessionId?: string;
     userEmail: string;
     templeId: string;
     isSuperAdmin: boolean;
@@ -50,6 +51,17 @@ export async function requireFinanceAccess() {
   const session = await requireAuth();
   if (!session.canViewFinances && !session.isHeadPriest && !session.isSuperAdmin) {
     throw new Error('FORBIDDEN: Finance access required.');
+  }
+  return session;
+}
+
+export async function requirePermission(perms: string[]) {
+  const session = await requireAuth() as any;
+  if (!session.isSuperAdmin) {
+    const hasPerm = perms.some(p => session[p] === true);
+    if (!hasPerm) {
+      throw new Error(`FORBIDDEN: Missing permissions [${perms.join(', ')}].`);
+    }
   }
   return session;
 }

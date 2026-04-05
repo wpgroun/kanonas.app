@@ -5,6 +5,48 @@ import { requireAuth } from '@/lib/requireAuth';
 import { getCurrentTempleId } from '@/actions/core';
 import { revalidatePath } from 'next/cache';
 import { startOfDay, endOfDay } from 'date-fns';
+import { generateMoveableFeastsSchedule, generateFixedFeastsSchedule, orthodoxEaster } from '@/lib/orthodoxCalendar';
+
+// ─── Orthodox Calendar Auto-Import ─────────────────────────────────────────────
+
+/**
+ * Bulk-insert all moveable + fixed Orthodox feasts for a given year.
+ * Skips entries where the same date + title already exists (idempotent).
+ */
+export async function bulkImportOrthodoxCalendar(year: number): Promise<{ inserted: number; skipped: number }> {
+  await requireAuth();
+  const templeId = await getCurrentTempleId();
+
+  const allEntries = [
+    ...generateMoveableFeastsSchedule(year),
+    ...generateFixedFeastsSchedule(year),
+  ];
+
+  let inserted = 0;
+  let skipped = 0;
+
+  for (const entry of allEntries) {
+    const exists = await prisma.serviceSchedule.findFirst({
+      where: { templeId, title: entry.title, date: { gte: startOfDay(entry.date), lte: endOfDay(entry.date) } }
+    });
+    if (exists) { skipped++; continue; }
+
+    await prisma.serviceSchedule.create({
+      data: { templeId, date: entry.date, title: entry.title, isMajor: entry.isMajor, description: entry.description }
+    });
+    inserted++;
+  }
+
+  revalidatePath('/admin/schedule');
+  return { inserted, skipped };
+}
+
+/** Return the Easter date for a given year (for display in UI) */
+export async function getOrthodoxEasterDate(year: number): Promise<string> {
+  const easter = orthodoxEaster(year);
+  return easter.toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 
 export async function getSchedule(dateStr: string) {
   const templeId = await getCurrentTempleId();
