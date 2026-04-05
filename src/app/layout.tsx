@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     title: 'Κανόνας',
   },
   formatDetection: { telephone: false },
+};
+
+export const viewport = {
   themeColor: '#7C3AED',
 };
 
