@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Mail, Lock, User, Building, Loader2 } from 'lucide-react'
 import { registerTempleAndAdmin } from '@/actions/register'
-import { OFFICIAL_METROPOLISES } from '@/lib/constants/metropolises'
+import { JURISDICTIONS } from '@/lib/constants/metropolises'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -91,8 +91,12 @@ export default function RegisterPage() {
                   required={!isOtherMetropolis}
                 >
                   <option value="">Επιλέξτε Μητρόπολη...</option>
-                  {OFFICIAL_METROPOLISES.map(m => (
-                    <option key={m} value={m}>{m}</option>
+                  {JURISDICTIONS.map(jur => (
+                    <optgroup key={jur.label} label={jur.label}>
+                      {jur.metropolises.map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </optgroup>
                   ))}
                   <option value="OTHER">Άλλη Μητρόπολη / Δικαιοδοσία (Εξωτερικού)</option>
                 </select>
