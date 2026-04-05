@@ -147,13 +147,13 @@ export async function getStripeInvoices() {
     if (!sub || !sub.stripeSubscriptionId) return [];
 
     const stripe = (await import('stripe')).default;
-    const stripeClient = new stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-03-31.basil' });
+    const stripeClient = new stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-03-31.basil' });
 
     const stripeSub = await stripeClient.subscriptions.retrieve(sub.stripeSubscriptionId);
     if (!stripeSub || !stripeSub.customer) return [];
 
     const invoices = await stripeClient.invoices.list({
-      customer: stripeSub.customer,
+      customer: typeof stripeSub.customer === 'string' ? stripeSub.customer : stripeSub.customer.id,
       limit: 10,
     });
 

@@ -171,6 +171,10 @@ model User {
   // Super admin (Metropolis/Platform level)
   isSuperAdmin Boolean @default(false)
 
+  // TOTP 2FA (Authenticator App)
+  totpSecret       String?
+  twoFactorEnabled Boolean @default(false)
+
   temples UserTemple[]
 
   createdAt       DateTime         @default(now())
