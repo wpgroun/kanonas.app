@@ -5,7 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useState, useEffect } from 'react';
 import { LayoutDashboard, Users, FileText, Banknote, Calendar,
   BookOpen, HeartHandshake, Package, ClipboardList, Settings,
-  LogOut, ChevronLeft, Menu, Bell, ShieldCheck, Mail, KanbanSquare, Tent
+  LogOut, ChevronLeft, Menu, Bell, ShieldCheck, Mail, KanbanSquare, Tent,
+  Globe, HeartPulse, Shield
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 import { fetchSessionClient } from '@/actions/clientSession';
@@ -28,6 +29,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const navItems = [
     { href: '/admin', icon: LayoutDashboard, label: dict.nav.dashboard, requiredPerm: null },
+    { href: '/admin/connect', icon: Globe, label: 'Kanonas Connect / e-Gov', requiredPerm: null },
     { href: '/admin/requests', icon: FileText, label: dict.nav.requests, requiredPerm: 'canManageRequests' },
     { href: '/admin/parishioners', icon: Users, label: dict.nav.parishioners, requiredPerm: 'canManageRegistry' },
     { href: '/admin/finances', icon: Banknote, label: dict.nav.finances, requiredPerm: 'canViewFinances' },
@@ -39,8 +41,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: '/admin/registry/funerals', icon: FileText, label: 'Ληξιαρχείο & Εκδημίες', requiredPerm: 'canManageRegistry' },
     { href: '/admin/sacraments/divorces', icon: FileText, label: 'Διαζύγια (Λύσεις Γάμων)', requiredPerm: 'canManageRegistry' },
     { href: '/admin/registry/camps', icon: Tent, label: 'Κατασκηνώσεις (Νεολαία)', requiredPerm: null },
+    { href: '/admin/registry/bloodbank', icon: HeartPulse, label: 'Τράπεζα Αίματος', requiredPerm: null },
     { href: '/admin/assignments', icon: Users, label: 'Αναθέσεις Εφημερίων', requiredPerm: 'isHeadPriest' },
     { href: '/admin/philanthropy', icon: HeartHandshake, label: dict.nav.philanthropy, requiredPerm: 'canViewBeneficiaries' },
+    { href: '/admin/philanthropy/board', icon: Shield, label: 'Συμβούλιο Φιλοπτώχου', requiredPerm: 'canViewBeneficiaries' },
     { href: '/admin/assets', icon: Package, label: dict.nav.assets, requiredPerm: 'canManageAssets' },
   ].filter(item => !item.requiredPerm || perms[item.requiredPerm] === true || perms.isSuperAdmin || perms.isHeadPriest);
 

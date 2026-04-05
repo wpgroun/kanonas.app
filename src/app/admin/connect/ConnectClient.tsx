@@ -15,7 +15,7 @@ type RequestData = {
    createdAt: Date;
 };
 
-export default function AdminRequestsClient({ initialRequests }: { initialRequests: RequestData[] }) {
+export default function ConnectClient({ initialRequests }: { initialRequests: RequestData[] }) {
    const [requests, setRequests] = useState<RequestData[]>(initialRequests);
    const [filter, setFilter] = useState('ALL');
    const [selectedReq, setSelectedReq] = useState<RequestData | null>(null);
