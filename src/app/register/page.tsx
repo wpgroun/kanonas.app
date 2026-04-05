@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Mail, Lock, User, Building, Loader2 } from 'lucide-react'
 import { registerTempleAndAdmin } from '@/actions/register'
+import { OFFICIAL_METROPOLISES } from '@/lib/constants/metropolises'
 
 export default function RegisterPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [metropolises, setMetropolises] = useState<{id: string, name: string}[]>([])
+  const [isOtherMetropolis, setIsOtherMetropolis] = useState(false)
 
   // Form State
   const [formData, setFormData] = useState({
@@ -75,15 +76,41 @@ export default function RegisterPage() {
               <label className="text-sm font-medium text-[var(--foreground)]">Μητρόπολη που ανήκετε <span className="text-[var(--danger)]">*</span></label>
               <div className="relative">
                 <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                <input
-                  type="text"
-                  placeholder="π.χ. Ιερά Μητρόπολις Αθηνών"
-                  value={formData.metropolisName}
-                  onChange={e => setFormData({ ...formData, metropolisName: e.target.value })}
+                <select
+                  value={isOtherMetropolis ? 'OTHER' : formData.metropolisName}
+                  onChange={e => {
+                    if (e.target.value === 'OTHER') {
+                      setIsOtherMetropolis(true);
+                      setFormData({ ...formData, metropolisName: '' });
+                    } else {
+                      setIsOtherMetropolis(false);
+                      setFormData({ ...formData, metropolisName: e.target.value });
+                    }
+                  }}
                   className="input pl-10"
-                  required
-                />
+                  required={!isOtherMetropolis}
+                >
+                  <option value="">Επιλέξτε Μητρόπολη...</option>
+                  {OFFICIAL_METROPOLISES.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                  <option value="OTHER">Άλλη Μητρόπολη / Δικαιοδοσία (Εξωτερικού)</option>
+                </select>
               </div>
+              
+              {isOtherMetropolis && (
+                <div className="pt-2 animate-fade-in-up">
+                  <label className="text-xs font-semibold text-[var(--text-muted)] block mb-1">Ονομασία Μητρόπολης <span className="text-[var(--danger)]">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="π.χ. Ιερά Αρχιεπισκοπή Αυστραλίας"
+                    value={formData.metropolisName}
+                    onChange={e => setFormData({ ...formData, metropolisName: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-1.5">

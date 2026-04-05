@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'motion/react'
 import {
-  Building2, FileText, UserCheck, CheckCircle2,
+  Building2, FileText, UserCheck, CheckCircle2, Building,
   ArrowRight, ArrowLeft, Eye, EyeOff, Loader2
 } from 'lucide-react'
 import { setupTemple } from './actions'
+import { OFFICIAL_METROPOLISES } from '@/lib/constants/metropolises'
 
 const STEPS = [
   { id: 1, label: 'Ναός',     icon: Building2 },
@@ -22,6 +23,7 @@ export default function OnboardingWizard() {
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [isOtherMetropolis, setIsOtherMetropolis] = useState(false)
 
   const [formData, setFormData] = useState({
     metropolisName: '',
@@ -119,10 +121,38 @@ export default function OnboardingWizard() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Ιερά Μητρόπολη *</label>
-                    <input value={formData.metropolisName} onChange={e => set('metropolisName', e.target.value)}
-                      placeholder="π.χ. Ιερά Μητρόπολις Αθηνών"
-                      className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all" />
+                    <select
+                      value={isOtherMetropolis ? 'OTHER' : formData.metropolisName}
+                      onChange={e => {
+                        if (e.target.value === 'OTHER') {
+                          setIsOtherMetropolis(true);
+                          set('metropolisName', '');
+                        } else {
+                          setIsOtherMetropolis(false);
+                          set('metropolisName', e.target.value);
+                        }
+                      }}
+                      className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all"
+                      required={!isOtherMetropolis}
+                    >
+                      <option value="">Επιλέξτε Μητρόπολη...</option>
+                      {OFFICIAL_METROPOLISES.map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                      <option value="OTHER">Άλλη Μητρόπολη / Δικαιοδοσία (Εξωτερικού)</option>
+                    </select>
                   </div>
+                  
+                  {isOtherMetropolis && (
+                    <div className="animate-fade-in-up">
+                      <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Ονομασία Μητρόπολης *</label>
+                      <input value={formData.metropolisName} onChange={e => set('metropolisName', e.target.value)}
+                        placeholder="π.χ. Ιερά Αρχιεπισκοπή Αυστραλίας"
+                        className="w-full px-4 py-3 rounded-xl border border-[#e5dfd9] bg-[#fdfaf7] text-[#2b1f1a] focus:outline-none focus:ring-2 focus:ring-[#c3a165]/50 focus:border-[#c3a165] text-sm transition-all"
+                        required
+                      />
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-bold text-[#2b1f1a] mb-1.5">Ονομασία Ναού *</label>
                     <input value={formData.templeName} onChange={e => set('templeName', e.target.value)}
