@@ -7,41 +7,41 @@ export { loginAction, logoutAction, forgotPasswordAction, resetPasswordAction } 
 
 // ─── PARISHIONERS ────────────────────────────────────────────────────────────
 export {
-  getParishioners,
-  createParishioner,
-  getParishionerDetails,
-  updateParishionerDetails,
-  updateParishionerRoles,
+ getParishioners,
+ createParishioner,
+ getParishionerDetails,
+ updateParishionerDetails,
+ updateParishionerRoles,
 } from '@/actions/parishioners'
 
 // ─── SACRAMENTS / TOKENS ─────────────────────────────────────────────────────
 export {
-  createSacramentRequest,
-  getPendingRequests,
-  getTokens,
-  getRequestDetails,
-  linkPersonToSacrament,
-  markTokenAsDocsGenerated,
-  verifyTokenByHash,
-  savePublicTokenAnswers,
-  sendFormLinkAction,
+ createSacramentRequest,
+ getPendingRequests,
+ getTokens,
+ getRequestDetails,
+ linkPersonToSacrament,
+ markTokenAsDocsGenerated,
+ verifyTokenByHash,
+ savePublicTokenAnswers,
+ sendFormLinkAction,
 } from '@/actions/sacraments'
 
 // ─── FINANCES ────────────────────────────────────────────────────────────────
 export {
-  createDonation,
-  getDonations,
-  getDonationStats,
-  addExpense,
+ createDonation,
+ getDonations,
+ getDonationStats,
+ addExpense,
 } from '@/actions/finances'
 
 // ─── PHILANTHROPY ────────────────────────────────────────────────────────────
 export {
-  getBeneficiaries,
-  createBeneficiary,
-  getParishionerBeneficiary,
-  getPhilanthropyStats,
-  getInventoryItems,
+ getBeneficiaries,
+ createBeneficiary,
+ getParishionerBeneficiary,
+ getPhilanthropyStats,
+ getInventoryItems,
 } from '@/actions/philanthropy'
 
 // ─── DOCUMENTS / TEMPLATES ───────────────────────────────────────────────────
@@ -49,12 +49,12 @@ export { getDocTemplates, saveDocTemplate } from '@/actions/documents'
 
 // ─── DIPTYCHS ────────────────────────────────────────────────────────────────
 export {
-  getDiptychs,
-  addDiptychNames,
-  toggleDiptychActive,
-  editDiptychName,
-  deleteDiptychName,
-  clearDiptychs,
+ getDiptychs,
+ addDiptychNames,
+ toggleDiptychActive,
+ editDiptychName,
+ deleteDiptychName,
+ clearDiptychs,
 } from '@/actions/diptychs'
 
 // ─── PROTOCOL ────────────────────────────────────────────────────────────────
@@ -62,9 +62,9 @@ export { getProtocols, addProtocolEntry } from '@/actions/protocol'
 
 // ─── SCHEDULE ────────────────────────────────────────────────────────────────
 export {
-  getServiceSchedules,
-  addServiceSchedule,
-  deleteServiceSchedule,
+ getServiceSchedules,
+ addServiceSchedule,
+ deleteServiceSchedule,
 } from '@/actions/schedule'
 
 // ─── ASSETS ──────────────────────────────────────────────────────────────────

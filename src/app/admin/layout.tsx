@@ -12,24 +12,38 @@ import AdminShell from './AdminShell'
  * session fetching (previously done via fetchSessionClient() useEffect).
  */
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const session = await getSession()
+ const session = await getSession()
 
-  // Redirect to login if not authenticated
-  if (!session) {
-    redirect('/login')
-  }
+ // Redirect to login if not authenticated
+ if (!session) {
+ redirect('/login')
+ }
 
-  // Fetch subscription expiry warning (null if no warning needed)
-  const subscriptionWarning = await getSubscriptionExpiryWarning(
-    (session as any).templeId as string
-  )
+ const templeId = (session as any).templeId as string;
 
-  return (
-    <AdminShell
-      perms={session as Record<string, any>}
-      subscriptionWarning={subscriptionWarning}
-    >
-      {children}
-    </AdminShell>
-  )
+ // Fetch subscription expiry warning (null if no warning needed)
+ const subscriptionWarning = await getSubscriptionExpiryWarning(templeId)
+
+ // Fetch Temple Settings to see Disabled Modules
+ const { prisma } = await import('@/lib/prisma');
+ const contextTemple = await prisma.temple.findUnique({
+ where: { id: templeId },
+ select: { settings: true }
+ });
+
+ let disabledModules: string[] = [];
+ try {
+ const parsedSettings = JSON.parse(contextTemple?.settings ||"{}");
+ disabledModules = parsedSettings.disabledModules || [];
+ } catch(e) {}
+
+ return (
+ <AdminShell
+ perms={session as Record<string, any>}
+ subscriptionWarning={subscriptionWarning}
+ disabledModules={disabledModules}
+ >
+ {children}
+ </AdminShell>
+)
 }

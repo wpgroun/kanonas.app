@@ -1,9 +1,9 @@
 import SuperDashboard from './SuperDashboard'
 
 export const metadata = {
-  title: 'Super Admin',
+ title: 'Super Admin',
 }
 
 export default function SuperAdminPage() {
-  return <SuperDashboard />
+ return <SuperDashboard />
 }
