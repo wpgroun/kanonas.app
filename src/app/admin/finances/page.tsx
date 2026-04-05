@@ -2,6 +2,7 @@ import { getLedgerTransactions, getFinanceStats, getFinancialCategories } from '
 import TransactionDialog from './TransactionDialog'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Banknote, Wallet, PieChart, Receipt, ArrowUpRight, ArrowDownRight, BarChart3, Scale } from 'lucide-react';
+import LedgerExportActions from './LedgerExportActions'
 import PageHeader from '@/components/PageHeader'
 import FinanceBIClient from './FinanceBIClient'
 import QuarterlyWidget from './QuarterlyWidget'
@@ -20,7 +21,12 @@ export default async function FinancesPage() {
  <PageHeader 
  title="Οικονομικά & Ταμείο"
  description="Γενικό Λογιστικό Βιβλίο Εσόδων - Εξόδων."
- actions={<TransactionDialog categories={categories} />}
+ actions={
+      <div className="flex items-center gap-3">
+        <LedgerExportActions />
+        <TransactionDialog categories={categories} />
+      </div>
+    }
  />
 
  {/* DASHBOARD STATS */}
