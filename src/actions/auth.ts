@@ -99,6 +99,11 @@ export async function loginAction(email: string, passwordPlain: string) {
 
     // --- 2FA Foundation ---
     if (isSuperOrHead) {
+      if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
+        console.warn(`[Auth] SMTP not configured. Bypassing 2FA requirement for ${user.email}`);
+        return await finalizeLogin(user, resolvedTempleId, userTemple, isSuperOrHead, ip, (metropolisUser as any)?.metropolis?.name || null);
+      }
+
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expires = Date.now() + 1000 * 60 * 5; // 5 mins
       const tempPayload = { userId: user.id, email: user.email, otp, expires, resolvedTempleId };
@@ -108,7 +113,6 @@ export async function loginAction(email: string, passwordPlain: string) {
       cookieStore.set('Kanonas_2fa_temp', tempToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 5 });
 
       // Send Email
-      if (process.env.SMTP_HOST && process.env.SMTP_USER) {
         const nodemailer = await import('nodemailer');
         const transporter = nodemailer.createTransport({
           host: process.env.SMTP_HOST,
@@ -122,9 +126,6 @@ export async function loginAction(email: string, passwordPlain: string) {
           subject: 'Κωδικός 2FA για Kanonas',
           html: `<p>Γεια σας ${user.firstName || ''},</p><p>Ο κωδικός επαλήθευσης (One-Time Password) για τη σύνδεσή σας είναι:</p><h2>${otp}</h2><p>Ισχύει για 5 λεπτά.</p>`
         }).catch(console.error);
-      } else {
-        console.log(`[2FA DEV ONLY] OTP for ${user.email} is: ${otp}`);
-      }
       return { success: true, require2FA: true };
     }
     // -----------------------
