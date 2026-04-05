@@ -11,8 +11,8 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  const router = useRouter();
  
  const [dateStr, setDateStr] = useState(initialDateStr.split('T')[0]);
- const [mealName, setMealName] = useState(schedule?.mealName || '');
- const [planned, setPlanned] = useState(schedule?.portionsPlanned || 0);
+ const [mealName, setMealName] = useState(schedule?.menu || '');
+ const [planned, setPlanned] = useState(schedule?.totalPortions || 0);
 
  const handleDateChange = (e: any) => {
  const newDate = e.target.value;
@@ -42,11 +42,11 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  {/* Menu Control Panel */}
  <Card className="p-4 bg-[var(--surface)] border border-border flex flex-col md:flex-row gap-4 items-end">
  <div className="flex-1 w-full space-y-2">
- <label className="text-sm font-semibold text-gray-700">Ημερομηνία</label>
+ <label className="text-sm font-semibold text-[var(--text-secondary)]">Ημερομηνία</label>
  <input type="date"value={dateStr} onChange={handleDateChange} className="w-full p-2 border border-border rounded-md bg-transparent"/>
  </div>
  <div className="flex-[2] w-full space-y-2">
- <label className="text-sm font-semibold text-gray-700">Γεύμα Ημέρας</label>
+ <label className="text-sm font-semibold text-[var(--text-secondary)]">Γεύμα Ημέρας</label>
  <div className="relative">
  <Utensils className="absolute left-3 top-2.5 w-4 h-4 text-[var(--text-muted)]"/>
  <input 
@@ -59,7 +59,7 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  </div>
  </div>
  <div className="flex-1 w-full space-y-2">
- <label className="text-sm font-semibold text-gray-700">Μερίδες</label>
+ <label className="text-sm font-semibold text-[var(--text-secondary)]">Μερίδες</label>
  <input 
  type="number"
  value={planned} 
@@ -83,7 +83,7 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  {beneficiaries.map((ben: any) => {
  const status = getAttendanceStatus(ben.id);
  return (
- <div key={ben.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[var(--background)] :bg-gray-800/50 transition-colors">
+ <div key={ben.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[var(--surface-hover)] transition-colors">
  <div>
  <p className="font-bold">{ben.firstName} {ben.lastName}</p>
  <p className="text-xs text-[var(--text-muted)]">Δικαιούχες Μερίδες: {ben.familyMembers}</p>
