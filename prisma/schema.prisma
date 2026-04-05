@@ -1423,7 +1423,7 @@ model SissitioRecipient {
   notes        String?
 
   medicalProfile SissitioMedical?
-  attendances    SissitioAttendance[]
+  attendances    SissitioRecipientAttendance[]
   payments       SissitioPayment[]
   documents      SissitioDocument[]
 
@@ -1456,7 +1456,7 @@ model SissitioDocument {
   notes      String?
 }
 
-model SissitioAttendance {
+model SissitioRecipientAttendance {
   id          String            @id @default(cuid())
   recipientId String
   recipient   SissitioRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
