@@ -274,7 +274,7 @@ export default function Home() {
                 ))}
               </ul>
               <Link href="/login" className="block mt-auto">
-                <button className="btn btn-secondary w-full text-sm">Δημιουργία Ναού</button>
+                <button className="btn btn-secondary w-full text-sm">Παρέχεται Δωρεάν,</button>
               </Link>
             </div>
 
@@ -294,8 +294,8 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <Link href="/contact" className="block mt-auto">
-                <button className="btn btn-secondary w-full text-sm">Επικοινωνία</button>
+              <Link href="/login" className="block mt-auto">
+                <button className="btn btn-secondary w-full text-sm">Αγοράστε το</button>
               </Link>
             </div>
 
@@ -318,8 +318,8 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <Link href="/contact" className="block mt-auto">
-                <button className="btn btn-primary w-full text-sm py-2">Ξεκινήστε τώρα</button>
+              <Link href="/login" className="block mt-auto">
+                <button className="btn btn-primary w-full text-sm py-2">Αγοράστε το</button>
               </Link>
             </div>
 
@@ -340,7 +340,7 @@ export default function Home() {
                 ))}
               </ul>
               <Link href="/contact" className="block mt-auto">
-                <button className="bg-white text-slate-900 w-full rounded-md py-2 text-sm font-bold hover:bg-slate-200 transition">Sales & Demo</button>
+                <button className="bg-white text-slate-900 w-full rounded-md py-2 text-sm font-bold hover:bg-slate-200 transition">Επικοινωνήστε</button>
               </Link>
             </div>
           </div>
