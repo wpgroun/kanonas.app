@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Plus, Minus, Search, AlertTriangle, CalendarWarning } from 'lucide-react';
+import { Plus, Minus, Search, AlertTriangle, CalendarDays } from 'lucide-react';
 import { adjustStock, addInventoryItem } from '@/actions/inventory';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -88,7 +88,7 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
                      <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-lg">{item.category}</span>
                      {expStatus.status !== 'ok' && item.expiryDate && (
                         <span className={`text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1 font-bold ${expStatus.status === 'expired' ? 'bg-red-200 text-red-800' : 'bg-amber-200 text-amber-800'}`}>
-                          <CalendarWarning className="w-3 h-3"/> {expStatus.txt}
+                          <CalendarDays className="w-3 h-3"/> {expStatus.txt}
                         </span>
                      )}
                   </div>
