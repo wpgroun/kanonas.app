@@ -289,7 +289,7 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <Link href="/login" className="block mt-auto">
+              <Link href="/register" className="block mt-auto">
                 <button className="btn btn-secondary w-full text-sm">Παρέχεται Δωρεάν,</button>
               </Link>
             </div>
@@ -310,7 +310,7 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <Link href="/login" className="block mt-auto">
+              <Link href="/register" className="block mt-auto">
                 <button className="btn btn-secondary w-full text-sm">Αγοράστε το</button>
               </Link>
             </div>
@@ -334,7 +334,7 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <Link href="/login" className="block mt-auto">
+              <Link href="/register" className="block mt-auto">
                 <button className="btn btn-primary w-full text-sm py-2">Αγοράστε το</button>
               </Link>
             </div>
