@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Leaf, Cross, Printer, Plus, Trash2, Pencil, Trash, Lightbulb, Inbox, Check } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
+import PageHeader from '@/components/PageHeader';
+
 export default function DiptychClient({ initialDiptychs, pendingRequests = [] }: { initialDiptychs: any[], pendingRequests?: any[] }) {
   const [activeTab, setActiveTab] = useState<'ygeias' | 'anapauseos' | 'electronic'>('ygeias');
   const [quickAdd, setQuickAdd] = useState('');
@@ -56,22 +58,17 @@ export default function DiptychClient({ initialDiptychs, pendingRequests = [] }:
 
   return (
     <div className="container-fluid mt-6 space-y-6">
-      
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            Ιερά Δίπτυχα
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Ψηφιακό Μητρώο Μνημόνευσης για την Αγία Πρόθεση.
-          </p>
-        </div>
-        <Link href="/admin/diptychs/print" target="_blank">
-          <Button className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md border-0">
-            <Printer className="w-4 h-4 mr-2" /> Εκτύπωση Διπτύχων
-          </Button>
-        </Link>
-      </div>
+      <PageHeader 
+        title="Ιερά Δίπτυχα" 
+        description="Ψηφιακό Μητρώο Μνημόνευσης για την Αγία Πρόθεση."
+        actions={
+          <Link href="/admin/diptychs/print" target="_blank">
+            <Button className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md border-0">
+              <Printer className="w-4 h-4 mr-2" /> Εκτύπωση Διπτύχων
+            </Button>
+          </Link>
+        }
+      />
 
       <Tabs defaultValue="ygeias" className="w-full" onValueChange={(v) => setActiveTab(v as any)}>
         <TabsList className="grid w-full grid-cols-3 max-w-[600px] h-auto p-1 py-1.5">

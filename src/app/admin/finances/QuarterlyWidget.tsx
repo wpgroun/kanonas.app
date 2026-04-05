@@ -52,7 +52,7 @@ export default function QuarterlyWidget() {
                </div>
             ) : (
                <div className="space-y-4">
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                      <select value={year} onChange={e => setYear(Number(e.target.value))} className="bg-white border border-slate-200 rounded-xl p-2 text-sm font-bold outline-none flex-1">
                         <option value={2026}>Έτος 2026</option>
                         <option value={2025}>Έτος 2025</option>

@@ -17,7 +17,8 @@ export default async function PhilanthropyDashboard() {
   }
 
   const stats = await getPhilanthropyStats()
-  const beneficiaries = await getBeneficiaries()
+  const beneficiariesRes = await getBeneficiaries()
+  const beneficiaries = beneficiariesRes.success ? beneficiariesRes.data : []
   const inventory = await getInventoryItems()
 
   return <PhilanthropyClient stats={stats} beneficiaries={beneficiaries} inventory={inventory} />

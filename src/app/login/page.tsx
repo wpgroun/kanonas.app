@@ -32,7 +32,7 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-      router.push('/admin');
+      window.location.href = '/admin';
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
@@ -46,7 +46,7 @@ export default function LoginPage() {
     try {
       const res = await verify2FAAction(otp) as any;
       if (!res.success) throw new Error(res.error || 'Σφάλμα 2FA');
-      router.push('/admin');
+      window.location.href = '/admin';
     } catch (err: any) {
       setError(err.message);
       setLoading(false);

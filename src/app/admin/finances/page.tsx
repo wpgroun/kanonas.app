@@ -2,6 +2,7 @@ import { getLedgerTransactions, getFinanceStats, getFinancialCategories } from '
 import TransactionDialog from './TransactionDialog'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Banknote, Wallet, PieChart, Receipt, ArrowUpRight, ArrowDownRight, BarChart3, Scale } from 'lucide-react';
+import PageHeader from '@/components/PageHeader'
 import FinanceBIClient from './FinanceBIClient'
 import QuarterlyWidget from './QuarterlyWidget'
 import PrintReceiptBtn from './PrintReceiptBtn'
@@ -16,55 +17,60 @@ export default async function FinancesPage() {
   return (
     <div className="container-fluid mt-6 space-y-6 animate-in fade-in duration-500">
       
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            Οικονομικά & Ταμείο
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Γενικό Λογιστικό Βιβλίο Εσόδων - Εξόδων.
-          </p>
-        </div>
-        <TransactionDialog categories={categories} />
-      </div>
+      <PageHeader 
+        title="Οικονομικά & Ταμείο" 
+        description="Γενικό Λογιστικό Βιβλίο Εσόδων - Εξόδων."
+        actions={<TransactionDialog categories={categories} />}
+      />
 
       {/* DASHBOARD STATS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         {/* ΥΠΟΛΟΙΠΟ */}
-        <Card className="shadow-lg border-primary/20 bg-gradient-to-br from-indigo-700 to-blue-900 text-white border-0">
-          <CardContent className="p-6">
+        <Card className="shadow-2xl border-0 overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-blue-700 to-indigo-900 group-hover:scale-105 transition-transform duration-700"></div>
+          <CardContent className="p-7 relative z-10">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-blue-100 font-medium mb-1">Τρέχον Υπόλοιπο (Ταμείο)</p>
-                <h3 className="text-3xl font-bold font-mono">€ {currentBalance.toLocaleString('el-GR', {minimumFractionDigits: 2})}</h3>
+                <p className="text-blue-100 font-bold tracking-wider text-xs uppercase mb-2">Τρέχον Υπόλοιπο (Ταμείο)</p>
+                <h3 className="text-4xl font-black font-mono text-white tracking-tight">€ {currentBalance.toLocaleString('el-GR', {minimumFractionDigits: 2})}</h3>
               </div>
-              <div className="p-3 bg-white/20 rounded-full shadow-inner">
-                <Scale className="w-6 h-6 text-white" />
+              <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl shadow-inner border border-white/20">
+                <Scale className="w-8 h-8 text-white" />
               </div>
+            </div>
+            {/* Minimal line chart decoration */}
+            <div className="mt-6 flex items-end gap-1.5 opacity-40">
+               {[40, 70, 45, 90, 65, 100, 80].map((h, i) => (
+                 <div key={i} className="w-full bg-white rounded-t-sm" style={{height: `${h/4}px`}}></div>
+               ))}
             </div>
           </CardContent>
         </Card>
         
-        <Card className="shadow-lg border-emerald-500/20 lg:col-span-1 bg-emerald-50 dark:bg-emerald-950/20">
-          <CardContent className="p-6 flex flex-col justify-center h-full">
-            <div className="text-sm font-bold flex items-center justify-between text-emerald-700 dark:text-emerald-400 mb-1">
-               <span className="flex items-center gap-1.5"><ArrowUpRight className="w-4 h-4"/> Συνολικά Έσοδα</span>
-               <Banknote className="w-4 h-4" />
+        {/* ΣΥΝΟΛΙΚΑ ΕΣΟΔΑ */}
+        <Card className="shadow-xl border-0 bg-white dark:bg-slate-900 overflow-hidden relative group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
+          <CardContent className="p-7 flex flex-col justify-center h-full relative z-10 border-l-4 border-emerald-500 rounded-l-md">
+            <div className="text-xs uppercase tracking-wider font-extrabold flex items-center justify-between text-slate-500 mb-3">
+               <span className="flex items-center gap-1.5"><ArrowUpRight className="w-4 h-4 text-emerald-500"/> ΣΥΝΟΛΙΚΑ ΕΣΟΔΑ</span>
+               <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl text-emerald-500"><Banknote className="w-5 h-5" /></div>
             </div>
-            <div className="text-2xl font-mono relative font-bold text-emerald-800 dark:text-emerald-300">
+            <div className="text-3xl font-mono font-black text-slate-800 dark:text-slate-100 tracking-tight">
                € {biStats.totalIncome.toLocaleString('el-GR', {minimumFractionDigits: 2})}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border-rose-500/20 lg:col-span-1 bg-rose-50 dark:bg-rose-950/20">
-          <CardContent className="p-6 flex flex-col justify-center h-full">
-            <div className="text-sm font-bold flex items-center justify-between text-rose-700 dark:text-rose-400 mb-1">
-               <span className="flex items-center gap-1.5"><ArrowDownRight className="w-4 h-4"/> Συνολικά Έξοδα</span>
-               <Wallet className="w-4 h-4" />
+        {/* ΣΥΝΟΛΙΚΑ ΕΞΟΔΑ */}
+        <Card className="shadow-xl border-0 bg-white dark:bg-slate-900 overflow-hidden relative group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
+          <CardContent className="p-7 flex flex-col justify-center h-full relative z-10 border-l-4 border-rose-500 rounded-l-md">
+            <div className="text-xs uppercase tracking-wider font-extrabold flex items-center justify-between text-slate-500 mb-3">
+               <span className="flex items-center gap-1.5"><ArrowDownRight className="w-4 h-4 text-rose-500"/> ΣΥΝΟΛΙΚΑ ΕΞΟΔΑ</span>
+               <div className="p-2 bg-rose-50 dark:bg-rose-500/10 rounded-xl text-rose-500"><Wallet className="w-5 h-5" /></div>
             </div>
-            <div className="text-2xl font-mono relative font-bold text-rose-800 dark:text-rose-300">
+            <div className="text-3xl font-mono font-black text-slate-800 dark:text-slate-100 tracking-tight">
                € {biStats.totalExpense.toLocaleString('el-GR', {minimumFractionDigits: 2})}
             </div>
           </CardContent>

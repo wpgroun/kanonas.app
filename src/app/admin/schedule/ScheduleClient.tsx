@@ -10,6 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CalendarDays, ExternalLink, Printer, Plus, Trash2, Clock } from 'lucide-react';
 
+import PageHeader from '@/components/PageHeader';
+
 export default function ScheduleClient({ initialSchedules }: { initialSchedules: any[] }) {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('07:00');
@@ -43,29 +45,24 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
 
   return (
     <div className="container-fluid mt-6 space-y-6">
-      
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            Πρόγραμμα Ακολουθιών
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Καταχωρήστε τις Ιερές Ακολουθίες για τη δημιουργία της Εβδομαδιαίας Ανακοίνωσης.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/schedule" target="_blank">
-            <Button variant="outline" className="shadow-sm">
-              <ExternalLink className="w-4 h-4 mr-2" /> Δημόσια Προβολή
-            </Button>
-          </Link>
-          <Link href="/admin/schedule/print" target="_blank">
-             <Button className="shadow-sm">
-               <Printer className="w-4 h-4 mr-2" /> Εκτύπωση Εβδομάδας
-             </Button>
-          </Link>
-        </div>
-      </div>
+      <PageHeader 
+        title="Πρόγραμμα Ακολουθιών" 
+        description="Καταχωρήστε τις Ιερές Ακολουθίες για τη δημιουργία της Εβδομαδιαίας Ανακοίνωσης."
+        actions={
+          <>
+            <Link href="/schedule" target="_blank">
+              <Button variant="outline" className="shadow-sm">
+                <ExternalLink className="w-4 h-4 mr-2" /> Δημόσια Προβολή
+              </Button>
+            </Link>
+            <Link href="/admin/schedule/print" target="_blank">
+               <Button className="shadow-sm">
+                 <Printer className="w-4 h-4 mr-2" /> Εκτύπωση Εβδομάδας
+               </Button>
+            </Link>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
         

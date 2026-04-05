@@ -13,18 +13,21 @@ generator client {
 // =======================
 
 model Metropolis {
-  id        String           @id @default(cuid())
-  name      String
+  id      String           @id @default(cuid())
+  name    String
   // Unique short code used in URLs and reports (e.g. "thessaloniki")
-  slug      String?          @unique
-  city      String?
-  email     String?
-  phone     String?
-  temples   Temple[]
+  slug    String?          @unique
+  city    String?
+  email   String?
+  phone   String?
+  temples Temple[]
   // Users with Metropolis-level access (read-only across all temples)
-  users     MetropolisUser[]
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  users   MetropolisUser[]
+
+  centralEvents CentralEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Metropolis-level admin users (supervisory access, read-only)
@@ -75,12 +78,12 @@ model SubscriptionPlan {
 }
 
 model Temple {
-  id           String     @id @default(cuid())
+  id           String      @id @default(cuid())
   // Every temple SHOULD belong to a Metropolis
   metropolisId String?
   metropolis   Metropolis? @relation(fields: [metropolisId], references: [id])
   name         String
-  slug         String?    @unique // Δημόσιο URL για το mini-site του Ναού π.χ. "agios-nikolaos"
+  slug         String?     @unique // Δημόσιο URL για το mini-site του Ναού π.χ. "agios-nikolaos"
   taxId        String? // ΑΦΜ
   phoneNumber  String? // Τηλέφωνο Επικοινωνίας
   address      String?
@@ -108,7 +111,6 @@ model Temple {
   diptychs     Diptych[]
   protocols    Protocol[]
   schedules    ServiceSchedule[]
-  assets       Asset[]
   roles        Role[]
   assignments  Assignment[]
   vaultDocs    VaultDocument[]
@@ -124,9 +126,13 @@ model Temple {
   financialCategories FinancialCategory[]
   incomes             Income[]
 
-  philoptochosMembers      PhiloptochosMember[]
-  parishCamps              ParishCamp[]
-  bloodDonors              BloodDonor[]
+  philoptochosMembers PhiloptochosMember[]
+  bloodDonors         BloodDonor[]
+  bloodDrives         BloodDrive[]
+  assets              Asset[]
+  parishCamps         ParishCamp[]
+  centralEvents       CentralEvent[]
+
   deceasedPersons          DeceasedPerson[]
   kanbanTasks              KanbanTask[]
   citizenRequests          CitizenRequest[]
@@ -583,6 +589,7 @@ model Beneficiary {
   lastName  String
   address   String?
   phone     String?
+  afm       String? // Global AFM duplicate detection flag
 
   // Criteria
   familyMembers Int   @default(1)
@@ -797,6 +804,7 @@ model ParishCamp {
   endDate   DateTime
   location  String?
 
+  groups        ParishCampGroup[]
   registrations CampRegistration[]
 
   createdAt DateTime @default(now())
@@ -814,7 +822,9 @@ model CampRegistration {
   medicalNotes String?
   status       String  @default("REGISTERED") // REGISTERED, ATTENDED, CANCELLED
 
-  createdAt DateTime @default(now())
+  createdAt         DateTime         @default(now())
+  parishCampGroup   ParishCampGroup? @relation(fields: [parishCampGroupId], references: [id])
+  parishCampGroupId String?
 }
 
 // =======================
@@ -851,7 +861,9 @@ model BloodDonation {
   hospital String? // Νοσοκομείο
   notes    String?
 
-  createdAt DateTime @default(now())
+  createdAt    DateTime    @default(now())
+  bloodDrive   BloodDrive? @relation(fields: [bloodDriveId], references: [id])
+  bloodDriveId String?
 }
 
 // =======================
@@ -1175,3 +1187,52 @@ model ProgramEnrollment {
   @@unique([programId, participantId])
 }
 
+// =======================
+// CENTRAL CALENDAR (ΚΕΝΤΡΙΚΟ ΗΜΕΡΟΛΟΓΙΟ)
+// =======================
+
+model CentralEvent {
+  id String @id @default(cuid())
+
+  metropolisId String? // If null, it's a completely global systemic event
+  metropolis   Metropolis? @relation(fields: [metropolisId], references: [id], onDelete: Cascade)
+
+  templeId String? // If null, it's a metropolis-wide event
+  temple   Temple? @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  isPublic    Boolean  @default(true)
+  category    String? // e.g. "ΛΕΙΤΟΥΡΓΙΑ", "ΣΥΝΕΔΡΙΟ", "ΚΑΤΑΣΚΗΝΩΣΗ"
+  color       String? // Hex color for the calendar
+
+  createdAt DateTime @default(now())
+}
+
+model ParishCampGroup {
+  id     String     @id @default(cuid())
+  campId String
+  camp   ParishCamp @relation(fields: [campId], references: [id], onDelete: Cascade)
+
+  name       String // π.χ. "Ομάδα Ορφέας"
+  leaderName String? // Ομαδάρχης
+
+  registrations CampRegistration[]
+}
+
+model BloodDrive {
+  id       String @id @default(cuid())
+  templeId String
+  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  name     String // e.g. Εαρινή Αιμοδοσία
+  date     DateTime
+  location String?
+  target   Int? // Στόχος σε φιάλες
+
+  donations BloodDonation[]
+
+  createdAt DateTime @default(now())
+}

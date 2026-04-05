@@ -27,27 +27,54 @@ export default function AdminShell({ children, perms, subscriptionWarning }: Adm
   const [mobileOpen, setMobileOpen] = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(false);
 
-  const navItems = [
-    { href: '/admin', icon: LayoutDashboard, label: dict.nav.dashboard, requiredPerm: null },
-    { href: '/admin/connect', icon: Globe, label: 'Kanonas Connect / e-Gov', requiredPerm: null },
-    { href: '/admin/requests', icon: FileText, label: dict.nav.requests, requiredPerm: 'canManageRequests' },
-    { href: '/admin/parishioners', icon: Users, label: dict.nav.parishioners, requiredPerm: 'canManageRegistry' },
-    { href: '/admin/finances', icon: Banknote, label: dict.nav.finances, requiredPerm: 'canViewFinances' },
-    { href: '/admin/schedule', icon: Calendar, label: dict.nav.calendar, requiredPerm: 'canManageSchedule' },
-    { href: '/admin/board', icon: KanbanSquare, label: 'Kanban Tasks', requiredPerm: null },
-    { href: '/admin/protocol', icon: ClipboardList, label: dict.nav.documents, requiredPerm: 'canManageProtocol' },
-    { href: '/admin/diptychs', icon: BookOpen, label: dict.nav.diptychs, requiredPerm: null },
-    { href: '/admin/mailing', icon: Mail, label: 'Mailing & Ετικέτες', requiredPerm: null },
-    { href: '/admin/registry/funerals', icon: FileText, label: 'Ληξιαρχείο & Εκδημίες', requiredPerm: 'canManageRegistry' },
-    { href: '/admin/sacraments/divorces', icon: FileText, label: 'Διαζύγια (Λύσεις Γάμων)', requiredPerm: 'canManageRegistry' },
-    { href: '/admin/youth', icon: Tent, label: 'Κατασκηνώσεις & Νεολαία', requiredPerm: null },
-    { href: '/admin/registry/bloodbank', icon: HeartPulse, label: 'Τράπεζα Αίματος', requiredPerm: null },
-    { href: '/admin/assignments', icon: Users, label: 'Αναθέσεις Εφημερίων', requiredPerm: 'isHeadPriest' },
-    { href: '/admin/philanthropy', icon: HeartHandshake, label: dict.nav.philanthropy, requiredPerm: 'canViewBeneficiaries' },
-    { href: '/admin/philanthropy/board', icon: Shield, label: 'Συμβούλιο Φιλοπτώχου', requiredPerm: 'canViewBeneficiaries' },
-    { href: '/admin/ministries', icon: Users, label: 'Διακονίες & Εθελοντές', requiredPerm: null },
-    { href: '/admin/assets', icon: Package, label: dict.nav.assets, requiredPerm: 'canManageAssets' },
-  ].filter(item => !item.requiredPerm || perms[item.requiredPerm] === true || perms.isSuperAdmin || perms.isHeadPriest);
+  const navGroups = [
+    {
+      group: "Γραμματεία & Διοίκηση",
+      items: [
+         { href: '/admin', icon: LayoutDashboard, label: dict.nav.dashboard, requiredPerm: null },
+         { href: '/admin/board', icon: KanbanSquare, label: 'Εργασίες', requiredPerm: null },
+         { href: '/admin/requests', icon: FileText, label: dict.nav.requests, requiredPerm: 'canManageRequests' },
+         { href: '/admin/protocol', icon: ClipboardList, label: dict.nav.documents, requiredPerm: 'canManageProtocol' },
+         { href: '/admin/mailing', icon: Mail, label: 'Mailing & Ετικέτες', requiredPerm: null },
+         { href: '/admin/connect', icon: Globe, label: 'Kanonas Connect', requiredPerm: null },
+      ]
+    },
+    {
+      group: "Μητρώα & Πιστοποιητικά",
+      items: [
+         { href: '/admin/parishioners', icon: Users, label: dict.nav.parishioners, requiredPerm: 'canManageRegistry' },
+         { href: '/admin/sacraments/divorces', icon: FileText, label: 'Διαζύγια (Λύσεις)', requiredPerm: 'canManageRegistry' },
+         { href: '/admin/registry/funerals', icon: FileText, label: 'Ληξιαρχείο (Εκδημίες)', requiredPerm: 'canManageRegistry' },
+      ]
+    },
+    {
+      group: "Οικονομικά & Ταμείο",
+      items: [
+         { href: '/admin/finances', icon: Banknote, label: dict.nav.finances, requiredPerm: 'canViewFinances' },
+         { href: '/admin/finances/ledger', icon: BookOpen, label: 'Βιβλίο Εσόδων-Εξόδων', requiredPerm: 'canViewFinances' },
+         { href: '/admin/finances/budget', icon: FileText, label: 'Προϋπολογισμός', requiredPerm: 'canViewFinances' },
+      ]
+    },
+    {
+      group: "Ιερό Βήμα & Πρόγραμμα",
+      items: [
+         { href: '/admin/schedule', icon: Calendar, label: dict.nav.calendar, requiredPerm: 'canManageSchedule' },
+         { href: '/admin/diptychs', icon: BookOpen, label: dict.nav.diptychs, requiredPerm: null },
+         { href: '/admin/ministries', icon: Users, label: 'Διακονίες & Εθελοντές', requiredPerm: null },
+         { href: '/admin/assignments', icon: Users, label: 'Αναθέσεις Εφημερίων', requiredPerm: 'isHeadPriest' },
+      ]
+    },
+    {
+      group: "Δομές & Ενέργειες",
+      items: [
+         { href: '/admin/philanthropy', icon: HeartHandshake, label: dict.nav.philanthropy, requiredPerm: 'canViewBeneficiaries' },
+         { href: '/admin/philanthropy/board', icon: Shield, label: 'Συμβούλιο Φιλοπτώχου', requiredPerm: 'canViewBeneficiaries' },
+         { href: '/admin/youth', icon: Tent, label: 'Κατασκηνώσεις', requiredPerm: null },
+         { href: '/admin/registry/bloodbank', icon: HeartPulse, label: 'Τράπεζα Αίματος', requiredPerm: null },
+         { href: '/admin/assets', icon: Package, label: dict.nav.assets, requiredPerm: 'canManageAssets' },
+      ]
+    }
+  ];
 
   const secondaryItems = [
     { href: '/admin/modules', icon: Info, label: 'Λειτουργικότητες', requiredPerm: null },
@@ -112,20 +139,28 @@ export default function AdminShell({ children, perms, subscriptionWarning }: Adm
         </div>
 
         {/* Main nav */}
-        <nav className="sidebar-nav mt-1">
-          {!collapsed && <div className="sidebar-section-label">{dict.nav.sectionManagement}</div>}
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setMobileOpen(false)}
-              className={`nav-item ${isActive(item.href) ? 'active' : ''}`}
-              title={collapsed ? item.label : undefined}
-            >
-              <item.icon className="nav-icon" />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          ))}
+        <nav className="sidebar-nav mt-1 pb-4">
+          {navGroups.map((group, i) => {
+            const filteredItems = group.items.filter(item => !item.requiredPerm || perms[item.requiredPerm] === true || perms.isSuperAdmin || perms.isHeadPriest);
+            if (filteredItems.length === 0) return null;
+            return (
+              <div key={i} className="mb-1">
+                {!collapsed && <div className="sidebar-section-label mt-3 mb-1 px-3 text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">{group.group}</div>}
+                {filteredItems.map(item => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`nav-item ${isActive(item.href) ? 'active' : ''}`}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <item.icon className="nav-icon" />
+                    {!collapsed && <span>{item.label}</span>}
+                  </Link>
+                ))}
+              </div>
+            )
+          })}
 
           {!collapsed && <div className="sidebar-section-label mt-2">{dict.nav.sectionSystem}</div>}
           {secondaryItems.map((item) => (

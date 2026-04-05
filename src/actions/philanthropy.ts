@@ -28,6 +28,24 @@ export async function addBeneficiary(formData: any) {
   const templeId = await getCurrentTempleId();
 
   try {
+     // Global AFM Check
+     const inputAfm = formData.afm ? formData.afm.trim() : null;
+     if (inputAfm) {
+        const duplicate = await prisma.beneficiary.findFirst({
+           where: { afm: inputAfm },
+           include: { temple: { select: { name: true } } }
+        });
+
+        if (duplicate) {
+           if (duplicate.templeId === templeId) {
+             return { success: false, error: 'Το ΑΦΜ υπάρχει ήδη στη δική σας ενορία!' };
+           } else {
+             // Privacy preserving warning
+             return { success: false, error: `ΠΡΟΣΟΧΗ (GDPR Warning): Το ΑΦΜ ${inputAfm} σιτίζεται ήδη σε άλλη ενορία! Για λόγους δικαιότερης κατανομής, η εγγραφή απορρίφθηκε.` };
+           }
+        }
+     }
+
      const created = await prisma.beneficiary.create({
        data: {
          templeId,
@@ -35,6 +53,7 @@ export async function addBeneficiary(formData: any) {
          lastName: formData.lastName,
          phone: formData.phoneNumber,
          address: formData.address,
+         afm: inputAfm,
          familyMembers: Number(formData.familyMembers) || 1,
          criteriaScore: Number(formData.needsScore) || 50,
          status: 'PENDING'

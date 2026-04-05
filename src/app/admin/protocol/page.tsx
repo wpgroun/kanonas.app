@@ -1,5 +1,6 @@
 import { getProtocols } from '@/actions/protocol';
 import ProtocolClient from './ProtocolClient';
+import PageHeader from '@/components/PageHeader';
 
 export const metadata = {
   title: 'Γενικό Πρωτόκολλο | Kanonas',
@@ -14,13 +15,10 @@ export default async function ProtocolPage({ searchParams }: { searchParams: { o
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">Γενικό Πρωτόκολλο & Ψηφιακό Αρχείο</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Βιβλία Εισερχομένων-Εξερχομένων με αυτόματη αρίθμηση και σάρωση (Scanner)</p>
-        </div>
-        {/* Actions inside client component */}
-      </div>
+      <PageHeader 
+        title="Γενικό Πρωτόκολλο & Ψηφιακό Αρχείο" 
+        description="Βιβλία Εισερχομένων-Εξερχομένων με αυτόματη αρίθμηση και σάρωση (Scanner)"
+      />
 
       <ProtocolClient 
          initialRecords={protocols || []} 
