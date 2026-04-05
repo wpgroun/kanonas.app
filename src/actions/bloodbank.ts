@@ -251,8 +251,8 @@ export async function getBloodBankDashboard() {
   const [activeDonors, thisYearDonations, prevYearDonations, upcomingDrives] = await Promise.all([
     prisma.bloodDonor.findMany({
       where: { templeId, isActive: true },
-      select: { id: true, bloodType: true, lastDonation: true, firstName: true, lastName: true, gender: true } as any
-    }),
+      select: { id: true, bloodType: true, lastDonation: true, firstName: true, lastName: true, gender: true }
+    }) as unknown as any[],
     prisma.bloodDonation.count({ where: { donor: { templeId }, date: { gte: yearStart } } }),
     prisma.bloodDonation.count({ where: { donor: { templeId }, date: { gte: prevYearStart, lt: prevYearEnd } } }),
     prisma.bloodDrive.findMany({
