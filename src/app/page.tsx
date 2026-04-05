@@ -5,7 +5,8 @@ import { motion } from 'motion/react';
 import {
   ArrowRight, Users, FileText, Banknote, ShieldCheck,
   BarChart3, Calendar, BookOpen, CheckCircle2, Zap,
-  ChevronRight, Globe, Lock, HeartPulse, Tent, Mail, ScanFace
+  ChevronRight, Globe, Lock, HeartPulse, Tent, Mail, ScanFace,
+  Layout, KanbanSquare
 } from 'lucide-react';
 
 const features = [
@@ -30,14 +31,29 @@ const features = [
     desc: 'Οργάνωση αναξιοπαθούντων αδελφών, διαχείριση αποθήκης μερίδων και δελτίων χορηγίας.',
   },
   {
-    icon: <Tent className="w-5 h-5" />,
-    title: 'Νεανικό Έργο (Κατασκηνώσεις)',
-    desc: 'Ψηφιακό Μητρώο εγγραφής κατασκηνωτών, ιατρικών ιστορικών και περιόδων νεολαίας.',
-  },
-  {
     icon: <ScanFace className="w-5 h-5" />,
     title: 'Πρωτόκολλο & Mobile Scanner',
     desc: 'Αυτόματη αρίθμηση και σάρωση φυσικών εγγράφων κατευθείαν από την κάμερα του κινητού.',
+  },
+  {
+    icon: <BookOpen className="w-5 h-5" />,
+    title: 'Δίπτυχα & Προσκομιδή',
+    desc: 'Εκτύπωση ονομάτων Υπέρ Υγείας και Υπέρ Αναπαύσεως για την Αγία Πρόθεση.',
+  },
+  {
+    icon: <Mail className="w-5 h-5" />,
+    title: 'Mailing & Ετικέτες ΕΛΤΑ',
+    desc: 'Μαζική προσθήκη ενοριτών σε λίστες και εκτύπωση ετικετών για αλληλογραφία.',
+  },
+  {
+    icon: <KanbanSquare className="w-5 h-5" />,
+    title: 'Kanban Διαχείρισης',
+    desc: 'Οπτικός πίνακας εργασιών (tasks) για οργάνωση των επιτροπών του ναού.',
+  },
+  {
+    icon: <Layout className="w-5 h-5" />,
+    title: 'Δημόσια Mini-Sites & Widgets',
+    desc: 'Αυτόματη δημιουργία Mini-Site του Ναού και ενσωμάτωση ημερολογίου σε website.',
   },
 ];
 
@@ -260,7 +276,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {/* Free */}
             <div className="card p-6 opacity-90">
-              <h3 className="text-lg font-bold text-[var(--foreground)] mb-1">Starter / Δοκιμή</h3>
+              <h3 className="text-lg font-bold text-[var(--foreground)] mb-1">Starter</h3>
               <p className="text-xs text-[var(--text-muted)] mb-6">Γνωρίστε την πλατφόρμα δωρεάν</p>
               <div className="flex items-end gap-1 mb-8">
                 <span className="text-4xl font-extrabold text-[var(--foreground)]">0€</span>
@@ -327,9 +343,8 @@ export default function Home() {
             <div className="card p-6 bg-slate-900 text-white border-0">
                <h3 className="text-lg font-bold text-white mb-1">Ιερά Μητρόπολη</h3>
                <p className="text-xs text-slate-400 mb-6">Κεντρική Εποπτεία Επαρχίας</p>
-               <div className="flex items-end gap-1 mb-8">
-                <span className="text-3xl font-extrabold text-blue-400">800€+</span>
-                <span className="text-slate-500 mb-1 text-xs font-medium">/ έτος</span>
+               <div className="flex items-end gap-1 mb-8 pt-2">
+                <span className="text-xl md:text-2xl font-extrabold text-blue-400">Ειδική Τιμολόγηση</span>
               </div>
               <ul className="space-y-3 mb-8">
                 {['Metropolis "Hawk\'s Eye" Dashboard', 'Κεντρικός Έλεγχος всех Ναών', 'Αθροιστικά KPIs / Στατιστικά', 'Super Admin "Dive-In"', 'Bulk Licensing για 50+ Ναούς'].map(item => (

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useState, useEffect } from 'react';
 import { LayoutDashboard, Users, FileText, Banknote, Calendar,
   BookOpen, HeartHandshake, Package, ClipboardList, Settings,
-  LogOut, ChevronLeft, Menu, Bell, ShieldCheck
+  LogOut, ChevronLeft, Menu, Bell, ShieldCheck, Mail, KanbanSquare, Tent
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 import { fetchSessionClient } from '@/actions/clientSession';
@@ -32,8 +32,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: '/admin/parishioners', icon: Users, label: dict.nav.parishioners, requiredPerm: 'canManageRegistry' },
     { href: '/admin/finances', icon: Banknote, label: dict.nav.finances, requiredPerm: 'canViewFinances' },
     { href: '/admin/schedule', icon: Calendar, label: dict.nav.calendar, requiredPerm: 'canManageSchedule' },
+    { href: '/admin/board', icon: KanbanSquare, label: 'Kanban Tasks', requiredPerm: null },
     { href: '/admin/protocol', icon: ClipboardList, label: dict.nav.documents, requiredPerm: 'canManageProtocol' },
     { href: '/admin/diptychs', icon: BookOpen, label: dict.nav.diptychs, requiredPerm: null },
+    { href: '/admin/mailing', icon: Mail, label: 'Mailing & Ετικέτες', requiredPerm: null },
+    { href: '/admin/registry/funerals', icon: FileText, label: 'Ληξιαρχείο & Εκδημίες', requiredPerm: 'canManageRegistry' },
+    { href: '/admin/sacraments/divorces', icon: FileText, label: 'Διαζύγια (Λύσεις Γάμων)', requiredPerm: 'canManageRegistry' },
+    { href: '/admin/registry/camps', icon: Tent, label: 'Κατασκηνώσεις (Νεολαία)', requiredPerm: null },
+    { href: '/admin/assignments', icon: Users, label: 'Αναθέσεις Εφημερίων', requiredPerm: 'isHeadPriest' },
     { href: '/admin/philanthropy', icon: HeartHandshake, label: dict.nav.philanthropy, requiredPerm: 'canViewBeneficiaries' },
     { href: '/admin/assets', icon: Package, label: dict.nav.assets, requiredPerm: 'canManageAssets' },
   ].filter(item => !item.requiredPerm || perms[item.requiredPerm] === true || perms.isSuperAdmin || perms.isHeadPriest);
