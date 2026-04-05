@@ -7,20 +7,14 @@ import bcrypt from 'bcryptjs'
  */
 export async function registerTempleAndAdmin(data: {
   templeName: string
-  metropolisId: string
+  metropolisName: string
   adminEmail: string
   adminPasswordPlain: string
   adminFirstName: string
   adminLastName: string
 }) {
   try {
-    // 1. Ensure metropolis exists
-    const metropolis = await prisma.metropolis.findUnique({
-      where: { id: data.metropolisId }
-    })
-    if (!metropolis) return { success: false, error: 'Η Μητρόπολη που επιλέξατε δεν βρέθηκε.' }
-
-    // 2. Check if user email already exists
+    // 1. Check if user email already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: data.adminEmail }
     })
@@ -28,8 +22,14 @@ export async function registerTempleAndAdmin(data: {
 
     const passwordHash = await bcrypt.hash(data.adminPasswordPlain, 10)
 
-    // 3. Create Temple, User, and link them using a transaction
+    // 2. Create Temple, User, and link them using a transaction
     await prisma.$transaction(async (tx) => {
+      // Find or Create Metropolis
+      let metropolis = await tx.metropolis.findFirst({ where: { name: data.metropolisName } })
+      if (!metropolis) {
+        metropolis = await tx.metropolis.create({ data: { name: data.metropolisName } })
+      }
+
       // Create new temple
       const newTemple = await tx.temple.create({
         data: {

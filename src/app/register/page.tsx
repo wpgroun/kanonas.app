@@ -15,20 +15,12 @@ export default function RegisterPage() {
   // Form State
   const [formData, setFormData] = useState({
     templeName: '',
-    metropolisId: '',
+    metropolisName: '',
     adminEmail: '',
     adminFirstName: '',
     adminLastName: '',
     adminPassword: ''
   })
-
-  useEffect(() => {
-    // Fetch metropolises manually to populate dropdown
-    fetch('/api/setup/metropolises')
-      .then(res => res.json())
-      .then(data => setMetropolises(data))
-      .catch(() => {})
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,7 +30,7 @@ export default function RegisterPage() {
     try {
       const res = await registerTempleAndAdmin({
         templeName: formData.templeName,
-        metropolisId: formData.metropolisId,
+        metropolisName: formData.metropolisName,
         adminEmail: formData.adminEmail,
         adminFirstName: formData.adminFirstName,
         adminLastName: formData.adminLastName,
@@ -81,17 +73,17 @@ export default function RegisterPage() {
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-[var(--foreground)]">Μητρόπολη που ανήκετε <span className="text-[var(--danger)]">*</span></label>
-              <select
-                value={formData.metropolisId}
-                onChange={e => setFormData({ ...formData, metropolisId: e.target.value })}
-                className="input"
-                required
-              >
-                <option value="">Επιλέξτε Μητρόπολη...</option>
-                {metropolises.map(m => (
-                  <option key={m.id} value={m.id}>{m.name}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                <input
+                  type="text"
+                  placeholder="π.χ. Ιερά Μητρόπολις Αθηνών"
+                  value={formData.metropolisName}
+                  onChange={e => setFormData({ ...formData, metropolisName: e.target.value })}
+                  className="input pl-10"
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
