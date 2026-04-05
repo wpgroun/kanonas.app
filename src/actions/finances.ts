@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { requireAuth } from '@/lib/requireAuth'
 import { getCurrentTempleId } from './core'
+import { genTransactionReceiptPdf } from '@/lib/pdfEngine'
 
 // -- Categories -- //
 
@@ -404,3 +405,37 @@ export async function getDonationStats() {
     return { total: 0, yearly: 0 };
   }
 }
+
+export async function downloadReceiptAction(tx: any) {
+  const session = await requireAuth();
+  if(!session.canViewFinances) return { success: false, error: 'Μη Εξουσιοδοτημένη ενέργεια' };
+
+  try {
+    const templeId = await getCurrentTempleId();
+    const temple = await prisma.temple.findUnique({ where: { id: templeId } });
+    if (!temple) return { success: false, error: 'Δεν βρέθηκε ναός' };
+
+    let settings = {};
+    if (temple.settings) {
+      try { settings = JSON.parse(temple.settings as string); } catch(e){}
+    }
+    const pdfBase64 = (await genTransactionReceiptPdf(tx, { ...settings, templeName: temple.name })).toString('base64');
+    
+    // Log to Audit
+    await prisma.auditLog.create({
+       data: {
+         templeId,
+         userId: session.userId,
+         userEmail: session.userEmail,
+         action: 'ΕΚΤΥΠΩΣΗ_ΠΑΡΑΣΤΑΤΙΚΟΥ',
+         detail: `Εκτυπώθηκε παραστατικό λογιστικής τακτοποίησης για την κίνηση με ID: ${tx.id.substring(0,6)}`
+       }
+    });
+
+    return { success: true, pdfBase64 };
+  } catch (e) {
+    console.error(e);
+    return { success: false, error: 'Σφάλμα παραγωγής PDF' };
+  }
+}
+

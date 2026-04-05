@@ -499,6 +499,38 @@ export async function genFinancialStatementPdf(stats: any, year: number, setting
 
   return Buffer.from(await pdfDoc.save());
 }
+
+export async function genTransactionReceiptPdf(tx: any, settings: any): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  
+  const isIncome = tx.type === 'INCOME';
+  const docTitle = isIncome ? 'ΓΡΑΜΜΑΤΙΟ ΕΙΣΠΡΑΞΗΣ' : 'ΕΝΤΑΛΜΑ ΠΛΗΡΩΜΗΣ';
+  const personLabel = isIncome ? 'Καταθέτης / Λαβών' : 'Δικαιούχος / Προμηθευτής';
+  
+  // Create a nice protocol number using the format RECEIPT-YEAR-ID so it looks official
+  const dObj = new Date(tx.date);
+  const fakeProtocol = `${isIncome?'GR':'EN'}-${dObj.getFullYear()}-${tx.id.substring(0,6).toUpperCase()}`;
+
+  await buildDocumentPage(pdfDoc, {
+    metropolisHeader: settings?.metropolisName || 'Ιερά Μητρόπολη',
+    templeHeader: settings?.templeName || 'Ιερός Ναός',
+    title: docTitle,
+    subtitle: `ΑΡΙΘΜΟΣ ΠΑΡΑΣΤΑΤΙΚΟΥ: ${fakeProtocol}`,
+    body: [
+      { label: 'Ημερομηνία Kίνησης', value: formatGreekDate(dObj) },
+      { label: 'Κατηγορία / Fund', value: tx.category || 'Γενικό Ταμείο' },
+      { label: 'Ποσό', value: `€ ${Number(tx.amount).toLocaleString('el-GR', {minimumFractionDigits:2, maximumFractionDigits:2})}`, wide: true },
+      { label: 'Αιτιολογία', value: tx.purpose || BLANK, wide: true },
+      { label: personLabel, value: tx.personName || BLANK, wide: true },
+      { label: 'Σχετικό Παραστατικό', value: tx.receiptNumber || '-' },
+    ],
+    footerText: 'Το παρόν αποτελεί εσωτερικό παραστατικό λογιστικής τακτοποίησης του Ιερού Ναού και κατατίθεται στο αρχείο ελέγχου της Ιεράς Μητροπόλεως.',
+    signatureLabel: isIncome ? 'Ο Εισπράξας (Εφημέριος / Ταμίας)' : 'Ο Πληρώσας (Εφημέριος / Ταμίας)'
+  });
+
+  return Buffer.from(await pdfDoc.save());
+}
+
 export async function generateAllBaptisiDocs(t: TokenData): Promise<GeneratedDoc[]> {
   const settings = parseSettings(t.temple.settings);
   const familySlug = t.customerName.replace(/\s+/g, '_').slice(0, 20);

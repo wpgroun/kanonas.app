@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Banknote, Wallet, PieChart, Receipt, ArrowUpRight, ArrowDownRight, BarChart3, Scale } from 'lucide-react';
 import FinanceBIClient from './FinanceBIClient'
 import QuarterlyWidget from './QuarterlyWidget'
+import PrintReceiptBtn from './PrintReceiptBtn'
 
 export default async function FinancesPage() {
   const ledger = await getLedgerTransactions();
@@ -90,11 +91,12 @@ export default async function FinancesPage() {
                     <th className="px-6 py-3 font-semibold text-center">Τυπος</th>
                     <th className="px-6 py-3 font-semibold text-right">Ποσό</th>
                     <th className="px-6 py-3 font-semibold">Αιτιολογια & Πηγη</th>
+                    <th className="px-6 py-3 font-semibold text-center w-16">Ενέργειες</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
                   {ledger.length === 0 && (
-                    <tr><td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">Δεν υπάρχουν λογιστικές κινήσεις.</td></tr>
+                    <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">Δεν υπάρχουν λογιστικές κινήσεις.</td></tr>
                   )}
                   {ledger.map((d: any) => (
                     <tr key={d.id} className="bg-card hover:bg-muted/30 transition-colors">
@@ -115,6 +117,18 @@ export default async function FinancesPage() {
                       <td className="px-6 py-3">
                          <div className="text-xs font-medium text-foreground">{d.donorName || d.vendor || '-'}</div>
                          <div className="text-xs text-muted-foreground">{d.purpose || d.description || ''} {d.receiptNumber && `(Αρ: ${d.receiptNumber})`}</div>
+                      </td>
+                      <td className="px-6 py-3 text-center">
+                        <PrintReceiptBtn tx={{ 
+                          id: d.id, 
+                          type: d.type, 
+                          date: d.date, 
+                          amount: d.amount, 
+                          category: d.category?.name, 
+                          purpose: d.purpose || d.description, 
+                          personName: d.donorName || d.vendor,
+                          receiptNumber: d.receiptNumber
+                        }} />
                       </td>
                     </tr>
                   ))}
