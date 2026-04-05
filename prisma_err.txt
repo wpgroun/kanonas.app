@@ -1,0 +1,43 @@
+﻿node.exe : Environment var
+iables loaded from .env
+At line:1 char:1
++ & "C:\Program Files\node
+js/node.exe" "C:\Program F
+iles\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (E  
+  nvironment variables    
+ loaded from .env:Stri    
+ng) [], RemoteExcepti    o
+n
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+Prisma schema loaded from prisma\schema.prisma
+
+Error: Prisma schema valid
+ation - (validate wasm)
+Error code: P1012
+[1;91merror[0m: [1mThe 
+model "SissitioAttendance"
+ cannot be defined because
+ a model with that name al
+ready exists.[0m
+  [1;94m-->[0m  [4mpris
+ma\schema.prisma:1459[0m
+[1;94m   | [0m
+[1;94m1458 | [0m
+[1;94m1459 | [0mmodel [
+1;91mSissitioAttendance[0
+m {
+[1;94m   | [0m
+
+Validation Error Count: 1
+[Context: validate]
+
+Prisma CLI Version : 6.19.
+3
