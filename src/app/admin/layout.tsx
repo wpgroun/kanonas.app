@@ -6,7 +6,7 @@ import { ReactNode, useState, useEffect } from 'react';
 import { LayoutDashboard, Users, FileText, Banknote, Calendar,
   BookOpen, HeartHandshake, Package, ClipboardList, Settings,
   LogOut, ChevronLeft, Menu, Bell, ShieldCheck, Mail, KanbanSquare, Tent,
-  Globe, HeartPulse, Shield
+  Globe, HeartPulse, Shield, Info
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 import { fetchSessionClient } from '@/actions/clientSession';
@@ -49,6 +49,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   ].filter(item => !item.requiredPerm || perms[item.requiredPerm] === true || perms.isSuperAdmin || perms.isHeadPriest);
 
   const secondaryItems = [
+    { href: '/admin/modules', icon: Info, label: 'Λειτουργικότητες', requiredPerm: null },
     { href: '/admin/settings', icon: Settings, label: dict.nav.settings, requiredPerm: 'isHeadPriest' },
     { href: '/admin/users', icon: Users, label: 'Προσωπικό & Ρόλοι', requiredPerm: 'isHeadPriest' },
     { href: '/admin/super', icon: ShieldCheck, label: dict.nav.superAdmin, requiredPerm: 'isSuperAdmin' },
