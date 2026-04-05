@@ -68,10 +68,10 @@ export default function BloodBankClient({ initialDonors }: any) {
  return (
  <div className="space-y-6">
  
- <div className="flex flex-col md:flex-row justify-between bg-white p-4 rounded-xl shadow-sm border border-border gap-4">
+ <div className="flex flex-col md:flex-row justify-between bg-[var(--surface)] p-4 rounded-xl shadow-sm border border-border gap-4">
  <div className="flex flex-1 gap-4 items-center max-w-2xl">
  <div className="relative flex-1">
- <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+ <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"/>
  <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Αναζήτηση Αιμοδότη..."className="pl-9"/>
  </div>
  <Select value={bloodTypeFilter} onValueChange={setBloodTypeFilter}>
@@ -100,20 +100,20 @@ export default function BloodBankClient({ initialDonors }: any) {
  <div className="flex justify-between items-start mb-3">
  <div>
  <h3 className="font-bold text-lg">{d.lastName} {d.firstName}</h3>
- <p className="text-sm text-gray-500 flex items-center gap-1 mt-1"><Phone className="w-3 h-3"/> {d.phone || 'Χωρίς Τηλέφωνο'}</p>
+ <p className="text-sm text-[var(--text-muted)] flex items-center gap-1 mt-1"><Phone className="w-3 h-3"/> {d.phone || 'Χωρίς Τηλέφωνο'}</p>
  </div>
  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 font-black text-xl border-2 border-red-200 shadow-sm shrink-0">
  {d.bloodType}
  </div>
  </div>
 
- <div className="mt-4 bg-slate-50 p-3 rounded-lg flex flex-col gap-2 text-sm border border-border/50">
+ <div className="mt-4 bg-[var(--background)] p-3 rounded-lg flex flex-col gap-2 text-sm border border-border/50">
  <div className="flex justify-between">
- <span className="text-gray-500">Προσφορές:</span>
+ <span className="text-[var(--text-muted)]">Προσφορές:</span>
  <span className="font-bold">{d.donations.length} φορές</span>
  </div>
  <div className="flex justify-between">
- <span className="text-gray-500">Τελευταία Αιμοδοσία:</span>
+ <span className="text-[var(--text-muted)]">Τελευταία Αιμοδοσία:</span>
  <span className="font-medium">{d.lastDonation ? new Date(d.lastDonation).toLocaleDateString("el-GR") : 'Ποτέ'}</span>
  </div>
  <div className={`mt-2 py-1 px-2 rounded-md text-center text-xs font-bold ${ready ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
@@ -131,15 +131,15 @@ export default function BloodBankClient({ initialDonors }: any) {
  {filteredDonors.length === 0 && (
  <div className="col-span-full py-16 text-center border-2 border-dashed border-border rounded-xl">
  <HeartPulse className="w-12 h-12 text-gray-300 mx-auto mb-3"/>
- <p className="text-gray-500 font-medium">Δεν βρέθηκαν αιμοδότες.</p>
+ <p className="text-[var(--text-muted)] font-medium">Δεν βρέθηκαν αιμοδότες.</p>
  </div>
 )}
  </div>
 
  {isNewModalOpen && (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
- <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
- <div className="p-5 border-b border-border bg-slate-50">
+ <div className="bg-[var(--surface)] rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+ <div className="p-5 border-b border-border bg-[var(--background)]">
  <h2 className="text-lg font-bold flex items-center gap-2"><HeartPulse className="text-red-500 w-5 h-5"/> Νέος Εθελοντής Αιμοδότης</h2>
  </div>
  <form onSubmit={handleCreateDonor} className="p-5 space-y-4">

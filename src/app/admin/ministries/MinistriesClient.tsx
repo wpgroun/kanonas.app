@@ -144,12 +144,12 @@ export default function MinistriesClient({ initialMinistries, initialVolunteers,
  <div className="flex gap-1">
  <button 
  onClick={async () => { await updateShiftAssignmentStatus(asn.id, 'COMPLETED'); router.refresh(); }}
- className={`p-1.5 rounded-md ${asn.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:bg-slate-100'}`}
+ className={`p-1.5 rounded-md ${asn.status === 'COMPLETED' ? 'bg-[var(--success-light)] text-[var(--success)]' : 'text-[var(--text-muted)] hover:bg-[var(--surface-hover)]'}`}
  title="Παραβρέθηκε"
  ><CheckCircle2 className="w-4 h-4"/></button>
  <button 
  onClick={async () => { await updateShiftAssignmentStatus(asn.id, 'CANCELLED'); router.refresh(); }}
- className={`p-1.5 rounded-md ${asn.status === 'CANCELLED' ? 'bg-rose-100 text-rose-700' : 'text-slate-400 hover:bg-slate-100'}`}
+ className={`p-1.5 rounded-md ${asn.status === 'CANCELLED' ? 'bg-[var(--danger-light)] text-[var(--danger)]' : 'text-[var(--text-muted)] hover:bg-[var(--surface-hover)]'}`}
  title="Ακύρωσε"
  ><XCircle className="w-4 h-4"/></button>
  </div>
@@ -214,7 +214,7 @@ export default function MinistriesClient({ initialMinistries, initialVolunteers,
  <span className="flex items-center gap-1"><Briefcase className="w-3 h-3"/> {vol.ministries.length} Διακονίες</span>
  </div>
  </div>
- <Button variant="ghost"size="icon"className="text-rose-500 hover:bg-rose-50"onClick={async () => {
+ <Button variant="ghost"size="icon"className="text-[var(--danger)] hover:bg-[var(--danger-light)]"onClick={async () => {
  if(confirm('Διαγραφή;')) { await deleteVolunteer(vol.id); router.refresh(); }
  }}><Trash2 className="w-4 h-4"/></Button>
  </div>
@@ -246,7 +246,7 @@ export default function MinistriesClient({ initialMinistries, initialVolunteers,
  <CardHeader className="pb-2">
  <CardTitle className="text-lg flex justify-between items-start">
  {min.name}
- <Button variant="ghost"size="icon"className="h-6 w-6 text-rose-500"onClick={async () => {
+ <Button variant="ghost"size="icon"className="h-6 w-6 text-[var(--danger)]"onClick={async () => {
  if(confirm('Διαγραφή διακονίας;')) { await deleteMinistry(min.id); router.refresh(); }
  }}><Trash2 className="w-3.5 h-3.5"/></Button>
  </CardTitle>

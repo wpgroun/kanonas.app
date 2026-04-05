@@ -35,8 +35,8 @@ export default function ApproveRejectButtons({ tokenId, status, date, title, isA
 
  if (isAccepted || status === 'docs_generated') {
  return (
- <div className="flex bg-emerald-50 text-emerald-800 border border-emerald-200 px-4 py-3 rounded-lg items-center gap-2 text-sm mt-4">
- <CalendarCheck className="w-5 h-5 text-emerald-600"/>
+ <div className="flex bg-[var(--success-light)] text-emerald-800 border border-[var(--success)]/20 px-4 py-3 rounded-lg items-center gap-2 text-sm mt-4">
+ <CalendarCheck className="w-5 h-5 text-[var(--success)]"/>
  <div>Το μυστήριο έχει <strong>Εγκριθεί</strong> και η ώρα έχει δεσμευθεί στο πρόγραμμα του Ναού.</div>
  </div>
 );

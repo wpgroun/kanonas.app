@@ -63,14 +63,14 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
  <button 
  type="button"
  onClick={() => setType('INCOME')} 
- className={`flex-1 py-2 text-sm font-bold flex items-center justify-center gap-1.5 transition-all rounded-md ${type === 'INCOME' ? 'bg-emerald-100 text-emerald-700 shadow-sm border border-emerald-200' : 'text-muted-foreground'}`}
+ className={`flex-1 py-2 text-sm font-bold flex items-center justify-center gap-1.5 transition-all rounded-md ${type === 'INCOME' ? 'bg-[var(--success-light)] text-[var(--success)] shadow-sm border border-[var(--success)]/20' : 'text-muted-foreground'}`}
  >
  <ArrowUpRight className="w-4 h-4"/> ΕΣΟΔΟ
  </button>
  <button 
  type="button"
  onClick={() => setType('EXPENSE')} 
- className={`flex-1 py-2 text-sm font-bold flex items-center justify-center gap-1.5 transition-all rounded-md ${type === 'EXPENSE' ? 'bg-rose-100 text-rose-700 shadow-sm border border-rose-200' : 'text-muted-foreground'}`}
+ className={`flex-1 py-2 text-sm font-bold flex items-center justify-center gap-1.5 transition-all rounded-md ${type === 'EXPENSE' ? 'bg-[var(--danger-light)] text-[var(--danger)] shadow-sm border border-[var(--danger)]/20' : 'text-muted-foreground'}`}
  >
  <ArrowDownRight className="w-4 h-4"/> ΕΞΟΔΟ
  </button>
@@ -88,8 +88,8 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
  {/* LISTS */}
  <div className="col-span-1 lg:col-span-8 flex flex-col gap-6">
  
- <div className="bg-emerald-50 rounded-xl border border-emerald-100 overflow-hidden">
- <h3 className="flex items-center gap-2 p-3 px-4 bg-emerald-100/50 text-emerald-800 font-bold border-b border-emerald-100">
+ <div className="bg-[var(--success-light)] rounded-xl border border-[var(--success)]/20 overflow-hidden">
+ <h3 className="flex items-center gap-2 p-3 px-4 bg-[var(--success-light)]/50 text-emerald-800 font-bold border-b border-[var(--success)]/20">
  <ArrowUpRight className="w-5 h-5"/> Κατηγορίες Εσόδων ({incomes.length})
  </h3>
  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -103,8 +103,8 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
  </div>
  </div>
 
- <div className="bg-rose-50 rounded-xl border border-rose-100 overflow-hidden">
- <h3 className="flex items-center gap-2 p-3 px-4 bg-rose-100/50 text-rose-800 font-bold border-b border-rose-100">
+ <div className="bg-[var(--danger-light)] rounded-xl border border-rose-100 overflow-hidden">
+ <h3 className="flex items-center gap-2 p-3 px-4 bg-[var(--danger-light)]/50 text-rose-800 font-bold border-b border-rose-100">
  <ArrowDownRight className="w-5 h-5"/> Κατηγορίες Εξόδων ({expenses.length})
  </h3>
  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">

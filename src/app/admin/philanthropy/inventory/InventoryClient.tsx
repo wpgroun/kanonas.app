@@ -57,13 +57,13 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center bg-white p-2 rounded-xl shadow-sm border border-border">
-        <div className="flex px-2 text-gray-500">
+      <div className="flex justify-between items-center bg-[var(--surface)] p-2 rounded-xl shadow-sm border border-border">
+        <div className="flex px-2 text-[var(--text-muted)]">
           <Search className="w-5 h-5 mr-2"/>
           <input 
             type="text"
             placeholder="Αναζήτηση υλικού..."
-            className="bg-transparent outline-none border-none text-sm w-64 text-gray-800"
+            className="bg-transparent outline-none border-none text-sm w-64 text-[var(--foreground)]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -80,40 +80,40 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
           const isDanger = isLow || expStatus.status === 'expired';
 
           return (
-            <Card key={item.id} className={`p-4 flex flex-col gap-4 border ${isDanger ? 'border-rose-300 bg-rose-50 ' : 'border-border'}`}>
+            <Card key={item.id} className={`p-4 flex flex-col gap-4 border ${isDanger ? 'border-rose-300 bg-[var(--danger-light)] ' : 'border-border'}`}>
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-gray-800">{item.name}</h3>
+                  <h3 className="font-bold text-[var(--foreground)]">{item.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                     <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-lg">{item.category}</span>
+                     <span className="text-xs px-2 py-0.5 bg-slate-100 text-[var(--text-secondary)] rounded-lg">{item.category}</span>
                      {expStatus.status !== 'ok' && item.expiryDate && (
-                        <span className={`text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1 font-bold ${expStatus.status === 'expired' ? 'bg-red-200 text-red-800' : 'bg-amber-200 text-amber-800'}`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1 font-bold ${expStatus.status === 'expired' ? 'bg-red-200 text-red-800' : 'bg-amber-200 text-[var(--warning)]'}`}>
                           <CalendarDays className="w-3 h-3"/> {expStatus.txt}
                         </span>
                      )}
                   </div>
                 </div>
-                {isLow && <div title="Χαμηλό Απόθεμα"><AlertTriangle className="w-5 h-5 text-rose-500"/></div>}
+                {isLow && <div title="Χαμηλό Απόθεμα"><AlertTriangle className="w-5 h-5 text-[var(--danger)]"/></div>}
               </div>
 
-              <div className="text-center py-4 bg-white rounded-lg shadow-inner">
-                <span className={`text-3xl font-black ${isLow ? 'text-rose-600' : 'text-slate-700 '}`}>
+              <div className="text-center py-4 bg-[var(--surface)] rounded-lg shadow-inner">
+                <span className={`text-3xl font-black ${isLow ? 'text-[var(--danger)]' : 'text-slate-700 '}`}>
                   {item.quantity}
                 </span>
-                <span className="text-sm text-gray-500 ml-1 block">{item.unit}</span>
+                <span className="text-sm text-[var(--text-muted)] ml-1 block">{item.unit}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 mt-auto">
                 <Button 
                   variant="outline"
-                  className="text-rose-600 border-rose-200 hover:bg-rose-100"
+                  className="text-[var(--danger)] border-[var(--danger)]/20 hover:bg-[var(--danger-light)]"
                   onClick={() => handleAdjust(item.id, -1)}
                 >
                   <Minus className="w-4 h-4"/>
                 </Button>
                 <Button 
                   variant="outline"
-                  className="text-emerald-600 border-emerald-200 hover:bg-emerald-100"
+                  className="text-[var(--success)] border-[var(--success)]/20 hover:bg-[var(--success-light)]"
                   onClick={() => handleAdjust(item.id, +1)}
                 >
                   <Plus className="w-4 h-4"/>
@@ -125,7 +125,7 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
       </div>
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="max-w-md bg-white">
+        <DialogContent className="max-w-md bg-[var(--surface)]">
           <DialogHeader>
             <DialogTitle>Προσθήκη Νέου Υλικού</DialogTitle>
           </DialogHeader>
@@ -157,7 +157,7 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
             <div className="space-y-1.5">
               <Label>Ημερομηνία Λήξης (Προαιρετικό)</Label>
               <Input type="date" value={formData.expiryDate} onChange={e => setFormData({...formData, expiryDate: e.target.value})} />
-              <p className="text-xs text-slate-500">Θα ειδοποιηθείτε 15 μέρες πριν τη λήξη.</p>
+              <p className="text-xs text-[var(--text-muted)]">Θα ειδοποιηθείτε 15 μέρες πριν τη λήξη.</p>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Αποθήκευση...' : 'Δημιουργία'}</Button>
           </form>

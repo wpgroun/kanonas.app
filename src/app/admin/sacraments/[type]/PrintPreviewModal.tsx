@@ -55,14 +55,14 @@ export default function PrintPreviewModal({ record, templates, onClose }: any) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl bg-white flex flex-col p-0 overflow-hidden h-[80vh]">
-        <DialogHeader className="p-4 shrink-0 border-b border-slate-200 flex flex-row items-center justify-between">
+      <DialogContent className="max-w-4xl bg-[var(--surface)] flex flex-col p-0 overflow-hidden h-[80vh]">
+        <DialogHeader className="p-4 shrink-0 border-b border-[var(--border)] flex flex-row items-center justify-between">
           <DialogTitle className="text-xl flex gap-2"><Printer className="text-brand"/> Προεπισκόπηση & Εκτύπωση</DialogTitle>
           <Button onClick={handlePrint} className="btn-primary shadow-lg"><Printer className="w-4 h-4 mr-2"/> Εκτύπωση</Button>
         </DialogHeader>
         
         <div className="flex-1 bg-slate-200 p-8 overflow-y-auto flex items-center justify-center">
-           <div className="bg-white w-[210mm] min-h-[297mm] shadow-2xl p-12 relative">
+           <div className="bg-[var(--surface)] w-[210mm] min-h-[297mm] shadow-2xl p-12 relative">
              <div dangerouslySetInnerHTML={{ __html: finalHtml }} />
              <iframe ref={printRef} className="hidden" />
            </div>

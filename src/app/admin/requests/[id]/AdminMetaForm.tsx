@@ -87,14 +87,14 @@ export default function AdminMetaForm({ token }: { token: any }) {
  
  <CardContent className="pt-6 space-y-6">
  {!hasDocsGenerated && isMissing && (
- <div className="bg-amber-50 text-amber-800 p-4 rounded-md text-sm flex gap-3 items-start border border-amber-200">
+ <div className="bg-[var(--warning-light)] text-[var(--warning)] p-4 rounded-md text-sm flex gap-3 items-start border border-amber-200">
  <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5"/>
  <p><b>Προσοχή:</b> Συμπληρώστε πρώτα τον Εφημέριο και τον Τόμο Βιβλίου για να εκδοθεί το πιστοποιητικό και να λάβει αυτόματα Αριθμό Πρωτοκόλλου!</p>
  </div>
 )}
 
  {hasDocsGenerated && (
- <div className="bg-emerald-50 text-emerald-800 p-4 rounded-md text-sm flex gap-3 items-start border border-emerald-200">
+ <div className="bg-[var(--success-light)] text-emerald-800 p-4 rounded-md text-sm flex gap-3 items-start border border-[var(--success)]/20">
  <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5"/>
  <p>✅ Το πιστοποιητικό έχει ήδη εκδοθεί και καταγραφεί στο βιβλίο Πρωτοκόλλου. (Συνδεδεμένος Εφημέριος: <strong>{token.assignedPriest}</strong>)</p>
  </div>

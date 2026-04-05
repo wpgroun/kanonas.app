@@ -165,7 +165,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  <nav className="sidebar-nav mt-1 pb-4">
  {filteredGroups.map((group, i) => (
  <div key={i} className="mb-1">
- {!collapsed && <div className="sidebar-section-label mt-3 mb-1 px-3 text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">{group.group}</div>}
+ {!collapsed && <div className="sidebar-section-label mt-3 mb-1 px-3 text-[0.68rem] font-bold uppercase tracking-wider text-[var(--text-muted)]">{group.group}</div>}
  {group.items.map(item => (
  <Link
  key={item.href}
@@ -201,7 +201,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  <Link
  href="/admin/profile"
  onClick={() => setMobileOpen(false)}
- className={`nav-item text-slate-600 hover:text-slate-900 ${isActive('/admin/profile') ? 'active' : ''}`}
+ className={`nav-item text-[var(--text-secondary)] hover:text-[var(--foreground)] ${isActive('/admin/profile') ? 'active' : ''}`}
  >
  <UserCircle className="nav-icon"/>
  {!collapsed && <span>Ο Λογαριασμός Μου</span>}
@@ -265,7 +265,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  <div className={`flex items-center justify-between gap-3 px-4 py-2.5 text-sm font-medium border-b ${
  subscriptionWarning.level === 'danger'
  ? 'bg-red-50 border-red-200 text-red-800'
- : 'bg-amber-50 border-amber-200 text-amber-800'
+ : 'bg-[var(--warning-light)] border-amber-200 text-[var(--warning)]'
  }`}>
  <div className="flex items-center gap-2">
  <AlertTriangle className="w-4 h-4 flex-shrink-0"/>
@@ -276,7 +276,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  <Link
  href="/admin/subscription"
  className={`underline underline-offset-2 font-semibold hover:opacity-80 ${
- subscriptionWarning.level === 'danger' ? 'text-red-900' : 'text-amber-900'
+ subscriptionWarning.level === 'danger' ? 'text-red-900' : 'text-[var(--warning)]'
  }`}
  >
  Ανανέωση →

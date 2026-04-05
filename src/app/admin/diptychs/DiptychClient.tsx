@@ -121,12 +121,12 @@ export default function DiptychClient({ initialDiptychs, pendingRequests = [] }:
  <div className="col-span-1 lg:col-span-2">
  {activeTab === 'electronic' ? (
  <Card className="shadow-sm border-border/50 p-4 min-h-[400px]">
- <h2 className="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+ <h2 className="text-xl font-bold mb-6 text-[var(--foreground)] flex items-center gap-2">
  <Inbox className="w-5 h-5 text-blue-600"/>
  Εισερχόμενα από το Kanonas Connect
  </h2>
  {pendingRequests.length === 0 ? (
- <div className="text-center py-12 text-muted-foreground bg-slate-50 rounded-xl border border-dashed border-slate-300">
+ <div className="text-center py-12 text-muted-foreground bg-[var(--background)] rounded-xl border border-dashed border-slate-300">
  <Inbox className="w-12 h-12 mx-auto text-slate-300 mb-3"/>
  <p className="text-lg">Δεν εκκρεμούν ονόματα προς μνημόνευση.</p>
  <p className="text-sm">Όσες υποβολές γίνονται από τους πιστούς, θα εμφανίζονται εδώ.</p>
@@ -134,11 +134,11 @@ export default function DiptychClient({ initialDiptychs, pendingRequests = [] }:
 ) : (
  <div className="space-y-4">
  {pendingRequests.map((req) => (
- <div key={req.id} className="border border-slate-200 bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
- <div className="bg-slate-50 border-b border-slate-100 p-4 flex justify-between items-start">
+ <div key={req.id} className="border border-[var(--border)] bg-[var(--surface)] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+ <div className="bg-[var(--background)] border-b border-[var(--border)] p-4 flex justify-between items-start">
  <div>
- <h3 className="font-bold text-slate-800">Ακολουθία: {req.type}</h3>
- <div className="flex flex-col sm:flex-row sm:gap-4 text-sm text-slate-500 mt-1">
+ <h3 className="font-bold text-[var(--foreground)]">Ακολουθία: {req.type}</h3>
+ <div className="flex flex-col sm:flex-row sm:gap-4 text-sm text-[var(--text-muted)] mt-1">
  <span><strong>Από:</strong> {req.submitterName || 'Ανώνυμο'}</span>
  {req.submitterEmail && <span><strong>Email:</strong> {req.submitterEmail}</span>}
  </div>
@@ -148,16 +148,16 @@ export default function DiptychClient({ initialDiptychs, pendingRequests = [] }:
  </Button>
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-200">
- <div className="p-4 bg-white">
+ <div className="p-4 bg-[var(--surface)]">
  <strong className="text-green-700 block mb-2 flex items-center gap-1.5"><Leaf className="w-4 h-4"/> Υπέρ Υγείας</strong>
  <p className="whitespace-pre-line text-slate-700 leading-relaxed min-h-[40px] italic">
- {req.livingNames ? req.livingNames.split(/[\n,]+/).join(', ') : <span className="text-slate-400 not-italic">- Κενό -</span>}
+ {req.livingNames ? req.livingNames.split(/[\n,]+/).join(', ') : <span className="text-[var(--text-muted)] not-italic">- Κενό -</span>}
  </p>
  </div>
- <div className="p-4 bg-white">
+ <div className="p-4 bg-[var(--surface)]">
  <strong className="text-red-700 block mb-2 flex items-center gap-1.5"><Cross className="w-4 h-4"/> Υπέρ Αναπαύσεως</strong>
  <p className="whitespace-pre-line text-slate-700 leading-relaxed min-h-[40px] italic">
- {req.fallenNames ? req.fallenNames.split(/[\n,]+/).join(', ') : <span className="text-slate-400 not-italic">- Κενό -</span>}
+ {req.fallenNames ? req.fallenNames.split(/[\n,]+/).join(', ') : <span className="text-[var(--text-muted)] not-italic">- Κενό -</span>}
  </p>
  </div>
  </div>

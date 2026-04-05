@@ -67,10 +67,10 @@ export default function LedgerClient({ templeId, initialDonations, initialExpens
  
  {showAdd && (
  <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex flex-col items-center justify-center z-[999] p-4 animate-in fade-in duration-300">
- <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 relative">
+ <div className="bg-[var(--surface)] w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 relative">
  <div className="absolute top-0 inset-x-0 h-32 opacity-20 pointer-events-none bg-gradient-to-b from-rose-500 to-transparent"/>
  <div className="relative p-6 px-7 flex justify-between items-center border-b border-border/20 z-10">
- <h2 className="text-2xl font-extrabold flex items-center gap-3 tracking-tight text-rose-700">
+ <h2 className="text-2xl font-extrabold flex items-center gap-3 tracking-tight text-[var(--danger)]">
  <div className="p-2.5 rounded-xl text-white bg-gradient-to-br from-rose-400 to-rose-600 shadow-rose-500/40 shadow-lg transform rotate-3">
  <ArrowDownRight className="w-6 h-6"/>
  </div>
@@ -79,10 +79,10 @@ export default function LedgerClient({ templeId, initialDonations, initialExpens
  <button onClick={() => setShowAdd(false)} className="bg-slate-100 p-2 rounded-full hover:bg-slate-200"><span className="text-xs font-bold px-2">ΚΛΕΙΣΙΜΟ</span></button>
  </div>
  <form onSubmit={handleAddExpense} className="p-7 space-y-6 relative z-10">
- <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+ <div className="bg-[var(--background)] p-5 rounded-2xl border border-[var(--border)]">
  <Label className="text-muted-foreground font-bold mb-2 block uppercase text-xs">Συνολικό Ποσό</Label>
  <div className="relative flex items-center">
- <span className="absolute left-4 font-black text-3xl text-rose-500">€</span>
+ <span className="absolute left-4 font-black text-3xl text-[var(--danger)]">€</span>
  <input type="number"step="0.01"value={newExp.amount} onChange={e => setNewExp({...newExp, amount: e.target.value})} required autoFocus
  className="w-full pl-12 text-4xl block font-mono bg-transparent border-0 ring-0 px-0 shadow-none text-foreground font-black tracking-tight"placeholder="0.00"/>
  </div>
@@ -95,7 +95,7 @@ export default function LedgerClient({ templeId, initialDonations, initialExpens
  </div>
  <div className="space-y-2">
  <Label className="font-semibold text-slate-700">Λογαριασμός (Κατηγορία)</Label>
- <select required value={newExp.categoryId} onChange={e => setNewExp({...newExp, categoryId: e.target.value})} className="w-full flex h-12 rounded-xl border-2 border-slate-200 px-4 py-2 text-sm text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20">
+ <select required value={newExp.categoryId} onChange={e => setNewExp({...newExp, categoryId: e.target.value})} className="w-full flex h-12 rounded-xl border-2 border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] focus:border-indigo-500 focus:ring-4 focus:ring-[var(--brand)]/20">
  <option value=""disabled>-- Επιλογή --</option>
  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
  </select>
@@ -104,21 +104,21 @@ export default function LedgerClient({ templeId, initialDonations, initialExpens
 
  <div className="space-y-2">
  <Label className="font-semibold text-slate-700">Αιτιολογία & Σημειώσεις</Label>
- <Input value={newExp.purpose} onChange={e => setNewExp({...newExp, purpose: e.target.value})} placeholder="π.χ. Αγορά Γραφικής Ύλης"className="h-12 rounded-xl border-2 border-slate-200"/>
+ <Input value={newExp.purpose} onChange={e => setNewExp({...newExp, purpose: e.target.value})} placeholder="π.χ. Αγορά Γραφικής Ύλης"className="h-12 rounded-xl border-2 border-[var(--border)]"/>
  </div>
 
  <div className="grid grid-cols-2 gap-5">
  <div className="space-y-2">
  <Label className="font-semibold text-slate-700">Προμηθευτής / Συναλλασσόμενος</Label>
- <Input value={newExp.vendor} onChange={e => setNewExp({...newExp, vendor: e.target.value})} placeholder="π.χ. Πλαίσιο A.E."className="h-12 rounded-xl border-2 border-slate-200"/>
+ <Input value={newExp.vendor} onChange={e => setNewExp({...newExp, vendor: e.target.value})} placeholder="π.χ. Πλαίσιο A.E."className="h-12 rounded-xl border-2 border-[var(--border)]"/>
  </div>
  <div className="space-y-2">
  <Label className="font-semibold text-slate-700">Αρ. Παραστατικού</Label>
- <Input value={newExp.receiptNumber} onChange={e => setNewExp({...newExp, receiptNumber: e.target.value})} placeholder="π.χ. ΤΔ-1234"className="h-12 rounded-xl border-2 border-slate-200"/>
+ <Input value={newExp.receiptNumber} onChange={e => setNewExp({...newExp, receiptNumber: e.target.value})} placeholder="π.χ. ΤΔ-1234"className="h-12 rounded-xl border-2 border-[var(--border)]"/>
  </div>
  </div>
 
- <div className="pt-6 mt-6 flex justify-end gap-3 border-t border-slate-100">
+ <div className="pt-6 mt-6 flex justify-end gap-3 border-t border-[var(--border)]">
  <Button type="button"variant="ghost"onClick={() => setShowAdd(false)} className="h-12 px-6 rounded-xl font-semibold">Ακύρωση</Button>
  <Button type="submit"disabled={isPending || !newExp.categoryId} className="h-12 px-8 rounded-xl font-bold text-white bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-lg shadow-rose-500/30">
  {isPending ? 'Καταχώρηση...' : <><Save className="w-5 h-5 mr-2"/> Οριστική Καταχώρηση</>}
@@ -150,7 +150,7 @@ export default function LedgerClient({ templeId, initialDonations, initialExpens
  <Card className="border-l-4 border-l-emerald-500 shadow-sm">
  <CardContent className="pt-6">
  <p className="text-muted-foreground text-sm font-semibold">Σύνολο Εσόδων</p>
- <p className="text-3xl font-bold text-emerald-600">€{totalIncome.toLocaleString('el-GR', { minimumFractionDigits: 2 })}</p>
+ <p className="text-3xl font-bold text-[var(--success)]">€{totalIncome.toLocaleString('el-GR', { minimumFractionDigits: 2 })}</p>
  </CardContent>
  </Card>
  <Card className="border-l-4 border-l-red-500 shadow-sm">
@@ -199,7 +199,7 @@ export default function LedgerClient({ templeId, initialDonations, initialExpens
  <td className="px-6 py-4">{format(new Date(t.date), 'dd/MM/yyyy', { locale: el })}</td>
  <td className="px-6 py-4">
  {t.type === 'INCOME' ? (
- <Badge variant="outline"className="text-emerald-700 bg-emerald-50 border-emerald-200 tracking-tight">
+ <Badge variant="outline"className="text-[var(--success)] bg-[var(--success-light)] border-[var(--success)]/20 tracking-tight">
  <ArrowDownRight className="w-3 h-3 mr-1"/> Έσοδο 
  </Badge>
 ) : (
@@ -211,7 +211,7 @@ export default function LedgerClient({ templeId, initialDonations, initialExpens
  <td className="px-6 py-4 text-muted-foreground font-mono">{t.receiptNumber || '-'}</td>
  <td className="px-6 py-4 font-medium">{t.categoryName} <div className="text-xs text-muted-foreground">{t.title}</div></td>
  <td className="px-6 py-4 text-muted-foreground font-semibold">{t.entity}</td>
- <td className={`px-6 py-4 text-right font-bold ${t.type === 'INCOME' ? 'text-emerald-600' : 'text-red-600'}`}>
+ <td className={`px-6 py-4 text-right font-bold ${t.type === 'INCOME' ? 'text-[var(--success)]' : 'text-red-600'}`}>
  {t.type === 'INCOME' ? '+' : '-'}€{t.amount.toLocaleString('el-GR', { minimumFractionDigits: 2 })}
  </td>
  </tr>

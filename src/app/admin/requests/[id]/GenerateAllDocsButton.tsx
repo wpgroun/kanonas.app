@@ -73,7 +73,7 @@ export default function GenerateAllDocsButton({ tokenId, serviceType, hasProtoco
  <Button
  onClick={handleOpen}
  disabled={!hasProtocol}
- className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 disabled:opacity-50"
+ className="bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white gap-2 disabled:opacity-50"
  title={!hasProtocol ? 'Εκδώστε πρώτα Πρωτόκολλο για να ξεκλειδώσει το κουμπί.' : ''}
  size="lg"
  >
@@ -85,7 +85,7 @@ export default function GenerateAllDocsButton({ tokenId, serviceType, hasProtoco
  <DialogContent className="sm:max-w-lg">
  <DialogHeader>
  <DialogTitle className="flex items-center gap-2 text-xl">
- <FileText className="w-5 h-5 text-indigo-600"/>
+ <FileText className="w-5 h-5 text-[var(--brand)]"/>
  Έγγραφα {label}
  </DialogTitle>
  <DialogDescription>
@@ -135,7 +135,7 @@ export default function GenerateAllDocsButton({ tokenId, serviceType, hasProtoco
 
  <div className="pt-2 border-t border-border">
  <Button
- className="w-full bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
+ className="w-full bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white gap-2"
  onClick={() => downloadAll(docs)}
  >
  <Download className="w-4 h-4"/>

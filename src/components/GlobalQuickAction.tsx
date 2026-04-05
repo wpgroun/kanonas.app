@@ -27,15 +27,15 @@ export default function GlobalQuickAction() {
  <div ref={ref} className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
  {/* Menu Items */}
  <div className={`flex flex-col items-end gap-3 transition-all duration-300 pointer-events-auto origin-bottom ${open ? 'scale-100 opacity-100' : 'scale-75 opacity-0 invisible'}`}>
- <Link href="/admin/finances"onClick={() => setOpen(false)} className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-full shadow-lg border border-slate-200 hover:scale-105 hover:border-amber-400 hover:shadow-xl transition-all text-sm font-bold text-slate-700 group">
- <span className="text-amber-500 bg-amber-50 p-1.5 rounded-full group-hover:scale-110 transition-transform"><Banknote className="w-4 h-4"/></span> 
+ <Link href="/admin/finances"onClick={() => setOpen(false)} className="flex items-center gap-3 bg-[var(--surface)] px-4 py-2.5 rounded-full shadow-lg border border-[var(--border)] hover:scale-105 hover:border-amber-400 hover:shadow-xl transition-all text-sm font-bold text-slate-700 group">
+ <span className="text-amber-500 bg-[var(--warning-light)] p-1.5 rounded-full group-hover:scale-110 transition-transform"><Banknote className="w-4 h-4"/></span> 
  <span>Καταχώρηση Ταμείου</span>
  </Link>
- <Link href="/admin/requests"onClick={() => setOpen(false)} className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-full shadow-lg border border-slate-200 hover:scale-105 hover:border-emerald-400 hover:shadow-xl transition-all text-sm font-bold text-slate-700 group">
- <span className="text-emerald-500 bg-emerald-50 p-1.5 rounded-full group-hover:scale-110 transition-transform"><FileText className="w-4 h-4"/></span> 
+ <Link href="/admin/requests"onClick={() => setOpen(false)} className="flex items-center gap-3 bg-[var(--surface)] px-4 py-2.5 rounded-full shadow-lg border border-[var(--border)] hover:scale-105 hover:border-emerald-400 hover:shadow-xl transition-all text-sm font-bold text-slate-700 group">
+ <span className="text-emerald-500 bg-[var(--success-light)] p-1.5 rounded-full group-hover:scale-110 transition-transform"><FileText className="w-4 h-4"/></span> 
  <span>Νέο Μυστήριο</span>
  </Link>
- <Link href="/admin/parishioners"onClick={() => setOpen(false)} className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-full shadow-lg border border-slate-200 hover:scale-105 hover:border-blue-400 hover:shadow-xl transition-all text-sm font-bold text-slate-700 group">
+ <Link href="/admin/parishioners"onClick={() => setOpen(false)} className="flex items-center gap-3 bg-[var(--surface)] px-4 py-2.5 rounded-full shadow-lg border border-[var(--border)] hover:scale-105 hover:border-blue-400 hover:shadow-xl transition-all text-sm font-bold text-slate-700 group">
  <span className="text-blue-500 bg-blue-50 p-1.5 rounded-full group-hover:scale-110 transition-transform"><UserPlus className="w-4 h-4"/></span> 
  <span>Νέος Ενορίτης</span>
  </Link>

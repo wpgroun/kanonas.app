@@ -35,7 +35,7 @@ export default function PrintReceiptBtn({ tx }: { tx: any }) {
  <button 
  onClick={handlePrint}
  disabled={loading}
- className={`p-2 rounded-lg transition-colors flex items-center justify-center ${tx.type === 'INCOME' ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'}`}
+ className={`p-2 rounded-lg transition-colors flex items-center justify-center ${tx.type === 'INCOME' ? 'bg-[var(--success-light)] text-[var(--success)] hover:bg-[var(--success-light)]' : 'bg-[var(--danger-light)] text-[var(--danger)] hover:bg-[var(--danger-light)]'}`}
  title="Εκτύπωση Παραστατικού"
  >
  {loading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Printer className="w-4 h-4"/>}

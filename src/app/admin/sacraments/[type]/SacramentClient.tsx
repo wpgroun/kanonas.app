@@ -39,7 +39,7 @@ export default function SacramentClient({ urlType, internalDocType, templates, i
       </div>
 
       {templates.length === 0 && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl flex items-center gap-3">
+        <div className="bg-[var(--warning-light)] border border-amber-200 text-[var(--warning)] p-4 rounded-xl flex items-center gap-3">
           <XCircle className="w-6 h-6"/>
           <div>
             <span className="font-bold block">Απαιτείται Document Template</span>
@@ -49,10 +49,10 @@ export default function SacramentClient({ urlType, internalDocType, templates, i
       )}
 
       {/* MATRIX */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-[var(--surface)] rounded-2xl shadow-sm border border-[var(--border)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-medium">
+            <thead className="bg-[var(--background)] text-[var(--text-secondary)] border-b border-[var(--border)] font-medium">
               <tr>
                 <th className="p-4 font-bold text-center w-24">A/A</th>
                 <th className="p-4 font-bold">Όνομα Πελάτη</th>
@@ -62,25 +62,25 @@ export default function SacramentClient({ urlType, internalDocType, templates, i
                 <th className="p-4 font-bold text-center">Ενέργειες / Εκτύπωση</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[var(--border)]">
               {initialRecords.length === 0 ? (
-                <tr><td colSpan={6} className="p-8 text-center text-slate-400">Δεν βρέθηκαν καταχωρήσεις.</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-[var(--text-muted)]">Δεν βρέθηκαν καταχωρήσεις.</td></tr>
               ) : initialRecords.map((r: any) => {
                 const meta = r.ceremonyMeta?.dataJson ? JSON.parse(r.ceremonyMeta.dataJson) : {};
                 const keys = Object.keys(meta).length;
                 return (
-                  <tr key={r.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4 text-center font-mono text-xs text-slate-500 font-bold">{(r.id as string).substring(r.id.length-6).toUpperCase()}</td>
-                    <td className="p-4 font-bold text-slate-800">{r.customerName || '-'}</td>
-                    <td className="p-4 text-slate-600">{new Date(r.createdAt).toLocaleDateString('el-GR')}</td>
+                  <tr key={r.id} className="hover:bg-[var(--background)] transition-colors">
+                    <td className="p-4 text-center font-mono text-xs text-[var(--text-muted)] font-bold">{(r.id as string).substring(r.id.length-6).toUpperCase()}</td>
+                    <td className="p-4 font-bold text-[var(--foreground)]">{r.customerName || '-'}</td>
+                    <td className="p-4 text-[var(--text-secondary)]">{new Date(r.createdAt).toLocaleDateString('el-GR')}</td>
                     <td className="p-4">
-                      <span className="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-200">ΟΛΟΚΛΗΡΩΜΕΝΟ</span>
+                      <span className="px-2.5 py-1 bg-[var(--success-light)] text-[var(--success)] text-xs font-bold rounded-lg border border-[var(--success)]/20">ΟΛΟΚΛΗΡΩΜΕΝΟ</span>
                     </td>
                     <td className="p-4 text-center text-xs font-bold text-blue-600">
                       {keys} Dynamic Tags
                     </td>
                     <td className="p-4 text-center">
-                      <button onClick={() => setPreviewRecord(r)} className="btn btn-ghost btn-sm border-slate-200 border text-slate-600 hover:text-brand hover:border-brand/30">
+                      <button onClick={() => setPreviewRecord(r)} className="btn btn-ghost btn-sm border-[var(--border)] border text-[var(--text-secondary)] hover:text-brand hover:border-brand/30">
                         Προβολή
                       </button>
                     </td>

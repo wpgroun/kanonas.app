@@ -74,10 +74,10 @@ export default function FinanceBIClient({ currentYearData, prevYearData, byCateg
  
  {/* Scope Toggles */}
  <div className="flex bg-slate-100 p-1.5 rounded-xl w-max">
- <button onClick={() => setTab('INCOMES')} className={`px-5 py-2.5 rounded-lg text-sm font-black tracking-wider uppercase transition-all ${tab === 'INCOMES' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-700'}`}>
+ <button onClick={() => setTab('INCOMES')} className={`px-5 py-2.5 rounded-lg text-sm font-black tracking-wider uppercase transition-all ${tab === 'INCOMES' ? 'bg-[var(--surface)] shadow-sm text-[var(--success)]' : 'text-[var(--text-muted)] hover:text-slate-700'}`}>
  <Banknote className="w-4 h-4 inline-block mr-2"/> Έσοδα
  </button>
- <button onClick={() => setTab('EXPENSES')} className={`px-5 py-2.5 rounded-lg text-sm font-black tracking-wider uppercase transition-all ${tab === 'EXPENSES' ? 'bg-white shadow-sm text-rose-600' : 'text-slate-500 hover:text-slate-700'}`}>
+ <button onClick={() => setTab('EXPENSES')} className={`px-5 py-2.5 rounded-lg text-sm font-black tracking-wider uppercase transition-all ${tab === 'EXPENSES' ? 'bg-[var(--surface)] shadow-sm text-[var(--danger)]' : 'text-[var(--text-muted)] hover:text-slate-700'}`}>
  <Wallet className="w-4 h-4 inline-block mr-2"/> Έξοδα (Δαπάνες)
  </button>
  </div>
@@ -90,7 +90,7 @@ export default function FinanceBIClient({ currentYearData, prevYearData, byCateg
  <p className="text-3xl font-black text-foreground mt-1 tracking-tight">
  €{currentTotal.toLocaleString('el-GR', { minimumFractionDigits: 2 })}
  </p>
- <div className={`flex items-center gap-1 mt-2 text-xs font-bold uppercase tracking-wider ${isPositiveTrend ? (isIncome?'text-emerald-600':'text-rose-600') : (!isPositiveTrend && diff !== 0 ? (isIncome?'text-rose-600':'text-emerald-600') : 'text-muted-foreground')}`}>
+ <div className={`flex items-center gap-1 mt-2 text-xs font-bold uppercase tracking-wider ${isPositiveTrend ? (isIncome?'text-[var(--success)]':'text-[var(--danger)]') : (!isPositiveTrend && diff !== 0 ? (isIncome?'text-[var(--danger)]':'text-[var(--success)]') : 'text-muted-foreground')}`}>
  {isPositiveTrend ? <TrendingUp className="w-4 h-4"/> : diff < 0 ? <TrendingDown className="w-4 h-4"/> : <Minus className="w-4 h-4"/>}
  {pct !== '—' ? `${pct}% από ${year - 1}` : 'Μη διαθέσιμο'}
  </div>
@@ -196,7 +196,7 @@ export default function FinanceBIClient({ currentYearData, prevYearData, byCateg
  return (
  <div key={i} className="space-y-1.5">
  <div className="flex justify-between text-sm">
- <span className="font-bold text-slate-700">{c.purpose || 'Αδιευκρίνιστο'} <span className="font-mono text-xs text-slate-400 ml-1">({pct.toFixed(0)}%)</span></span>
+ <span className="font-bold text-slate-700">{c.purpose || 'Αδιευκρίνιστο'} <span className="font-mono text-xs text-[var(--text-muted)] ml-1">({pct.toFixed(0)}%)</span></span>
  <span className="text-muted-foreground font-black">€{c.total.toLocaleString('el-GR', { minimumFractionDigits: 2 })}</span>
  </div>
  <div className="w-full bg-slate-100 rounded-full h-2">

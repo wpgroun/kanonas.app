@@ -13,10 +13,10 @@ export default async function PhiloptochosBoardPage() {
  return (
  <div className="space-y-6">
  <div>
- <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+ <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
  🛡️ Διοικητικό Συμβούλιο Φιλοπτώχου
  </h1>
- <p className="text-slate-500 mt-1 text-sm">
+ <p className="text-[var(--text-muted)] mt-1 text-sm">
  Διαχειριστείτε την Πρόεδρο, τον Ταμία, τα Μέλη και καταγράψτε την περίοδο θητείας του ενοριακού Ε.Φ.Τ.
  </p>
  </div>

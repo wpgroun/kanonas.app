@@ -53,33 +53,33 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  {/* GENERAL TAB */}
  <TabsContent value="general">
  <Card className="p-6 border-border rounded-xl shadow-sm">
- <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Προφίλ Ιερού Ναού</h3>
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-4 border-b pb-2">Προφίλ Ιερού Ναού</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div>
- <label className="text-xs font-semibold text-gray-500 uppercase">Ονομασία Ναού</label>
+ <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Ονομασία Ναού</label>
  <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="mt-1"/>
  </div>
  <div>
- <label className="text-xs font-semibold text-gray-500 uppercase">Ιερά Μητρόπολη (Read-Only)</label>
- <Input value={initialData.metropolisName} disabled className="mt-1 bg-slate-100 text-gray-500 italic"/>
+ <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Ιερά Μητρόπολη (Read-Only)</label>
+ <Input value={initialData.metropolisName} disabled className="mt-1 bg-slate-100 text-[var(--text-muted)] italic"/>
  </div>
  <div>
- <label className="text-xs font-semibold text-gray-500 uppercase">Α.Φ.Μ.</label>
+ <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Α.Φ.Μ.</label>
  <Input value={formData.taxId} onChange={e => setFormData({...formData, taxId: e.target.value})} className="mt-1"/>
  </div>
  <div>
- <label className="text-xs font-semibold text-gray-500 uppercase">Τηλέφωνο Επικοινωνίας</label>
+ <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Τηλέφωνο Επικοινωνίας</label>
  <Input value={formData.phoneNumber} onChange={e => setFormData({...formData, phoneNumber: e.target.value})} className="mt-1"/>
  </div>
  <div className="md:col-span-2">
- <label className="text-xs font-semibold text-gray-500 uppercase">Ταχυδρομική Διεύθυνση / Πόλη</label>
+ <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Ταχυδρομική Διεύθυνση / Πόλη</label>
  <div className="flex gap-2 mt-1">
  <Input placeholder="Οδός & Αριθμός"value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="flex-1"/>
  <Input placeholder="Πόλη / Περιοχή"value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="w-1/3"/>
  </div>
  </div>
  <div>
- <label className="text-xs font-semibold text-gray-500 uppercase">Κεντρικό Email Ναού</label>
+ <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Κεντρικό Email Ναού</label>
  <Input type="email"value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="mt-1"/>
  </div>
  </div>
@@ -90,40 +90,40 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  <TabsContent value="gateways">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <Card className="p-6 border-border rounded-xl shadow-sm border-t-4 border-t-blue-500">
- <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2"><Mail className="text-blue-500"/> Mail Server (SMTP)</h3>
- <p className="text-xs text-gray-500 mb-6">Διαμορφώστε τον δικό σας διακομιστή (π.χ. server ενορίας) για μαζικές αποστολές email.</p>
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Mail className="text-blue-500"/> Mail Server (SMTP)</h3>
+ <p className="text-xs text-[var(--text-muted)] mb-6">Διαμορφώστε τον δικό σας διακομιστή (π.χ. server ενορίας) για μαζικές αποστολές email.</p>
  
  <div className="space-y-4">
  <div>
- <label className="text-xs font-semibold text-gray-600">SMTP Host</label>
+ <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Host</label>
  <Input placeholder="π.χ. mail.mychurch.gr"value={formData.settings.smtpHost} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpHost: e.target.value}})} className="mt-1"/>
  </div>
  <div>
- <label className="text-xs font-semibold text-gray-600">SMTP Port</label>
+ <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Port</label>
  <Input placeholder="π.χ. 465 ή 587"value={formData.settings.smtpPort} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpPort: e.target.value}})} className="mt-1"/>
  </div>
  <div>
- <label className="text-xs font-semibold text-gray-600">SMTP Username</label>
+ <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Username</label>
  <Input placeholder="π.χ. info@mychurch.gr"value={formData.settings.smtpUser} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpUser: e.target.value}})} className="mt-1"/>
  </div>
  <div>
- <label className="text-xs font-semibold text-gray-600">SMTP Password</label>
+ <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Password</label>
  <Input type="password"placeholder="••••••••"value={formData.settings.smtpPass} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpPass: e.target.value}})} className="mt-1"/>
  </div>
  </div>
  </Card>
 
  <Card className="p-6 border-border rounded-xl shadow-sm border-t-4 border-t-purple-500">
- <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2"><MessageSquare className="text-purple-500"/> SMS & Viber Gateways</h3>
- <p className="text-xs text-gray-500 mb-6">Αποθηκεύστε τα Auth Tokens του παρόχου σας (Twilio / Apifon) για SMS Alerts.</p>
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><MessageSquare className="text-purple-500"/> SMS & Viber Gateways</h3>
+ <p className="text-xs text-[var(--text-muted)] mb-6">Αποθηκεύστε τα Auth Tokens του παρόχου σας (Twilio / Apifon) για SMS Alerts.</p>
  
  <div className="space-y-4">
  <div>
- <label className="text-xs font-semibold text-gray-600">SMS Gateway API Key</label>
+ <label className="text-xs font-semibold text-[var(--text-secondary)]">SMS Gateway API Key</label>
  <Input placeholder="Bearer sk_test_..."value={formData.settings.smsToken} onChange={e => setFormData({...formData, settings: {...formData.settings, smsToken: e.target.value}})} className="mt-1"/>
  </div>
  <div>
- <label className="text-xs font-semibold text-gray-600">Viber Official Bot Token</label>
+ <label className="text-xs font-semibold text-[var(--text-secondary)]">Viber Official Bot Token</label>
  <Input placeholder="Κωδικός λογαριασμού Viber Bot"value={formData.settings.viberToken} onChange={e => setFormData({...formData, settings: {...formData.settings, viberToken: e.target.value}})} className="mt-1"/>
  </div>
  </div>
@@ -139,21 +139,21 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  {/* WEB & MINI SITE TAB */}
  <TabsContent value="web">
  <Card className="p-6 border-border rounded-xl shadow-sm border-l-4 border-l-emerald-500">
- <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2"><Globe className="text-emerald-500"/> Public Kanonas Mini-Site URL</h3>
- <p className="text-sm text-gray-600 mb-6">Ορίστε το μοναδικό αναγνωριστικό SEO εάν θέλετε το Kanonas να δημιουργήσει δυναμική ιστοσελίδα (landing page) για την Ενορία σας.</p>
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Globe className="text-emerald-500"/> Public Kanonas Mini-Site URL</h3>
+ <p className="text-sm text-[var(--text-secondary)] mb-6">Ορίστε το μοναδικό αναγνωριστικό SEO εάν θέλετε το Kanonas να δημιουργήσει δυναμική ιστοσελίδα (landing page) για την Ενορία σας.</p>
 
  <div>
- <label className="text-xs font-semibold text-gray-500 uppercase">Ιστοσελίδα Ναού URL (Slug)</label>
+ <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Ιστοσελίδα Ναού URL (Slug)</label>
  <div className="flex items-center mt-1">
- <span className="bg-slate-100 text-gray-500 px-3 py-2 border border-border border-r-0 rounded-l-md font-mono text-sm leading-5">kanonas.app/temple/</span>
+ <span className="bg-slate-100 text-[var(--text-muted)] px-3 py-2 border border-border border-r-0 rounded-l-md font-mono text-sm leading-5">kanonas.app/temple/</span>
  <Input 
  value={formData.slug} 
  onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')})} 
- className="rounded-l-none font-mono font-bold text-emerald-600"
+ className="rounded-l-none font-mono font-bold text-[var(--success)]"
  placeholder="agios-antonios"
  />
  </div>
- <p className="text-xs text-gray-400 mt-2">Επιτρέπονται μόνο μικρά αγγλικά γράμματα και παύλες (-). Αυτό το URL μπορεί να δοθεί απ' ευθείας στους πιστούς.</p>
+ <p className="text-xs text-[var(--text-muted)] mt-2">Επιτρέπονται μόνο μικρά αγγλικά γράμματα και παύλες (-). Αυτό το URL μπορεί να δοθεί απ' ευθείας στους πιστούς.</p>
  </div>
  </Card>
  </TabsContent>

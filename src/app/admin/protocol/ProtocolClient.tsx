@@ -32,27 +32,27 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
  <div className="space-y-6">
  
  {/* Toolbar */}
- <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-border gap-4">
+ <div className="flex flex-col md:flex-row justify-between items-center bg-[var(--surface)] p-4 rounded-xl shadow-sm border border-border gap-4">
  <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
  <button 
  onClick={() => handleFilter('TEMPLE')}
- className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${currentOwner === 'TEMPLE' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:text-gray-900'}`}>
+ className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${currentOwner === 'TEMPLE' ? 'bg-[var(--surface)] shadow text-primary' : 'text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}>
  Ιερός Ναός
  </button>
  <button 
  onClick={() => handleFilter('PHILOPTOCHOS')}
- className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${currentOwner === 'PHILOPTOCHOS' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:text-gray-900'}`}>
+ className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${currentOwner === 'PHILOPTOCHOS' ? 'bg-[var(--surface)] shadow text-primary' : 'text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}>
  Φιλόπτωχο Ταμείο
  </button>
  </div>
 
  <form onSubmit={handleSearch} className="flex-1 max-w-sm flex">
  <div className="relative w-full">
- <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+ <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"/>
  <input 
  name="query"
  placeholder="Αναζήτηση Αποστολέα ή Θέματος..."
- className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-slate-50 focus:ring-1 focus:ring-primary outline-none"
+ className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-[var(--background)] focus:ring-1 focus:ring-primary outline-none"
  />
  </div>
  </form>
@@ -66,7 +66,7 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
  <Card className="rounded-xl border border-border shadow-sm overflow-hidden">
  <div className="overflow-x-auto">
  <table className="w-full text-sm text-left">
- <thead className="bg-gray-50 text-gray-600 border-b border-border">
+ <thead className="bg-[var(--background)] text-[var(--text-secondary)] border-b border-border">
  <tr>
  <th className="p-4 font-bold text-center w-24">Αριθμός</th>
  <th className="p-4 font-bold w-12">Τύπος</th>
@@ -78,9 +78,9 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
  </thead>
  <tbody className="divide-y divide-border">
  {initialRecords.length === 0 ? (
- <tr><td colSpan={6} className="p-12 text-center text-gray-500">Δεν βρέθηκαν έγγραφα στο πρωτόκολλο αυτού του βιβλίου.</td></tr>
+ <tr><td colSpan={6} className="p-12 text-center text-[var(--text-muted)]">Δεν βρέθηκαν έγγραφα στο πρωτόκολλο αυτού του βιβλίου.</td></tr>
 ) : initialRecords.map((doc: any) => (
- <tr key={doc.id} className="hover:bg-slate-50/50 :bg-slate-800/20 transition-colors">
+ <tr key={doc.id} className="hover:bg-[var(--background)]/50 :bg-slate-800/20 transition-colors">
  <td className="p-4 text-center">
  <span className="font-mono bg-slate-100 px-3 py-1.5 rounded-lg font-bold text-gray-700">
  {doc.number}/{doc.year}
@@ -93,18 +93,18 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
  <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center"title="Εξερχόμενο"><ArrowLeft className="w-4 h-4"/></div>
 )}
  </td>
- <td className="p-4 font-semibold text-gray-800">
+ <td className="p-4 font-semibold text-[var(--foreground)]">
  {doc.subject}
  </td>
- <td className="p-4 text-gray-600">
+ <td className="p-4 text-[var(--text-secondary)]">
  {doc.direction === 'IN' ? doc.sender || '-' : doc.receiver || '-'}
  </td>
- <td className="p-4 text-gray-500 tabular-nums">
+ <td className="p-4 text-[var(--text-muted)] tabular-nums">
  {new Date(doc.date).toLocaleDateString("el-GR")}
  </td>
  <td className="p-4 flex items-center justify-center">
  {doc.fileUrl ? (
- <a href={doc.fileUrl} target="_blank"rel="noreferrer"className="text-gray-400 hover:text-primary transition-colors hover:bg-slate-100 p-2 rounded-md">
+ <a href={doc.fileUrl} target="_blank"rel="noreferrer"className="text-[var(--text-muted)] hover:text-primary transition-colors hover:bg-[var(--surface-hover)] p-2 rounded-md">
  <FileText className="w-5 h-5"/>
  </a>
 ) : (
@@ -121,13 +121,13 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
  {/* Slide-over / Modal for New Document */}
  {isModalOpen && (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
- <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
- <div className="p-6 border-b border-border flex justify-between items-center bg-slate-50">
+ <div className="bg-[var(--surface)] rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+ <div className="p-6 border-b border-border flex justify-between items-center bg-[var(--background)]">
  <div>
  <h2 className="text-xl font-bold">Πρωτοκόλληση Εγγράφου</h2>
- <p className="text-sm text-gray-500">Βιβλίο: <span className="font-semibold text-primary">{currentOwner === 'TEMPLE' ? 'Ιερού Ναού' : 'Φιλοπτώχου'}</span></p>
+ <p className="text-sm text-[var(--text-muted)]">Βιβλίο: <span className="font-semibold text-primary">{currentOwner === 'TEMPLE' ? 'Ιερού Ναού' : 'Φιλοπτώχου'}</span></p>
  </div>
- <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-red-500 text-2xl leading-none">&times;</button>
+ <button onClick={() => setIsModalOpen(false)} className="text-[var(--text-muted)] hover:text-red-500 text-2xl leading-none">&times;</button>
  </div>
  
  <form action={async (formData) => {
@@ -145,10 +145,10 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
  }} className="p-6 overflow-y-auto space-y-6">
  
  <div className="flex gap-4 p-1 bg-slate-100 rounded-lg">
- <button type="button"onClick={() => setDirection('IN')} className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-md font-semibold transition ${direction==='IN'?'bg-white shadow text-blue-600':'text-gray-500 hover:text-gray-800'}`}>
+ <button type="button"onClick={() => setDirection('IN')} className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-md font-semibold transition ${direction==='IN'?'bg-[var(--surface)] shadow text-blue-600':'text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}>
  <ArrowRight className="w-4 h-4"/> Εισερχόμενο
  </button>
- <button type="button"onClick={() => setDirection('OUT')} className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-md font-semibold transition ${direction==='OUT'?'bg-white shadow text-amber-600':'text-gray-500 hover:text-gray-800'}`}>
+ <button type="button"onClick={() => setDirection('OUT')} className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-md font-semibold transition ${direction==='OUT'?'bg-[var(--surface)] shadow text-amber-600':'text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}>
  <ArrowLeft className="w-4 h-4"/> Εξερχόμενο
  </button>
  </div>

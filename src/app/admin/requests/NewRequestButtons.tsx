@@ -99,7 +99,7 @@ function NewRequestModal({ open, onClose, serviceType }: { open: boolean, onClos
 ) : (
  <>
  <DialogHeader>
- <DialogTitle className="flex items-center gap-2 text-xl text-emerald-600">✅ Αίτηση Δημιουργήθηκε!</DialogTitle>
+ <DialogTitle className="flex items-center gap-2 text-xl text-[var(--success)]">✅ Αίτηση Δημιουργήθηκε!</DialogTitle>
  <DialogDescription>
  Στείλτε το παρακάτω link στην οικογένεια για να συμπληρώσει τα στοιχεία της.
  </DialogDescription>

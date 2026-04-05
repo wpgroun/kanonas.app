@@ -29,7 +29,7 @@ export default function UpgradeGate({ feature, featureLabel, compact = false }: 
 
  if (compact) {
  return (
- <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+ <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-[var(--warning-light)] border border-amber-200 px-2 py-0.5 rounded-full">
  <Lock className="w-3 h-3"/>
  Απαιτείται Premium
  </span>

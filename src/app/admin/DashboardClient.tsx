@@ -110,7 +110,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
 
  {/* Smart Action Center */}
  <div className="card p-5 border border-indigo-100 bg-gradient-to-r from-indigo-50/50 to-blue-50/50 mb-6">
- <h2 className="text-sm font-bold text-indigo-900 flex items-center gap-2 mb-4">
+ <h2 className="text-sm font-bold text-[var(--brand-darker)] flex items-center gap-2 mb-4">
  <span className="relative flex h-3 w-3">
  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
  <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
@@ -120,7 +120,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  
  <div className="space-y-3">
  {stats.pendingRequests > 0 ? (
- <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-warning/20 shadow-sm transition-all hover:shadow-md">
+ <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-warning/20 shadow-sm transition-all hover:shadow-md">
  <div className="flex items-center gap-3">
  <div className="p-2 bg-warning/10 rounded-md text-warning"><AlertCircle className="w-5 h-5"/></div>
  <div>
@@ -131,14 +131,14 @@ export default function DashboardClient({ stats }: { stats: any }) {
  <Link href="/admin/requests"><Button size="sm"variant="outline"className="h-8">Διαχείριση</Button></Link>
  </div>
 ) : (
- <div className="flex items-center gap-3 p-3 bg-white rounded-lg border shadow-sm">
- <div className="p-2 bg-emerald-100 rounded-md text-emerald-600"><CheckCircle2 className="w-5 h-5"/></div>
+ <div className="flex items-center gap-3 p-3 bg-[var(--surface)] rounded-lg border shadow-sm">
+ <div className="p-2 bg-[var(--success-light)] rounded-md text-[var(--success)]"><CheckCircle2 className="w-5 h-5"/></div>
  <div><p className="text-sm font-bold text-foreground">Δεν υπάρχουν εκκρεμή αιτήματα.</p></div>
  </div>
 )}
 
  {stats.upcomingNamedays?.length > 0 && (
- <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-200 shadow-sm transition-all hover:shadow-md">
+ <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-blue-200 shadow-sm transition-all hover:shadow-md">
  <div className="flex items-center gap-3">
  <div className="p-2 bg-blue-50 rounded-md text-blue-600"><Gift className="w-5 h-5"/></div>
  <div>
@@ -150,7 +150,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  </div>
 )}
  
- <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-purple-200 shadow-sm transition-all hover:shadow-md">
+ <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-purple-200 shadow-sm transition-all hover:shadow-md">
  <div className="flex items-center gap-3">
  <div className="p-2 bg-purple-50 rounded-md text-purple-600"><HeartHandshake className="w-5 h-5"/></div>
  <div>

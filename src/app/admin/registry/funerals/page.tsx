@@ -13,8 +13,8 @@ export default async function FuneralsPage() {
  return (
  <div className="max-w-7xl mx-auto space-y-6">
  <div>
- <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">🕊️ Ληξιαρχείο - Μητρώο Κεκοιμημένων</h1>
- <p className="text-sm text-gray-500">Καταγραφή εκδημιών, διαχείριση τάφων και προγραμματισμός Ιερών Μνημοσύνων ενοριτών.</p>
+ <h1 className="text-2xl font-bold text-[var(--foreground)] flex items-center gap-2">🕊️ Ληξιαρχείο - Μητρώο Κεκοιμημένων</h1>
+ <p className="text-sm text-[var(--text-muted)]">Καταγραφή εκδημιών, διαχείριση τάφων και προγραμματισμός Ιερών Μνημοσύνων ενοριτών.</p>
  </div>
 
  <FuneralsClient initialData={deceasedData} parishioners={allParishioners} />

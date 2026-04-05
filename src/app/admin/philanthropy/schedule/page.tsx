@@ -13,8 +13,8 @@ export default async function SchedulePage({ searchParams }: { searchParams: { d
  return (
  <div className="max-w-7xl mx-auto space-y-6">
  <div>
- <h1 className="text-2xl font-bold text-gray-900">Πρόγραμμα Συσσιτίου</h1>
- <p className="text-sm text-gray-500">Παρουσιολόγιο Διανομής Γευμάτων & Έλεγχος Απουσιών</p>
+ <h1 className="text-2xl font-bold text-[var(--foreground)]">Πρόγραμμα Συσσιτίου</h1>
+ <p className="text-sm text-[var(--text-muted)]">Παρουσιολόγιο Διανομής Γευμάτων & Έλεγχος Απουσιών</p>
  </div>
 
  <ScheduleClient 

@@ -183,7 +183,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: any[] }) {
  <div className="bg-muted/50 p-3 px-4 border-b border-border flex justify-between items-center">
  <h4 className="font-semibold text-sm text-primary">{group.title}</h4>
  <div className="flex gap-2">
- <button onClick={() => selectGroup(group.keys, true)} className="text-[10px] uppercase font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Όλα</button>
+ <button onClick={() => selectGroup(group.keys, true)} className="text-[10px] uppercase font-bold text-[var(--success)] hover:text-[var(--success)] bg-[var(--success-light)] px-2 py-0.5 rounded">Όλα</button>
  <button onClick={() => selectGroup(group.keys, false)} className="text-[10px] uppercase font-bold text-destructive hover:text-red-700 bg-red-100 px-2 py-0.5 rounded">Κανένα</button>
  </div>
  </div>

@@ -89,14 +89,14 @@ export default function YouthClient({ initialPrograms, initialParticipants }: an
  </div>
  <input type="date"className="data-input w-full text-sm"value={newChildAge} onChange={e=>setNewChildAge(e.target.value)} title="Ημερομηνία Γέννησης"/>
  
- <div className="p-3 bg-slate-50 border rounded-lg space-y-3 mt-4">
- <p className="text-xs font-bold text-slate-500 uppercase">Στοιχεία Κηδεμόνα</p>
+ <div className="p-3 bg-[var(--background)] border rounded-lg space-y-3 mt-4">
+ <p className="text-xs font-bold text-[var(--text-muted)] uppercase">Στοιχεία Κηδεμόνα</p>
  <input required type="text"placeholder="Ονοματεπώνυμο Γονέα"className="data-input w-full"value={newParentName} onChange={e=>setNewParentName(e.target.value)} />
  <input required type="text"placeholder="Τηλέφωνο Επικοινωνίας"className="data-input w-full"value={newParentPhone} onChange={e=>setNewParentPhone(e.target.value)} />
  </div>
 
- <div className="p-3 bg-rose-50 border border-rose-100 rounded-lg space-y-3 mt-4">
- <p className="text-xs font-bold text-rose-600 uppercase flex items-center gap-1"><HeartPulse className="w-3.5 h-3.5"/> Ιατρικό Ιστορικό</p>
+ <div className="p-3 bg-[var(--danger-light)] border border-rose-100 rounded-lg space-y-3 mt-4">
+ <p className="text-xs font-bold text-[var(--danger)] uppercase flex items-center gap-1"><HeartPulse className="w-3.5 h-3.5"/> Ιατρικό Ιστορικό</p>
  <textarea 
  placeholder="Αλλεργίες, φάρμακα, δυσανεξίες, κλπ (Προαιρετικό)"
  className="data-input w-full resize-none text-sm"
@@ -106,7 +106,7 @@ export default function YouthClient({ initialPrograms, initialParticipants }: an
  />
  </div>
 
- <label className="flex items-center gap-2 text-sm p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
+ <label className="flex items-center gap-2 text-sm p-3 border rounded-lg hover:bg-[var(--background)] cursor-pointer">
  <input type="checkbox"className="w-4 h-4 text-primary"checked={newConsent} onChange={e=>setNewConsent(e.target.checked)} />
  <span>Υπογράφηκε Δήλωση Συναίνεσης Κηδεμόνα (Νομικό)</span>
  </label>
@@ -124,14 +124,14 @@ export default function YouthClient({ initialPrograms, initialParticipants }: an
  {initialParticipants.map((child: any) => (
  <Card key={child.id} className="shadow-sm border-border hover:shadow-md transition-shadow relative overflow-hidden group">
  {child.medicalNotes && (
- <div className="absolute top-0 right-0 p-2 bg-rose-100 text-rose-600 rounded-bl-xl tooltip"title={child.medicalNotes}>
+ <div className="absolute top-0 right-0 p-2 bg-[var(--danger-light)] text-[var(--danger)] rounded-bl-xl tooltip"title={child.medicalNotes}>
  <AlertTriangle className="w-4 h-4"/>
  </div>
 )}
  <CardHeader className="pb-2">
  <CardTitle className="text-lg text-foreground flex justify-between items-start">
  {child.firstName} {child.lastName}
- <Button variant="ghost"size="icon"className="h-6 w-6 text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"onClick={async () => {
+ <Button variant="ghost"size="icon"className="h-6 w-6 text-[var(--danger)] opacity-0 group-hover:opacity-100 transition-opacity"onClick={async () => {
  if(confirm('Διαγραφή παιδιού;')) { await deleteParticipant(child.id); router.refresh(); }
  }}><Trash2 className="w-3.5 h-3.5"/></Button>
  </CardTitle>
@@ -148,7 +148,7 @@ export default function YouthClient({ initialPrograms, initialParticipants }: an
  <div className="flex items-center justify-between text-xs font-medium">
  <span className="text-muted-foreground">Συναίνεση:</span>
  {child.parentConsentDate ? (
- <span className="text-emerald-600 flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5"/> Υπογεγραμμένη</span>
+ <span className="text-[var(--success)] flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5"/> Υπογεγραμμένη</span>
 ) : (
  <button onClick={async() => { await updateConsent(child.id, true); router.refresh(); }} className="text-amber-600 flex items-center gap-1 hover:underline"><AlertTriangle className="w-3.5 h-3.5"/> Εκκρεμεί</button>
 )}
@@ -161,12 +161,12 @@ export default function YouthClient({ initialPrograms, initialParticipants }: an
  {child.enrollments.map((enr: any) => (
  <div key={enr.id} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md flex justify-between items-center">
  <span className="truncate">{enr.program.name}</span>
- <button className="text-primary/50 hover:text-rose-500 transition-colors"onClick={async () => {
+ <button className="text-primary/50 hover:text-[var(--danger)] transition-colors"onClick={async () => {
  await unenrollParticipant(enr.programId, child.id); router.refresh();
  }}><X className="w-3 h-3"/></button>
  </div>
 ))}
- {child.enrollments.length === 0 && <span className="text-xs text-slate-400 italic">Καμία εγγραφή</span>}
+ {child.enrollments.length === 0 && <span className="text-xs text-[var(--text-muted)] italic">Καμία εγγραφή</span>}
  </div>
  <div className="mt-2">
  <select className="text-xs w-full p-1 border rounded-md bg-transparent"onChange={async (e) => {
@@ -206,8 +206,8 @@ export default function YouthClient({ initialPrograms, initialParticipants }: an
  <input required type="text"placeholder="Π.χ. Κατασκήνωση Α' Περιόδου"className="data-input w-full"value={newProgName} onChange={e=>setNewProgName(e.target.value)} />
  <textarea placeholder="Περιγραφή (Προαιρετικό)"className="data-input w-full resize-none"rows={3} value={newProgDesc} onChange={e=>setNewProgDesc(e.target.value)} />
  <div className="grid grid-cols-2 gap-2">
- <div className="space-y-1"><label className="text-xs font-medium text-slate-500">Έναρξη</label><input type="date"className="data-input w-full text-sm"value={newProgStart} onChange={e=>setNewProgStart(e.target.value)} /></div>
- <div className="space-y-1"><label className="text-xs font-medium text-slate-500">Λήξη</label><input type="date"className="data-input w-full text-sm"value={newProgEnd} onChange={e=>setNewProgEnd(e.target.value)} /></div>
+ <div className="space-y-1"><label className="text-xs font-medium text-[var(--text-muted)]">Έναρξη</label><input type="date"className="data-input w-full text-sm"value={newProgStart} onChange={e=>setNewProgStart(e.target.value)} /></div>
+ <div className="space-y-1"><label className="text-xs font-medium text-[var(--text-muted)]">Λήξη</label><input type="date"className="data-input w-full text-sm"value={newProgEnd} onChange={e=>setNewProgEnd(e.target.value)} /></div>
  </div>
  <Button type="submit"disabled={loading} className="w-full">Δημιουργία</Button>
  </form>
@@ -220,7 +220,7 @@ export default function YouthClient({ initialPrograms, initialParticipants }: an
  <CardHeader className="pb-2">
  <CardTitle className="text-lg flex justify-between items-start">
  {prog.name}
- <Button variant="ghost"size="icon"className="h-6 w-6 text-rose-500"onClick={async () => {
+ <Button variant="ghost"size="icon"className="h-6 w-6 text-[var(--danger)]"onClick={async () => {
  if(confirm('Διαγραφή δράσης;')) { await deleteYouthProgram(prog.id); router.refresh(); }
  }}><Trash2 className="w-3.5 h-3.5"/></Button>
  </CardTitle>

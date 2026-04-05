@@ -55,15 +55,15 @@ export default function BentoFeatures() {
  
  {/* Fake Visual */}
  <div className="mt-8 relative h-40 w-full bg-[#1a1008] rounded-t-xl border-t border-x border-white/10 overflow-hidden translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
- <div className="flex gap-2 border-b border-white/10 p-3 bg-white/5">
+ <div className="flex gap-2 border-b border-white/10 p-3 bg-[var(--surface)]/5">
  <div className="w-8 h-8 rounded-full bg-[#c3a165]/20"></div>
  <div className="w-8 h-8 rounded-full bg-[#c3a165]/20"></div>
  <div className="w-8 h-8 rounded-full bg-[#c3a165]/20"></div>
  </div>
  <div className="p-4 space-y-3">
- <div className="h-3 w-3/4 bg-white/10 rounded"></div>
- <div className="h-3 w-1/2 bg-white/10 rounded"></div>
- <div className="h-3 w-5/6 bg-white/10 rounded"></div>
+ <div className="h-3 w-3/4 bg-[var(--surface)]/10 rounded"></div>
+ <div className="h-3 w-1/2 bg-[var(--surface)]/10 rounded"></div>
+ <div className="h-3 w-5/6 bg-[var(--surface)]/10 rounded"></div>
  </div>
  </div>
  </motion.div>
@@ -72,7 +72,7 @@ export default function BentoFeatures() {
  <motion.div variants={itemVariants} className="col-span-1 md:col-span-1 lg:col-span-2 row-span-1 p-8 rounded-3xl bg-[#2b1f1a] border border-white/10 group relative flex flex-col justify-center overflow-hidden">
  <div className="absolute top-1/2 right-0 -translate-y-1/2 w-48 h-full bg-[#59161a]/20 blur-3xl"></div>
  <div className="relative z-10">
- <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-[#e0bc7b]">
+ <div className="w-12 h-12 rounded-xl bg-[var(--surface)]/5 border border-white/10 flex items-center justify-center mb-4 text-[#e0bc7b]">
  <FileText className="w-6 h-6"/>
  </div>
  <h3 className="text-xl font-bold text-white mb-2 font-heading">Έξυπνα Πιστοποιητικά (PDF)</h3>

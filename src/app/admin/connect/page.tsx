@@ -35,7 +35,7 @@ export default async function AdminConnectPage() {
  </div>
  </div>
 
- <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+ <div className="bg-[var(--surface)] rounded-3xl shadow-sm border border-[var(--border)] overflow-hidden">
  <ConnectClient initialRequests={requests} appUrl={appUrl} slug={temple?.slug || ''} />
  </div>
  </div>

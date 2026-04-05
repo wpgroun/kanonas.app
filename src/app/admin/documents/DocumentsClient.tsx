@@ -37,20 +37,20 @@ export default function DocumentsClient({ initialTemplates }: any) {
         {templates.map((tpl: any) => (
           <div key={tpl.id} className="card hover:border-brand/30 transition-colors p-5 group flex flex-col justify-between h-auto shadow-sm">
             <div>
-              <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 mb-4 group-hover:text-brand group-hover:bg-brand-light/20 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-[var(--background)] border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] mb-4 group-hover:text-brand group-hover:bg-brand-light/20 transition-colors">
                 <FileSignature className="w-6 h-6"/>
               </div>
               <h3 className="font-bold text-foreground text-lg">{tpl.nameEl}</h3>
-              <p className="text-sm font-medium text-slate-400 mt-1 uppercase tracking-widest flex items-center gap-1.5"><Settings className="w-3.5 h-3.5"/> MODULE: {tpl.docType}</p>
+              <p className="text-sm font-medium text-[var(--text-muted)] mt-1 uppercase tracking-widest flex items-center gap-1.5"><Settings className="w-3.5 h-3.5"/> MODULE: {tpl.docType}</p>
             </div>
             
-            <div className="mt-8 border-t border-slate-100 pt-4 flex gap-3">
+            <div className="mt-8 border-t border-[var(--border)] pt-4 flex gap-3">
               <button 
                 onClick={() => {
                   setEditingTemplate(tpl);
                   setIsModalOpen(true);
                 }} 
-                className="flex-1 btn btn-ghost btn-sm bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-sm"
+                className="flex-1 btn btn-ghost btn-sm bg-[var(--background)] text-slate-700 hover:bg-[var(--surface-hover)] border border-[var(--border)] shadow-sm"
               >
                 Επεξεργασία
               </button>
@@ -60,9 +60,9 @@ export default function DocumentsClient({ initialTemplates }: any) {
       </div>
 
       {templates.length === 0 && (
-        <Card className="border-dashed border-2 shadow-none py-12 flex flex-col items-center justify-center bg-slate-50/50">
+        <Card className="border-dashed border-2 shadow-none py-12 flex flex-col items-center justify-center bg-[var(--background)]/50">
           <Variable className="w-16 h-16 text-slate-300 mb-4" />
-          <CardTitle className="text-slate-600 mb-1">Κανένα Πρότυπο</CardTitle>
+          <CardTitle className="text-[var(--text-secondary)] mb-1">Κανένα Πρότυπο</CardTitle>
           <CardDescription className="max-w-md text-center">Δεν έχετε προσθέσει κανένα πρότυπο. Μπορείτε να φτιάξετε το πρώτο σας χρησιμοποιώντας τη Δυναμική Μηχανή.</CardDescription>
         </Card>
       )}

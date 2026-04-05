@@ -119,7 +119,7 @@ export default function DivorcesClient({ initialData, parishioners }: { initialD
  {data.length > 0 ? (
  <div className="overflow-x-auto">
  <table className="w-full text-sm text-left">
- <thead className="text-xs text-gray-600 uppercase bg-gray-50 border-b">
+ <thead className="text-xs text-[var(--text-secondary)] uppercase bg-[var(--background)] border-b">
  <tr>
  <th className="px-6 py-4 font-bold">Αιτών / Ενορίτης</th>
  <th className="px-6 py-4 font-bold">Ξεζευγνυόμενος</th>
@@ -130,19 +130,19 @@ export default function DivorcesClient({ initialData, parishioners }: { initialD
  </thead>
  <tbody className="divide-y divide-gray-50">
  {data.map((item) => (
- <tr key={item.id} className="hover:bg-gray-50">
- <td className="px-6 py-4 font-bold text-gray-900">
+ <tr key={item.id} className="hover:bg-[var(--background)]">
+ <td className="px-6 py-4 font-bold text-[var(--foreground)]">
  {item.parishioner.lastName} {item.parishioner.firstName}
  </td>
- <td className="px-6 py-4 text-gray-600">{item.exSpouseName}</td>
- <td className="px-6 py-4 text-gray-500">
+ <td className="px-6 py-4 text-[var(--text-secondary)]">{item.exSpouseName}</td>
+ <td className="px-6 py-4 text-[var(--text-muted)]">
  <span className="flex items-center gap-1"><Calendar className="w-3 h-3"/> {new Date(item.issuedDate).toLocaleDateString('el-GR')}</span>
  </td>
  <td className="px-6 py-4 text-center">
  {item.protocolNumber ? (
  <span className="badge badge-success">#{item.protocolNumber}</span>
 ) : (
- <span className="text-xs text-gray-400">—</span>
+ <span className="text-xs text-[var(--text-muted)]">—</span>
 )}
  </td>
  <td className="px-6 py-4 text-right">
@@ -158,10 +158,10 @@ export default function DivorcesClient({ initialData, parishioners }: { initialD
 ) : (
  <div className="py-12 flex flex-col items-center justify-center text-center">
  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
- <FileHeart className="w-8 h-8 text-gray-400"/>
+ <FileHeart className="w-8 h-8 text-[var(--text-muted)]"/>
  </div>
- <h3 className="text-lg font-bold text-gray-900">Δεν βρέθηκαν Διαζύγια</h3>
- <p className="text-sm text-gray-500 max-w-sm mt-1">Η ενορία δεν έχει καταχωρημένα διαζευκτήρια στο ηλεκτρονικό αρχείο.</p>
+ <h3 className="text-lg font-bold text-[var(--foreground)]">Δεν βρέθηκαν Διαζύγια</h3>
+ <p className="text-sm text-[var(--text-muted)] max-w-sm mt-1">Η ενορία δεν έχει καταχωρημένα διαζευκτήρια στο ηλεκτρονικό αρχείο.</p>
  </div>
 )}
  </div>

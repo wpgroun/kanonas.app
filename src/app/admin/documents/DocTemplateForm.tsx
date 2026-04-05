@@ -61,8 +61,8 @@ export default function DocTemplateForm({ template, onClose }: { template?: any,
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl bg-white w-full h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-2 shrink-0 border-b border-border bg-slate-50/50">
+      <DialogContent className="max-w-4xl bg-[var(--surface)] w-full h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-2 shrink-0 border-b border-border bg-[var(--background)]/50">
           <DialogTitle className="text-xl flex items-center gap-2">
             <FileTextIcon /> {template ? 'Επεξεργασία Προτύπου' : 'Νέο Πρότυπο (Document Engine)'}
           </DialogTitle>
@@ -82,13 +82,13 @@ export default function DocTemplateForm({ template, onClose }: { template?: any,
                   onChange={e => setForm(p => ({ ...p, nameEl: e.target.value }))}
                   required 
                   placeholder="π.χ. Δήλωση Βαπτίσεως" 
-                  className="bg-white border-slate-300 font-medium"
+                  className="bg-[var(--surface)] border-slate-300 font-medium"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Κατηγορία / Module</Label>
                 <select 
-                  className="w-full h-10 px-3 py-2 rounded-md border border-slate-300 bg-white text-sm"
+                  className="w-full h-10 px-3 py-2 rounded-md border border-slate-300 bg-[var(--surface)] text-sm"
                   value={form.docType}
                   onChange={e => setForm(p => ({ ...p, docType: e.target.value }))}
                 >
@@ -97,15 +97,15 @@ export default function DocTemplateForm({ template, onClose }: { template?: any,
               </div>
             </div>
             
-            <div className="space-y-2 pb-4 border-b border-gray-100">
-              <Label>📌 Κανόνας Παραγωγής (Rule Engine) <span className="text-gray-400 font-normal italic">- Πότε παράγεται αυτό το έγγραφο;</span></Label>
+            <div className="space-y-2 pb-4 border-b border-[var(--border)]">
+              <Label>📌 Κανόνας Παραγωγής (Rule Engine) <span className="text-[var(--text-muted)] font-normal italic">- Πότε παράγεται αυτό το έγγραφο;</span></Label>
               <Input
                 value={form.conditionRules}
                 onChange={e => setForm(p => ({ ...p, conditionRules: e.target.value }))}
                 placeholder="π.χ. {{OIKOG_KATASTASI}} == 'ΧΗΡΕΙΑ'.  Αφήστε κενό αν βγαίνει πάντα!"
                 className="font-mono text-sm border-amber-200 focus:border-amber-400"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--text-muted)]">
                 Αν συμπληρώσετε αυτό το πεδίο, το έγγραφο θα δημιουργηθεί στο Connect Φόρμα <b>ΜΟΝΟ</b> εάν η συνθήκη αληθεύει.
               </p>
             </div>
@@ -124,19 +124,19 @@ export default function DocTemplateForm({ template, onClose }: { template?: any,
                 />
               </div>
 
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 flex flex-col">
-                <h4 className="font-bold text-slate-800 flex items-center gap-2 border-b border-slate-200 pb-3 mb-4">
+              <div className="bg-[var(--background)] border border-[var(--border)] rounded-xl p-5 flex flex-col">
+                <h4 className="font-bold text-[var(--foreground)] flex items-center gap-2 border-b border-[var(--border)] pb-3 mb-4">
                   <Variable className="w-4 h-4 text-brand"/> Εντοπισμένα Πεδία
                 </h4>
                 <div className="flex-1 overflow-y-auto">
                   {variables.length === 0 ? (
-                    <p className="text-xs text-slate-500 italic text-center mt-10">
+                    <p className="text-xs text-[var(--text-muted)] italic text-center mt-10">
                       Γράψτε π.χ. <code className="bg-slate-200 px-1 rounded text-[10px]">{`{{CHILD_NAME}}`}</code> στον κώδικα HTML για να δημιουργηθεί αυτόματα το πεδίο.
                     </p>
                   ) : (
                     <div className="flex flex-col gap-2">
                       {variables.map(v => (
-                        <div key={v} className="bg-white border border-slate-200 shadow-sm rounded-lg p-2 flex items-center gap-2 animate-in fade-in zoom-in-95">
+                        <div key={v} className="bg-[var(--surface)] border border-[var(--border)] shadow-sm rounded-lg p-2 flex items-center gap-2 animate-in fade-in zoom-in-95">
                           <code className="text-xs font-bold text-brand w-full overflow-hidden text-ellipsis">{v}</code>
                         </div>
                       ))}
@@ -148,7 +148,7 @@ export default function DocTemplateForm({ template, onClose }: { template?: any,
             </div>
           </div>
 
-          <DialogFooter className="p-6 shrink-0 border-t border-border bg-slate-50/80">
+          <DialogFooter className="p-6 shrink-0 border-t border-border bg-[var(--background)]/80">
             <Button type="button" variant="outline" onClick={onClose} disabled={loading}>Ακύρωση</Button>
             <Button type="submit" disabled={loading} className="btn-primary min-w-[140px]">
               {loading ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Αποθήκευση Προτύπου'}

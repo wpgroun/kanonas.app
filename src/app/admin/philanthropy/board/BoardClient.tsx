@@ -38,38 +38,38 @@ export default function BoardClient({ initialMembers }: { initialMembers: any[] 
  }
 
  return (
- <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
+ <div className="bg-[var(--surface)] rounded-3xl shadow-sm border border-[var(--border)] p-6">
  <div className="flex justify-between items-center mb-6">
- <h2 className="font-bold text-slate-800 text-lg">Μέλη Δ.Σ. Ε.Φ.Τ.</h2>
+ <h2 className="font-bold text-[var(--foreground)] text-lg">Μέλη Δ.Σ. Ε.Φ.Τ.</h2>
  <button onClick={() => setOpenForm(!openForm)} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
  <Plus className="w-4 h-4"/> Προσθήκη Μέλους
  </button>
  </div>
 
  {openForm && (
- <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6 animate-in slide-in-from-top-4">
- <h3 className="text-sm font-bold text-slate-600 uppercase mb-4 tracking-wider">Στοιχεία Νέου Μέλους</h3>
+ <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 mb-6 animate-in slide-in-from-top-4">
+ <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase mb-4 tracking-wider">Στοιχεία Νέου Μέλους</h3>
  <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
- <label className="block text-xs font-bold text-slate-500 mb-1">Όνομα</label>
+ <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">Όνομα</label>
  <input required value={formData.firstName} onChange={e=>setFormData({...formData, firstName: e.target.value})} className="data-input w-full"placeholder="π.χ. Μαρία"/>
  </div>
  <div>
- <label className="block text-xs font-bold text-slate-500 mb-1">Επίθετο</label>
+ <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">Επίθετο</label>
  <input required value={formData.lastName} onChange={e=>setFormData({...formData, lastName: e.target.value})} className="data-input w-full"placeholder="π.χ. Παπαδοπούλου"/>
  </div>
  <div>
- <label className="block text-xs font-bold text-slate-500 mb-1">Ρόλος / Αξίωμα</label>
- <select value={formData.role} onChange={e=>setFormData({...formData, role: e.target.value})} className="data-input w-full bg-white">
+ <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">Ρόλος / Αξίωμα</label>
+ <select value={formData.role} onChange={e=>setFormData({...formData, role: e.target.value})} className="data-input w-full bg-[var(--surface)]">
  {roles.map(r => <option key={r} value={r}>{r}</option>)}
  </select>
  </div>
  <div>
- <label className="block text-xs font-bold text-slate-500 mb-1">Έναρξη Θητείας</label>
+ <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">Έναρξη Θητείας</label>
  <input type="date"required value={formData.startDate} onChange={e=>setFormData({...formData, startDate: e.target.value})} className="data-input w-full"/>
  </div>
  <div>
- <label className="block text-xs font-bold text-slate-500 mb-1">Λήξη Θητείας (Προαιρετικό)</label>
+ <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">Λήξη Θητείας (Προαιρετικό)</label>
  <input type="date"value={formData.endDate} onChange={e=>setFormData({...formData, endDate: e.target.value})} className="data-input w-full"/>
  </div>
  <div className="col-span-full pt-4">
@@ -83,14 +83,14 @@ export default function BoardClient({ initialMembers }: { initialMembers: any[] 
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
  {members.length === 0 && (
- <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400">
+ <div className="col-span-full py-12 flex flex-col items-center justify-center text-[var(--text-muted)]">
  <Shield className="w-12 h-12 mb-3 text-slate-200"/>
  <p>Δεν υπάρχουν καταχωρημένα μέλη στο Διοικητικό Συμβούλιο.</p>
  </div>
 )}
  {members.map(member => (
- <div key={member.id} className="border border-slate-200 rounded-2xl p-5 hover:shadow-md transition-shadow relative bg-gradient-to-b from-white to-slate-50/50">
- <button onClick={() => handleDelete(member.id)} className="absolute top-4 right-4 text-slate-300 hover:text-rose-500 transition-colors">
+ <div key={member.id} className="border border-[var(--border)] rounded-2xl p-5 hover:shadow-md transition-shadow relative bg-gradient-to-b from-white to-slate-50/50">
+ <button onClick={() => handleDelete(member.id)} className="absolute top-4 right-4 text-slate-300 hover:text-[var(--danger)] transition-colors">
  <Trash2 className="w-4 h-4"/>
  </button>
  <div className="flex items-center gap-3 mb-4">
@@ -98,12 +98,12 @@ export default function BoardClient({ initialMembers }: { initialMembers: any[] 
  {member.firstName[0]}{member.lastName[0]}
  </div>
  <div>
- <h4 className="font-bold text-slate-900">{member.firstName} {member.lastName}</h4>
+ <h4 className="font-bold text-[var(--foreground)]">{member.firstName} {member.lastName}</h4>
  <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest">{member.role}</p>
  </div>
  </div>
- <div className="flex items-center gap-2 text-xs text-slate-500 bg-white p-2 rounded-lg border border-slate-100">
- <Calendar className="w-4 h-4 text-slate-400"/> 
+ <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] bg-[var(--surface)] p-2 rounded-lg border border-[var(--border)]">
+ <Calendar className="w-4 h-4 text-[var(--text-muted)]"/> 
  <span>Από: {new Date(member.startDate).toLocaleDateString('el-GR')}</span>
  </div>
  </div>

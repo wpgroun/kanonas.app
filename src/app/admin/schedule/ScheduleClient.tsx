@@ -70,7 +70,7 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
  <Printer className="w-4 h-4 mr-2"/> Εκτύπωση Εβδομάδας
  </Button>
  </Link>
- <Button variant="secondary" onClick={handleBulkImport} disabled={importing} className="shadow-sm border-slate-200">
+ <Button variant="secondary" onClick={handleBulkImport} disabled={importing} className="shadow-sm border-[var(--border)]">
  <DownloadCloud className="w-4 h-4 mr-2"/> {importing ? 'Γίνεται Εισαγωγή...' : 'Αυτόματο Εορτολόγιο'}
  </Button>
  </>

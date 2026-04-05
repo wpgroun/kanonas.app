@@ -66,7 +66,7 @@ export default function BudgetClient({ year, initialBudgets, categories }: { yea
  const renderTable = (catList: any[], type: string) => (
  <div className="overflow-x-auto rounded-lg border border-border mt-3">
  <table className="w-full text-sm text-left">
- <thead className={`text-xs uppercase ${type === 'INCOME' ? 'bg-emerald-50 text-emerald-800 ' : 'bg-rose-50 text-rose-800 '}`}>
+ <thead className={`text-xs uppercase ${type === 'INCOME' ? 'bg-[var(--success-light)] text-emerald-800 ' : 'bg-[var(--danger-light)] text-rose-800 '}`}>
  <tr>
  <th className="px-4 py-3 font-bold w-1/3">Κατηγορια ({type === 'INCOME' ? 'Εσοδα' : 'Εξοδα'})</th>
  <th className="px-4 py-3 font-bold w-1/4">Στοχος (Προϋπολογισθέντα)</th>
@@ -143,7 +143,7 @@ export default function BudgetClient({ year, initialBudgets, categories }: { yea
  <div className="flex items-center gap-3">
  <Button 
  variant="outline"
- className="gap-2 text-slate-600 border-slate-300 hover:bg-slate-100"
+ className="gap-2 text-[var(--text-secondary)] border-slate-300 hover:bg-[var(--surface-hover)]"
  onClick={() => router.push('/admin/finances/categories')}
  >
  Λογιστικό Σχέδιο
@@ -181,7 +181,7 @@ export default function BudgetClient({ year, initialBudgets, categories }: { yea
  {/* EXPENSES */}
  <div className="space-y-2">
  <h2 className="text-lg font-bold flex items-center gap-2 mt-8">
- <ArrowDownRight className="w-5 h-5 text-rose-500"/> Προϋπολογισμός Εξόδων
+ <ArrowDownRight className="w-5 h-5 text-[var(--danger)]"/> Προϋπολογισμός Εξόδων
  </h2>
  {renderTable(expenses, 'EXPENSE')}
  </div>

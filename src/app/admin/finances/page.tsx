@@ -41,42 +41,42 @@ export default async function FinancesPage() {
  <p className="text-blue-100 font-bold tracking-wider text-xs uppercase mb-2">Τρέχον Υπόλοιπο (Ταμείο)</p>
  <h3 className="text-4xl font-black font-mono text-white tracking-tight">€ {currentBalance.toLocaleString('el-GR', {minimumFractionDigits: 2})}</h3>
  </div>
- <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl shadow-inner border border-white/20">
+ <div className="p-4 bg-[var(--surface)]/10 backdrop-blur-md rounded-2xl shadow-inner border border-white/20">
  <Scale className="w-8 h-8 text-white"/>
  </div>
  </div>
  {/* Minimal line chart decoration */}
  <div className="mt-6 flex items-end gap-1.5 opacity-40">
  {[40, 70, 45, 90, 65, 100, 80].map((h, i) => (
- <div key={i} className="w-full bg-white rounded-t-sm"style={{height: `${h/4}px`}}></div>
+ <div key={i} className="w-full bg-[var(--surface)] rounded-t-sm"style={{height: `${h/4}px`}}></div>
 ))}
  </div>
  </CardContent>
  </Card>
  
  {/* ΣΥΝΟΛΙΚΑ ΕΣΟΔΑ */}
- <Card className="shadow-xl border-0 bg-white overflow-hidden relative group">
+ <Card className="shadow-xl border-0 bg-[var(--surface)] overflow-hidden relative group">
  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
  <CardContent className="p-7 flex flex-col justify-center h-full relative z-10 border-l-4 border-emerald-500 rounded-l-md">
- <div className="text-xs uppercase tracking-wider font-extrabold flex items-center justify-between text-slate-500 mb-3">
+ <div className="text-xs uppercase tracking-wider font-extrabold flex items-center justify-between text-[var(--text-muted)] mb-3">
  <span className="flex items-center gap-1.5"><ArrowUpRight className="w-4 h-4 text-emerald-500"/> ΣΥΝΟΛΙΚΑ ΕΣΟΔΑ</span>
- <div className="p-2 bg-emerald-50 rounded-xl text-emerald-500"><Banknote className="w-5 h-5"/></div>
+ <div className="p-2 bg-[var(--success-light)] rounded-xl text-emerald-500"><Banknote className="w-5 h-5"/></div>
  </div>
- <div className="text-3xl font-mono font-black text-slate-800 tracking-tight">
+ <div className="text-3xl font-mono font-black text-[var(--foreground)] tracking-tight">
  € {biStats.totalIncome.toLocaleString('el-GR', {minimumFractionDigits: 2})}
  </div>
  </CardContent>
  </Card>
 
  {/* ΣΥΝΟΛΙΚΑ ΕΞΟΔΑ */}
- <Card className="shadow-xl border-0 bg-white overflow-hidden relative group">
+ <Card className="shadow-xl border-0 bg-[var(--surface)] overflow-hidden relative group">
  <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
  <CardContent className="p-7 flex flex-col justify-center h-full relative z-10 border-l-4 border-rose-500 rounded-l-md">
- <div className="text-xs uppercase tracking-wider font-extrabold flex items-center justify-between text-slate-500 mb-3">
- <span className="flex items-center gap-1.5"><ArrowDownRight className="w-4 h-4 text-rose-500"/> ΣΥΝΟΛΙΚΑ ΕΞΟΔΑ</span>
- <div className="p-2 bg-rose-50 rounded-xl text-rose-500"><Wallet className="w-5 h-5"/></div>
+ <div className="text-xs uppercase tracking-wider font-extrabold flex items-center justify-between text-[var(--text-muted)] mb-3">
+ <span className="flex items-center gap-1.5"><ArrowDownRight className="w-4 h-4 text-[var(--danger)]"/> ΣΥΝΟΛΙΚΑ ΕΞΟΔΑ</span>
+ <div className="p-2 bg-[var(--danger-light)] rounded-xl text-[var(--danger)]"><Wallet className="w-5 h-5"/></div>
  </div>
- <div className="text-3xl font-mono font-black text-slate-800 tracking-tight">
+ <div className="text-3xl font-mono font-black text-[var(--foreground)] tracking-tight">
  € {biStats.totalExpense.toLocaleString('el-GR', {minimumFractionDigits: 2})}
  </div>
  </CardContent>
@@ -120,10 +120,10 @@ export default async function FinancesPage() {
  </td>
  <td className="px-6 py-3 text-center">
  {d.type === 'INCOME' 
- ? <span className="inline-flex px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold ring-1 ring-inset ring-emerald-600/20">Έσοδο</span> 
- : <span className="inline-flex px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-xs font-bold ring-1 ring-inset ring-rose-600/20">Έξοδο</span>}
+ ? <span className="inline-flex px-2 py-0.5 rounded-full bg-[var(--success-light)] text-[var(--success)] text-xs font-bold ring-1 ring-inset ring-emerald-600/20">Έσοδο</span> 
+ : <span className="inline-flex px-2 py-0.5 rounded-full bg-[var(--danger-light)] text-[var(--danger)] text-xs font-bold ring-1 ring-inset ring-rose-600/20">Έξοδο</span>}
  </td>
- <td className={`px-6 py-3 text-right font-bold whitespace-nowrap font-mono ${d.type === 'INCOME' ? 'text-emerald-600' : 'text-rose-600'}`}>
+ <td className={`px-6 py-3 text-right font-bold whitespace-nowrap font-mono ${d.type === 'INCOME' ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
  {d.type === 'INCOME' ? '+' : '-'} {d.amount.toFixed(2)} €
  </td>
  <td className="px-6 py-3">
@@ -161,7 +161,7 @@ export default async function FinancesPage() {
  {biStats.byCategory.slice(0, 5).map((c: any) => (
  <div key={c.purpose} className="flex justify-between items-center py-3 px-5 hover:bg-muted/30 transition-colors">
  <span className="text-sm font-medium">{c.purpose}</span>
- <strong className="text-sm font-mono text-emerald-600">€ {c.total.toFixed(2)}</strong>
+ <strong className="text-sm font-mono text-[var(--success)]">€ {c.total.toFixed(2)}</strong>
  </div>
 ))}
  {biStats.byCategory.length === 0 && (

@@ -26,10 +26,10 @@ export default function AssetsClient({ initialAssets, currentOwner, currentType 
  return (
  <div className="space-y-6">
  {/* Filters */}
- <div className="flex flex-col md:flex-row justify-between bg-white p-4 rounded-xl border border-border shadow-sm gap-4">
+ <div className="flex flex-col md:flex-row justify-between bg-[var(--surface)] p-4 rounded-xl border border-border shadow-sm gap-4">
  <div className="flex gap-4">
  <div className="space-y-1">
- <label className="text-xs font-semibold text-gray-500">Ιδιοκτησία</label>
+ <label className="text-xs font-semibold text-[var(--text-muted)]">Ιδιοκτησία</label>
  <select 
  className="w-full text-sm p-2 border border-border rounded-lg bg-transparent"
  value={currentOwner}
@@ -42,7 +42,7 @@ export default function AssetsClient({ initialAssets, currentOwner, currentType 
  </div>
  
  <div className="space-y-1">
- <label className="text-xs font-semibold text-gray-500">Κατηγορία</label>
+ <label className="text-xs font-semibold text-[var(--text-muted)]">Κατηγορία</label>
  <select 
  className="w-full text-sm p-2 border border-border rounded-lg bg-transparent"
  value={currentType}
@@ -78,30 +78,30 @@ export default function AssetsClient({ initialAssets, currentOwner, currentType 
  <div className="flex justify-between items-start mb-2">
  <div>
  <h3 className="font-bold text-lg">{ast.name}</h3>
- <span className={`text-xs font-semibold border px-2 py-0.5 rounded-full ${ast.owner === 'TEMPLE' ? 'bg-indigo-50 text-indigo-700' : 'bg-red-50 text-red-700'}`}>
+ <span className={`text-xs font-semibold border px-2 py-0.5 rounded-full ${ast.owner === 'TEMPLE' ? 'bg-[var(--brand-50)] text-[var(--brand)]' : 'bg-red-50 text-red-700'}`}>
  {ast.owner === 'TEMPLE' ? 'Ι. Ναός' : 'Ε.Φ.Τ.'}
  </span>
  </div>
- <button className="text-gray-400 hover:text-primary"><MoreVertical className="w-5 h-5"/></button>
+ <button className="text-[var(--text-muted)] hover:text-primary"><MoreVertical className="w-5 h-5"/></button>
  </div>
  
- <p className="text-xs text-gray-500 mb-4 line-clamp-2">{ast.description || 'Χωρίς περιγραφή'}</p>
+ <p className="text-xs text-[var(--text-muted)] mb-4 line-clamp-2">{ast.description || 'Χωρίς περιγραφή'}</p>
  
- <div className="mt-auto space-y-2 bg-slate-50 p-3 rounded-lg border border-border/50">
+ <div className="mt-auto space-y-2 bg-[var(--background)] p-3 rounded-lg border border-border/50">
  {ast.location && (
- <div className="flex items-center text-sm text-gray-600">
+ <div className="flex items-center text-sm text-[var(--text-secondary)]">
  <MapPin className="w-4 h-4 mr-2"/> {ast.location}
  </div>
 )}
  
  {ast.estimatedValue !== null && (
- <div className="flex items-center text-sm font-semibold text-emerald-600">
+ <div className="flex items-center text-sm font-semibold text-[var(--success)]">
  <Coins className="w-4 h-4 mr-2"/> 
  {new Intl.NumberFormat('el-GR', { style: 'currency', currency: 'EUR' }).format(ast.estimatedValue)}
  </div>
 )}
  
- <div className="flex justify-between items-center text-xs text-gray-400 pt-2 mt-2 border-t border-border/50">
+ <div className="flex justify-between items-center text-xs text-[var(--text-muted)] pt-2 mt-2 border-t border-border/50">
  <span>Κατηγορία: {ast.category}</span>
  <span>{ast.status === 'ACTIVE' ? 'Ενεργό' : ast.status}</span>
  </div>
@@ -113,8 +113,8 @@ export default function AssetsClient({ initialAssets, currentOwner, currentType 
  {initialAssets.length === 0 && (
  <div className="col-span-full py-16 text-center border-2 border-dashed border-border rounded-xl">
  <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-3"/>
- <h3 className="text-lg font-bold text-gray-500">Κενό Περιουσιολόγιο</h3>
- <p className="text-sm text-gray-400">Δεν βρέθηκαν περιουσιακά στοιχεία για τα επιλεγμένα φίλτρα.</p>
+ <h3 className="text-lg font-bold text-[var(--text-muted)]">Κενό Περιουσιολόγιο</h3>
+ <p className="text-sm text-[var(--text-muted)]">Δεν βρέθηκαν περιουσιακά στοιχεία για τα επιλεγμένα φίλτρα.</p>
  </div>
 )}
  </div>

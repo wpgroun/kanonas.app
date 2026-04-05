@@ -10,7 +10,7 @@ export const metadata = {
 const modulesData = [
  {
  category:"Κεντρική Διαχείριση",
- icon: <Settings className="w-5 h-5 text-slate-500"/>,
+ icon: <Settings className="w-5 h-5 text-[var(--text-muted)]"/>,
  items: [
  { name: 'Dashboard (Επισκόπηση)', desc: 'Γρήγορη ματιά σε στατιστικά, έσοδα, ιερά μυστήρια, τελευταία αιτήματα και εορτάζοντες.', isCore: true },
  { name: 'Kanban Tasks', desc: 'Οπτικός πίνακας οργάνωσης εργασιών (Εκκρεμότητες, Σε εξέλιξη, Ολοκληρωμένα) για τις επιτροπές του Ναού.', isCore: false },
@@ -51,7 +51,7 @@ const modulesData = [
  },
  {
  category:"Φιλανθρωπία & Μέριμνα",
- icon: <HeartHandshake className="w-5 h-5 text-rose-500"/>,
+ icon: <HeartHandshake className="w-5 h-5 text-[var(--danger)]"/>,
  items: [
  { name: 'Συμβούλιο Φιλοπτώχου (ΕΦΤ)', desc: 'Ονόματα Διοικητικού Συμβουλίου Φιλοπτώχου (Πρόεδρος, Ταμίας, Μέλη) και θητεία.', isCore: false },
  { name: 'Μητρώο Ωφελουμένων', desc: 'Καταγραφή αναξιοπαθούντων (εισόδημα, μέλη οικογένειας) και μοριοδότηση μέσω κριτηρίων.', isCore: false },
@@ -88,10 +88,10 @@ export default async function ModulesInfoPage() {
  return (
  <div className="space-y-6 max-w-5xl">
  <div>
- <h1 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+ <h1 className="text-2xl font-bold text-[var(--foreground)] tracking-tight flex items-center gap-2">
  <Info className="w-6 h-6 text-blue-600"/> Χάρτης Λειτουργικοτήτων
  </h1>
- <p className="text-slate-500 text-sm mt-1">
+ <p className="text-[var(--text-muted)] text-sm mt-1">
  Ενεργοποιήστε ή απενεργοποιήστε τις λειτουργικότητες (modules) που χρησιμοποιεί ο Ι.Ν. σας προκειμένου 
  να ελαφρύνετε το κεντρικό μενού και το Dashboard.
  </p>

@@ -14,8 +14,8 @@ export default async function AssetsPage({ searchParams }: { searchParams: { own
  return (
  <div className="max-w-7xl mx-auto space-y-6">
  <div>
- <h1 className="text-2xl font-bold text-gray-900">Περιουσιολόγιο Ναού & Φιλοπτώχου</h1>
- <p className="text-sm text-gray-500">Διαχείριση Ακίνητης και Κινητής Περιουσίας (Λείψανα, Σκεύη, Οικόπεδα)</p>
+ <h1 className="text-2xl font-bold text-[var(--foreground)]">Περιουσιολόγιο Ναού & Φιλοπτώχου</h1>
+ <p className="text-sm text-[var(--text-muted)]">Διαχείριση Ακίνητης και Κινητής Περιουσίας (Λείψανα, Σκεύη, Οικόπεδα)</p>
  </div>
 
  <AssetsClient initialAssets={assets} currentOwner={currentOwner} currentType={currentType} />

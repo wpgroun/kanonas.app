@@ -41,7 +41,7 @@ export default function ParishionerProfileClient({ p, beneficiary, relationships
  {p.firstName} {p.lastName}
  </h1>
  <div className="flex flex-wrap gap-2 mt-2">
- <Badge variant="outline"className="bg-emerald-100 text-emerald-800 border-emerald-200">
+ <Badge variant="outline"className="bg-[var(--success-light)] text-emerald-800 border-[var(--success)]/20">
  Ενεργός Ενορίτης
  </Badge>
  {beneficiary && (
@@ -265,7 +265,7 @@ export default function ParishionerProfileClient({ p, beneficiary, relationships
  <div className="grid grid-cols-3 gap-y-4 text-sm">
  <div className="text-muted-foreground font-medium">Κατάσταση:</div>
  <div className="col-span-2">
- <Badge className={beneficiary.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'} variant="outline">
+ <Badge className={beneficiary.status === 'active' ? 'bg-[var(--success-light)] text-emerald-800' : 'bg-red-100 text-red-800'} variant="outline">
  {beneficiary.status === 'active' ? 'Ενεργός' : 'Ανενεργός'}
  </Badge>
  </div>

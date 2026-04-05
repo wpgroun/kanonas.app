@@ -199,7 +199,7 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
  </div>
  
  <div className="glass-panel p-6 p-4">
- <h4 className="flex items-center gap-2 font-bold mb-2 text-indigo-600">
+ <h4 className="flex items-center gap-2 font-bold mb-2 text-[var(--brand)]">
  <AlertTriangleIcon size={18} /> Έξυπνη Αποτροπή Συγκρούσεων
  </h4>
  <p className="text-xs text-muted-foreground leading-relaxed">

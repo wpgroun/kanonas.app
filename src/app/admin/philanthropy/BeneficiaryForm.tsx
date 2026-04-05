@@ -35,7 +35,7 @@ export default function BeneficiaryForm({ isOpen, onClose }: { isOpen: boolean, 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-white">
+      <DialogContent className="sm:max-w-md bg-[var(--surface)]">
         <DialogHeader>
           <DialogTitle>Νέος Ωφελούμενος</DialogTitle>
           <DialogDescription>
@@ -46,25 +46,25 @@ export default function BeneficiaryForm({ isOpen, onClose }: { isOpen: boolean, 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Όνομα *</Label>
-              <Input name="firstName" required className="bg-slate-50"/>
+              <Input name="firstName" required className="bg-[var(--background)]"/>
             </div>
             <div className="space-y-1.5">
               <Label>Επώνυμο *</Label>
-              <Input name="lastName" required className="bg-slate-50"/>
+              <Input name="lastName" required className="bg-[var(--background)]"/>
             </div>
           </div>
           <div className="space-y-1.5">
             <Label>ΑΦΜ (Προαιρετικό)</Label>
-            <Input name="afm" placeholder="123456789" className="bg-slate-50"/>
-            <p className="text-xs text-slate-500">Χρήσιμο για αποφυγή διπλοεγγραφών σε άλλη ενορία.</p>
+            <Input name="afm" placeholder="123456789" className="bg-[var(--background)]"/>
+            <p className="text-xs text-[var(--text-muted)]">Χρήσιμο για αποφυγή διπλοεγγραφών σε άλλη ενορία.</p>
           </div>
           <div className="space-y-1.5">
             <Label>Τηλέφωνο</Label>
-            <Input name="phone" className="bg-slate-50"/>
+            <Input name="phone" className="bg-[var(--background)]"/>
           </div>
           <div className="space-y-1.5">
             <Label>Δικαιούχες Μερίδες Συσσιτίου (Ημερησίως)</Label>
-            <Input name="portions" type="number" min="0" defaultValue="1" required className="bg-slate-50"/>
+            <Input name="portions" type="number" min="0" defaultValue="1" required className="bg-[var(--background)]"/>
           </div>
           <DialogFooter className="mt-4">
             <Button type="button" variant="outline" onClick={onClose} disabled={loading}>Ακύρωση</Button>

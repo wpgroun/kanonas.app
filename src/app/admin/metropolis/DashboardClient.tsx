@@ -33,10 +33,10 @@ export default function DashboardClient({ initialTemples }: { initialTemples: an
  </CardContent>
  </Card>
  
- <Card className="border-l-4 border-l-emerald-500 shadow-sm bg-emerald-50">
+ <Card className="border-l-4 border-l-emerald-500 shadow-sm bg-[var(--success-light)]">
  <CardContent className="pt-6">
  <div className="flex items-center gap-3">
- <Activity className="w-8 h-8 text-emerald-600"/>
+ <Activity className="w-8 h-8 text-[var(--success)]"/>
  <div>
  <p className="text-sm font-semibold text-muted-foreground uppercase">Τελεσθέντα Μυστήρια</p>
  <p className="text-3xl font-bold">{totalSacraments}</p>
@@ -45,7 +45,7 @@ export default function DashboardClient({ initialTemples }: { initialTemples: an
  </CardContent>
  </Card>
 
- <Card className="border-l-4 border-l-amber-500 shadow-sm bg-amber-50">
+ <Card className="border-l-4 border-l-amber-500 shadow-sm bg-[var(--warning-light)]">
  <CardContent className="pt-6">
  <div className="flex items-center gap-3">
  <CalendarCheck className="w-8 h-8 text-amber-600"/>
@@ -90,7 +90,7 @@ export default function DashboardClient({ initialTemples }: { initialTemples: an
  <tr key={t.id} className="hover:bg-muted/40 transition-colors">
  <td className="px-6 py-4 font-semibold">{t.name}</td>
  <td className="px-6 py-4 text-center">{t.sacraments.length}</td>
- <td className="px-6 py-4 text-right text-emerald-600 font-bold">
+ <td className="px-6 py-4 text-right text-[var(--success)] font-bold">
  €{t.donations.reduce((sum: number, d: any) => sum + d.amount, 0).toLocaleString('el-GR', { minimumFractionDigits: 2 })}
  </td>
  </tr>
@@ -104,9 +104,9 @@ export default function DashboardClient({ initialTemples }: { initialTemples: an
  </Card>
 
  <Card className="shadow-sm border-l-4 border-l-amber-500">
- <CardHeader className="border-b bg-amber-50/50 pb-4 flex flex-row items-center justify-between">
- <CardTitle className="text-lg text-amber-900">Αιτήματα προς Έγκριση (Κεντρικά)</CardTitle>
- <Badge className="bg-amber-100 text-amber-800">{pendingRequests.length} Νέα</Badge>
+ <CardHeader className="border-b bg-[var(--warning-light)]/50 pb-4 flex flex-row items-center justify-between">
+ <CardTitle className="text-lg text-[var(--warning)]">Αιτήματα προς Έγκριση (Κεντρικά)</CardTitle>
+ <Badge className="bg-amber-100 text-[var(--warning)]">{pendingRequests.length} Νέα</Badge>
  </CardHeader>
  <CardContent className="p-0">
  <div className="flex flex-col">

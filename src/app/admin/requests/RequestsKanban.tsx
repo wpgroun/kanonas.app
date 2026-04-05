@@ -13,7 +13,7 @@ export default function RequestsKanban({ tokens }: { tokens: any[] }) {
  id: 'pending', 
  title: 'Εκκρεμεί / Προετοιμασία', 
  icon: CircleDashed, 
- color: 'bg-amber-50 border-amber-200', 
+ color: 'bg-[var(--warning-light)] border-amber-200', 
  headerColor: 'text-amber-700 bg-amber-100/50' 
  },
  { 
@@ -27,8 +27,8 @@ export default function RequestsKanban({ tokens }: { tokens: any[] }) {
  id: 'completed', 
  title: 'Ολοκληρωμένα', 
  icon: CheckCircle2, 
- color: 'bg-emerald-50 border-emerald-200', 
- headerColor: 'text-emerald-700 bg-emerald-100/50' 
+ color: 'bg-[var(--success-light)] border-[var(--success)]/20', 
+ headerColor: 'text-[var(--success)] bg-[var(--success-light)]/50' 
  }
  ];
 
@@ -48,29 +48,29 @@ export default function RequestsKanban({ tokens }: { tokens: any[] }) {
  <h3 className="font-bold flex items-center gap-2">
  <col.icon className="w-5 h-5"/> {col.title}
  </h3>
- <span className="bg-white/60 text-inherit px-2 py-0.5 rounded-full text-xs font-black shadow-sm">
+ <span className="bg-[var(--surface)]/60 text-inherit px-2 py-0.5 rounded-full text-xs font-black shadow-sm">
  {colItems.length}
  </span>
  </div>
- <div className="p-3 overflow-y-auto space-y-3 flex-1 bg-white/40">
+ <div className="p-3 overflow-y-auto space-y-3 flex-1 bg-[var(--surface)]/40">
  {colItems.length === 0 && (
- <div className="text-center py-10 text-slate-500 text-sm font-medium border-2 border-dashed border-inherit rounded-lg opacity-50">
+ <div className="text-center py-10 text-[var(--text-muted)] text-sm font-medium border-2 border-dashed border-inherit rounded-lg opacity-50">
  Καμία εγγραφή
  </div>
 )}
  {colItems.map(token => (
- <Card key={token.id} className="p-3 shadow-sm hover:shadow-md transition-all border border-slate-200 bg-white group relative">
+ <Card key={token.id} className="p-3 shadow-sm hover:shadow-md transition-all border border-[var(--border)] bg-[var(--surface)] group relative">
  <div className="flex justify-between items-start mb-2">
- <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-slate-100 text-slate-600">
+ <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-slate-100 text-[var(--text-secondary)]">
  {token.serviceType === 'GAMOS' ? '💍 Γάμος' : '🕊️ Βάπτιση'}
  </span>
- <span className="text-[10px] font-mono text-slate-400">#{token.tokenStr?.slice(-6).toUpperCase()}</span>
+ <span className="text-[10px] font-mono text-[var(--text-muted)]">#{token.tokenStr?.slice(-6).toUpperCase()}</span>
  </div>
  
  <div className="font-bold text-sm text-foreground mb-1">
  {token.ceremonyDate ? new Date(token.ceremonyDate).toLocaleDateString('el-GR') : 'Άγνωστη Ημ/νία'}
  </div>
- <div className="text-xs text-slate-500 flex items-center gap-1 mb-3">
+ <div className="text-xs text-[var(--text-muted)] flex items-center gap-1 mb-3">
  <Calendar className="w-3 h-3"/> Ιερέας: {token.assignedPriest || 'Δεν ορίστηκε'}
  </div>
 

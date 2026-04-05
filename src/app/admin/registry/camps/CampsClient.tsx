@@ -69,20 +69,20 @@ export default function CampsClient({ initialCamps, parishioners }: any) {
  </Button>
 
  <div className="space-y-3">
- {initialCamps.length === 0 && <div className="text-gray-400 text-sm text-center py-4 border border-dashed rounded-lg">Καμία περίοδος κατασκήνωσης.</div>}
+ {initialCamps.length === 0 && <div className="text-[var(--text-muted)] text-sm text-center py-4 border border-dashed rounded-lg">Καμία περίοδος κατασκήνωσης.</div>}
  {initialCamps.map((camp: any) => (
  <div 
  key={camp.id} 
  onClick={() => setActiveCampId(camp.id)}
- className={`p-4 rounded-xl cursor-pointer border transition-all ${activeCampId === camp.id ? 'bg-emerald-50 border-emerald-300 shadow-sm' : 'bg-white border-border hover:shadow-md'}`}
+ className={`p-4 rounded-xl cursor-pointer border transition-all ${activeCampId === camp.id ? 'bg-[var(--success-light)] border-emerald-300 shadow-sm' : 'bg-[var(--surface)] border-border hover:shadow-md'}`}
  >
- <h3 className="font-bold text-gray-900 flex items-center gap-2">
- <Tent className={activeCampId === camp.id ? 'text-emerald-500 w-5 h-5' : 'text-gray-400 w-5 h-5'} /> 
+ <h3 className="font-bold text-[var(--foreground)] flex items-center gap-2">
+ <Tent className={activeCampId === camp.id ? 'text-emerald-500 w-5 h-5' : 'text-[var(--text-muted)] w-5 h-5'} /> 
  {camp.name}
  </h3>
- <div className="text-xs text-gray-500 mt-2 space-y-1">
+ <div className="text-xs text-[var(--text-muted)] mt-2 space-y-1">
  <p className="flex items-center gap-1"><Calendar className="w-3 h-3"/> {new Date(camp.startDate).toLocaleDateString("el-GR")} - {new Date(camp.endDate).toLocaleDateString("el-GR")}</p>
- <p className="flex items-center gap-1 font-semibold text-emerald-600"><Users className="w-3 h-3"/> {camp.registrations?.length || 0} Συμμετοχές</p>
+ <p className="flex items-center gap-1 font-semibold text-[var(--success)]"><Users className="w-3 h-3"/> {camp.registrations?.length || 0} Συμμετοχές</p>
  </div>
  </div>
 ))}
@@ -92,7 +92,7 @@ export default function CampsClient({ initialCamps, parishioners }: any) {
  {/* Main Content: Camp Details & Registrations */}
  <div className="flex-1">
  {!activeCamp ? (
- <div className="bg-slate-50 border-2 border-dashed border-border rounded-xl h-96 flex flex-col items-center justify-center text-gray-400">
+ <div className="bg-[var(--background)] border-2 border-dashed border-border rounded-xl h-96 flex flex-col items-center justify-center text-[var(--text-muted)]">
  <Tent className="w-16 h-16 opacity-30 mb-4"/>
  <p>Επιλέξτε μια κατασκηνωτική περίοδο από τα αριστερά.</p>
  </div>
@@ -103,16 +103,16 @@ export default function CampsClient({ initialCamps, parishioners }: any) {
  <p className="flex items-center gap-2 opacity-80 mt-1 text-sm"><MapPin className="w-4 h-4"/> {activeCamp.location || 'Άγνωστη Τοποθεσία'}</p>
  </div>
  
- <div className="p-4 border-b border-border bg-slate-50 flex justify-between items-center">
+ <div className="p-4 border-b border-border bg-[var(--background)] flex justify-between items-center">
  <h3 className="font-bold text-gray-700">Λίστα Παιδιών ({activeCamp.registrations.length})</h3>
- <Button onClick={()=>setIsRegisterModal(true)} variant="outline"className="gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50">
+ <Button onClick={()=>setIsRegisterModal(true)} variant="outline"className="gap-2 border-emerald-300 text-[var(--success)] hover:bg-[var(--success-light)]">
  <Plus className="w-4 h-4"/> Δήλωση Συμμετοχής
  </Button>
  </div>
 
  <div className="p-0 overflow-auto">
  <table className="w-full text-sm text-left">
- <thead className="bg-white text-gray-600 border-b border-border">
+ <thead className="bg-[var(--surface)] text-[var(--text-secondary)] border-b border-border">
  <tr>
  <th className="p-4 font-semibold">Ονοματεπώνυμο Παιδιού</th>
  <th className="p-4 font-semibold">Τηλέφωνο Επικοινωνίας (Γονέων)</th>
@@ -122,10 +122,10 @@ export default function CampsClient({ initialCamps, parishioners }: any) {
  </thead>
  <tbody className="divide-y divide-border">
  {activeCamp.registrations.length === 0 ? (
- <tr><td colSpan={4} className="p-12 text-center text-gray-500">Δεν υπάρχουν συμμετοχές.</td></tr>
+ <tr><td colSpan={4} className="p-12 text-center text-[var(--text-muted)]">Δεν υπάρχουν συμμετοχές.</td></tr>
 ) : activeCamp.registrations.map((reg: any) => (
- <tr key={reg.id} className="hover:bg-slate-50 :bg-slate-800">
- <td className="p-4 font-bold text-gray-900">
+ <tr key={reg.id} className="hover:bg-[var(--background)] :bg-slate-800">
+ <td className="p-4 font-bold text-[var(--foreground)]">
  {reg.parishioner.lastName} {reg.parishioner.firstName}
  </td>
  <td className="p-4">{reg.parishioner.phone || reg.parishioner.mobile || '-'}</td>
@@ -133,10 +133,10 @@ export default function CampsClient({ initialCamps, parishioners }: any) {
  {reg.medicalNotes ? (
  <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-semibold line-clamp-1">{reg.medicalNotes}</span>
 ) : (
- <span className="text-gray-400">Κανένα/ΟΚ</span>
+ <span className="text-[var(--text-muted)]">Κανένα/ΟΚ</span>
 )}
  </td>
- <td className="p-4 text-center tabular-nums text-gray-500">{new Date(reg.createdAt).toLocaleDateString("el-GR")}</td>
+ <td className="p-4 text-center tabular-nums text-[var(--text-muted)]">{new Date(reg.createdAt).toLocaleDateString("el-GR")}</td>
  </tr>
 ))}
  </tbody>
@@ -149,7 +149,7 @@ export default function CampsClient({ initialCamps, parishioners }: any) {
  {/* MODALS */}
  {isNewCampModal && (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
- <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+ <div className="bg-[var(--surface)] rounded-2xl shadow-xl w-full max-w-md p-6">
  <h2 className="text-lg font-bold mb-4 flex items-center gap-2"><Tent/> Νέα Κατασκηνωτική Περίοδος</h2>
  <form onSubmit={handleCreateCamp} className="space-y-4">
  <div className="space-y-1"><label className="text-sm font-semibold">Ονομασία (π.χ. Α' Περίοδος Αγοριών)</label><Input name="name"required /></div>
@@ -172,7 +172,7 @@ export default function CampsClient({ initialCamps, parishioners }: any) {
 
  {isRegisterModal && (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
- <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+ <div className="bg-[var(--surface)] rounded-2xl shadow-xl w-full max-w-md p-6">
  <h2 className="text-lg font-bold mb-4">Εγγραφή Κατασκηνωτή</h2>
  <form onSubmit={handleRegister} className="space-y-4">
  <div className="p-3 bg-blue-50 rounded-lg text-sm text-blue-800 border border-blue-200">
@@ -180,7 +180,7 @@ export default function CampsClient({ initialCamps, parishioners }: any) {
  </div>
  
  <div className="space-y-1">
- <label className="text-sm font-semibold text-gray-500">Επιλογή από Μητρώο (Προαιρετικό)</label>
+ <label className="text-sm font-semibold text-[var(--text-muted)]">Επιλογή από Μητρώο (Προαιρετικό)</label>
  <select name="parishionerId"className="w-full border border-border p-2 rounded-md bg-transparent">
  <option value="">-- Νέο Παιδί (Χειροκίνητα) --</option>
  {childrenFilter.map((c:any) => <option key={c.id} value={c.id}>{c.lastName} {c.firstName} (Οικ: {c.phone || c.mobile})</option>)}

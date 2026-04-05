@@ -83,21 +83,21 @@ export default function FuneralsClient({ initialData, parishioners }: any) {
  </Button>
 
  <div className="relative">
- <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+ <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"/>
  <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Αναζήτηση ονόματος..."className="pl-9"/>
  </div>
 
  <div className="space-y-3 overflow-y-auto max-h-[600px] pb-4">
- {filteredDeceased.length === 0 && <div className="text-gray-400 text-sm text-center py-8 border border-dashed rounded-lg">Κανένα αποτέλεσμα.</div>}
+ {filteredDeceased.length === 0 && <div className="text-[var(--text-muted)] text-sm text-center py-8 border border-dashed rounded-lg">Κανένα αποτέλεσμα.</div>}
  {filteredDeceased.map((dec: any) => (
  <div 
  key={dec.id} 
  onClick={() => setActiveDeceasedId(dec.id)}
- className={`p-3 rounded-lg cursor-pointer border transition-all ${activeDeceasedId === dec.id ? 'bg-slate-50 border-slate-400 shadow-sm' : 'bg-white border-border hover:shadow-sm'}`}
+ className={`p-3 rounded-lg cursor-pointer border transition-all ${activeDeceasedId === dec.id ? 'bg-[var(--background)] border-slate-400 shadow-sm' : 'bg-[var(--surface)] border-border hover:shadow-sm'}`}
  >
- <h3 className="font-bold text-gray-900 truncate"title={`${dec.lastName} ${dec.firstName}`}>{dec.lastName} {dec.firstName}</h3>
- <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">✝️ {new Date(dec.dateOfDeath).toLocaleDateString("el-GR")}</p>
- {dec.bookNumber && <p className="text-[10px] text-gray-400 mt-1 flex items-center gap-1"><Book className="w-3 h-3"/> Πράξη: {dec.bookNumber}</p>}
+ <h3 className="font-bold text-[var(--foreground)] truncate"title={`${dec.lastName} ${dec.firstName}`}>{dec.lastName} {dec.firstName}</h3>
+ <p className="text-xs text-[var(--text-muted)] mt-1 flex items-center gap-1">✝️ {new Date(dec.dateOfDeath).toLocaleDateString("el-GR")}</p>
+ {dec.bookNumber && <p className="text-[10px] text-[var(--text-muted)] mt-1 flex items-center gap-1"><Book className="w-3 h-3"/> Πράξη: {dec.bookNumber}</p>}
  </div>
 ))}
  </div>
@@ -106,7 +106,7 @@ export default function FuneralsClient({ initialData, parishioners }: any) {
  {/* Main Content: Record Details */}
  <div className="flex-1">
  {!activeRecord ? (
- <div className="bg-slate-50 border-2 border-dashed border-border rounded-xl h-96 flex flex-col items-center justify-center text-gray-400">
+ <div className="bg-[var(--background)] border-2 border-dashed border-border rounded-xl h-96 flex flex-col items-center justify-center text-[var(--text-muted)]">
  <p>Επιλέξτε μια εγγραφή από τα αριστερά για προβολή Λεπτομερειών.</p>
  </div>
 ) : (
@@ -115,7 +115,7 @@ export default function FuneralsClient({ initialData, parishioners }: any) {
  <Card className="rounded-xl border-border shadow-sm overflow-hidden flex flex-col">
  <div className="bg-slate-800 text-white p-6 relative overflow-hidden">
  <span className="absolute right-[-40px] top-[-40px] text-slate-700 opacity-20 text-[150px]">🕊️</span>
- <h2 className="text-2xl font-bold flex items-center gap-2 relative z-10">{activeRecord.lastName} {activeRecord.firstName} {activeRecord.fathersName && <span className="text-slate-400 font-normal text-lg">του {activeRecord.fathersName}</span>}</h2>
+ <h2 className="text-2xl font-bold flex items-center gap-2 relative z-10">{activeRecord.lastName} {activeRecord.firstName} {activeRecord.fathersName && <span className="text-[var(--text-muted)] font-normal text-lg">του {activeRecord.fathersName}</span>}</h2>
  <div className="flex flex-wrap gap-4 mt-3 text-sm opacity-90 relative z-10">
  <p className="flex items-center gap-1"><Calendar className="w-4 h-4"/> Ημ. Εκδημίας: {new Date(activeRecord.dateOfDeath).toLocaleDateString("el-GR")}</p>
  <p className="flex items-center gap-1"><MapPin className="w-4 h-4"/> {activeRecord.placeOfFuneral || '–'}</p>
@@ -124,12 +124,12 @@ export default function FuneralsClient({ initialData, parishioners }: any) {
  
  <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
  <div className="space-y-4 text-sm">
- <div><span className="text-gray-500 block">Ληξιαρχικός Αριθμός (Βιβλίο):</span><span className="font-semibold">{activeRecord.bookNumber || '-'}</span></div>
- <div><span className="text-gray-500 block">Στοιχεία Τάφου (Οστεοφυλάκιο):</span><span className="font-semibold">{activeRecord.graveDetails || '-'}</span></div>
- <div><span className="text-gray-500 block">Πλησιέστερος Συγγενής:</span><span className="font-semibold">{activeRecord.nextOfKinName || '-'} ({activeRecord.nextOfKinPhone || '-'})</span></div>
- <div><span className="text-gray-500 block">Ημερομηνία & Ώρα Ταφής:</span><span className="font-semibold">{activeRecord.dateOfFuneral ? new Date(activeRecord.dateOfFuneral).toLocaleString("el-GR") : '-'}</span></div>
+ <div><span className="text-[var(--text-muted)] block">Ληξιαρχικός Αριθμός (Βιβλίο):</span><span className="font-semibold">{activeRecord.bookNumber || '-'}</span></div>
+ <div><span className="text-[var(--text-muted)] block">Στοιχεία Τάφου (Οστεοφυλάκιο):</span><span className="font-semibold">{activeRecord.graveDetails || '-'}</span></div>
+ <div><span className="text-[var(--text-muted)] block">Πλησιέστερος Συγγενής:</span><span className="font-semibold">{activeRecord.nextOfKinName || '-'} ({activeRecord.nextOfKinPhone || '-'})</span></div>
+ <div><span className="text-[var(--text-muted)] block">Ημερομηνία & Ώρα Ταφής:</span><span className="font-semibold">{activeRecord.dateOfFuneral ? new Date(activeRecord.dateOfFuneral).toLocaleString("el-GR") : '-'}</span></div>
  </div>
- <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-border/50">
+ <div className="space-y-3 bg-[var(--background)] p-4 rounded-xl border border-border/50">
  <h4 className="font-bold flex items-center gap-1"><Download className="w-4 h-4"/> Ψηφιακές Εκτυπώσεις Ναού</h4>
  <Button variant="outline"className="w-full justify-start text-left gap-2"><FileText className="w-4 h-4 text-blue-600"/> Πιστοποιητικό Εκδημίας</Button>
  <Button variant="outline"className="w-full justify-start text-left gap-2"><FileText className="w-4 h-4 text-purple-600"/> Βεβαίωση Επιμέλειας Τάφου (Δήμο)</Button>
@@ -141,22 +141,22 @@ export default function FuneralsClient({ initialData, parishioners }: any) {
  <Card className="rounded-xl border-border shadow-sm overflow-hidden p-6">
  <div className="flex justify-between items-center mb-6">
  <h3 className="font-bold text-lg flex items-center gap-2">🕯️ Προγραμματισμός Μνημοσύνων</h3>
- <Button onClick={()=>setIsMemorialModalOpen(true)} variant="secondary"className="gap-2 bg-slate-100 text-slate-800 hover:bg-slate-200">
+ <Button onClick={()=>setIsMemorialModalOpen(true)} variant="secondary"className="gap-2 bg-slate-100 text-[var(--foreground)] hover:bg-slate-200">
  <Plus className="w-4 h-4"/> Νέο Μνημόσυνο
  </Button>
  </div>
  {activeRecord.memorials.length === 0 ? (
- <p className="text-sm text-gray-500">Δεν υπάρχουν προγραμματισμένα μνημόσυνα στο σύστημα.</p>
+ <p className="text-sm text-[var(--text-muted)]">Δεν υπάρχουν προγραμματισμένα μνημόσυνα στο σύστημα.</p>
 ) : (
  <div className="space-y-3">
  {activeRecord.memorials.map((m: any) => (
  <div key={m.id} className="flex justify-between items-center p-3 border border-border rounded-lg bg-orange-50/50 hover:bg-orange-50">
  <div>
- <p className="font-bold text-slate-800">
+ <p className="font-bold text-[var(--foreground)]">
  {m.type === '40MH' ? 'Τεσσαρακονθήμερο' : m.type === '1YEAR' ? 'Ετήσιο' : m.type === '3YEARS' ? 'Τριετές' : 'Μνημόσυνο'} 
- <span className="text-gray-500 font-normal ml-2">({new Date(m.date).toLocaleDateString("el-GR")} - Ώρα: {m.time || '-'})</span>
+ <span className="text-[var(--text-muted)] font-normal ml-2">({new Date(m.date).toLocaleDateString("el-GR")} - Ώρα: {m.time || '-'})</span>
  </p>
- <p className="text-xs text-gray-500 mt-1">Εφημέριος: {m.officiantPriest || '-'}</p>
+ <p className="text-xs text-[var(--text-muted)] mt-1">Εφημέριος: {m.officiantPriest || '-'}</p>
  </div>
  <Button size="sm"variant="outline"className="gap-1 border-orange-200 text-orange-700 hover:bg-orange-100"><FileText className="w-3 h-3"/> Άδεια Ναού</Button>
  </div>
@@ -171,8 +171,8 @@ export default function FuneralsClient({ initialData, parishioners }: any) {
  {/* MODAL: Register Deceased */}
  {isRegisterModal && (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
- <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
- <div className="sticky top-0 bg-white border-b border-border p-5 z-10 flex justify-between items-center">
+ <div className="bg-[var(--surface)] rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+ <div className="sticky top-0 bg-[var(--surface)] border-b border-border p-5 z-10 flex justify-between items-center">
  <h2 className="text-xl font-bold flex items-center gap-2">🕊️ Νέα Ληξιαρχική Πράξη Κεκοιμημένου</h2>
  <Button variant="ghost"onClick={()=>setIsRegisterModal(false)}>Χ</Button>
  </div>
@@ -182,7 +182,7 @@ export default function FuneralsClient({ initialData, parishioners }: any) {
  </div>
  
  <div className="space-y-1">
- <label className="text-sm font-semibold text-gray-500">Σύνδεση με Καρτέλα Ενορίτη (Προαιρετικό)</label>
+ <label className="text-sm font-semibold text-[var(--text-muted)]">Σύνδεση με Καρτέλα Ενορίτη (Προαιρετικό)</label>
  <select name="parishionerId"className="w-full border border-border p-2 rounded-md bg-transparent">
  <option value="">-- Νέα Εγγραφή Εκτός Μητρώου --</option>
  {parishioners.map((p:any) => <option key={p.id} value={p.id}>{p.lastName} {p.firstName} (ΑΔΤ: {p.idNumber || '-'})</option>)}
@@ -226,7 +226,7 @@ export default function FuneralsClient({ initialData, parishioners }: any) {
  {/* MODAL: Memorial Schedule */}
  {isMemorialModalOpen && (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
- <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+ <div className="bg-[var(--surface)] rounded-2xl shadow-xl w-full max-w-sm p-6">
  <h2 className="text-lg font-bold mb-4">Προγραμματισμός Μνημοσύνου</h2>
  <form onSubmit={handleCreateMemorial} className="space-y-4">
  <div className="space-y-1">

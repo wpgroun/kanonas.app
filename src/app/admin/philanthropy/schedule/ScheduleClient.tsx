@@ -40,7 +40,7 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  return (
  <div className="space-y-6">
  {/* Menu Control Panel */}
- <Card className="p-4 bg-white border border-border flex flex-col md:flex-row gap-4 items-end">
+ <Card className="p-4 bg-[var(--surface)] border border-border flex flex-col md:flex-row gap-4 items-end">
  <div className="flex-1 w-full space-y-2">
  <label className="text-sm font-semibold text-gray-700">Ημερομηνία</label>
  <input type="date"value={dateStr} onChange={handleDateChange} className="w-full p-2 border border-border rounded-md bg-transparent"/>
@@ -48,7 +48,7 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  <div className="flex-[2] w-full space-y-2">
  <label className="text-sm font-semibold text-gray-700">Γεύμα Ημέρας</label>
  <div className="relative">
- <Utensils className="absolute left-3 top-2.5 w-4 h-4 text-gray-400"/>
+ <Utensils className="absolute left-3 top-2.5 w-4 h-4 text-[var(--text-muted)]"/>
  <input 
  type="text"
  value={mealName} 
@@ -73,20 +73,20 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  </Card>
 
  {/* Attendance Register */}
- <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
- <div className="p-4 border-b border-border bg-gray-50/50">
+ <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-border overflow-hidden">
+ <div className="p-4 border-b border-border bg-[var(--background)]/50">
  <h2 className="font-bold">Παρουσιολόγιο Διανομής</h2>
- <p className="text-sm text-gray-500">Καταγράψτε την παραλαβή για να αποφευχθεί η σπατάλη</p>
+ <p className="text-sm text-[var(--text-muted)]">Καταγράψτε την παραλαβή για να αποφευχθεί η σπατάλη</p>
  </div>
  
  <div className="divide-y divide-border">
  {beneficiaries.map((ben: any) => {
  const status = getAttendanceStatus(ben.id);
  return (
- <div key={ben.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 :bg-gray-800/50 transition-colors">
+ <div key={ben.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[var(--background)] :bg-gray-800/50 transition-colors">
  <div>
  <p className="font-bold">{ben.firstName} {ben.lastName}</p>
- <p className="text-xs text-gray-500">Δικαιούχες Μερίδες: {ben.familyMembers}</p>
+ <p className="text-xs text-[var(--text-muted)]">Δικαιούχες Μερίδες: {ben.familyMembers}</p>
  </div>
  <div className="flex gap-2">
  <Button 
@@ -108,7 +108,7 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  })}
 
  {beneficiaries.length === 0 && (
- <div className="p-8 text-center text-gray-500">
+ <div className="p-8 text-center text-[var(--text-muted)]">
  Δεν υπάρχουν Ενεργοί Ωφελούμενοι.
  </div>
 )}

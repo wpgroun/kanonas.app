@@ -32,12 +32,12 @@ export default function LedgerExportActions({ currentYear = new Date().getFullYe
 
   return (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="sm" onClick={handleExport} disabled={isExporting} className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+      <Button variant="outline" size="sm" onClick={handleExport} disabled={isExporting} className="bg-[var(--surface)] border-[var(--border)] text-slate-700 hover:bg-[var(--background)]">
         <Download className="w-4 h-4 mr-2" />
         Εξαγωγή (PDF/Excel)
       </Button>
 
-      <Button variant="outline" size="sm" onClick={handleSeal} disabled={isSealing} className="bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100 font-bold transition-colors">
+      <Button variant="outline" size="sm" onClick={handleSeal} disabled={isSealing} className="bg-[var(--danger-light)] border-[var(--danger)]/20 text-[var(--danger)] hover:bg-[var(--danger-light)] font-bold transition-colors">
         <Lock className="w-4 h-4 mr-2" />
         Κλείσιμο Έτους ('{currentYear.toString().substring(2)})
       </Button>
