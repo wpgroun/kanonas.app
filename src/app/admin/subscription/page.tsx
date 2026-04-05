@@ -44,18 +44,43 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
             <h3 className="text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
               {currentSub?.plan?.name || 'Κανένα Ενεργό Πακέτο'}
             </h3>
-            <p className="text-sm text-[var(--text-secondary)] mt-2">
-              Κατάσταση:{' '}
-              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
-                currentSub?.status === 'active' ? 'bg-[var(--success-light)] text-[var(--success)]' : 'bg-[var(--danger-light)] text-[var(--danger)]'
-              }`}>
-                {currentSub?.status === 'active' ? 'Ενεργό' : currentSub?.status || 'Ανενεργό'}
-              </span>
-            </p>
+            <div className="flex flex-col gap-1 mt-4 text-sm text-[var(--text-secondary)]">
+              <p>
+                Κατάσταση:{' '}
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
+                  currentSub?.status === 'active' ? 'bg-[var(--success-light)] text-[var(--success)]' : 'bg-[var(--danger-light)] text-[var(--danger)]'
+                }`}>
+                  {currentSub?.status === 'active' ? 'Ενεργό' : currentSub?.status || 'Ανενεργό'}
+                </span>
+              </p>
+              {currentSub && (
+                <>
+                  <p>Κύκλος Τιμολόγησης: <strong className="text-[var(--foreground)]">{currentSub.billingCycle === 'yearly' ? 'Ετήσιος' : 'Μηνιαίος'}</strong></p>
+                  
+                  {(currentSub.currentPeriodStart || currentSub.activatedAt) && (
+                    <p>Έναρξη: <strong className="text-[var(--foreground)]">{new Date((currentSub.currentPeriodStart || currentSub.activatedAt)!).toLocaleDateString('el-GR')}</strong></p>
+                  )}
+                  
+                  {(currentSub.currentPeriodEnd || currentSub.expiresAt) && (
+                    <p>{currentSub.status === 'cancelled' ? 'Λήξη' : 'Επόμενη Χρέωση / Λήξη'}: <strong className="text-[var(--foreground)]">{new Date((currentSub.currentPeriodEnd || currentSub.expiresAt)!).toLocaleDateString('el-GR')}</strong></p>
+                  )}
+
+                  {currentSub.stripeSubscriptionId && (
+                    <p>Αυτόματη Ανανέωση:{' '}
+                      {currentSub.status === 'cancelled' ? (
+                        <span className="text-rose-500 font-semibold">Κλειστή (Θα τερματιστεί στη λήξη)</span>
+                      ) : (
+                        <span className="text-emerald-500 font-semibold">Ενεργή (Stripe)</span>
+                      )}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
           </div>
           
           <div className="flex flex-col items-end gap-2 text-right">
-            {currentSub?.stripeSubscriptionId ? (
+            {currentSub?.stripeSubscriptionId && currentSub.status !== 'cancelled' ? (
                <CancelButton />
             ) : currentSub?.status === 'active' ? (
                <div className="text-xs font-medium text-[var(--text-muted)] bg-[var(--surface-hover)] px-3 py-1.5 rounded-lg border border-[var(--border)]">

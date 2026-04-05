@@ -121,3 +121,59 @@ export async function updateStaffRole(userTempleId: string, roleId: string) {
      return { success: false, error: 'Σφάλμα.' };
   }
 }
+
+export async function getMyProfile() {
+  const session = await requireAuth();
+  
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { id: true, firstName: true, lastName: true, email: true }
+  });
+  
+  return user;
+}
+
+export async function updateMyProfile(data: { firstName: string, lastName: string }) {
+  const session = await requireAuth();
+  
+  if (!data.firstName.trim() || !data.lastName.trim()) {
+    return { success: false, error: 'Tο όνομα και το επώνυμο δεν μπορούν να είναι κενά.' };
+  }
+
+  try {
+    await prisma.user.update({
+      where: { id: session.userId },
+      data: {
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim()
+      }
+    });
+    return { success: true };
+  } catch(e) {
+    return { success: false, error: 'Σφάλμα κατά την ενημέρωση του προφίλ.' };
+  }
+}
+
+export async function changeMyPassword(currentPass: string, newPass: string) {
+  const session = await requireAuth();
+  
+  if (newPass.length < 6) return { success: false, error: 'Ο νέος κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.' };
+  
+  try {
+    const user = await prisma.user.findUnique({ where: { id: session.userId } });
+    if (!user || !user.passwordHash) return { success: false, error: 'Άκυρος χρήστης.' };
+    
+    const isValid = await bcrypt.compare(currentPass, user.passwordHash);
+    if (!isValid) return { success: false, error: 'Ο τρέχων κωδικός που δώσατε είναι λάθος.' };
+    
+    const newHash = await bcrypt.hash(newPass, 10);
+    await prisma.user.update({
+      where: { id: session.userId },
+      data: { passwordHash: newHash }
+    });
+    
+    return { success: true };
+  } catch(e) {
+    return { success: false, error: 'Σφάλμα κατά την αλλαγή κωδικού.' };
+  }
+}

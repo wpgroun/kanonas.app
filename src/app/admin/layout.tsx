@@ -6,7 +6,7 @@ import { ReactNode, useState, useEffect } from 'react';
 import { LayoutDashboard, Users, FileText, Banknote, Calendar,
   BookOpen, HeartHandshake, Package, ClipboardList, Settings,
   LogOut, ChevronLeft, Menu, Bell, ShieldCheck, Mail, KanbanSquare, Tent,
-  Globe, HeartPulse, Shield, Info
+  Globe, HeartPulse, Shield, Info, CreditCard, UserCircle
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 import { fetchSessionClient } from '@/actions/clientSession';
@@ -50,6 +50,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const secondaryItems = [
     { href: '/admin/modules', icon: Info, label: 'Λειτουργικότητες', requiredPerm: null },
+    { href: '/admin/subscription', icon: CreditCard, label: 'Διαχείριση Συνδρομής', requiredPerm: 'isHeadPriest' },
     { href: '/admin/settings', icon: Settings, label: dict.nav.settings, requiredPerm: 'isHeadPriest' },
     { href: '/admin/users', icon: Users, label: 'Προσωπικό & Ρόλοι', requiredPerm: 'isHeadPriest' },
     { href: '/admin/super', icon: ShieldCheck, label: dict.nav.superAdmin, requiredPerm: 'isSuperAdmin' },
@@ -138,7 +139,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </nav>
 
         {/* Bottom */}
-        <div className="p-3 border-t border-[var(--border)] mt-auto">
+        <div className="p-3 border-t border-[var(--border)] mt-auto flex flex-col gap-1">
+          <Link
+            href="/admin/profile"
+            onClick={() => setMobileOpen(false)}
+            className={`nav-item text-slate-600 hover:text-slate-900 ${isActive('/admin/profile') ? 'active' : ''}`}
+          >
+            <UserCircle className="nav-icon" />
+            {!collapsed && <span>Ο Λογαριασμός Μου</span>}
+          </Link>
           <button
             onClick={handleLogout}
             className="nav-item w-full text-[var(--danger)] hover:bg-[var(--danger-light)]"
