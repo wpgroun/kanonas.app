@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  Globe,
   Building2,
   Users,
   UserCheck,
@@ -74,11 +75,18 @@ export default function SuperDashboard() {
           </h1>
           <p className="text-[var(--text-muted)] font-medium mt-2">Εποπτεία Ναών, MRR και Διαχείριση Πωλήσεων B2B</p>
         </div>
-        <Link href="/admin/onboarding">
-          <button className="bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all">
-            <Plus className="w-5 h-5" /> Προσθήκη Νέου Ναού
-          </button>
-        </Link>
+        <div className="flex items-center gap-3 flex-wrap">
+          <Link href="/admin/super/map">
+            <button className="bg-amber-100/90 text-amber-700 hover:bg-amber-200 border border-amber-300 px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-sm transition-all focus:ring-2 focus:ring-amber-500">
+              <Globe className="w-5 h-5" /> Χάρτης Ναών
+            </button>
+          </Link>
+          <Link href="/admin/onboarding">
+            <button className="bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all">
+              <Plus className="w-5 h-5" /> Προσθήκη Νέου Ναού
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* KPI Cards: Epsilon-like statistics */}
@@ -141,6 +149,7 @@ export default function SuperDashboard() {
                 <th className="px-6 py-4">Ναός / Πελατης</th>
                 <th className="px-6 py-4">Πακέτο & MRR</th>
                 <th className="px-6 py-4">Κατάσταση</th>
+                <th className="px-6 py-4">Ημ/νια Έναρξης</th>
                 <th className="px-6 py-4">Ημ/νια Λήξης</th>
                 <th className="px-6 py-4 text-center">Χρήστες</th>
                 <th className="px-6 py-4 text-right">Ενέργειες</th>
@@ -167,6 +176,9 @@ export default function SuperDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-[var(--text-secondary)] font-medium">
+                    {temple.subscriptionStartDate ? new Date(temple.subscriptionStartDate).toLocaleDateString('el-GR') : '-'}
+                  </td>
+                  <td className="px-6 py-4 text-[var(--text-secondary)] font-medium">
                     {temple.subscriptionEndDate ? new Date(temple.subscriptionEndDate).toLocaleDateString('el-GR') : '-'}
                   </td>
                   <td className="px-6 py-4 text-center font-bold text-[var(--text-muted)]">
@@ -188,7 +200,7 @@ export default function SuperDashboard() {
               ))}
               {filteredTemples.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-[var(--text-muted)]">
+                  <td colSpan={7} className="px-6 py-12 text-center text-[var(--text-muted)]">
                     Δε βρέθηκαν αποτελέσματα.
                   </td>
                 </tr>

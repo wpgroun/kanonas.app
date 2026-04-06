@@ -7,34 +7,31 @@ import { revalidatePath } from 'next/cache';
 
 const CAMP_PATH = '/admin/youth';
 
-// ─── CAMP CRUD ──────────────────────────────────────────────────
+// ─── CAMP SESSION CRUD ──────────────────────────────────────────
 
 export async function getCamps() {
   const templeId = await getCurrentTempleId();
-  return prisma.parishCamp.findMany({
+  return prisma.campSession.findMany({
     where: { templeId },
     include: {
-      registrations: { select: { id: true, paymentStatus: true, amountPaid: true, amountDue: true } },
-      groups: { include: { registrations: { select: { id: true } } } },
-      staff: true,
-      _count: { select: { registrations: true } }
+      _count: { select: { campers: true } },
+      campers: { select: { payments: true } }
     },
-    orderBy: { year: 'desc' }
+    orderBy: { startDate: 'desc' }
   });
 }
 
 export async function createCamp(data: {
-  name: string; year: number; startDate: string; endDate: string;
-  location?: string; capacity?: number; pricePerSlot?: number;
+  name: string; startDate: string; endDate: string;
+  maxCapacity?: number; pricePerSlot?: number;
 }) {
   await requireAuth();
   const templeId = await getCurrentTempleId();
-  const camp = await prisma.parishCamp.create({
+  const camp = await prisma.campSession.create({
     data: {
-      templeId, name: data.name, year: data.year,
+      templeId, name: data.name,
       startDate: new Date(data.startDate), endDate: new Date(data.endDate),
-      location: data.location || null,
-      capacity: data.capacity || 100,
+      maxCapacity: data.maxCapacity || 100,
       pricePerSlot: data.pricePerSlot || 0,
     }
   });
@@ -45,29 +42,29 @@ export async function createCamp(data: {
 export async function deleteCamp(id: string) {
   await requireAuth();
   const templeId = await getCurrentTempleId();
-  const camp = await prisma.parishCamp.findFirst({ where: { id, templeId } });
+  const camp = await prisma.campSession.findFirst({ where: { id, templeId } });
   if (!camp) return { success: false, error: 'Not found' };
-  await prisma.parishCamp.delete({ where: { id } });
+  await prisma.campSession.delete({ where: { id } });
   revalidatePath(CAMP_PATH);
   return { success: true };
 }
 
-// ─── CAMP DETAIL ────────────────────────────────────────────────
-
-export async function getCampDetail(campId: string) {
+export async function getCampDetail(sessionId: string) {
   const templeId = await getCurrentTempleId();
-  return prisma.parishCamp.findFirst({
-    where: { id: campId, templeId },
+  return prisma.campSession.findFirst({
+    where: { id: sessionId, templeId },
     include: {
-      registrations: {
+      campers: {
         include: {
           payments: true,
           attendances: true,
-          parishCampGroup: { select: { name: true } },
+          group: { select: { name: true } },
+          medicalInfo: true,
+          consent: true,
         },
-        orderBy: { childLastName: 'asc' }
+        orderBy: { lastName: 'asc' }
       },
-      groups: { include: { registrations: { select: { id: true } } } },
+      groups: { include: { campers: { select: { id: true } } } },
       staff: true,
     }
   });
@@ -75,233 +72,223 @@ export async function getCampDetail(campId: string) {
 
 // ─── GROUPS ─────────────────────────────────────────────────────
 
-export async function createGroup(campId: string, name: string, leaderName?: string) {
+export async function createGroup(sessionId: string, name: string, color?: string) {
   await requireAuth();
-  await prisma.parishCampGroup.create({ data: { campId, name, leaderName: leaderName || null } });
+  await prisma.campGroup.create({ data: { sessionId, name, color: color || null } });
   revalidatePath(CAMP_PATH);
   return { success: true };
 }
 
 export async function deleteGroup(id: string) {
   await requireAuth();
-  await prisma.parishCampGroup.delete({ where: { id } });
+  await prisma.campGroup.delete({ where: { id } });
   revalidatePath(CAMP_PATH);
   return { success: true };
 }
 
-// ─── REGISTRATION ───────────────────────────────────────────────
+// ─── REGISTRATION & CAMPERS ─────────────────────────────────────
 
-export async function registerCamper(campId: string, data: {
-  childFirstName: string; childLastName: string; childBirthDate?: string; gender?: string;
-  parentName?: string; parentPhone?: string; parentEmail?: string;
-  medicalNotes?: string; allergies?: string; medications?: string;
-  tshirtColor?: string; tshirtSize?: string;
+export async function registerCamper(sessionId: string, data: {
+  firstName: string; lastName: string; dateOfBirth: string; gender: string;
+  fatherName?: string; motherName?: string;
+  phone?: string; email?: string; address?: string; city?: string;
+  tshirtSize?: string; tshirtColor?: string;
   groupId?: string; depositAmount?: number;
 }) {
-  const session = await requireAuth();
+  await requireAuth();
   const templeId = await getCurrentTempleId();
 
-  const camp = await prisma.parishCamp.findFirst({ where: { id: campId, templeId } });
-  if (!camp) return { success: false, error: 'Κατασκήνωση δεν βρέθηκε' };
-
-  const count = await prisma.campRegistration.count({ where: { campId } });
-  if (count >= camp.capacity) return { success: false, error: 'Η κατασκήνωση είναι πλήρης!' };
-
-  const deposit = data.depositAmount || 0;
-  const amountDue = camp.pricePerSlot;
-  const paymentStatus = deposit >= amountDue ? 'PAID' : deposit > 0 ? 'DEPOSIT' : 'NONE';
-
-  // Auto receipt number
-  const year = camp.year;
-  const nextNum = count + 1;
-  const receiptNumber = `CAMP-${year}-${String(nextNum).padStart(3, '0')}`;
-
-  const reg = await prisma.campRegistration.create({
+  const camper = await prisma.campCamper.create({
     data: {
-      campId,
-      childFirstName: data.childFirstName,
-      childLastName: data.childLastName,
-      childBirthDate: data.childBirthDate ? new Date(data.childBirthDate) : null,
-      gender: data.gender || null,
-      parentName: data.parentName || null,
-      parentPhone: data.parentPhone || null,
-      parentEmail: data.parentEmail || null,
-      medicalNotes: data.medicalNotes || null,
-      allergies: data.allergies || null,
-      medications: data.medications || null,
-      tshirtColor: data.tshirtColor || null,
-      tshirtSize: data.tshirtSize || null,
-      parishCampGroupId: data.groupId || null,
-      amountDue,
-      amountPaid: deposit,
-      depositPaid: deposit,
-      receiptNumber,
-      paymentStatus,
+      templeId, sessionId,
+      firstName: data.firstName, lastName: data.lastName,
+      fatherName: data.fatherName || null, motherName: data.motherName || null,
+      dateOfBirth: new Date(data.dateOfBirth), gender: data.gender,
+      phone: data.phone || null, email: data.email || null,
+      address: data.address || null, city: data.city || null,
+      tshirtSize: data.tshirtSize || null, tshirtColor: data.tshirtColor || null,
+      groupId: data.groupId || null,
     }
   });
 
-  if (deposit > 0) {
+  if (data.depositAmount && data.depositAmount > 0) {
     await prisma.campPayment.create({
-      data: { registrationId: reg.id, amount: deposit, method: 'CASH', receiptNumber, notes: 'Προκαταβολή' }
+      data: {
+        camperId: camper.id,
+        amount: data.depositAmount,
+        type: 'prokatavoli',
+        method: 'cash'
+      }
     });
   }
 
-  await prisma.auditLog.create({
-    data: {
-      templeId, userId: session.userId, userEmail: session.userEmail,
-      action: 'CAMP_REGISTER', detail: `${data.childFirstName} ${data.childLastName} → ${camp.name}`
-    }
-  });
-
   revalidatePath(CAMP_PATH);
-  return { success: true, data: reg };
+  return { success: true, data: camper };
 }
 
-export async function cancelRegistration(regId: string) {
+export async function updateCamperMedical(camperId: string, data: {
+  allergies?: string; medications?: string; conditions?: string;
+  notes?: string; doctorName?: string; doctorPhone?: string;
+}) {
   await requireAuth();
-  await prisma.campRegistration.update({ where: { id: regId }, data: { status: 'CANCELLED' } });
+  await prisma.campMedical.upsert({
+    where: { camperId },
+    update: {
+      allergies: data.allergies || null, medications: data.medications || null,
+      conditions: data.conditions || null, notes: data.notes || null,
+      doctorName: data.doctorName || null, doctorPhone: data.doctorPhone || null,
+    },
+    create: {
+      camperId,
+      allergies: data.allergies || null, medications: data.medications || null,
+      conditions: data.conditions || null, notes: data.notes || null,
+      doctorName: data.doctorName || null, doctorPhone: data.doctorPhone || null,
+    }
+  });
   revalidatePath(CAMP_PATH);
   return { success: true };
 }
 
-export async function assignGroup(regId: string, groupId: string | null) {
+export async function updateCamperConsent(camperId: string, data: {
+  parentName: string; photoConsent: boolean; medicalConsent: boolean; signedAt?: string;
+}) {
   await requireAuth();
-  await prisma.campRegistration.update({ where: { id: regId }, data: { parishCampGroupId: groupId } });
+  await prisma.campConsent.upsert({
+    where: { camperId },
+    update: {
+      parentName: data.parentName,
+      photoConsent: data.photoConsent, medicalConsent: data.medicalConsent,
+      signedAt: data.signedAt ? new Date(data.signedAt) : new Date(),
+    },
+    create: {
+      camperId, parentName: data.parentName,
+      photoConsent: data.photoConsent, medicalConsent: data.medicalConsent,
+      signedAt: data.signedAt ? new Date(data.signedAt) : new Date(),
+    }
+  });
+  revalidatePath(CAMP_PATH);
+  return { success: true };
+}
+
+export async function updateCamperGroup(camperId: string, groupId?: string | null) {
+  await requireAuth();
+  await prisma.campCamper.update({
+    where: { id: camperId },
+    data: { groupId: groupId || null }
+  });
+  revalidatePath(CAMP_PATH);
+  return { success: true };
+}
+
+export async function deleteCamper(id: string) {
+  await requireAuth();
+  await prisma.campCamper.delete({ where: { id } });
   revalidatePath(CAMP_PATH);
   return { success: true };
 }
 
 // ─── PAYMENTS ───────────────────────────────────────────────────
 
-export async function addCampPayment(regId: string, amount: number, method: string, notes?: string) {
+export async function addCampPayment(camperId: string, amount: number, type: string, method?: string) {
   await requireAuth();
-  const reg = await prisma.campRegistration.findUnique({ where: { id: regId } });
-  if (!reg) return { success: false, error: 'Not found' };
-
-  const newTotal = reg.amountPaid + amount;
-  const paymentStatus = newTotal >= reg.amountDue ? 'PAID' : 'DEPOSIT';
-
-  const count = await prisma.campPayment.count({ where: { registrationId: regId } });
-  const receiptNumber = `${reg.receiptNumber}-P${count + 1}`;
-
   await prisma.campPayment.create({
-    data: { registrationId: regId, amount, method, receiptNumber, notes: notes || null }
+    data: { camperId, amount, type, method: method || 'cash' }
   });
-
-  await prisma.campRegistration.update({
-    where: { id: regId },
-    data: { amountPaid: newTotal, paymentStatus }
-  });
-
   revalidatePath(CAMP_PATH);
   return { success: true };
 }
 
 // ─── ATTENDANCE ─────────────────────────────────────────────────
 
-export async function markCampAttendance(regId: string, dateStr: string, isPresent: boolean) {
+export async function markCampAttendance(camperId: string, dateStr: string, present: boolean, notes?: string) {
   await requireAuth();
   const date = new Date(dateStr);
-  date.setHours(0, 0, 0, 0);
-
-  await (prisma.campAttendance as any).upsert({
-    where: { registrationId_date: { registrationId: regId, date } },
-    update: { isPresent },
-    create: { registrationId: regId, date, isPresent }
+  date.setHours(0,0,0,0);
+  
+  await prisma.campAttendance.upsert({
+    where: { camperId_date: { camperId, date } },
+    update: { present, notes: notes || null },
+    create: { camperId, date, present, notes: notes || null }
   });
-
   revalidatePath(CAMP_PATH);
   return { success: true };
 }
 
-export async function getAttendanceForDate(campId: string, dateStr: string) {
-  const date = new Date(dateStr);
-  date.setHours(0, 0, 0, 0);
-  const endDate = new Date(date);
-  endDate.setDate(endDate.getDate() + 1);
-
-  const regs = await prisma.campRegistration.findMany({
-    where: { campId, status: 'REGISTERED' },
-    select: {
-      id: true, childFirstName: true, childLastName: true,
-      parishCampGroup: { select: { name: true } },
-      attendances: { where: { date: { gte: date, lt: endDate } } }
-    }
-  });
-
-  return regs.map(r => ({
-    regId: r.id,
-    name: `${r.childLastName} ${r.childFirstName}`,
-    group: r.parishCampGroup?.name || 'Χωρίς ομάδα',
-    isPresent: r.attendances.length > 0 ? r.attendances[0].isPresent : null
-  }));
-}
-
-// ─── CONSENT ────────────────────────────────────────────────────
-
-export async function updateCamperConsent(regId: string, data: {
-  consentPhotos: boolean; consentMedical: boolean; signedBy: string;
-}) {
+export async function bulkMarkCampAttendance(camperIds: string[], dateStr: string, present: boolean) {
   await requireAuth();
-  await prisma.campRegistration.update({
-    where: { id: regId },
-    data: {
-      consentDate: new Date(),
-      consentPhotos: data.consentPhotos,
-      consentMedical: data.consentMedical,
-      consentSignedBy: data.signedBy,
-    }
-  });
+  const date = new Date(dateStr);
+  date.setHours(0,0,0,0);
+
+  // Prisma doesn't have bulk upsert simply, so we loop (it's internal admin level)
+  for (const camperId of camperIds) {
+    await prisma.campAttendance.upsert({
+      where: { camperId_date: { camperId, date } },
+      update: { present },
+      create: { camperId, date, present }
+    });
+  }
   revalidatePath(CAMP_PATH);
   return { success: true };
 }
 
 // ─── STAFF ──────────────────────────────────────────────────────
 
-export async function addCampStaff(campId: string, data: { name: string; role: string; phone?: string; email?: string; groupId?: string }) {
+export async function addCampStaff(sessionId: string, data: {
+  firstName: string; lastName: string; role: string; phone?: string; email?: string;
+}) {
   await requireAuth();
-  await (prisma.campStaff as any).create({
-    data: { campId, name: data.name, role: data.role, phone: data.phone || null, email: data.email || null, groupId: data.groupId || null }
-  });
-  revalidatePath(CAMP_PATH);
-  return { success: true };
-}
-
-export async function removeCampStaff(id: string) {
-  await requireAuth();
-  await (prisma.campStaff as any).delete({ where: { id } });
-  revalidatePath(CAMP_PATH);
-  return { success: true };
-}
-
-// ─── STATS ──────────────────────────────────────────────────────
-
-export async function getCampStats(campId: string) {
-  const camp = await prisma.parishCamp.findUnique({
-    where: { id: campId },
-    include: {
-      registrations: { where: { status: 'REGISTERED' } },
-      groups: { include: { registrations: { where: { status: 'REGISTERED' }, select: { id: true } } } }
+  await prisma.campStaff.create({
+    data: {
+      sessionId, firstName: data.firstName, lastName: data.lastName,
+      role: data.role, phone: data.phone || null, email: data.email || null,
     }
   });
+  revalidatePath(CAMP_PATH);
+  return { success: true };
+}
+
+// ─── STATS DASHBOARD ────────────────────────────────────────────
+
+export async function getCampStats(sessionId: string) {
+  const templeId = await getCurrentTempleId();
+  const camp = await prisma.campSession.findFirst({
+    where: { id: sessionId, templeId },
+    include: {
+      campers: { include: { payments: true } },
+      groups: { include: { _count: { select: { campers: true } } } }
+    }
+  });
+  
   if (!camp) return null;
 
-  const regs = camp.registrations;
-  const totalRegistered = regs.length;
-  const totalRevenue = regs.reduce((s, r) => s + r.amountPaid, 0);
-  const expectedRevenue = totalRegistered * camp.pricePerSlot;
-  const pendingPayments = regs.filter(r => r.paymentStatus !== 'PAID').length;
+  const totalCampers = camp.campers.length;
+  const capacity = camp.maxCapacity || 1;
+  const fillRate = Math.round((totalCampers / capacity) * 100);
+
+  let totalCollected = 0;
+  let expectedRevenue = totalCampers * camp.pricePerSlot;
+
+  camp.campers.forEach(c => {
+    totalCollected += c.payments.reduce((acc, p) => acc + p.amount, 0);
+  });
 
   const groupDistribution = camp.groups.map(g => ({
     name: g.name,
-    count: g.registrations.length
+    count: g._count.campers
   }));
-  const noGroup = totalRegistered - groupDistribution.reduce((s, g) => s + g.count, 0);
-  if (noGroup > 0) groupDistribution.push({ name: 'Χωρίς ομάδα', count: noGroup });
+
+  // Not assigned to a group
+  const unassigned = camp.campers.filter(c => !c.groupId).length;
+  if (unassigned > 0) {
+    groupDistribution.push({ name: 'Χωρίς Ομάδα', count: unassigned });
+  }
 
   return {
-    totalRegistered, capacity: camp.capacity,
-    totalRevenue, expectedRevenue, pendingPayments,
-    groupDistribution, pricePerSlot: camp.pricePerSlot
+    totalCampers,
+    capacity,
+    fillRate: Math.min(fillRate, 100),
+    totalCollected,
+    expectedRevenue,
+    groupDistribution
   };
 }

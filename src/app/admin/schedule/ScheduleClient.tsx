@@ -61,16 +61,16 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
  actions={
  <>
  <Link href="/schedule"target="_blank">
- <Button variant="outline"className="shadow-sm">
+ <Button variant="outline"className="shadow-sm border-[var(--border)] hover:bg-[var(--surface-hover)] rounded-xl">
  <ExternalLink className="w-4 h-4 mr-2"/> Δημόσια Προβολή
  </Button>
  </Link>
  <Link href="/admin/schedule/print"target="_blank">
- <Button className="shadow-sm">
+ <Button className="shadow-sm hover:opacity-80 rounded-xl" style={{backgroundColor: 'var(--foreground)', color: 'var(--background)'}}>
  <Printer className="w-4 h-4 mr-2"/> Εκτύπωση Εβδομάδας
  </Button>
  </Link>
- <Button variant="secondary" onClick={handleBulkImport} disabled={importing} className="shadow-sm border-[var(--border)]">
+ <Button variant="secondary" onClick={handleBulkImport} disabled={importing} className="shadow-sm border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] rounded-xl">
  <DownloadCloud className="w-4 h-4 mr-2"/> {importing ? 'Γίνεται Εισαγωγή...' : 'Αυτόματο Εορτολόγιο'}
  </Button>
  </>
@@ -81,33 +81,33 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
  
  {/* Form Container */}
  <div className="col-span-1">
- <Card className="shadow-sm border-border/50 sticky top-6">
- <CardHeader>
- <CardTitle>Νέα Ακολουθία</CardTitle>
- <CardDescription>Προσθήκη ακολουθίας στο ημερολόγιο</CardDescription>
- </CardHeader>
- <CardContent>
+ <Card className="shadow-xl border-0 overflow-hidden sticky top-6 rounded-2xl bg-[var(--surface)]">
+ <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 text-white">
+ <h3 className="font-extrabold text-lg flex items-center gap-2"><Plus className="w-5 h-5"/> Νέα Ακολουθία</h3>
+ <p className="text-white/80 text-sm mt-1">Προσθήκη ακολουθίας στο πρόγραμμα</p>
+ </div>
+ <div className="p-6">
  <form onSubmit={handleAdd} className="space-y-4">
  
  <div className="grid grid-cols-2 gap-4">
  <div className="space-y-2">
  <Label>Ημερομηνία</Label>
- <Input type="date"required value={date} onChange={e => setDate(e.target.value)} />
+ <Input type="date"required value={date} onChange={e => setDate(e.target.value)} className="h-11 rounded-xl bg-[var(--background)] border border-[var(--border)]" />
  </div>
  <div className="space-y-2">
  <Label>Ώρα</Label>
- <Input type="time"required value={time} onChange={e => setTime(e.target.value)} />
+ <Input type="time"required value={time} onChange={e => setTime(e.target.value)} className="h-11 rounded-xl bg-[var(--background)] border border-[var(--border)]" />
  </div>
  </div>
 
  <div className="space-y-2">
  <Label>Τίτλος Ακολουθίας</Label>
- <Input required value={title} onChange={e => setTitle(e.target.value)} placeholder="π.χ. Όρθρος & Θεία Λειτουργία"/>
+ <Input required value={title} onChange={e => setTitle(e.target.value)} className="h-11 rounded-xl bg-[var(--background)] border border-[var(--border)]" placeholder="π.χ. Όρθρος & Θεία Λειτουργία"/>
  </div>
 
  <div className="space-y-2">
  <Label>Λεπτομέρειες / Εορτή (Προαιρετικό)</Label>
- <Textarea value={description} onChange={e => setDescription(e.target.value)} className="resize-y"placeholder="Αγίου Δημητρίου του Μυροβλύτου..."/>
+ <Textarea value={description} onChange={e => setDescription(e.target.value)} className="resize-y rounded-xl bg-[var(--background)] border border-[var(--border)]" placeholder="Αγίου Δημητρίου του Μυροβλύτου..."/>
  </div>
 
  <div className="flex items-center space-x-2 bg-red-50 text-red-800 p-3 rounded-lg border border-red-200">
@@ -122,19 +122,19 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
  </Label>
  </div>
 
- <Button type="submit"disabled={loading} className="w-full mt-2">
+ <Button type="submit"disabled={loading} className="w-full h-12 mt-4 rounded-xl font-bold bg-[var(--brand)] hover:bg-[var(--brand-dark)] shadow-indigo-600/30 shadow-lg text-md text-white">
  <Plus className="w-4 h-4 mr-2"/>
  {loading ? 'Αποθήκευση...' : 'Προσθήκη στο Πρόγραμμα'}
  </Button>
  </form>
- </CardContent>
+ </div>
  </Card>
  </div>
 
  {/* List Container */}
  <div className="col-span-1 lg:col-span-2">
  {initialSchedules.length === 0 && (
- <Card className="shadow-sm border-dashed border-2 bg-transparent text-center py-16">
+ <Card className="shadow-sm border-dashed border-2 border-[var(--border)] bg-[var(--background)] text-center py-16 rounded-2xl">
  <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground/30 mb-4"/>
  <p className="text-muted-foreground">Το πρόγραμμα είναι κενό. Προσθέστε τις πρώτες ακολουθίες!</p>
  </Card>
@@ -144,10 +144,10 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
  {initialSchedules.map(srv => {
  const dDate = new Date(srv.date);
  return (
- <Card key={srv.id} className={`shadow-sm overflow-hidden flex border-l-4 ${srv.isMajor ? 'border-l-red-600 bg-red-50/30 ' : 'border-l-primary'}`}>
+ <Card key={srv.id} className={`shadow-sm overflow-hidden flex border-l-4 rounded-2xl hover:shadow-md transition-shadow bg-[var(--surface)] ${srv.isMajor ? 'border-l-red-600 bg-red-50/50 ' : 'border-l-[var(--brand)]'}`}>
  
  {/* Date Box */}
- <div className={`p-4 min-w-[90px] flex flex-col items-center justify-center border-r border-border/50 ${srv.isMajor ? 'bg-red-600 text-white' : 'bg-muted/50 text-foreground'}`}>
+ <div className={`p-4 min-w-[90px] flex flex-col items-center justify-center border-r ${srv.isMajor ? 'bg-red-600 text-white border-red-700' : 'bg-[var(--background)] text-[var(--foreground)] border-[var(--border)]'}`}>
  <span className="text-xs uppercase tracking-wider font-medium opacity-80">{dDate.toLocaleDateString('el-GR', { weekday: 'short' })}</span>
  <span className="text-2xl font-bold leading-none my-1">{dDate.getDate()}</span>
  <span className="text-xs font-semibold uppercase">{dDate.toLocaleDateString('el-GR', { month: 'short' })}</span>

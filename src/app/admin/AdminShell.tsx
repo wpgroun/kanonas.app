@@ -6,7 +6,7 @@ import { ReactNode, useState } from 'react';
 import { LayoutDashboard, Users, FileText, Banknote, Calendar,
  BookOpen, HeartHandshake, Package, ClipboardList, Settings,
  LogOut, ChevronLeft, Menu, Bell, ShieldCheck, Mail, KanbanSquare, Tent,
- Globe, HeartPulse, Shield, Info, CreditCard, UserCircle, AlertTriangle, X
+ Globe, HeartPulse, Shield, Info, CreditCard, UserCircle, AlertTriangle, X, Utensils
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 import { useDict } from '@/i18n/TranslationProvider';
@@ -33,7 +33,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  group:"Γραμματεία & Διοίκηση",
  items: [
  { href: '/admin', icon: LayoutDashboard, label: dict.nav.dashboard, requiredPerm: null, moduleLabel: 'Dashboard (Επισκόπηση)' },
- { href: '/admin/calendar', icon: Calendar, label: 'Κεντρικό Ημερολόγιο', requiredPerm: null, moduleLabel: 'Κεντρικό Ημερολόγιο' },
+ { href: '/admin/calendar', icon: Calendar, label: 'Ημερολόγιο', requiredPerm: null, moduleLabel: 'Κεντρικό Ημερολόγιο' },
  { href: '/admin/board', icon: KanbanSquare, label: 'Εργασίες', requiredPerm: null, moduleLabel: 'Kanban Tasks' },
  { href: '/admin/requests', icon: FileText, label: dict.nav.requests, requiredPerm: 'canManageRequests', moduleLabel: 'Kanonas Connect (e-Gov)' },
  { href: '/admin/protocol', icon: ClipboardList, label: dict.nav.documents, requiredPerm: 'canManageProtocol', moduleLabel: 'Πρωτόκολλο' },
@@ -48,7 +48,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  { href: '/admin/sacraments/baptisms', icon: FileText, label: 'Βιβλίο Βαπτίσεων', requiredPerm: null, moduleLabel: 'Βαπτίσεις & Μυστήρια' },
               { href: '/admin/sacraments/marriages', icon: FileText, label: 'Βιβλίο Γάμων', requiredPerm: null, moduleLabel: 'Γάμοι & Μυστήρια' },
               { href: '/admin/sacraments/divorces', icon: FileText, label: 'Διαζύγια (Λύσεις)', requiredPerm: 'canManageRegistry', moduleLabel: 'Διαζύγια (Λύσεις Γάμων)' },
- { href: '/admin/registry/funerals', icon: FileText, label: 'Ληξιαρχείο (Εκδημίες)', requiredPerm: 'canManageRegistry', moduleLabel: 'Ληξιαρχείο & Εκδημίες' },
+ { href: '/admin/sacraments/funerals', icon: FileText, label: 'Ληξιαρχείο (Εκδημίες)', requiredPerm: 'canManageRegistry', moduleLabel: 'Ληξιαρχείο & Εκδημίες' },
  ]
  },
  {
@@ -73,8 +73,9 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  items: [
  { href: '/admin/philanthropy', icon: HeartHandshake, label: dict.nav.philanthropy, requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Μητρώο Ωφελουμένων' },
  { href: '/admin/philanthropy/board', icon: Shield, label: 'Συμβούλιο Φιλοπτώχου', requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Συμβούλιο Φιλοπτώχου (ΕΦΤ)' },
+ { href: '/admin/philanthropy/sissitio', icon: Utensils, label: 'Συσσίτιο', requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Συσσίτιο' },
  { href: '/admin/youth', icon: Tent, label: 'Κατασκηνώσεις', requiredPerm: null, moduleLabel: 'Κατασκηνώσεις (Νεολαία)' },
- { href: '/admin/registry/bloodbank', icon: HeartPulse, label: 'Τράπεζα Αίματος', requiredPerm: null, moduleLabel: 'Τράπεζα Αίματος' },
+ { href: '/admin/bloodbank', icon: HeartPulse, label: 'Τράπεζα Αίματος', requiredPerm: null, moduleLabel: 'Τράπεζα Αίματος' },
  { href: '/admin/assets', icon: Package, label: dict.nav.assets, requiredPerm: 'canManageAssets', moduleLabel: 'Περιουσιολόγιο (Assets)' },
  ]
  }
@@ -105,6 +106,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  { href: '/admin/documents', icon: FileText, label: 'Πρότυπα Εγγράφων', requiredPerm: 'isHeadPriest' },
  { href: '/admin/settings', icon: Settings, label: dict.nav.settings, requiredPerm: 'isHeadPriest' },
  { href: '/admin/users', icon: Users, label: 'Προσωπικό & Ρόλοι', requiredPerm: 'isHeadPriest' },
+ { href: '/admin/super/map', icon: Globe, label: 'Χάρτης Ναών', requiredPerm: 'isSuperAdmin' },
  { href: '/admin/super', icon: ShieldCheck, label: dict.nav.superAdmin, requiredPerm: 'isSuperAdmin' },
  ].filter(item => {
  if (item.requiredPerm === 'isHeadPriest') return perms.isHeadPriest || perms.isSuperAdmin;

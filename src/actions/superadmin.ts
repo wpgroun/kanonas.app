@@ -64,10 +64,13 @@ export async function getSuperAdminStats() {
         metropolis: t.metropolis?.name || '—',
         subscriptionStatus: activeSub ? activeSub.status : 'inactive',
         subscriptionPlan: activeSub?.plan?.name || 'Free',
-        subscriptionEndDate: activeSub?.expiresAt ? activeSub.expiresAt.toISOString() : null,
+        subscriptionStartDate: t.subscriptionStartDate ? t.subscriptionStartDate.toISOString() : (activeSub?.createdAt ? activeSub.createdAt.toISOString() : null),
+        subscriptionEndDate: activeSub?.expiresAt ? activeSub.expiresAt.toISOString() : (activeSub?.currentPeriodEnd ? activeSub.currentPeriodEnd.toISOString() : null),
         parishioners: t._count.parishioners,
         users: t._count.users,
         createdAt: t.createdAt.toISOString(),
+        lat: t.lat,
+        lng: t.lng,
       };
     }),
   }

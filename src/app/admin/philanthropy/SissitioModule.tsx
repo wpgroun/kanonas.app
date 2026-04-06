@@ -170,7 +170,7 @@ function RecipientForm({ onDone }: { onDone: () => void }) {
       <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label>Επώνυμο *</Label><Input name="lastName" required/></div><div className="space-y-1"><Label>Όνομα *</Label><Input name="firstName" required/></div></div>
       <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label>ΑΦΜ *</Label><Input name="afm" required/></div><div className="space-y-1"><Label>Τηλέφωνο</Label><Input name="phone"/></div></div>
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1"><Label>Κατηγορία</Label><select name="category" className="w-full p-2 border rounded-md text-sm bg-transparent"><option value="taktikos">Τακτικός</option><option value="ektaktos">Έκτακτος</option><option value="episkeptis">Επισκέπτης</option></select></div>
+        <div className="space-y-1"><Label>Κατηγορία</Label><select name="category" className="w-full p-2 border rounded-md text-sm bg-background"><option value="taktikos">Τακτικός</option><option value="ektaktos">Έκτακτος</option><option value="episkeptis">Επισκέπτης</option></select></div>
         <div className="space-y-1"><Label>Αριθμός Μελών Οικογένειας (Μερίδες)</Label><Input type="number" name="members" min="1" defaultValue="1" required/></div>
       </div>
       <div className="space-y-1 p-3 bg-amber-50 border border-amber-100 rounded-lg"><Label className="text-amber-800">Διατροφικές Ιδιαιτερότητες / Ιατρικό Προφίλ</Label><Input name="dietary" placeholder="π.χ. Διαβήτης, Χωρίς Γλουτένη, κλπ"/></div>

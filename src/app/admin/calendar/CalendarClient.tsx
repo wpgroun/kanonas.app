@@ -26,12 +26,20 @@ export default function CalendarClient({ initialEvents }: { initialEvents: any[]
  'ΑΛΛΟ': '#3b82f6' // blue-500
  };
 
+ const [color, setColor] = useState(categoryColors['ΣΥΝΕΔΡΙΟ']);
+
+ const handleCategoryChange = (e: any) => {
+   const val = e.target.value;
+   setCategory(val);
+   setColor(categoryColors[val] || '#3b82f6');
+ };
+
  const handleAdd = async (e: any) => {
  e.preventDefault();
  setLoading(true);
  await addCentralEvent({
  title, description, startDate, endDate: endDate || startDate,
- category, color: categoryColors[category] || categoryColors['ΑΛΛΟ']
+ category, color
  });
  setLoading(false);
  setTitle(''); setDescription('');
@@ -53,9 +61,9 @@ export default function CalendarClient({ initialEvents }: { initialEvents: any[]
  {initialEvents.map(ev => {
  const sd = new Date(ev.startDate);
  return (
- <Card key={ev.id} className="shadow-lg border-0 overflow-hidden relative transition-transform hover:-translate-y-1 hover:shadow-xl">
- <div className="absolute left-0 top-0 bottom-0 w-3"style={{backgroundColor: ev.color || '#3b82f6'}} />
- <CardContent className="p-5 pl-8 flex justify-between items-center bg-[var(--surface)]">
+ <Card key={ev.id} className="shadow-sm border border-[var(--border)] relative transition-transform hover:-translate-y-1 hover:shadow-md" style={{ backgroundColor: `${ev.color || '#3b82f6'}15`, borderColor: `${ev.color || '#3b82f6'}30` }}>
+ <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{backgroundColor: ev.color || '#3b82f6'}} />
+ <CardContent className="p-5 pl-7 flex justify-between items-center bg-transparent">
  <div>
  <div className="flex items-center gap-2 mb-1">
  <span className="text-[10px] font-black tracking-widest text-white px-2 py-0.5 rounded-full"style={{backgroundColor: ev.color || '#3b82f6' }}>
@@ -96,23 +104,32 @@ export default function CalendarClient({ initialEvents }: { initialEvents: any[]
  <Card className="shadow-2xl border-0 bg-[var(--surface)] sticky top-6 rounded-2xl overflow-hidden">
  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-5 text-white">
  <h3 className="font-extrabold text-lg flex items-center gap-2"><MapPin className="w-5 h-5"/> Νέο Γεγονός</h3>
- <p className="text-blue-100 text-sm mt-1">Προσθήκη στο κεντρικό ημερολόγιο</p>
+ <p className="text-blue-100 text-sm mt-1">Προσθήκη στο Ημερολόγιο</p>
  </div>
  <form onSubmit={handleAdd} className="p-6 space-y-4">
  <div className="space-y-2">
  <Label className="font-bold">Τίτλος</Label>
- <Input required value={title} onChange={e=>setTitle(e.target.value)} className="h-11 rounded-xl bg-[var(--background)]"placeholder="Τίτλος..."/>
+ <Input required value={title} onChange={e=>setTitle(e.target.value)} className="h-11 rounded-xl bg-[var(--background)] border border-[var(--border)]"placeholder="Τίτλος..."/>
  </div>
  
- <div className="space-y-2">
- <Label className="font-bold">Κατηγορία Χρώματος</Label>
- <select required value={category} onChange={e=>setCategory(e.target.value)} className="w-full h-11 px-3 rounded-xl border border-[var(--border)] bg-[var(--background)]">
- <option value="ΛΕΙΤΟΥΡΓΙΑ">Λειτουργία (Κόκκινο)</option>
- <option value="ΣΥΝΕΔΡΙΟ">Συνέδριο/Ομιλία (Μωβ)</option>
- <option value="ΚΑΤΑΣΚΗΝΩΣΗ">Κατασκήνωση (Πράσινο)</option>
- <option value="ΜΗΤΡΟΠΟΛΗ">Μητρόπολη/Συνάντηση (Κίτρινο)</option>
- <option value="ΑΛΛΟ">Άλλο (Μπλε)</option>
- </select>
+ <div className="grid grid-cols-2 gap-3">
+  <div className="space-y-2">
+  <Label className="font-bold">Κατηγορία</Label>
+  <select required value={category} onChange={handleCategoryChange} className="w-full h-11 px-3 rounded-xl border border-[var(--border)] bg-[var(--background)] cursor-pointer focus:ring-2 focus:ring-[var(--brand)]">
+  <option value="ΛΕΙΤΟΥΡΓΙΑ">Λειτουργία</option>
+  <option value="ΣΥΝΕΔΡΙΟ">Συνέδριο/Ομιλία</option>
+  <option value="ΚΑΤΑΣΚΗΝΩΣΗ">Κατασκήνωση</option>
+  <option value="ΜΗΤΡΟΠΟΛΗ">Μητρόπολη/Συνάντηση</option>
+  <option value="ΑΛΛΟ">Άλλο</option>
+  </select>
+  </div>
+  <div className="space-y-2">
+  <Label className="font-bold">Χρώμα</Label>
+  <div className="flex items-center gap-2 border border-[var(--border)] rounded-xl bg-[var(--background)] px-2 h-11 focus-within:ring-2 focus-within:ring-[var(--brand)]">
+  <input type="color" value={color} onChange={e=>setColor(e.target.value)} className="w-8 h-8 rounded shrink-0 cursor-pointer outline-none border-none bg-transparent" title="Επιλογή Χρώματος" />
+  <span className="text-xs text-[var(--text-muted)] font-medium uppercase font-mono">{color}</span>
+  </div>
+  </div>
  </div>
 
  <div className="grid grid-cols-2 gap-3">

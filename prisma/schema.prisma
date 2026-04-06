@@ -96,7 +96,11 @@ model Temple {
   // SaaS Multi-tenancy relations
   subscriptionStatus  String    @default("active") // "active", "inactive", "trial"
   subscriptionPlan    String    @default("basic") // "basic", "premium"
+  subscriptionStartDate DateTime?
   subscriptionEndDate DateTime?
+
+  lat                 Float?
+  lng                 Float?
 
   users        UserTemple[]
   parishioners Parishioner[]
@@ -130,7 +134,6 @@ model Temple {
   bloodDonors         BloodDonor[]
   bloodDrives         BloodDrive[]
   assets              Asset[]
-  parishCamps         ParishCamp[]
   centralEvents       CentralEvent[]
 
   deceasedPersons          DeceasedPerson[]
@@ -297,7 +300,6 @@ model Parishioner {
   sacramentHistory  Sacrament[]
   ceremonyPersons   CeremonyPerson[]
   vaultDocs         VaultDocument[]
-  campRegistrations CampRegistration[]
   bloodDonor        BloodDonor?
 
   // Παρακάτω προστίθενται τα relationships (Κουμπάροι, Ανάδοχοι κλπ)
@@ -833,120 +835,6 @@ model PhiloptochosMember {
 }
 
 // =======================
-// CAMPS (ΚΑΤΑΣΚΗΝΩΣΕΙΣ)
-// =======================
-model ParishCamp {
-  id       String @id @default(cuid())
-  templeId String
-  temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
-
-  name      String
-  year      Int
-  startDate DateTime
-  endDate   DateTime
-  location  String?
-  capacity  Int     @default(100)
-  pricePerSlot Float @default(0) // € per camper
-
-  groups        ParishCampGroup[]
-  registrations CampRegistration[]
-  staff         CampStaff[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model CampRegistration {
-  id     String     @id @default(cuid())
-  campId String
-  camp   ParishCamp @relation(fields: [campId], references: [id], onDelete: Cascade)
-
-  parishionerId String?
-  parishioner   Parishioner? @relation(fields: [parishionerId], references: [id], onDelete: SetNull)
-
-  // Camper Info
-  childFirstName String
-  childLastName  String
-  childBirthDate DateTime?
-  gender         String?  // M / F
-
-  // Parent/Guardian
-  parentName  String?
-  parentPhone String?
-  parentEmail String?
-
-  // Medical
-  medicalNotes  String?
-  allergies     String?
-  medications   String?
-
-  // Payment
-  amountDue     Float   @default(0)
-  amountPaid    Float   @default(0)
-  depositPaid   Float   @default(0)
-  receiptNumber String? // CAMP-2025-001
-  paymentStatus String  @default("NONE") // NONE, DEPOSIT, PAID
-
-  // T-shirt
-  tshirtColor String?
-  tshirtSize  String?
-
-  // Consent
-  consentDate    DateTime?
-  consentPhotos  Boolean @default(false)
-  consentMedical Boolean @default(false)
-  consentSignedBy String?
-
-  // Status
-  status String @default("REGISTERED") // REGISTERED, ATTENDED, CANCELLED
-
-  parishCampGroup   ParishCampGroup? @relation(fields: [parishCampGroupId], references: [id])
-  parishCampGroupId String?
-
-  payments    CampPayment[]
-  attendances CampAttendance[]
-
-  createdAt DateTime @default(now())
-}
-
-model CampPayment {
-  id             String           @id @default(cuid())
-  registrationId String
-  registration   CampRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
-
-  amount        Float
-  method        String  @default("CASH") // CASH, TRANSFER, CARD
-  receiptNumber String?
-  date          DateTime @default(now())
-  notes         String?
-}
-
-model CampAttendance {
-  id             String           @id @default(cuid())
-  registrationId String
-  registration   CampRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
-
-  date      DateTime
-  isPresent Boolean @default(true)
-  notes     String?
-
-  @@unique([registrationId, date])
-}
-
-model CampStaff {
-  id       String     @id @default(cuid())
-  campId   String
-  camp     ParishCamp @relation(fields: [campId], references: [id], onDelete: Cascade)
-
-  name  String
-  role  String // LEADER, COUNSELOR, MEDIC, COOK
-  phone String?
-  email String?
-
-  groupId String? // assigned ParishCampGroup
-}
-
-// =======================
 // BLOOD BANK (ΑΙΜΟΔΟΣΙΑ)
 // =======================
 
@@ -1358,17 +1246,6 @@ model CentralEvent {
   createdAt DateTime @default(now())
 }
 
-model ParishCampGroup {
-  id     String     @id @default(cuid())
-  campId String
-  camp   ParishCamp @relation(fields: [campId], references: [id], onDelete: Cascade)
-
-  name       String // π.χ. "Ομάδα Ορφέας"
-  leaderName String? // Ομαδάρχης
-
-  registrations CampRegistration[]
-}
-
 model BloodDrive {
   id       String @id @default(cuid())
   templeId String
@@ -1588,4 +1465,127 @@ model SissitioInventoryMovement {
   quantity Float
   date     DateTime @default(now())
   notes    String?
+}
+
+// =======================
+// CAMPS (ΚΑΤΑΣΚΗΝΩΣΕΙΣ)
+// =======================
+
+model CampSession {
+  id          String   @id @default(cuid())
+  templeId    String
+  temple      Temple   @relation(fields: [templeId], references: [id], onDelete: Cascade)
+  
+  name        String                          // π.χ. "Α΄ Περίοδος 2025"
+  startDate   DateTime
+  endDate     DateTime
+  maxCapacity Int
+  pricePerSlot Float     @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  campers     CampCamper[]
+  staff       CampStaff[]
+  groups      CampGroup[]
+}
+
+model CampGroup {
+  id        String      @id @default(cuid())
+  name      String                            // π.χ. "Ομάδα Άλφα"
+  color     String?                           // hex color
+  sessionId String
+  session   CampSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  campers   CampCamper[]
+}
+
+model CampCamper {
+  id              String      @id @default(cuid())
+  templeId        String
+  temple          Temple      @relation(fields: [templeId], references: [id], onDelete: Cascade)
+
+  firstName       String
+  lastName        String
+  fatherName      String?
+  motherName      String?
+  dateOfBirth     DateTime
+  gender          String                      // "M" | "F"
+  address         String?
+  city            String?
+  phone           String?                     // τηλ. γονέα
+  email           String?                     // email γονέα
+  tshirtSize      String?                     // XS/S/M/L/XL/XXL
+  tshirtColor     String?
+  
+  sessionId       String
+  session         CampSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  groupId         String?
+  group           CampGroup?  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  
+  medicalInfo     CampMedical?
+  payments        CampPayment[]
+  attendances     CampAttendance[]
+  consent         CampConsent?
+  
+  createdAt       DateTime    @default(now())
+}
+
+model CampMedical {
+  id              String     @id @default(cuid())
+  camperId        String     @unique
+  camper          CampCamper @relation(fields: [camperId], references: [id], onDelete: Cascade)
+  allergies       String?
+  medications     String?
+  conditions      String?
+  doctorName      String?
+  doctorPhone     String?
+  bloodType       String?
+  insuranceNumber String?
+  notes           String?
+}
+
+model CampConsent {
+  id              String     @id @default(cuid())
+  camperId        String     @unique
+  camper          CampCamper @relation(fields: [camperId], references: [id], onDelete: Cascade)
+  parentName      String
+  parentSignature String?                     // base64 ή URL
+  signedAt        DateTime?
+  photoConsent    Boolean    @default(false)
+  medicalConsent  Boolean    @default(false)
+}
+
+model CampPayment {
+  id          String     @id @default(cuid())
+  camperId    String
+  camper      CampCamper @relation(fields: [camperId], references: [id], onDelete: Cascade)
+  amount      Float
+  type        String                          // "prokatavoli" | "ypoloipo" | "oliko"
+  method      String?                         // "cash" | "bank" | "card"
+  paidAt      DateTime   @default(now())
+  notes       String?
+  receiptNo   String?
+}
+
+model CampStaff {
+  id          String      @id @default(cuid())
+  firstName   String
+  lastName    String
+  role        String                          // "symvoulos" | "iatros" | "mageiras" | "dieythyntis"
+  phone       String?
+  email       String?
+  sessionId   String
+  session     CampSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  assignedGroup String?
+}
+
+model CampAttendance {
+  id          String     @id @default(cuid())
+  camperId    String
+  camper      CampCamper @relation(fields: [camperId], references: [id], onDelete: Cascade)
+  date        DateTime
+  present     Boolean    @default(true)
+  notes       String?
+
+  @@unique([camperId, date])
 }

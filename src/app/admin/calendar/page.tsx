@@ -9,7 +9,7 @@ export default async function CalendarPage() {
  return (
  <div className="container-fluid mt-6 space-y-6">
  <PageHeader 
- title="Κεντρικό Ημερολόγιο (Events)"
+ title="Ημερολόγιο (Events)"
  description="Πολυεπίπεδο ημερολόγιο δράσεων Еνορίας και Ιεράς Μητρόπολης."
  />
  <CalendarClient initialEvents={events || []} />
