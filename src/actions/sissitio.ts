@@ -114,7 +114,7 @@ export async function markSissitioAttendance(recipientId: string, dateStr: strin
   await requireAuth();
   const date = new Date(dateStr); date.setHours(0,0,0,0);
 
-  await (prisma as any).sissitioAttendance.upsert({
+  await (prisma as any).sissitioRecipientAttendance.upsert({
     where: { recipientId_date: { recipientId, date } },
     update: { present, absenceType: absenceType || null, absenceReason: reason || null },
     create: { recipientId, date, present, absenceType: absenceType || null, absenceReason: reason || null }
@@ -318,7 +318,7 @@ export async function getSissitioDashboard() {
 
   const [totalActive, todayAttendance, lowStock, recipients] = await Promise.all([
     (prisma as any).sissitioRecipient.count({ where: { templeId, isActive: true } }),
-    (prisma as any).sissitioAttendance.count({ where: { date: { gte: today, lt: tomorrow }, present: true,
+    (prisma as any).sissitioRecipientAttendance.count({ where: { date: { gte: today, lt: tomorrow }, present: true,
       recipient: { templeId } } }),
     (prisma as any).sissitioInventoryItem.findMany({
       where: { templeId, minQuantity: { not: null } },
@@ -332,7 +332,7 @@ export async function getSissitioDashboard() {
   const alerts = lowStock.filter((i: any) => i.minQuantity && i.quantity <= i.minQuantity);
   const categoryDistribution = recipients.map((r: any) => ({
     category: r.category === 'taktikos' ? 'Τακτικός' : r.category === 'ektaktos' ? 'Έκτακτος' : 'Επισκέπτης',
-    count: r._count
+    count: typeof r._count === 'object' ? (r._count._all || r._count.category || 0) : (r._count || 0)
   }));
 
   return {
