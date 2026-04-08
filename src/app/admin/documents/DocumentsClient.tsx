@@ -8,6 +8,7 @@ import DocTemplateForm from './DocTemplateForm';
 import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { uploadDocTemplate, deleteDocTemplate, updateTemplateVariables } from '@/actions/documents';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const DOC_TYPES = [
   { id: 'vaptisi', label: 'Βαπτίσεως', emoji: '💧' },
@@ -179,7 +180,10 @@ export default function DocumentsClient({ initialTemplates }: any) {
             Σχεδιάστε HTML πρότυπα <b>ή ανεβάστε τα υπάρχοντα PDF/DOCX</b> σας. Ο οδηγός σας καθοδηγεί βήμα-βήμα!
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Link href="/admin/documents/generate" className="btn btn-secondary flex items-center gap-2 shadow-sm border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold">
+            <Sparkles className="w-4 h-4"/> Δημιουργία Εγγράφου
+          </Link>
           <button onClick={() => { resetWizard(); setWizardOpen(true); }} className="btn btn-secondary flex items-center gap-2 shadow-sm border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 font-bold">
             <Upload className="w-4 h-4"/> Ανέβασμα PDF
           </button>
