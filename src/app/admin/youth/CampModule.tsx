@@ -279,16 +279,13 @@ function RegistrationForm({ campId, groups, price, onDone }: { campId: string; g
     setLoading(true);
     const fd = new FormData(e.target);
     const res = await registerCamper(campId, {
-      childFirstName: fd.get('childFirstName') as string,
-      childLastName: fd.get('childLastName') as string,
-      childBirthDate: fd.get('childBirthDate') as string || undefined,
-      gender: fd.get('gender') as string || undefined,
-      parentName: fd.get('parentName') as string || undefined,
-      parentPhone: fd.get('parentPhone') as string || undefined,
-      parentEmail: fd.get('parentEmail') as string || undefined,
-      medicalNotes: fd.get('medicalNotes') as string || undefined,
-      allergies: fd.get('allergies') as string || undefined,
-      medications: fd.get('medications') as string || undefined,
+      firstName: fd.get('childFirstName') as string,
+      lastName: fd.get('childLastName') as string,
+      dateOfBirth: fd.get('childBirthDate') as string || '',
+      gender: fd.get('gender') as string || 'M',
+      motherName: fd.get('parentName') as string || undefined,
+      phone: fd.get('parentPhone') as string || undefined,
+      email: fd.get('parentEmail') as string || undefined,
       tshirtColor: fd.get('tshirtColor') as string || undefined,
       tshirtSize: fd.get('tshirtSize') as string || undefined,
       groupId: fd.get('groupId') as string || undefined,
@@ -296,7 +293,7 @@ function RegistrationForm({ campId, groups, price, onDone }: { campId: string; g
     });
     setLoading(false);
     if (res.success) onDone();
-    else alert(res.error);
+    else alert((res as any).error || 'Σφάλμα κατά την εγγραφή');
   };
 
   return (
@@ -496,8 +493,14 @@ function StaffView({ camp }: { camp: any }) {
     e.preventDefault();
     setLoading(true);
     const fd = new FormData(e.target);
+    const fullName = fd.get('staffName') as string;
+    const parts = fullName.trim().split(' ');
+    const firstName = parts[0] || '';
+    const lastName = parts.slice(1).join(' ') || firstName; // Default to firstName if no last name
+
     await addCampStaff(camp.id, {
-      name: fd.get('staffName') as string,
+      firstName,
+      lastName,
       role: fd.get('staffRole') as string,
       phone: fd.get('staffPhone') as string || undefined,
     });
@@ -556,11 +559,9 @@ function CreateCampDialog({ onCreated }: { onCreated: () => void }) {
           const fd = new FormData(e.target);
           await createCamp({
             name: fd.get('name') as string,
-            year: Number(fd.get('year')) || new Date().getFullYear(),
             startDate: fd.get('startDate') as string,
             endDate: fd.get('endDate') as string,
-            location: fd.get('location') as string || undefined,
-            capacity: Number(fd.get('capacity')) || 100,
+            maxCapacity: Number(fd.get('capacity')) || 100,
             pricePerSlot: Number(fd.get('price')) || 0,
           });
           setLoading(false); onCreated();

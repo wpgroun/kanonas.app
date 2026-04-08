@@ -186,7 +186,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  </div>
 ))}
 
- {!collapsed && <div className="sidebar-section-label mt-2">{dict.nav.sectionSystem}</div>}
+ {!collapsed && <div className="sidebar-section-label mt-2">Σύστημα</div>}
  {secondaryItems.map((item) => (
  <Link
  key={item.href}
@@ -216,7 +216,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  className="nav-item w-full text-[var(--danger)] hover:bg-[var(--danger-light)]"
  >
  <LogOut className="nav-icon"/>
- {!collapsed && <span>{dict.nav.logout}</span>}
+ {!collapsed && <span>Αποσύνδεση</span>}
  </button>
  </div>
  </aside>

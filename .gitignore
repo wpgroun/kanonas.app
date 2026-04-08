@@ -39,3 +39,51 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Database
+*.db
+prisma/dev.db
+
+# Temporary & Log files
+tmp_*.js
+tmp_*.log
+build.log
+build.txt
+build_output.log
+build_output.txt
+errors.log
+final-err.txt
+next-build-err.txt
+next-build-err-utf8.txt
+tmp_tsc_errors.log
+tmp_utf8.log
+ts-err.txt
+ts-error3.txt
+ts-errors.log
+ts-errors.txt
+validate-err.txt
+validate-out.txt
+validate-utf8.txt
+prisma-error.log
+prisma_err.txt
+prisma_error.txt
+perr.txt
+pages_list.txt
+
+# Fix scripts
+fix_*.py
+fix_*.js
+fix-*.js
+
+# One-time scripts
+rename.js
+rename_logo.js
+rename-kanonas.js
+remove-barrel-imports.js
+push_db.js
+validator_test.js
+seedAccounts.js
+seedPlans.js
+seed_maps.js
+seed_slots.js
+seed-admin.js
