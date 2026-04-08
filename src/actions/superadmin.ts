@@ -330,8 +330,8 @@ export async function getSuperAdminFinancials() {
       id: d.id,
       amount: d.amount,
       date: d.date.toISOString(),
-      type: d.type,
-      note: d.note,
+      type: d.purpose || '',
+      note: d.donorName || '',
       temple: d.temple?.name || '—'
     })),
     revenueTrend,

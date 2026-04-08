@@ -49,12 +49,12 @@ export async function exportDonationsCSV(year?: number) {
     include: { parishioner: { select: { firstName: true, lastName: true } } }
   })
 
-  const headers = ['Ημερομηνία', 'Τύπος', 'Ποσό (€)', 'Ονοματεπώνυμο', 'Σημείωση']
+  const headers = ['Ημερομηνία', 'Σκοπός', 'Ποσό (€)', 'Ονοματεπώνυμο', 'Αρ. Απόδειξης']
   const rows = donations.map(d => [
     new Date(d.date).toLocaleDateString('el-GR'),
-    d.type, d.amount.toString(),
-    d.parishioner ? `${d.parishioner.lastName} ${d.parishioner.firstName}` : '',
-    d.note || ''
+    d.purpose || '', d.amount.toString(),
+    d.parishioner ? `${d.parishioner.lastName} ${d.parishioner.firstName}` : (d.donorName || ''),
+    d.receiptNumber || ''
   ])
 
   return buildCSV(headers, rows)
@@ -75,11 +75,11 @@ export async function exportExpensesCSV(year?: number) {
     orderBy: { date: 'desc' }
   })
 
-  const headers = ['Ημερομηνία', 'Κατηγορία', 'Ποσό (€)', 'Περιγραφή', 'Προμηθευτής']
+  const headers = ['Ημερομηνία', 'Κατηγορία', 'Ποσό (€)', 'Σκοπός', 'Προμηθευτής']
   const rows = expenses.map(e => [
     new Date(e.date).toLocaleDateString('el-GR'),
-    e.category || '', e.amount.toString(),
-    e.description || '', e.vendor || ''
+    e.categoryId || '', e.amount.toString(),
+    e.purpose || '', e.vendor || ''
   ])
 
   return buildCSV(headers, rows)
@@ -93,16 +93,16 @@ export async function exportSacramentsCSV() {
 
   const sacraments = await prisma.sacrament.findMany({
     where: { templeId },
-    orderBy: { performedAt: 'desc' },
+    orderBy: { sacramentDate: 'desc' },
     include: { parishioner: { select: { firstName: true, lastName: true } } }
   })
 
-  const headers = ['Ημερομηνία', 'Τύπος', 'Ονοματεπώνυμο', 'Ιερέας', 'Αρ.Πρωτοκόλλου']
+  const headers = ['Ημερομηνία', 'Τύπος', 'Ονοματεπώνυμο', 'Σημειώσεις']
   const rows = sacraments.map(s => [
-    s.performedAt ? new Date(s.performedAt).toLocaleDateString('el-GR') : '',
-    s.type, 
+    s.sacramentDate ? new Date(s.sacramentDate).toLocaleDateString('el-GR') : '',
+    s.sacramentType, 
     s.parishioner ? `${s.parishioner.lastName} ${s.parishioner.firstName}` : '',
-    s.priest || '', s.protocolNumber || ''
+    s.notes || ''
   ])
 
   return buildCSV(headers, rows)

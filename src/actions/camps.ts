@@ -247,6 +247,34 @@ export async function addCampStaff(sessionId: string, data: {
   return { success: true };
 }
 
+export async function removeCampStaff(id: string) {
+  await requireAuth();
+  await prisma.campStaff.delete({ where: { id } });
+  revalidatePath(CAMP_PATH);
+  return { success: true };
+}
+
+// ─── CANCEL REGISTRATION ────────────────────────────────────────
+
+export async function cancelRegistration(camperId: string) {
+  await requireAuth();
+  await prisma.campCamper.delete({ where: { id: camperId } });
+  revalidatePath(CAMP_PATH);
+  return { success: true };
+}
+
+// ─── ASSIGN GROUP ───────────────────────────────────────────────
+
+export async function assignGroup(camperId: string, groupId: string | null) {
+  await requireAuth();
+  await prisma.campCamper.update({
+    where: { id: camperId },
+    data: { groupId: groupId || null }
+  });
+  revalidatePath(CAMP_PATH);
+  return { success: true };
+}
+
 // ─── STATS DASHBOARD ────────────────────────────────────────────
 
 export async function getCampStats(sessionId: string) {
