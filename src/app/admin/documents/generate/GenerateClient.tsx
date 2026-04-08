@@ -5,6 +5,7 @@ import { generateFromTemplate } from '@/actions/docEngine';
 import { FileText, Download, Printer, ArrowLeft, ChevronRight, Loader2,
          Sparkles, FileSignature, FileUp, CheckCircle2, Search, Eye } from 'lucide-react';
 import Link from 'next/link';
+import { humanizeVarName } from '@/lib/greeklishMap';
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   vaptisi: '💧 Βαπτίσεως', gamos: '💍 Γάμου', divorce: '📋 Διαζυγίου',
@@ -178,9 +179,9 @@ export default function GenerateClient({ templates, selectedTemplateId }: { temp
               <h3 className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider">Συμπληρώστε τα παρακάτω πεδία:</h3>
               {userVars.map((v: string) => (
                 <div key={v}>
-                  <label className="block text-sm font-bold text-foreground mb-1">{v.replace(/_/g, ' ')}</label>
+                  <label className="block text-sm font-bold text-foreground mb-1">{humanizeVarName(v)}</label>
                   <input type="text" value={answers[v] || ''} onChange={e => setAnswers({...answers, [v]: e.target.value})}
-                    placeholder={`Εισάγετε ${v.replace(/_/g, ' ').toLowerCase()}...`}
+                    placeholder={`Εισάγετε ${humanizeVarName(v).toLowerCase()}...`}
                     className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/30"/>
                 </div>
               ))}
@@ -216,13 +217,13 @@ export default function GenerateClient({ templates, selectedTemplateId }: { temp
               </div>
               {userVars.map((v: string) => (
                 <div key={v} className="flex justify-between py-2 border-b border-[var(--border)]">
-                  <span className="text-sm text-[var(--text-muted)]">{v.replace(/_/g, ' ')}</span>
+                  <span className="text-sm text-[var(--text-muted)]">{humanizeVarName(v)}</span>
                   <span className="text-sm font-bold">{answers[v] || <span className="italic text-[var(--text-muted)]">—</span>}</span>
                 </div>
               ))}
               {SYSTEM_VARS.filter(v => variables.includes(v)).map(v => (
                 <div key={v} className="flex justify-between py-2 border-b border-[var(--border)] opacity-60">
-                  <span className="text-sm text-[var(--text-muted)]">{v.replace(/_/g, ' ')}</span>
+                  <span className="text-sm text-[var(--text-muted)]">{humanizeVarName(v)}</span>
                   <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">Αυτόματο</span>
                 </div>
               ))}

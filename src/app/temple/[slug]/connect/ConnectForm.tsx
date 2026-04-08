@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { submitCitizenRequest } from '@/actions/connect';
 import { CheckCircle2, FileText, Send, User, Phone, Mail, FileSignature, ChevronRight, ChevronLeft, Calendar } from 'lucide-react';
+import { humanizeVarName } from '@/lib/greeklishMap';
 
 const SYSTEM_VARS = ['ΝΑΟΣ_ΟΝΟΜΑ', 'ΝΑΟΣ_ΔΙΕΥΘΥΝΣΗ', 'ΜΗΤΡΟΠΟΛΗ', 'ΗΜΕΡΟΜΗΝΙΑ', 'ΗΜΕΡΟΜΗΝΙΑ_ΤΕΛΕΤΗΣ']; // System or standard overridden vars.
 
@@ -173,8 +174,8 @@ export default function ConnectForm({ slug, docTypes }: { slug: string, docTypes
               <h4 className="text-sm font-black uppercase tracking-wider text-slate-700 mb-4 border-b border-slate-100 pb-2">Δυναμικά Πεδία Εγγράφου</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-6">
                 {filteredVars.map((v: string) => {
-                  const isGender = v.toLowerCase().includes('φύλο') || v.toLowerCase().includes('γένος');
-                  const label = v.replace(/_/g, ' ');
+                  const label = humanizeVarName(v);
+                  const isGender = label.toLowerCase().includes('φύλο') || label.toLowerCase().includes('γένος') || v.toLowerCase().includes('fylo');
 
                   if (isGender) {
                     return (
@@ -249,7 +250,7 @@ export default function ConnectForm({ slug, docTypes }: { slug: string, docTypes
               
               {filteredVars.map((v: string) => (
                 <div key={v} className="flex justify-between py-2 border-b border-slate-100 last:border-0 items-start gap-4">
-                  <span className="text-slate-500 text-xs font-medium">{v.replace(/_/g, ' ')}:</span>
+                  <span className="text-slate-500 text-xs font-medium">{humanizeVarName(v)}:</span>
                   <span className="font-bold text-slate-800 text-sm text-right">{dynamicVars[v]}</span>
                 </div>
               ))}
