@@ -54,7 +54,7 @@ export default function CampModule({ camps, stats }: { camps: any[]; stats: Reco
           {/* View Tabs */}
           <div className="flex gap-1 bg-muted/30 p-1 rounded-xl w-fit border border-border flex-wrap">
             {[
-              { id: 'dashboard', label: 'Dashboard', icon: Star },
+              { id: 'dashboard', label: 'Επισκόπηση', icon: Star },
               { id: 'campers', label: 'Κατασκηνωτές', icon: Users },
               { id: 'attendance', label: 'Παρουσιολόγιο', icon: ClipboardList },
               { id: 'payments', label: 'Πληρωμές', icon: DollarSign },
