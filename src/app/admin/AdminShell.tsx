@@ -10,7 +10,7 @@ import { LayoutDashboard, Users, FileText, Banknote, Calendar,
  Download, Megaphone
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
-import { useDict } from '@/i18n/TranslationProvider';
+
 import type { ExpiryWarning } from '@/actions/subscriptions';
 import GlobalSearch from '@/components/GlobalSearch';
 
@@ -24,7 +24,7 @@ interface AdminShellProps {
 export default function AdminShell({ children, perms, subscriptionWarning, disabledModules = [] }: AdminShellProps) {
  const pathname = usePathname();
  const router = useRouter();
- const dict = useDict();
+
  const [collapsed, setCollapsed] = useState(false);
  const [mobileOpen, setMobileOpen] = useState(false);
  const [bannerDismissed, setBannerDismissed] = useState(false);
@@ -33,19 +33,19 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  {
  group:"Γραμματεία & Διοίκηση",
  items: [
- { href: '/admin', icon: LayoutDashboard, label: dict.nav.dashboard, requiredPerm: null, moduleLabel: 'Dashboard (Επισκόπηση)' },
+ { href: '/admin', icon: LayoutDashboard, label: 'Επισκόπηση', requiredPerm: null, moduleLabel: 'Dashboard (Επισκόπηση)' },
  { href: '/admin/calendar', icon: Calendar, label: 'Ημερολόγιο', requiredPerm: null, moduleLabel: 'Κεντρικό Ημερολόγιο' },
- { href: '/admin/board', icon: KanbanSquare, label: 'Εργασίες', requiredPerm: null, moduleLabel: 'Kanban Tasks' },
- { href: '/admin/requests', icon: FileText, label: dict.nav.requests, requiredPerm: 'canManageRequests', moduleLabel: 'Kanonas Connect (e-Gov)' },
- { href: '/admin/protocol', icon: ClipboardList, label: dict.nav.documents, requiredPerm: 'canManageProtocol', moduleLabel: 'Πρωτόκολλο' },
- { href: '/admin/mailing', icon: Mail, label: 'Mailing & Ετικέτες', requiredPerm: null, moduleLabel: 'Ετικέτες (Mailing)' },
- { href: '/admin/connect', icon: Globe, label: 'Kanonas Connect', requiredPerm: null, moduleLabel: 'Δημόσιο Mini-Site' },
+ { href: '/admin/board', icon: KanbanSquare, label: 'Εργασίες', requiredPerm: null, moduleLabel: 'Πίνακας Εργασιών' },
+ { href: '/admin/requests', icon: FileText, label: 'Αιτήματα', requiredPerm: 'canManageRequests', moduleLabel: 'Αιτήματα Μυστηρίων' },
+ { href: '/admin/protocol', icon: ClipboardList, label: 'Πρωτόκολλο', requiredPerm: 'canManageProtocol', moduleLabel: 'Πρωτόκολλο' },
+ { href: '/admin/mailing', icon: Mail, label: 'Αλληλογραφία & Ετικέτες', requiredPerm: null, moduleLabel: 'Αλληλογραφία & Ετικέτες' },
+ { href: '/admin/connect', icon: Globe, label: 'Δημόσια Σελίδα', requiredPerm: null, moduleLabel: 'Δημόσια Σελίδα' },
  ]
  },
  {
  group:"Μητρώα & Πιστοποιητικά",
  items: [
- { href: '/admin/parishioners', icon: Users, label: dict.nav.parishioners, requiredPerm: 'canManageRegistry', moduleLabel: 'Μητρώο Ενοριτών' },
+ { href: '/admin/parishioners', icon: Users, label: 'Μητρώο', requiredPerm: 'canManageRegistry', moduleLabel: 'Μητρώο Ενοριτών' },
  { href: '/admin/sacraments/baptisms', icon: FileText, label: 'Βιβλίο Βαπτίσεων', requiredPerm: null, moduleLabel: 'Βαπτίσεις & Μυστήρια' },
               { href: '/admin/sacraments/marriages', icon: FileText, label: 'Βιβλίο Γάμων', requiredPerm: null, moduleLabel: 'Γάμοι & Μυστήρια' },
               { href: '/admin/sacraments/divorces', icon: FileText, label: 'Διαζύγια (Λύσεις)', requiredPerm: 'canManageRegistry', moduleLabel: 'Διαζύγια (Λύσεις Γάμων)' },
@@ -55,7 +55,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  {
  group:"Οικονομικά & Ταμείο",
  items: [
- { href: '/admin/finances', icon: Banknote, label: dict.nav.finances, requiredPerm: 'canViewFinances', moduleLabel: 'Καθολικό Πληρωμών / Εισπράξεων' },
+ { href: '/admin/finances', icon: Banknote, label: 'Οικονομικά', requiredPerm: 'canViewFinances', moduleLabel: 'Καθολικό Πληρωμών / Εισπράξεων' },
  { href: '/admin/finances/ledger', icon: BookOpen, label: 'Βιβλίο Εσόδων-Εξόδων', requiredPerm: 'canViewFinances', moduleLabel: 'Καθολικό Πληρωμών / Εισπράξεων' },
  { href: '/admin/finances/budget', icon: FileText, label: 'Προϋπολογισμός', requiredPerm: 'canViewFinances', moduleLabel: 'Προϋπολογισμός (Budgeting)' },
  ]
@@ -63,8 +63,8 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  {
  group:"Ιερό Βήμα & Πρόγραμμα",
  items: [
- { href: '/admin/schedule', icon: Calendar, label: dict.nav.calendar, requiredPerm: 'canManageSchedule', moduleLabel: 'Ημερολόγιο Ακολουθιών' },
- { href: '/admin/diptychs', icon: BookOpen, label: dict.nav.diptychs, requiredPerm: null, moduleLabel: 'Δίπτυχα & Προσκομιδή' },
+ { href: '/admin/schedule', icon: Calendar, label: 'Πρόγραμμα', requiredPerm: 'canManageSchedule', moduleLabel: 'Ημερολόγιο Ακολουθιών' },
+ { href: '/admin/diptychs', icon: BookOpen, label: 'Δίπτυχα', requiredPerm: null, moduleLabel: 'Δίπτυχα & Προσκομιδή' },
  { href: '/admin/ministries', icon: Users, label: 'Διακονίες & Εθελοντές', requiredPerm: null, moduleLabel: 'Διακονίες & Εθελοντές' },
  { href: '/admin/assignments', icon: Users, label: 'Αναθέσεις Εφημερίων', requiredPerm: 'isHeadPriest', moduleLabel: 'Αναθέσεις Εφημερίων' },
  ]
@@ -72,12 +72,12 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  {
  group:"Δομές & Ενέργειες",
  items: [
- { href: '/admin/philanthropy', icon: HeartHandshake, label: dict.nav.philanthropy, requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Μητρώο Ωφελουμένων' },
+ { href: '/admin/philanthropy', icon: HeartHandshake, label: 'Φιλόπτωχο', requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Μητρώο Ωφελουμένων' },
  { href: '/admin/philanthropy/board', icon: Shield, label: 'Συμβούλιο Φιλοπτώχου', requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Συμβούλιο Φιλοπτώχου (ΕΦΤ)' },
  { href: '/admin/philanthropy/sissitio', icon: Utensils, label: 'Συσσίτιο', requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Συσσίτιο' },
  { href: '/admin/youth', icon: Tent, label: 'Κατασκηνώσεις', requiredPerm: null, moduleLabel: 'Κατασκηνώσεις (Νεολαία)' },
  { href: '/admin/bloodbank', icon: HeartPulse, label: 'Τράπεζα Αίματος', requiredPerm: null, moduleLabel: 'Τράπεζα Αίματος' },
- { href: '/admin/assets', icon: Package, label: dict.nav.assets, requiredPerm: 'canManageAssets', moduleLabel: 'Περιουσιολόγιο (Assets)' },
+ { href: '/admin/assets', icon: Package, label: 'Περιουσιολόγιο', requiredPerm: 'canManageAssets', moduleLabel: 'Περιουσιολόγιο' },
  ]
  }
  ];
@@ -106,11 +106,11 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  { href: '/admin/audit', icon: ShieldCheck, label: 'Ιστορικό Ενεργειών', requiredPerm: 'isHeadPriest' },
  { href: '/admin/subscription', icon: CreditCard, label: 'Διαχείριση Συνδρομής', requiredPerm: 'isHeadPriest' },
  { href: '/admin/documents', icon: FileText, label: 'Πρότυπα Εγγράφων', requiredPerm: 'isHeadPriest' },
- { href: '/admin/settings', icon: Settings, label: dict.nav.settings, requiredPerm: 'isHeadPriest' },
+ { href: '/admin/settings', icon: Settings, label: 'Ρυθμίσεις', requiredPerm: 'isHeadPriest' },
  { href: '/admin/users', icon: Users, label: 'Προσωπικό & Ρόλοι', requiredPerm: 'isHeadPriest' },
  { href: '/admin/super/announcements', icon: Megaphone, label: 'Ανακοινώσεις', requiredPerm: 'isSuperAdmin' },
  { href: '/admin/super/map', icon: Globe, label: 'Χάρτης Ναών', requiredPerm: 'isSuperAdmin' },
- { href: '/admin/super', icon: ShieldCheck, label: dict.nav.superAdmin, requiredPerm: 'isSuperAdmin' },
+ { href: '/admin/super', icon: ShieldCheck, label: 'Κέντρο Ελέγχου', requiredPerm: 'isSuperAdmin' },
  ].filter(item => {
  if (item.requiredPerm === 'isHeadPriest') return perms.isHeadPriest || perms.isSuperAdmin;
  if (item.requiredPerm === 'isSuperAdmin') return perms.isSuperAdmin;
@@ -154,7 +154,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  </div>
  {!collapsed && (
  <span className="font-bold text-[var(--foreground)] text-base tracking-tight truncate">
- {dict.general.appName}
+ Κανόνας
  </span>
 )}
  </Link>

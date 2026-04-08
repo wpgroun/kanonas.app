@@ -149,9 +149,9 @@ export default function SuperDashboard() {
       <div className="bg-[var(--surface)] rounded-3xl p-8 shadow-sm border border-[var(--border)] relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-3xl font-black flex items-center gap-3 text-[var(--foreground)]">
-            <Shield className="w-8 h-8 text-[var(--brand)]" /> System Control Center
+            <Shield className="w-8 h-8 text-[var(--brand)]" /> Κέντρο Ελέγχου Συστήματος
           </h1>
-          <p className="text-[var(--text-muted)] font-medium mt-2">Εποπτεία Ναών, MRR, Συνδρομών και Οικονομικών Στοιχείων</p>
+          <p className="text-[var(--text-muted)] font-medium mt-2">Εποπτεία Ναών, Εσόδων, Συνδρομών και Οικονομικών Στοιχείων</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={async () => {
@@ -162,7 +162,7 @@ export default function SuperDashboard() {
             a.href = url; a.download = `kanonas_all_temples_${new Date().toISOString().slice(0,10)}.csv`;
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
           }} className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-300 px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-sm transition-all text-sm">
-            <Download className="w-4 h-4" /> Export CSV
+            <Download className="w-4 h-4" /> Εξαγωγή CSV
           </button>
           <Link href="/admin/super/announcements">
             <button className="bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-300 px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-sm transition-all text-sm">

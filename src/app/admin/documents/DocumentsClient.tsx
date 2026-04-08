@@ -173,7 +173,7 @@ export default function DocumentsClient({ initialTemplates }: any) {
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            Πρότυπα Εγγράφων <span className="text-xs bg-brand-light text-brand font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-brand/20">Engine v2</span>
+            Πρότυπα Εγγράφων <span className="text-xs bg-brand-light text-brand font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-brand/20">Μηχανή v2</span>
           </h1>
           <p className="text-muted-foreground mt-1 text-sm max-w-2xl">
             Σχεδιάστε HTML πρότυπα <b>ή ανεβάστε τα υπάρχοντα PDF/DOCX</b> σας. Ο οδηγός σας καθοδηγεί βήμα-βήμα!

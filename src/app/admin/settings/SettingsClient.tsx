@@ -61,8 +61,8 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  <TabsList className="mb-4 bg-slate-100 p-1 rounded-xl">
  <TabsTrigger value="general" className="rounded-lg gap-2"><Building2 className="w-4 h-4"/> Βασικά Στοιχεία</TabsTrigger>
  <TabsTrigger value="protocol" className="rounded-lg gap-2"><Hash className="w-4 h-4"/> Πρωτόκολλο</TabsTrigger>
- <TabsTrigger value="gateways" className="rounded-lg gap-2"><KeyRound className="w-4 h-4"/> Gateways</TabsTrigger>
- <TabsTrigger value="web" className="rounded-lg gap-2"><Globe className="w-4 h-4"/> Web</TabsTrigger>
+ <TabsTrigger value="gateways" className="rounded-lg gap-2"><KeyRound className="w-4 h-4"/> Πύλες (Email/SMS)</TabsTrigger>
+ <TabsTrigger value="web" className="rounded-lg gap-2"><Globe className="w-4 h-4"/> Ιστοσελίδα</TabsTrigger>
  </TabsList>
 
  {/* Completion Bar */}
@@ -95,7 +95,7 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="mt-1"/>
  </div>
  <div>
- <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Ιερά Μητρόπολη (Read-Only)</label>
+ <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Ιερά Μητρόπολη (μόνο ανάγνωση)</label>
  <Input value={initialData.metropolisName} disabled className="mt-1 bg-slate-100 text-[var(--text-muted)] italic"/>
  </div>
  <div>
@@ -164,7 +164,7 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  <TabsContent value="gateways">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <Card className="p-6 border-border rounded-xl shadow-sm border-t-4 border-t-blue-500">
- <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Mail className="text-blue-500"/> Mail Server (SMTP)</h3>
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Mail className="text-blue-500"/> Διακομιστής Email (SMTP)</h3>
  <p className="text-xs text-[var(--text-muted)] mb-6">Διαμορφώστε τον δικό σας διακομιστή για μαζικές αποστολές email.</p>
  <div className="space-y-4">
  <div>
@@ -187,7 +187,7 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  </Card>
 
  <Card className="p-6 border-border rounded-xl shadow-sm border-t-4 border-t-purple-500">
- <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><MessageSquare className="text-purple-500"/> SMS & Viber</h3>
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><MessageSquare className="text-purple-500"/> SMS & Viber Πύλες</h3>
  <p className="text-xs text-[var(--text-muted)] mb-6">Auth Tokens του παρόχου σας (Twilio / Apifon) για SMS.</p>
  <div className="space-y-4">
  <div>
@@ -210,7 +210,7 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  {/* WEB TAB */}
  <TabsContent value="web">
  <Card className="p-6 border-border rounded-xl shadow-sm border-l-4 border-l-emerald-500">
- <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Globe className="text-emerald-500"/> Public Mini-Site URL</h3>
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Globe className="text-emerald-500"/> Δημόσια Ιστοσελίδα Ναού</h3>
  <p className="text-sm text-[var(--text-secondary)] mb-6">Ορίστε το μοναδικό URL αν θέλετε δυναμική ιστοσελίδα για την Ενορία σας.</p>
  <div>
  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">URL Slug</label>
