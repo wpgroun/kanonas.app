@@ -33,6 +33,21 @@
   --input: var(--color-zinc-200);
   --ring: var(--color-zinc-400);
   --radius: 0.5rem;
+  
+  --surface: var(--color-white);
+  --surface-hover: var(--color-zinc-50);
+  --brand: #7C3AED;
+  --brand-dark: #6D28D9;
+  --brand-light: #EDE9FE;
+  --text-muted: var(--color-zinc-500);
+  --danger: var(--color-red-600);
+  --danger-light: #FEE2E2;
+  --success: var(--color-emerald-600);
+  --success-light: #D1FAE5;
+  --warning: var(--color-amber-500);
+  --warning-light: #FEF3C7;
+  --info: var(--color-blue-600);
+  --info-light: #DBEAFE;
 }
 
 .dark {
@@ -60,6 +75,21 @@
   --border: var(--color-zinc-800);
   --input: var(--color-zinc-800);
   --ring: var(--color-zinc-600);
+
+  --surface: var(--color-zinc-900);
+  --surface-hover: var(--color-zinc-800);
+  --brand: #A78BFA;
+  --brand-dark: #7C3AED;
+  --brand-light: #2E1065;
+  --text-muted: var(--color-zinc-400);
+  --danger: var(--color-red-400);
+  --danger-light: #450A0A;
+  --success: var(--color-emerald-400);
+  --success-light: #052E16;
+  --warning: var(--color-amber-400);
+  --warning-light: #451A03;
+  --info: var(--color-blue-400);
+  --info-light: #1E3A5F;
 }
 
 /** Theme Setup **/
@@ -121,6 +151,12 @@
 
   *:focus-visible {
     @apply outline-ring rounded-xs shadow-none outline-2 outline-offset-3 transition-none!;
+  }
+  
+  input, select, textarea {
+    background-color: var(--surface);
+    color: var(--foreground);
+    border-color: var(--border);
   }
 }
 
