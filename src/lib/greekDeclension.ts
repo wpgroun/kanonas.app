@@ -88,3 +88,64 @@ export function declineGreekName(
  return name;
 }
 
+export function declineFullName(fullName: string, caseType: 'genitive' | 'accusative', gender: 'male' | 'female'): string {
+  if (!fullName) return '';
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length === 1) return declineGreekName(parts[0], caseType, gender);
+
+  const firstName = parts[0];
+  const lastParts = parts.slice(1);
+  
+  const declinedFirst = declineGreekName(firstName, caseType, gender);
+  
+  const declinedLast = lastParts.map(lastName => {
+    const lower = lastName.toLowerCase();
+    
+    // If ends in -ου, -ή, -η: already in genitive — return as-is for genitive
+    if (caseType === 'genitive') {
+      if (lower.endsWith('ου') || lower.endsWith('ή') || lower.endsWith('η') || lower.endsWith('ού')) {
+        return lastName;
+      }
+    }
+
+    if (caseType === 'genitive') {
+      if (gender === 'male') {
+        if (lower.endsWith('ος')) return lastName.slice(0, -2) + 'ου';
+        if (lower.endsWith('ης')) return lastName.slice(0, -1);
+        if (lower.endsWith('ας')) return lastName.slice(0, -1);
+      } else {
+        if (lower.endsWith('α') || lower.endsWith('ά')) return lastName + 'ς';
+      }
+    } else if (caseType === 'accusative') {
+      if (gender === 'male') {
+        if (lower.endsWith('ος')) return lastName.slice(0, -1); 
+        if (lower.endsWith('ης') || lower.endsWith('ας')) return lastName.slice(0, -1);
+      }
+    }
+
+    return lastName;
+  });
+
+  return [declinedFirst, ...declinedLast].join(' ');
+}
+
+export function resolveGenderTokens(text: string, gender: 'male' | 'female'): string {
+  if (!text) return '';
+  
+  const isMale = gender === 'male';
+
+  // Specific multi-option or shorthand fallbacks
+  let resolved = text
+    .replace(/\[ο\/η\/οι\]/g, isMale ? 'ο' : 'η')
+    .replace(/\[τον\/την\/τους\]/g, isMale ? 'τον' : 'την')
+    .replace(/\[του\/της\]/g, isMale ? 'του' : 'της')
+    .replace(/\[νεοφώτιστος\/η\]/g, isMale ? 'νεοφώτιστος' : 'νεοφώτιστη')
+    .replace(/\[βαπτισθείς\/σα\]/g, isMale ? 'βαπτισθείς' : 'βαπτισθείσα');
+
+  // Generic 2-option matcher [word1/word2]
+  resolved = resolved.replace(/\[([^\/\]]+)\/([^\/\]]+)\]/g, (match, opt1, opt2) => {
+    return isMale ? opt1 : opt2;
+  });
+
+  return resolved;
+}

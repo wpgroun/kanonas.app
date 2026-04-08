@@ -6,6 +6,8 @@ import { getCurrentTempleId } from './core'
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import fs from 'fs/promises'
 import path from 'path'
+import { declineFullName, resolveGenderTokens } from '@/lib/greekDeclension';
+
 
 /**
  * Generate a filled PDF document from a template + user answers.
@@ -34,12 +36,34 @@ export async function generateFromTemplate(templateId: string, answers: Record<s
     'ΝΑΟΣ_ΔΙΕΥΘΥΝΣΗ': temple?.address || '',
     'ΜΗΤΡΟΠΟΛΗ': temple?.metropolis?.name || '',
     'ΗΜΕΡΟΜΗΝΙΑ': new Date().toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' }),
+  };
+  const mergedAnswers: Record<string, string> = { ...sysVars, ...answers }
+
+  let targetGender: 'male' | 'female' = 'male'; // fallback
+  for (const [k, v] of Object.entries(mergedAnswers)) {
+    const keyL = String(k).toLowerCase();
+    const valL = String(v).toLowerCase();
+    if (keyL.includes('φύλο') || keyL.includes('gender')) {
+      if (valL.includes('θήλυ') || valL.includes('θηλυκό') || valL.includes('female') || valL === 'θ' || valL === 'f') {
+        targetGender = 'female';
+      }
+    }
   }
-  const mergedAnswers = { ...sysVars, ...answers }
+
+  // Auto-decline fields that have Genitive counterpart
+  const keys = Object.keys(mergedAnswers);
+  for (const key of keys) {
+    if (key.includes('ΟΝΟΜΑ') || key.includes('ΕΠΩΝΥΜΟ') || key.includes('ΠΑΤΡΩΝΥΜΟ') || key.includes('ΜΗΤΡΩΝΥΜΟ')) {
+      const genKey = `${key}_ΓΕΝΙΚΗ`;
+      if (!mergedAnswers[genKey] && mergedAnswers[key]) {
+        mergedAnswers[genKey] = declineFullName(mergedAnswers[key], 'genitive', targetGender);
+      }
+    }
+  }
 
   // ─── HTML Template ───────────────────────────────────────────────────
   if (template.htmlContent) {
-    return generateHTMLDoc(template, mergedAnswers, temple)
+    return generateHTMLDoc(template, mergedAnswers, temple, targetGender)
   }
 
   // ─── PDF Template ──────────────────────────────────────────────────
@@ -49,7 +73,7 @@ export async function generateFromTemplate(templateId: string, answers: Record<s
 
   // ─── DOCX Template ─────────────────────────────────────────────────
   if (template.fileUrl && (template.fileUrl.endsWith('.docx') || template.fileUrl.endsWith('.doc'))) {
-    return generateDOCXDoc(template, mergedAnswers)
+    return generateDOCXDoc(template, mergedAnswers, targetGender)
   }
 
   return { success: false, error: 'Μη υποστηριζόμενος τύπος αρχείου.' }
@@ -59,7 +83,7 @@ export async function generateFromTemplate(templateId: string, answers: Record<s
 // HTML Template Generation (existing — cleaned up)
 // ═══════════════════════════════════════════════════════════════════════
 
-function generateHTMLDoc(template: any, answers: Record<string, string>, temple: any) {
+function generateHTMLDoc(template: any, answers: Record<string, string>, temple: any, targetGender: 'male' | 'female') {
   let filledHtml = template.htmlContent || ''
   filledHtml = filledHtml.replace(/\{\{([^}]+)\}\}/g, (_: string, varName: string) => {
     return answers[varName.trim()] || `[${varName.trim()}]`
@@ -110,7 +134,9 @@ function generateHTMLDoc(template: any, answers: Record<string, string>, temple:
 </body>
 </html>`
 
-  return { success: true, type: 'html', html: fullHtml, title: template.nameEl }
+  const finalHtml = resolveGenderTokens(fullHtml, targetGender);
+
+  return { success: true, type: 'html', html: finalHtml, title: template.nameEl }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -178,7 +204,7 @@ async function generatePDFDoc(template: any, answers: Record<string, string>, te
 // DOCX Generation (docxtemplater)
 // ═══════════════════════════════════════════════════════════════════════
 
-async function generateDOCXDoc(template: any, answers: Record<string, string>) {
+async function generateDOCXDoc(template: any, answers: Record<string, string>, targetGender: 'male' | 'female') {
   try {
     const Docxtemplater = (await import('docxtemplater')).default
     const PizZip = (await import('pizzip')).default
@@ -197,31 +223,38 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>) {
 
     let buf;
 
+    // --- Global XML Normalization & Gender Tokens ---
+    const xmlFile = zip.file('word/document.xml');
+    if (xmlFile) {
+        let xml = xmlFile.asText();
+
+        // Merge split <w:t> tags within the same <w:r> run
+        xml = xml.replace(/(<w:r[^>]*>)(.*?)<\/w:r>/g, (match, rTag, inside) => {
+            const textPieces: string[] = [];
+            let mergedInside = inside.replace(/<w:t([^>]*)>(.*?)<\/w:t>/g, (tMatch: string, tAttrs: string, tText: string) => {
+                textPieces.push(tText);
+                return ''; // remove it
+            });
+            if (textPieces.length > 0) {
+                mergedInside += `<w:t xml:space="preserve">${textPieces.join('')}</w:t>`;
+            }
+            return `${rTag}${mergedInside}</w:r>`;
+        });
+
+        // Resolve Gender Tokens [ο/η]
+        xml = resolveGenderTokens(xml, targetGender);
+
+        if (format === 'brackets' || format === 'single_curly') {
+            for (const [key, val] of Object.entries(answers)) {
+                const safeVal = (val || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const searchStr = format === 'brackets' ? `[${key}]` : `{${key}}`;
+                xml = xml.replaceAll(searchStr, safeVal);
+            }
+        }
+        zip.file('word/document.xml', xml);
+    }
+
     if (format === 'brackets' || format === 'single_curly') {
-       const xmlFile = zip.file('word/document.xml');
-       if (xmlFile) {
-           let xml = xmlFile.asText();
-
-           // Merge split <w:t> tags within the same <w:r> run
-           xml = xml.replace(/(<w:r[^>]*>)(.*?)<\/w:r>/g, (match, rTag, inside) => {
-               const textPieces: string[] = [];
-               let mergedInside = inside.replace(/<w:t([^>]*)>(.*?)<\/w:t>/g, (tMatch: string, tAttrs: string, tText: string) => {
-                   textPieces.push(tText);
-                   return ''; // remove it
-               });
-               if (textPieces.length > 0) {
-                   mergedInside += `<w:t xml:space="preserve">${textPieces.join('')}</w:t>`;
-               }
-               return `${rTag}${mergedInside}</w:r>`;
-           });
-
-           for (const [key, val] of Object.entries(answers)) {
-               const safeVal = (val || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-               const searchStr = format === 'brackets' ? `[${key}]` : `{${key}}`;
-               xml = xml.replaceAll(searchStr, safeVal);
-           }
-           zip.file('word/document.xml', xml);
-       }
        buf = zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
     } else {
        const doc = new Docxtemplater(zip, {
