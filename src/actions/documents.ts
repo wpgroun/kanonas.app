@@ -22,17 +22,17 @@ export async function getDocTemplates(docType?: string) {
   }
 }
 
-export async function saveDocTemplate(id: string | null, docType: string, nameEl: string, htmlContent: string, conditionRules: string | null = null) {
+export async function saveDocTemplate(id: string | null, docType: string, nameEl: string, htmlContent: string, conditionRules: string | null = null, visibility: string = 'internal') {
   await requireAuth()
   const templeId = await getCurrentTempleId()
   try {
     if (id) {
       const existing = await prisma.docTemplate.findFirst({ where: { id, templeId } });
       if (!existing) return { success: false, error: 'Unauthorized' };
-      await prisma.docTemplate.update({ where: { id }, data: { docType, nameEl, htmlContent, conditionRules } })
+      await prisma.docTemplate.update({ where: { id }, data: { docType, nameEl, htmlContent, conditionRules, visibility } })
     } else {
       await prisma.docTemplate.create({
-        data: { templeId, docType, nameEl, htmlContent, conditionRules }
+        data: { templeId, docType, nameEl, htmlContent, conditionRules, visibility }
       })
     }
     revalidatePath('/admin/documents')
@@ -55,6 +55,7 @@ export async function uploadDocTemplate(formData: FormData) {
   const file = formData.get('file') as File
   const nameEl = formData.get('nameEl') as string
   const docType = formData.get('docType') as string
+  const visibility = formData.get('visibility') as string || 'internal'
 
   if (!file || !nameEl || !docType) {
     return { success: false, error: 'Λείπουν υποχρεωτικά πεδία.' }
@@ -115,6 +116,7 @@ export async function uploadDocTemplate(formData: FormData) {
         templeId,
         docType,
         nameEl,
+        visibility,
         fileUrl,
         htmlContent: null,
         context: contextPayload,

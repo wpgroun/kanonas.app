@@ -73,6 +73,7 @@ export default function DocumentsClient({ initialTemplates }: any) {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadName, setUploadName] = useState('');
   const [uploadType, setUploadType] = useState('other');
+  const [uploadVisibility, setUploadVisibility] = useState('internal');
   const [uploadVars, setUploadVars] = useState<string[]>([]);
   const [newVarName, setNewVarName] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -126,6 +127,7 @@ export default function DocumentsClient({ initialTemplates }: any) {
     fd.append('file', uploadFile);
     fd.append('nameEl', uploadName);
     fd.append('docType', uploadType);
+    fd.append('visibility', uploadVisibility);
     fd.append('variables', '[]');
     const res = await uploadDocTemplate(fd);
     setUploading(false);
@@ -149,7 +151,7 @@ export default function DocumentsClient({ initialTemplates }: any) {
 
   const resetWizard = () => {
     setWizardOpen(false); setWizardStep(0);
-    setUploadFile(null); setUploadName(''); setUploadVars([]); setUploadType('other');
+    setUploadFile(null); setUploadName(''); setUploadVars([]); setUploadType('other'); setUploadVisibility('internal');
     setUploadedTemplateId(null); setDetectedFormat('mustache');
   };
 
@@ -227,8 +229,11 @@ export default function DocumentsClient({ initialTemplates }: any) {
                   {isUpload ? <FileUp className="w-6 h-6"/> : <FileSignature className="w-6 h-6"/>}
                 </div>
                 <h3 className="font-bold text-foreground text-lg">{tpl.nameEl}</h3>
-                <p className="text-sm font-medium text-[var(--text-muted)] mt-1 flex items-center gap-1.5">
-                  {DOC_TYPES.find(d => d.id === tpl.docType)?.emoji || '📄'} {DOC_TYPES.find(d => d.id === tpl.docType)?.label || tpl.docType}
+                <p className="text-sm font-medium text-[var(--text-muted)] mt-1 flex items-center gap-1.5 flex-wrap">
+                  <span className="flex items-center gap-1">{DOC_TYPES.find(d => d.id === tpl.docType)?.emoji || '📄'} {DOC_TYPES.find(d => d.id === tpl.docType)?.label || tpl.docType}</span>
+                  {tpl.visibility === 'citizen' && <span className="ml-1 text-[10px] uppercase font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">👤 Προς Ενορίτη</span>}
+                  {tpl.visibility === 'metropolis' && <span className="ml-1 text-[10px] uppercase font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-md">⛪ Προς Μητρόπολη</span>}
+                  {(!tpl.visibility || tpl.visibility === 'internal') && <span className="ml-1 text-[10px] uppercase font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">🏠 Εσωτερικό</span>}
                 </p>
                 {vars.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1">
@@ -346,6 +351,26 @@ export default function DocumentsClient({ initialTemplates }: any) {
                           <span className="text-[11px] font-bold block">{t.label}</span>
                         </button>
                       ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-[var(--foreground)] mb-2">Ορατότητα (Χρήση Εγγράφου)</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <label className={`cursor-pointer p-3 rounded-xl border transition-all ${uploadVisibility === 'internal' ? 'border-amber-500 bg-amber-50 shadow-sm' : 'border-[var(--border)] hover:border-amber-300'}`}>
+                         <input type="radio" value="internal" checked={uploadVisibility === 'internal'} onChange={e => setUploadVisibility(e.target.value)} className="hidden"/>
+                         <span className="flex items-center justify-center font-bold mt-1 text-sm"><span className="text-xl inline-block mr-1">🏠</span> Εσωτερικό</span>
+                         <span className="block text-[10px] text-center text-[var(--text-muted)] mt-1">(Αρχείο ναού)</span>
+                      </label>
+                      <label className={`cursor-pointer p-3 rounded-xl border transition-all ${uploadVisibility === 'citizen' ? 'border-amber-500 bg-amber-50 shadow-sm' : 'border-[var(--border)] hover:border-amber-300'}`}>
+                         <input type="radio" value="citizen" checked={uploadVisibility === 'citizen'} onChange={e => setUploadVisibility(e.target.value)} className="hidden"/>
+                         <span className="flex items-center justify-center font-bold mt-1 text-sm"><span className="text-xl inline-block mr-1">👤</span> Προς Ενορίτη</span>
+                         <span className="block text-[10px] text-center text-[var(--text-muted)] mt-1">(Αποστολή στον πολίτη)</span>
+                      </label>
+                      <label className={`cursor-pointer p-3 rounded-xl border transition-all ${uploadVisibility === 'metropolis' ? 'border-amber-500 bg-amber-50 shadow-sm' : 'border-[var(--border)] hover:border-amber-300'}`}>
+                         <input type="radio" value="metropolis" checked={uploadVisibility === 'metropolis'} onChange={e => setUploadVisibility(e.target.value)} className="hidden"/>
+                         <span className="flex items-center justify-center font-bold mt-1 text-sm"><span className="text-xl inline-block mr-1">⛪</span> Προς Μητρόπολη</span>
+                         <span className="block text-[10px] text-center text-[var(--text-muted)] mt-1">(Αποστολή στη Μητρόπολη)</span>
+                      </label>
                     </div>
                   </div>
                 </div>
