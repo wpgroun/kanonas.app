@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { updateRequestStatus, confirmRequest, rejectRequest, assignPriest, generateRequestDocuments } from '@/actions/connect';
+import { updateRequestStatus, confirmRequest, rejectRequest, assignPriest, generateRequestDocuments, getRequestDocuments } from '@/actions/connect';
 import { Mail, CheckCircle2, XCircle, Clock, FileText, UserPlus } from 'lucide-react';
 
 import { QRCodeSVG } from 'qrcode.react';
@@ -106,6 +106,43 @@ export default function ConnectClient({ initialRequests, appUrl, slug, priests }
  alert("Σφάλμα παραγωγής.");
  } finally {
  setGenerating(false);
+ }
+ }
+
+ async function handleDownloadZip() {
+ if (!selectedReq) return;
+ try {
+  const JSZip = (await import('jszip')).default;
+  const zip = new JSZip();
+  
+  const res = await getRequestDocuments(selectedReq.id);
+  if (!res.success || !res.docs) {
+  alert("Δεν βρέθηκαν έγγραφα.");
+  return;
+  }
+  
+  for (const doc of res.docs) {
+  if (doc.type === 'html') {
+   zip.file(`${doc.name}.html`, doc.html);
+  } else if (doc.type === 'pdf' || doc.type === 'docx') {
+   const binaryString = atob(doc.base64);
+   const bytes = new Uint8Array(binaryString.length);
+   for (let i = 0; i < binaryString.length; i++) {
+   bytes[i] = binaryString.charCodeAt(i);
+   }
+   const ext = doc.type === 'pdf' ? 'pdf' : 'docx';
+   zip.file(doc.filename || `${doc.name}.${ext}`, bytes);
+  }
+  }
+  
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `Εγγραφα_${selectedReq.applicantName}_${Date.now()}.zip`;
+  link.click();
+ } catch (e) {
+  console.error(e);
+  alert("Σφάλμα δημιουργίας ZIP");
  }
  }
 
@@ -271,8 +308,15 @@ export default function ConnectClient({ initialRequests, appUrl, slug, priests }
 
  {selectedReq.status === 'DOCS_GENERATED' && (
  <div className="bg-purple-50 text-purple-900 p-6 rounded-xl border border-purple-200">
- <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><CheckCircle2 className="w-6 h-6 text-purple-600"/> Έγγραφα Έτοιμα!</h3>
- <p className="mb-4 text-sm">Τα έγγραφα παρήχθησαν επιτυχώς. Αριθμός Πρωτοκόλλου: <strong>{selectedReq.protocolNumber}</strong></p>
+ <div className="flex justify-between items-start mb-4">
+  <div>
+  <h3 className="font-bold text-lg flex items-center gap-2"><CheckCircle2 className="w-6 h-6 text-purple-600"/> Έγγραφα Έτοιμα!</h3>
+  <p className="text-sm">Τα έγγραφα παρήχθησαν επιτυχώς. Αριθμός Πρωτοκόλλου: <strong>{selectedReq.protocolNumber}</strong></p>
+  </div>
+  <button onClick={handleDownloadZip} className="btn bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg shadow-sm flex items-center gap-2 text-sm">
+  📦 Λήψη Όλων (ZIP)
+  </button>
+ </div>
  
  <div className="space-y-4">
  {parsedDocs.citizenDocs?.length > 0 && (

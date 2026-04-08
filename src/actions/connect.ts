@@ -258,3 +258,26 @@ export async function generateRequestDocuments(requestId: string) {
 
   return { success: true, citizenDocs, internalDocs, protocolNumber };
 }
+
+export async function getRequestDocuments(requestId: string) {
+  const session = await requireAuth();
+  
+  const req = await prisma.citizenRequest.findUnique({ 
+    where: { id: requestId }
+  });
+  
+  if (!req || req.templeId !== session.templeId) {
+    throw new Error("Δεν βρέθηκε η αίτηση ή δεν έχετε δικαίωμα.");
+  }
+  
+  if (!req.generatedDocs) {
+    return { success: true, docs: [] };
+  }
+  
+  try {
+    const docs = JSON.parse(req.generatedDocs);
+    return { success: true, docs };
+  } catch (e) {
+    return { success: false, error: 'Σφάλμα ανάγνωσης εγγράφων' };
+  }
+}
