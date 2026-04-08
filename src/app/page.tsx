@@ -90,7 +90,7 @@ export default function Home() {
  <Link href="#features"className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
  Δυνατότητες
  </Link>
- <Link href="#pricing"className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
+ <Link href="/pricing"className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
  Συνδρομές
  </Link>
  <Link href="/contact"className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
@@ -415,7 +415,7 @@ export default function Home() {
  <h4 className="text-white font-semibold text-sm mb-4">Πλοήγηση</h4>
  <ul className="space-y-2.5 text-sm">
  <li><Link href="#features"className="hover:text-white transition-colors">Δυνατότητες</Link></li>
- <li><Link href="#pricing"className="hover:text-white transition-colors">Συνδρομές</Link></li>
+ <li><Link href="/pricing"className="hover:text-white transition-colors">Συνδρομές</Link></li>
  <li><Link href="/contact"className="hover:text-white transition-colors">Επικοινωνία</Link></li>
  <li><Link href="/login"className="text-[var(--brand)] hover:text-[#A78BFA] transition-colors font-medium">Είσοδος</Link></li>
  </ul>
