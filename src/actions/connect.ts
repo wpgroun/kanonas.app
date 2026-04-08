@@ -231,5 +231,30 @@ export async function generateRequestDocuments(requestId: string) {
     }
   });
 
+  if (req.applicantEmail) {
+    const { sendEmail } = await import('./notifications');
+    const contactInfo = [
+      req.temple.name,
+      req.temple.phoneNumber ? `Τηλ: ${req.temple.phoneNumber}` : null,
+      req.temple.address
+    ].filter(Boolean).join(' • ');
+
+    await sendEmail({
+      to: req.applicantEmail,
+      subject: `Τα έγγραφά σας είναι έτοιμα — ${req.temple.name}`,
+      title: 'Τα Έγγραφά σας είναι Έτοιμα',
+      greeting: `Αγαπητέ/ή ${req.applicantName},`,
+      body: `
+        <p>Τα έγγραφά σας για <b>${req.type}</b> έχουν εκδοθεί και είναι έτοιμα.</p>
+        <p>Αριθμός Πρωτοκόλλου: <b>${protocolNumber}</b></p>
+        <p>Επικοινωνήστε με τον Ναό για την παραλαβή τους.</p>
+        <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8e8ee; font-size: 12px; color: #6b7280;">
+          ${contactInfo}
+        </div>
+      `,
+      templeId: req.templeId
+    });
+  }
+
   return { success: true, citizenDocs, internalDocs, protocolNumber };
 }
