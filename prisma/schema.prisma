@@ -154,6 +154,10 @@ model Temple {
   sissitioRecipes          SissitioRecipe[]
   sissitioPortionLogs      SissitioPortionLog[]
   sissitioInventoryItems   SissitioInventoryItem[]
+
+  // Camps
+  campSessions             CampSession[]
+  campCampers              CampCamper[]
 }
 
 model KanbanTask {
@@ -1588,4 +1592,22 @@ model CampAttendance {
   notes       String?
 
   @@unique([camperId, date])
+}
+
+// =======================
+// SYSTEM ANNOUNCEMENTS (Super Admin → All Temples)
+// =======================
+
+model SystemAnnouncement {
+  id        String   @id @default(cuid())
+  title     String
+  body      String   // Rich text / markdown
+  type      String   @default("info") // "info", "warning", "update", "maintenance"
+  priority  String   @default("normal") // "low", "normal", "high"
+  authorId  String?
+  isActive  Boolean  @default(true)
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

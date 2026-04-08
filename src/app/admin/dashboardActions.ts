@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { getUpcomingNamedays } from '@/actions/namedays'
+import { getActiveAnnouncements } from '@/actions/announcements'
 
 export async function getDashboardStats() {
  const session = await getSession()
@@ -91,6 +92,7 @@ export async function getDashboardStats() {
  const defaultSacramentsData: { name: string; value: number }[] = []
 
  const upcomingNamedays = await getUpcomingNamedays(7)
+ const announcements = await getActiveAnnouncements()
 
  return {
  totalParishioners,
@@ -106,7 +108,7 @@ export async function getDashboardStats() {
  revenueTrend,
  recentTokens,
  recentParishioners,
- upcomingNamedays
+ upcomingNamedays,
+ announcements: announcements.map(a => ({ id: a.id, title: a.title, body: a.body, type: a.type, priority: a.priority }))
  }
 }
-

@@ -7,7 +7,8 @@ import {
   PowerOff, CircleDollarSign, TrendingUp, Search,
   ArrowUpRight, CheckCircle2, Eye, Edit3, Key,
   CreditCard, Banknote, ChevronUp, ChevronDown,
-  Pause, Play, UserCog, FileText, X, Save, RefreshCw
+  Pause, Play, UserCog, FileText, X, Save, RefreshCw,
+  Download, Megaphone
 } from "lucide-react";
 import {
   getSuperAdminStats, toggleSubscriptionStatus,
@@ -16,6 +17,7 @@ import {
   getSuperAdminFinancials, getAllUsers, updateTempleProfile
 } from "@/actions/superadmin";
 import { getSubscriptionPlans } from "@/actions/subscriptions";
+import { exportAllTemplesCSV } from "@/actions/exports";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar
@@ -151,9 +153,24 @@ export default function SuperDashboard() {
           </h1>
           <p className="text-[var(--text-muted)] font-medium mt-2">Εποπτεία Ναών, MRR, Συνδρομών και Οικονομικών Στοιχείων</p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <button onClick={async () => {
+            const csv = await exportAllTemplesCSV();
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `kanonas_all_temples_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          }} className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-300 px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-sm transition-all text-sm">
+            <Download className="w-4 h-4" /> Export CSV
+          </button>
+          <Link href="/admin/super/announcements">
+            <button className="bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-300 px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-sm transition-all text-sm">
+              <Megaphone className="w-4 h-4" /> Ανακοινώσεις
+            </button>
+          </Link>
           <Link href="/admin/super/map">
-            <button className="bg-amber-100/90 text-amber-700 hover:bg-amber-200 border border-amber-300 px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-sm transition-all text-sm">
+            <button className="bg-amber-100/90 text-amber-700 hover:bg-amber-200 border border-amber-300 px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-sm transition-all text-sm">
               <Globe className="w-4 h-4" /> Χάρτης
             </button>
           </Link>

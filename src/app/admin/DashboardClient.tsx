@@ -9,7 +9,7 @@ import {
  Users, FileText, Banknote, AlertCircle, ArrowUpRight,
  ArrowDownRight, TrendingUp, HeartHandshake, Plus,
  ClipboardList, UserPlus, Clock, CheckCircle2,
- ChevronRight, LayoutDashboard, Gift
+ ChevronRight, LayoutDashboard, Gift, Megaphone, Info, AlertTriangle, Wrench, Sparkles
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -107,6 +107,32 @@ export default function DashboardClient({ stats }: { stats: any }) {
  </Link>
  </div>
  </div>
+
+ {/* System Announcements (from Super Admin) */}
+ {stats.announcements?.length > 0 && (
+ <div className="space-y-2 mb-4">
+ {stats.announcements.map((ann: any) => {
+ const typeStyles: Record<string, { bg: string; border: string; icon: any }> = {
+ info: { bg: 'bg-blue-50', border: 'border-blue-200', icon: Info },
+ warning: { bg: 'bg-amber-50', border: 'border-amber-200', icon: AlertTriangle },
+ update: { bg: 'bg-emerald-50', border: 'border-emerald-200', icon: Sparkles },
+ maintenance: { bg: 'bg-red-50', border: 'border-red-200', icon: Wrench },
+ }
+ const style = typeStyles[ann.type] || typeStyles.info
+ const AnnIcon = style.icon
+ return (
+ <div key={ann.id} className={`flex items-start gap-3 p-4 rounded-xl border ${style.bg} ${style.border} animate-in fade-in duration-300`}>
+ <AnnIcon className="w-5 h-5 mt-0.5 flex-shrink-0 opacity-70"/>
+ <div className="flex-1 min-w-0">
+ <p className="text-sm font-bold text-[var(--foreground)]">{ann.title}</p>
+ <p className="text-xs text-[var(--text-muted)] mt-0.5 line-clamp-2">{ann.body}</p>
+ </div>
+ <Megaphone className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0 opacity-40"/>
+ </div>
+ )
+ })}
+ </div>
+ )}
 
  {/* Smart Action Center */}
  <div className="card p-5 border border-indigo-100 bg-gradient-to-r from-indigo-50/50 to-blue-50/50 mb-6">

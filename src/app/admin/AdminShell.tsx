@@ -6,7 +6,8 @@ import { ReactNode, useState } from 'react';
 import { LayoutDashboard, Users, FileText, Banknote, Calendar,
  BookOpen, HeartHandshake, Package, ClipboardList, Settings,
  LogOut, ChevronLeft, Menu, Bell, ShieldCheck, Mail, KanbanSquare, Tent,
- Globe, HeartPulse, Shield, Info, CreditCard, UserCircle, AlertTriangle, X, Utensils
+ Globe, HeartPulse, Shield, Info, CreditCard, UserCircle, AlertTriangle, X, Utensils,
+ Download, Megaphone
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 import { useDict } from '@/i18n/TranslationProvider';
@@ -101,11 +102,13 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
 
  const secondaryItems = [
  { href: '/admin/modules', icon: Info, label: 'Λειτουργικότητες', requiredPerm: null },
+ { href: '/admin/exports', icon: Download, label: 'Εξαγωγή Δεδομένων', requiredPerm: 'isHeadPriest' },
  { href: '/admin/audit', icon: ShieldCheck, label: 'Ιστορικό Ενεργειών', requiredPerm: 'isHeadPriest' },
  { href: '/admin/subscription', icon: CreditCard, label: 'Διαχείριση Συνδρομής', requiredPerm: 'isHeadPriest' },
  { href: '/admin/documents', icon: FileText, label: 'Πρότυπα Εγγράφων', requiredPerm: 'isHeadPriest' },
  { href: '/admin/settings', icon: Settings, label: dict.nav.settings, requiredPerm: 'isHeadPriest' },
  { href: '/admin/users', icon: Users, label: 'Προσωπικό & Ρόλοι', requiredPerm: 'isHeadPriest' },
+ { href: '/admin/super/announcements', icon: Megaphone, label: 'Ανακοινώσεις', requiredPerm: 'isSuperAdmin' },
  { href: '/admin/super/map', icon: Globe, label: 'Χάρτης Ναών', requiredPerm: 'isSuperAdmin' },
  { href: '/admin/super', icon: ShieldCheck, label: dict.nav.superAdmin, requiredPerm: 'isSuperAdmin' },
  ].filter(item => {
