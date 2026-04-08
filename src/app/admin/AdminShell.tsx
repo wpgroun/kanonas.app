@@ -127,7 +127,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  router.push('/login');
  };
 
- const showBanner = subscriptionWarning && !bannerDismissed;
+ const showBanner = subscriptionWarning && !bannerDismissed && !perms.isSuperAdmin;
 
  return (
  <div className="admin-wrapper">

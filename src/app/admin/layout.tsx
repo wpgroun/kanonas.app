@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
  const templeId = (session as any).templeId as string;
 
  // Fetch subscription expiry warning (null if no warning needed)
- const subscriptionWarning = await getSubscriptionExpiryWarning(templeId)
+ const subscriptionWarning = (session as any).isSuperAdmin ? null : await getSubscriptionExpiryWarning(templeId)
 
  // Fetch Temple Settings to see Disabled Modules
  const { prisma } = await import('@/lib/prisma');

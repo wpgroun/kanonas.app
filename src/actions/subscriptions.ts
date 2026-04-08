@@ -12,11 +12,15 @@ export type ExpiryWarning = {
  level: 'warning' | 'danger'
 } | null
 
+import { getSession } from '@/lib/auth'
+
 /**
  * Returns subscription expiry warning for the current temple.
  * Used in the admin layout to show a banner before the subscription lapses.
  */
 export async function getSubscriptionExpiryWarning(templeId: string): Promise<ExpiryWarning> {
+ const session = await getSession()
+ if (session?.isSuperAdmin) return null
  if (!templeId) return null
  try {
  const sub = await prisma.subscription.findFirst({
