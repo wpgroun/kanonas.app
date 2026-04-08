@@ -1077,6 +1077,7 @@ model CitizenRequest {
 
   protocolNumber String?
   templateAnswers String?
+  generatedDocs   String? // JSON array of generated documents
 
   applicantName  String
   applicantEmail String?

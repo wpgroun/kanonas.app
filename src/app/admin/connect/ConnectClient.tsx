@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { updateRequestStatus, confirmRequest, rejectRequest, assignPriest } from '@/actions/connect';
+import { updateRequestStatus, confirmRequest, rejectRequest, assignPriest, generateRequestDocuments } from '@/actions/connect';
 import { Mail, CheckCircle2, XCircle, Clock, FileText, UserPlus } from 'lucide-react';
 
 import { QRCodeSVG } from 'qrcode.react';
@@ -16,12 +16,16 @@ type RequestData = {
  payload: any;
  createdAt: Date;
  assignedPriestId?: string | null;
+ protocolNumber?: string | null;
+ generatedDocs?: string | null;
 };
 
 export default function ConnectClient({ initialRequests, appUrl, slug, priests }: { initialRequests: RequestData[], appUrl: string, slug: string, priests: {id:string, name:string}[] }) {
  const [requests, setRequests] = useState<RequestData[]>(initialRequests);
  const [filter, setFilter] = useState('ALL');
  const [selectedReq, setSelectedReq] = useState<RequestData | null>(null);
+ const [generating, setGenerating] = useState(false);
+ const [newlyGeneratedDocs, setNewlyGeneratedDocs] = useState<any>(null);
 
  const connectUrl = `${appUrl}/temple/${slug}/connect`;
 
@@ -75,7 +79,7 @@ export default function ConnectClient({ initialRequests, appUrl, slug, priests }
   } catch (e) { alert("Σφάλμα συστήματος."); }
  }
 
- async function handleAssignPriest(e: React.ChangeEvent<HTMLSelectElement>) {
+  async function handleAssignPriest(e: React.ChangeEvent<HTMLSelectElement>) {
   if (!selectedReq) return;
   const priestId = e.target.value;
   try {
@@ -83,6 +87,50 @@ export default function ConnectClient({ initialRequests, appUrl, slug, priests }
    setRequests(prev => prev.map(r => r.id === selectedReq.id ? { ...r, assignedPriestId: priestId } : r));
    setSelectedReq(prev => prev ? { ...prev, assignedPriestId: priestId } : null);
   } catch (err) { alert("Σφάλμα ανάθεσης."); }
+ }
+
+ async function handleGenerate() {
+  if (!selectedReq) return;
+  setGenerating(true);
+  try {
+    const res = await generateRequestDocuments(selectedReq.id);
+    if (res.success) {
+      const docsJson = JSON.stringify([...res.citizenDocs, ...res.internalDocs]);
+      setRequests(prev => prev.map(r => r.id === selectedReq.id ? { ...r, status: 'DOCS_GENERATED', protocolNumber: res.protocolNumber, generatedDocs: docsJson } : r));
+      setSelectedReq(prev => prev ? { ...prev, status: 'DOCS_GENERATED', protocolNumber: res.protocolNumber, generatedDocs: docsJson } : null);
+      setNewlyGeneratedDocs({ citizenDocs: res.citizenDocs, internalDocs: res.internalDocs });
+    } else {
+      alert("Αποτυχία παραγωγής εγγράφων.");
+    }
+  } catch (e) {
+    alert("Σφάλμα παραγωγής.");
+  } finally {
+    setGenerating(false);
+  }
+ }
+
+ function downloadDoc(doc: any) {
+    if (doc.type === 'pdf' || doc.type === 'docx') {
+      const link = document.createElement('a');
+      link.href = `data:application/${doc.type === 'pdf' ? 'pdf' : 'vnd.openxmlformats-officedocument.wordprocessingml.document'};base64,${doc.base64}`;
+      link.download = doc.filename || `${doc.name}.${doc.type}`;
+      link.click();
+    } else if (doc.type === 'html') {
+      const blob = new Blob([doc.html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    }
+ }
+
+ let parsedDocs: any = { citizenDocs: [], internalDocs: [] };
+ if (selectedReq?.generatedDocs) {
+    try {
+      const d = JSON.parse(selectedReq.generatedDocs);
+      parsedDocs.citizenDocs = d.filter((x: any) => x.visibility === 'citizen');
+      parsedDocs.internalDocs = d.filter((x: any) => x.visibility !== 'citizen');
+    } catch(e) {}
+ } else if (newlyGeneratedDocs && selectedReq?.status === 'DOCS_GENERATED') {
+    parsedDocs = newlyGeneratedDocs;
  }
 
  return (
@@ -214,11 +262,45 @@ export default function ConnectClient({ initialRequests, appUrl, slug, priests }
   </div>
   
   <div className="mt-6 flex">
-    <button disabled={!selectedReq.assignedPriestId} className="px-6 py-2 bg-purple-600 disabled:opacity-50 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors">
-      Παραγωγή Εγγράφων
+    <button onClick={handleGenerate} disabled={!selectedReq.assignedPriestId || generating} className="px-6 py-2 bg-purple-600 disabled:opacity-50 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors flex items-center gap-2">
+      {generating ? 'Παραγωγή...' : 'Παραγωγή Εγγράφων'}
     </button>
   </div>
  </div>
+ )}
+
+ {selectedReq.status === 'DOCS_GENERATED' && (
+  <div className="bg-purple-50 text-purple-900 p-6 rounded-xl border border-purple-200">
+    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><CheckCircle2 className="w-6 h-6 text-purple-600"/> Έγγραφα Έτοιμα!</h3>
+    <p className="mb-4 text-sm">Τα έγγραφα παρήχθησαν επιτυχώς. Αριθμός Πρωτοκόλλου: <strong>{selectedReq.protocolNumber}</strong></p>
+    
+    <div className="space-y-4">
+       {parsedDocs.citizenDocs?.length > 0 && (
+         <div>
+           <h4 className="text-xs font-bold uppercase text-purple-800/70 mb-2">Προς Πολίτη (Citizen)</h4>
+           <div className="flex flex-wrap gap-2">
+             {parsedDocs.citizenDocs.map((doc: any, i: number) => (
+                <button key={i} onClick={() => downloadDoc(doc)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm flex items-center gap-2">
+                   Λήψη {doc.name}
+                </button>
+             ))}
+           </div>
+         </div>
+       )}
+       {parsedDocs.internalDocs?.length > 0 && (
+         <div>
+           <h4 className="text-xs font-bold uppercase text-purple-800/70 mb-2">Εσωτερικά (Internal/Metropolis)</h4>
+           <div className="flex flex-wrap gap-2">
+             {parsedDocs.internalDocs.map((doc: any, i: number) => (
+                <button key={i} onClick={() => downloadDoc(doc)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm flex items-center gap-2">
+                   Λήψη {doc.name}
+                </button>
+             ))}
+           </div>
+         </div>
+       )}
+    </div>
+  </div>
  )}
 
  {selectedReq.status === 'PENDING' && (

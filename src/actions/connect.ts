@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/requireAuth';
 import { getCurrentTempleId } from '@/actions/core';
+import { generateFromTemplate } from './docEngine';
 
 export async function submitCitizenRequest({
  templeSlug,
@@ -156,4 +157,79 @@ export async function rejectRequest(requestId: string, reason?: string) {
     where: { id: requestId },
     data: { status: 'REJECTED' }
   });
+}
+
+export async function generateRequestDocuments(requestId: string) {
+  const session = await requireAuth();
+  
+  const req = await prisma.citizenRequest.findUnique({ 
+    where: { id: requestId },
+    include: { temple: true }
+  });
+  
+  if (!req || req.templeId !== session.templeId) {
+    throw new Error("Δεν βρέθηκε η αίτηση ή δεν έχετε δικαίωμα.");
+  }
+  
+  let answers: Record<string, string> = {};
+  if (req.templateAnswers) {
+    try { answers = JSON.parse(req.templateAnswers); } catch(e){}
+  }
+  
+  let currentProtocol = 1;
+  let templeSettings: any = {};
+  if (req.temple.settings) {
+     try { templeSettings = JSON.parse(req.temple.settings); } catch(e){}
+  }
+  if (templeSettings.currentProtocolNumber) {
+     currentProtocol = parseInt(templeSettings.currentProtocolNumber, 10) + 1;
+  }
+  templeSettings.currentProtocolNumber = currentProtocol;
+  const year = new Date().getFullYear();
+  const protocolNumber = `${currentProtocol}/${year}`;
+  
+  await prisma.temple.update({
+    where: { id: req.templeId },
+    data: { settings: JSON.stringify(templeSettings) }
+  });
+  
+  answers['ΑΡΙΘΜ_ΠΡΩΤΟΚΟΛΛΟΥ'] = protocolNumber;
+  
+  const templates = await prisma.docTemplate.findMany({
+    where: { templeId: req.templeId, docType: req.type }
+  });
+  
+  const citizenDocs: any[] = [];
+  const internalDocs: any[] = [];
+  
+  for (const tpl of templates) {
+    const res = await generateFromTemplate(tpl.id, answers);
+    if (res.success) {
+      const docEntry = {
+         id: tpl.id,
+         name: tpl.nameEl,
+         visibility: tpl.visibility,
+         type: (res as any).type,
+         base64: (res as any).base64,
+         html: (res as any).html,
+         filename: (res as any).filename
+      };
+      if (tpl.visibility === 'citizen') citizenDocs.push(docEntry);
+      else internalDocs.push(docEntry);
+    }
+  }
+  
+  const allDocs = [...citizenDocs, ...internalDocs];
+  const generatedDocsJson = JSON.stringify(allDocs);
+  
+  await prisma.citizenRequest.update({
+    where: { id: requestId },
+    data: { 
+       status: 'DOCS_GENERATED',
+       protocolNumber,
+       generatedDocs: generatedDocsJson
+    }
+  });
+
+  return { success: true, citizenDocs, internalDocs, protocolNumber };
 }
