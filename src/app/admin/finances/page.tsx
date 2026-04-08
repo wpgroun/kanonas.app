@@ -7,6 +7,7 @@ import PageHeader from '@/components/PageHeader'
 import FinanceBIClient from './FinanceBIClient'
 import QuarterlyWidget from './QuarterlyWidget'
 import PrintReceiptBtn from './PrintReceiptBtn'
+import DeleteTransactionBtn from './DeleteTransactionBtn'
 
 export default async function FinancesPage() {
  const ledger = await getLedgerTransactions();
@@ -131,16 +132,19 @@ export default async function FinancesPage() {
  <div className="text-xs text-muted-foreground">{d.purpose || d.description || ''} {d.receiptNumber && `(Αρ: ${d.receiptNumber})`}</div>
  </td>
  <td className="px-6 py-3 text-center">
- <PrintReceiptBtn tx={{ 
- id: d.id, 
- type: d.type, 
- date: d.date, 
- amount: d.amount, 
- category: d.category?.name, 
- purpose: d.purpose || d.description, 
- personName: d.donorName || d.vendor,
- receiptNumber: d.receiptNumber
- }} />
+ <div className="flex items-center justify-center gap-1">
+  <PrintReceiptBtn tx={{ 
+   id: d.id, 
+   type: d.type, 
+   date: d.date, 
+   amount: d.amount, 
+   category: d.category?.name, 
+   purpose: d.purpose || d.description, 
+   personName: d.donorName || d.vendor,
+   receiptNumber: d.receiptNumber
+  }} />
+  <DeleteTransactionBtn id={d.id} type={d.type} />
+ </div>
  </td>
  </tr>
 ))}

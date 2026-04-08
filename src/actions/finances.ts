@@ -376,6 +376,61 @@ export async function payQuarterTaxes(year: number, quarter: number) {
 export async function addExpense(data: any) {
  return addTransaction({ type: 'EXPENSE', ...data });
 }
+
+export async function deleteTransaction(id: string, type: 'INCOME' | 'EXPENSE') {
+  const session = await requireAuth();
+  if(!session.canEditFinances) return { success: false, error: 'Μη Εξουσιοδοτημένη' };
+
+  const templeId = await getCurrentTempleId();
+  try {
+    const res = await prisma.$transaction(async (tx) => {
+      let transaction;
+      if (type === 'INCOME') {
+        transaction = await tx.income.findUnique({ where: { id, templeId } });
+      } else {
+        transaction = await tx.expense.findUnique({ where: { id, templeId } });
+      }
+
+      if (!transaction) return { success: false, error: 'Η συναλλαγή δεν βρέθηκε.' };
+
+      const year = new Date(transaction.date).getFullYear();
+      
+      const fy = await tx.financialYear.findUnique({ where: { templeId_year: { templeId, year } } });
+      if (fy?.isSealed) return { success: false, error: `Το ${year} είναι Σφραγισμένο.` };
+
+      if (type === 'INCOME') {
+        await tx.income.delete({ where: { id } });
+      } else {
+        await tx.expense.delete({ where: { id } });
+      }
+
+      if (transaction.categoryId != null) {
+        await tx.budget.updateMany({
+          where: { templeId, year, categoryId: transaction.categoryId },
+          data: {
+            actualAmt: { decrement: transaction.amount }
+          }
+        });
+      }
+
+      await tx.auditLog.create({
+        data: {
+          templeId, userId: session.userId, userEmail: session.userEmail, 
+          action: `ΔΙΑΓΡΑΦΗ ${type}`, 
+          detail: `Διαγράφηκε ποσό €${transaction.amount} (Κατηγορία: ${transaction.categoryId})`
+        }
+      });
+
+      return { success: true };
+    });
+
+    if (res.success) revalidatePath('/admin/finances');
+    return res;
+  } catch(e) {
+    return { success: false, error: 'Σφάλμα κατά τη διαγραφή της κίνησης.' };
+  }
+}
+
 export async function getDonations() {
  await requireAuth();
  const templeId = await getCurrentTempleId();
