@@ -21,6 +21,12 @@ export default async function AdminConnectPage() {
  select: { slug: true }
  });
 
+ const templeUsers = await prisma.userTemple.findMany({
+   where: { templeId: session.templeId },
+   include: { user: true }
+ });
+ const priests = templeUsers.map(tu => ({ id: tu.userId, name: `${tu.user.firstName || ''} ${tu.user.lastName || ''}`.trim() || tu.user.email }));
+
  return (
  <div className="container-fluid mt-6 space-y-6 animate-in fade-in slide-in-from-bottom-4">
  
@@ -35,9 +41,9 @@ export default async function AdminConnectPage() {
  </div>
  </div>
 
- <div className="bg-[var(--surface)] rounded-3xl shadow-sm border border-[var(--border)] overflow-hidden">
- <ConnectClient initialRequests={requests} appUrl={appUrl} slug={temple?.slug || ''} />
- </div>
+  <div className="bg-[var(--surface)] rounded-3xl shadow-sm border border-[var(--border)] overflow-hidden">
+    <ConnectClient initialRequests={requests} appUrl={appUrl} slug={temple?.slug || ''} priests={priests} />
+  </div>
  </div>
 );
 }

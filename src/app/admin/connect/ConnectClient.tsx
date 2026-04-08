@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { updateRequestStatus } from '@/actions/connect';
-import { Mail, CheckCircle2, XCircle, Clock, FileText } from 'lucide-react';
+import { updateRequestStatus, confirmRequest, rejectRequest, assignPriest } from '@/actions/connect';
+import { Mail, CheckCircle2, XCircle, Clock, FileText, UserPlus } from 'lucide-react';
 
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -15,9 +15,10 @@ type RequestData = {
  applicantPhone: string | null;
  payload: any;
  createdAt: Date;
+ assignedPriestId?: string | null;
 };
 
-export default function ConnectClient({ initialRequests, appUrl, slug }: { initialRequests: RequestData[], appUrl: string, slug: string }) {
+export default function ConnectClient({ initialRequests, appUrl, slug, priests }: { initialRequests: RequestData[], appUrl: string, slug: string, priests: {id:string, name:string}[] }) {
  const [requests, setRequests] = useState<RequestData[]>(initialRequests);
  const [filter, setFilter] = useState('ALL');
  const [selectedReq, setSelectedReq] = useState<RequestData | null>(null);
@@ -26,16 +27,62 @@ export default function ConnectClient({ initialRequests, appUrl, slug }: { initi
 
  const filtered = requests.filter(r => filter === 'ALL' || r.status === filter);
 
+ const statusColors: any = {
+  INTERESTED: 'bg-blue-100 text-blue-700',
+  CONFIRMED: 'bg-green-100 text-green-700',
+  REJECTED: 'bg-red-100 text-red-700',
+  PENDING: 'bg-amber-100 text-amber-700',
+  DOCS_GENERATED: 'bg-purple-100 text-purple-700',
+  COMPLETED: 'bg-slate-100 text-slate-700'
+ };
+
+ const statusLabels: any = {
+  INTERESTED: 'Εκδήλωση Ενδιαφέροντος',
+  CONFIRMED: 'Εγκρίθηκε',
+  REJECTED: 'Απορρίφθηκε',
+  PENDING: 'Αναμονή Στοιχείων',
+  DOCS_GENERATED: 'Έγγραφα Έτοιμα',
+  COMPLETED: 'Ολοκληρώθηκε'
+ };
+
  async function handleAction(status: 'APPROVED' | 'REJECTED') {
- if (!selectedReq) return;
- try {
- await updateRequestStatus(selectedReq.id, status);
- setRequests(prev => prev.map(r => r.id === selectedReq.id ? { ...r, status } : r));
- setSelectedReq(null);
- } catch (e) {
- console.error(e);
- alert("Σφάλμα συστήματος.");
+  if (!selectedReq) return;
+  try {
+   await updateRequestStatus(selectedReq.id, status);
+   setRequests(prev => prev.map(r => r.id === selectedReq.id ? { ...r, status } : r));
+   setSelectedReq(prev => prev ? { ...prev, status } : null);
+  } catch (e) {
+   console.error(e);
+   alert("Σφάλμα συστήματος.");
+  }
  }
+
+ async function handleConfirm() {
+  if (!selectedReq) return;
+  try {
+   await confirmRequest(selectedReq.id);
+   setRequests(prev => prev.map(r => r.id === selectedReq.id ? { ...r, status: 'CONFIRMED' } : r));
+   setSelectedReq(prev => prev ? { ...prev, status: 'CONFIRMED' } : null);
+  } catch (e) { alert("Σφάλμα συστήματος."); }
+ }
+
+ async function handleReject() {
+  if (!selectedReq) return;
+  try {
+   await rejectRequest(selectedReq.id);
+   setRequests(prev => prev.map(r => r.id === selectedReq.id ? { ...r, status: 'REJECTED' } : r));
+   setSelectedReq(prev => prev ? { ...prev, status: 'REJECTED' } : null);
+  } catch (e) { alert("Σφάλμα συστήματος."); }
+ }
+
+ async function handleAssignPriest(e: React.ChangeEvent<HTMLSelectElement>) {
+  if (!selectedReq) return;
+  const priestId = e.target.value;
+  try {
+   await assignPriest(selectedReq.id, priestId);
+   setRequests(prev => prev.map(r => r.id === selectedReq.id ? { ...r, assignedPriestId: priestId } : r));
+   setSelectedReq(prev => prev ? { ...prev, assignedPriestId: priestId } : null);
+  } catch (err) { alert("Σφάλμα ανάθεσης."); }
  }
 
  return (
@@ -49,19 +96,23 @@ export default function ConnectClient({ initialRequests, appUrl, slug }: { initi
  className="w-full bg-[var(--surface)] border border-slate-300 text-slate-700 text-sm rounded-lg p-2 font-semibold outline-none"
  >
  <option value="ALL">Όλα τα Εισερχόμενα</option>
- <option value="PENDING">Μόνο Εκκρεμή (Νέα)</option>
- <option value="APPROVED">Εγκεκριμένα</option>
+ <option value="INTERESTED">Εκδήλωση Ενδιαφέροντος</option>
+ <option value="PENDING">Αναμονή Στοιχείων (Legacy)</option>
+ <option value="CONFIRMED">Εγκεκριμένα</option>
+ <option value="REJECTED">Απορριφθέντα</option>
+ <option value="DOCS_GENERATED">Έτοιμα</option>
+ <option value="COMPLETED">Ολοκληρωμένα</option>
  </select>
  </div>
  {slug && (
  <div className="p-4 bg-[var(--surface)] m-3 rounded-2xl shadow-sm border border-[var(--border)] text-center flex flex-col items-center">
  <span className="text-xs font-bold text-[var(--text-muted)] mb-2 uppercase">QR Code (Για πόρτα Ναού)</span>
  <div className="bg-[var(--surface)] p-2 border border-[var(--border)] rounded-xl mb-2">
- <QRCodeSVG value={connectUrl} size={100} level="H"includeMargin={true} />
+ <QRCodeSVG value={connectUrl} size={100} level="H" includeMargin={true} />
  </div>
  <p className="text-[10px] text-[var(--text-muted)] break-all">{connectUrl}</p>
  </div>
-)}
+ )}
  <div className="flex-1 overflow-y-auto p-3 space-y-2 pt-0">
  {filtered.length === 0 && <p className="text-center text-[var(--text-muted)] mt-10 text-sm">Κανένα αίτημα.</p>}
  {filtered.map(req => (
@@ -72,15 +123,18 @@ export default function ConnectClient({ initialRequests, appUrl, slug }: { initi
  >
  <div className="flex justify-between items-start mb-2">
  <span className="text-xs font-bold text-[var(--text-muted)] uppercase flex items-center justify-center gap-1">
- {req.status === 'PENDING' ? <Clock className="w-3.5 h-3.5 text-amber-500"/> : req.status === 'APPROVED' ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500"/> : <XCircle className="w-3.5 h-3.5 text-[var(--danger)]"/>}
  {req.type}
  </span>
  <span className="text-[10px] text-[var(--text-muted)]">{new Date(req.createdAt).toLocaleDateString('el-GR')}</span>
  </div>
  <h4 className="font-bold text-[var(--foreground)]">{req.applicantName}</h4>
- <p className="text-xs text-[var(--text-muted)] truncate mt-1">{req.payload?.notes || '-'}</p>
+ <div className="mt-2 flex">
+  <span className={`px-2 py-0.5 text-[9px] font-bold rounded ${statusColors[req.status] || 'bg-slate-100 text-slate-700'}`}>
+    {statusLabels[req.status] || req.status}
+  </span>
  </div>
-))}
+ </div>
+ ))}
  </div>
  </div>
 
@@ -91,7 +145,7 @@ export default function ConnectClient({ initialRequests, appUrl, slug }: { initi
  <Mail className="w-16 h-16 mb-4 text-slate-200"/>
  <p>Επιλέξτε μια αίτηση από τα Εισερχόμενα για προβολή.</p>
  </div>
-) : (
+ ) : (
  <div className="max-w-2xl animate-in zoom-in-95 duration-200">
  <div className="flex justify-between items-start mb-8">
  <div>
@@ -102,45 +156,92 @@ export default function ConnectClient({ initialRequests, appUrl, slug }: { initi
  {selectedReq.applicantPhone && <span>📞 {selectedReq.applicantPhone}</span>}
  </div>
  </div>
- <span className={`px-3 py-1 text-xs font-bold rounded-lg ${selectedReq.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : selectedReq.status === 'APPROVED' ? 'bg-[var(--success-light)] text-[var(--success)]' : 'bg-[var(--danger-light)] text-[var(--danger)]'}`}>
- {selectedReq.status}
+ <span className={`px-3 py-1 text-xs font-bold rounded-lg ${statusColors[selectedReq.status] || 'bg-slate-100 text-slate-700'}`}>
+ {statusLabels[selectedReq.status] || selectedReq.status}
  </span>
  </div>
 
  <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 mb-8">
  <h4 className="text-sm font-bold text-[var(--foreground)] mb-4 flex items-center gap-2 border-b border-[var(--border)] pb-2"><FileText className="w-4 h-4 text-blue-500"/> Περιεχόμενο Αίτησης ({selectedReq.type})</h4>
  <div className="space-y-3">
- {(Object.entries(selectedReq.payload || {}) as [string, any][]).map(([key, val]) => (
- val && (
- <div key={key}>
- <span className="text-xs font-bold text-[var(--text-muted)] uppercase block mb-1">{key}</span>
- <p className="text-[var(--foreground)] font-medium bg-[var(--surface)] p-3 rounded-xl border border-[var(--border)] shadow-sm">{String(val)}</p>
+ {(Object.entries(selectedReq.payload || {}) as [string, any][]).map(([key, val]) => {
+   if (!val) return null;
+   if (key === 'booking' || key === 'bookingRequest') return null;
+   return (
+     <div key={key}>
+       <span className="text-xs font-bold text-[var(--text-muted)] uppercase block mb-1">{key}</span>
+       <p className="text-[var(--foreground)] font-medium bg-[var(--surface)] p-3 rounded-xl border border-[var(--border)] shadow-sm">{String(val)}</p>
+     </div>
+   );
+ })}
  </div>
-)
-))}
  </div>
+
+ {selectedReq.status === 'INTERESTED' && (
+ <div className="flex gap-4 pt-6 border-t border-[var(--border)]">
+ <button onClick={handleConfirm} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-emerald-200">
+ <CheckCircle2 className="w-5 h-5"/> Έγκριση (CONFIRM)
+ </button>
+ <button onClick={handleReject} className="px-6 bg-[var(--surface)] hover:bg-[var(--danger-light)] text-[var(--danger)] border border-[var(--danger)]/20 rounded-xl font-bold transition-colors">
+ Απόρριψη
+ </button>
  </div>
+ )}
+
+ {selectedReq.status === 'CONFIRMED' && (
+ <div className="p-6 bg-emerald-50 border border-emerald-100 text-emerald-900 rounded-xl">
+  <div className="flex items-center gap-3 mb-4">
+    <CheckCircle2 className="w-6 h-6 text-emerald-600"/>
+    <h3 className="font-bold text-lg">Το αίτημα έχει εγκριθεί</h3>
+  </div>
+  <p className="text-sm mb-4">Μπορείτε να ορίσετε ιερέα για αυτό το αίτημα (προαιρετικά), και να προχωρήσετε στην πλήρη άντληση στοιχείων και παραγωγή εγγράφων.</p>
+  
+  <div className="flex items-center gap-4">
+    <label className="text-sm font-bold flex items-center gap-2">
+      <UserPlus className="w-4 h-4" />
+      Ορισμός Ιερέα:
+    </label>
+    <select 
+      value={selectedReq.assignedPriestId || ''} 
+      onChange={handleAssignPriest}
+      className="border border-emerald-200 rounded-lg p-2 font-semibold text-sm outline-none bg-white text-emerald-900 flex-1 max-w-sm"
+    >
+      <option value="">Επιλέξτε Ιερέα...</option>
+      {priests.map(p => (
+        <option key={p.id} value={p.id}>{p.name}</option>
+      ))}
+    </select>
+  </div>
+  
+  <div className="mt-6 flex">
+    <button disabled={!selectedReq.assignedPriestId} className="px-6 py-2 bg-purple-600 disabled:opacity-50 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors">
+      Παραγωγή Εγγράφων
+    </button>
+  </div>
+ </div>
+ )}
 
  {selectedReq.status === 'PENDING' && (
  <div className="flex gap-4 pt-6 border-t border-[var(--border)]">
  <button onClick={() => handleAction('APPROVED')} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-emerald-200">
- <CheckCircle2 className="w-5 h-5"/> Έγκριση & Προώθηση
+ <CheckCircle2 className="w-5 h-5"/> Έγκριση & Προώθηση (Legacy)
  </button>
  <button onClick={() => handleAction('REJECTED')} className="px-6 bg-[var(--surface)] hover:bg-[var(--danger-light)] text-[var(--danger)] border border-[var(--danger)]/20 rounded-xl font-bold transition-colors">
- Απόρριψη
+ Απόρριψη (Legacy)
  </button>
  </div>
-)}
+ )}
 
  {selectedReq.status === 'APPROVED' && (
  <div className="bg-[var(--success-light)] border border-[var(--success)]/20 text-[var(--success)] p-4 rounded-xl flex items-center gap-3">
  <CheckCircle2 className="w-6 h-6"/>
- <p className="text-sm font-medium">Το αίτημα εγκρίθηκε επιτυχώς. Το Πιστοποιητικό μπορεί να εκδοθεί μέσω του Ληξιαρχείου χρησιμοποιώντας τα στοιχεία αυτού του φακέλου.</p>
+ <p className="text-sm font-medium">Το αίτημα εγκρίθηκε (Legacy). Το Πιστοποιητικό μπορεί να εκδοθεί μέσω του Ληξιαρχείου.</p>
  </div>
-)}
+ )}
+
  </div>
-)}
+ )}
  </div>
  </div>
-);
+ );
 }

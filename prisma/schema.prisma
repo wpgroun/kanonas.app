@@ -195,6 +195,7 @@ model User {
   updatedAt       DateTime         @updatedAt
   metropolisUsers MetropolisUser[]
   sessions        UserSession[]
+  assignedRequests CitizenRequest[]
 }
 
 model UserSession {
@@ -444,6 +445,8 @@ model BookingSlot {
   // Is it booked? If booked, connectTokenHash points to the connect Request
   isBooked Boolean @default(false)
   connectTokenHash String? @unique
+
+  citizenRequest CitizenRequest?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1063,7 +1066,16 @@ model CitizenRequest {
   temple   Temple @relation(fields: [templeId], references: [id], onDelete: Cascade)
 
   type   String // e.g. "AGAMIAS", "GAMOU", "VAPTISIS", "VEVAIOSI", "KATHXITIKO", "EKDROMI"
-  status String @default("PENDING") // PENDING, APPROVED, REJECTED
+  status String @default("PENDING") // INTERESTED, PENDING, CONFIRMED, REJECTED, DOCS_GENERATED, COMPLETED
+
+  bookingSlotId String?  @unique
+  bookingSlot   BookingSlot? @relation(fields: [bookingSlotId], references: [id], onDelete: SetNull)
+
+  assignedPriestId String?
+  assignedPriest   User? @relation(fields: [assignedPriestId], references: [id], onDelete: SetNull)
+
+  protocolNumber String?
+  templateAnswers String?
 
   applicantName  String
   applicantEmail String?

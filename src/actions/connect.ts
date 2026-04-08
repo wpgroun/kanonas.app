@@ -117,3 +117,43 @@ export async function getTempleDocTypes(templeSlug: string) {
     };
   });
 }
+
+export async function assignPriest(requestId: string, priestId: string) {
+  const session = await requireAuth();
+  
+  const req = await prisma.citizenRequest.findUnique({ where: { id: requestId } });
+  if (!req || req.templeId !== session.templeId) throw new Error("Δεν βρέθηκε η αίτηση ή δεν έχετε δικαίωμα.");
+
+  return prisma.citizenRequest.update({
+    where: { id: requestId },
+    data: { assignedPriestId: priestId }
+  });
+}
+
+export async function confirmRequest(requestId: string) {
+  const session = await requireAuth();
+  
+  const req = await prisma.citizenRequest.findUnique({ where: { id: requestId } });
+  if (!req || req.templeId !== session.templeId) throw new Error("Δεν βρέθηκε η αίτηση ή δεν έχετε δικαίωμα.");
+
+  // For future: Send email to citizen
+  
+  return prisma.citizenRequest.update({
+    where: { id: requestId },
+    data: { status: 'CONFIRMED' }
+  });
+}
+
+export async function rejectRequest(requestId: string, reason?: string) {
+  const session = await requireAuth();
+  
+  const req = await prisma.citizenRequest.findUnique({ where: { id: requestId } });
+  if (!req || req.templeId !== session.templeId) throw new Error("Δεν βρέθηκε η αίτηση ή δεν έχετε δικαίωμα.");
+
+  // For future: Send email to citizen with reason
+  
+  return prisma.citizenRequest.update({
+    where: { id: requestId },
+    data: { status: 'REJECTED' }
+  });
+}
