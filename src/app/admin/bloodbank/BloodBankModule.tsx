@@ -206,37 +206,60 @@ function DonorsView({ donors }: { donors: any[] }) {
 
 function DonorForm({ onDone }: { onDone: () => void }) {
   const [loading, setLoading] = useState(false);
+  
+  // Independent states
+  const [lastName, setLastName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [bloodType, setBloodType] = useState('');
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('');
+
   const handleSubmit = async (e: any) => {
-    e.preventDefault(); setLoading(true);
-    const fd = new FormData(e.target);
+    e.preventDefault(); 
+    setLoading(true);
     await addBloodDonor({
-      lastName: fd.get('lastName') as string, firstName: fd.get('firstName') as string,
-      phone: fd.get('phone') as string || undefined, bloodType: fd.get('bloodType') as string,
-      gender: fd.get('gender') as string || undefined, dateOfBirth: fd.get('dob') as string || undefined,
+      lastName,
+      firstName,
+      phone: phone || undefined,
+      bloodType,
+      gender: gender || undefined,
+      dateOfBirth: dob || undefined,
     });
-    setLoading(false); onDone();
+    setLoading(false); 
+    
+    // Reset fields before closing
+    setLastName('');
+    setFirstName('');
+    setPhone('');
+    setBloodType('');
+    setDob('');
+    setGender('');
+    
+    onDone();
   };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Επώνυμο *</Label><Input name="lastName" required/></div>
-        <div><Label>Όνομα *</Label><Input name="firstName" required/></div>
+        <div><Label>Επώνυμο *</Label><Input value={lastName} onChange={e => setLastName(e.target.value)} required/></div>
+        <div><Label>Όνομα *</Label><Input value={firstName} onChange={e => setFirstName(e.target.value)} required/></div>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Τηλέφωνο</Label><Input name="phone"/></div>
+        <div><Label>Τηλέφωνο</Label><Input type="tel" value={phone} onChange={e => setPhone(e.target.value)}/></div>
         <div>
           <Label>Ομάδα Αίματος *</Label>
-          <select name="bloodType" className="w-full p-2 border rounded-md text-sm" required>
+          <select value={bloodType} onChange={e => setBloodType(e.target.value)} className="w-full p-2 border rounded-md text-sm" required>
             <option value="">— Επιλογή —</option>
             {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(g => <option key={g} value={g}>{g}</option>)}
           </select>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Ημ/νία Γέννησης</Label><Input name="dob" type="date"/></div>
+        <div><Label>Ημ/νία Γέννησης</Label><Input type="date" value={dob} onChange={e => setDob(e.target.value)}/></div>
         <div>
           <Label>Φύλο</Label>
-          <select name="gender" className="w-full p-2 border rounded-md text-sm">
+          <select value={gender} onChange={e => setGender(e.target.value)} className="w-full p-2 border rounded-md text-sm">
             <option value="">— Επιλογή —</option><option value="M">Άνδρας</option><option value="F">Γυναίκα</option>
           </select>
         </div>
