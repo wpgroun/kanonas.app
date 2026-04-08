@@ -4,10 +4,14 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { getUpcomingNamedays } from '@/actions/namedays'
 import { getActiveAnnouncements } from '@/actions/announcements'
+import { redirect } from 'next/navigation'
 
 export async function getDashboardStats() {
  const session = await getSession()
- const templeId = session?.templeId || 'cm0testtempleid0000000001'
+ if (!session || !session.templeId) {
+   redirect('/login')
+ }
+ const templeId = session.templeId
  const now = new Date()
  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
  const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
