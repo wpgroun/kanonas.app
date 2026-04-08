@@ -5,11 +5,10 @@ import { revalidatePath } from 'next/cache'
 import { getSession } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
-const TEMP_TEMPLE_ID ="cm0testtempleid0000000001";
-
 async function getCurrentTempleId() {
  const session = await getSession();
- return session?.templeId || TEMP_TEMPLE_ID;
+ if (!session?.templeId) throw new Error("UNAUTHORIZED");
+ return session.templeId;
 }
 
 export async function inviteUserAction(email: string, roleId: string) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 
-const TEMP_TEMPLE_ID = 'cm0testtempleid0000000001';
+
 
 export async function POST(req: NextRequest) {
  try {
@@ -15,9 +15,12 @@ export async function POST(req: NextRequest) {
  return NextResponse.json({ error: 'Λείπουν υποχρεωτικά πεδία (αρχείο, τύπος, όνομα)' }, { status: 400 });
  }
 
- // Determine templeId from session or fallback
+ // Determine templeId from session
  const session = await getSession();
- const templeId = (session?.templeId as string) || TEMP_TEMPLE_ID;
+ const templeId = session?.templeId as string;
+ if (!templeId) {
+   return NextResponse.json({ error: 'Μη εξουσιοδοτημένη πρόσβαση' }, { status: 401 });
+ }
 
  // Read file as text if it's HTML, otherwise read the raw content
  const isHtml = file.name.endsWith('.html') || file.type === 'text/html';

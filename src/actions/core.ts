@@ -23,18 +23,21 @@ export async function seedDummyTemple() {
  // For local dev seed, run: node seed.mjs
  if (process.env.NODE_ENV === 'production') return;
 
- const TEMP_TEMPLE_ID ="cm0testtempleid0000000001";
- try {
- const existing = await prisma.temple.findUnique({ where: { id: TEMP_TEMPLE_ID } })
- if (!existing) {
- await prisma.temple.create({
- data: {
- id: TEMP_TEMPLE_ID,
- name:"Ιερός Ναός Αγίου Δημητρίου (Δοκιμαστικός)",
- city:"Αθήνα", metropolisId:"cm0testmetropolis"
- }
- })
- }
+  const { requireAuth } = await import('@/lib/requireAuth');
+  const session = await requireAuth();
+  const templeId = session.templeId;
+  
+  try {
+  const existing = await prisma.temple.findUnique({ where: { id: templeId } })
+  if (!existing) {
+  await prisma.temple.create({
+  data: {
+  id: templeId,
+  name:"Ιερός Ναός Αγίου Δημητρίου (Δοκιμαστικός)",
+  city:"Αθήνα", metropolisId:"cm0testmetropolis"
+  }
+  })
+  }
  } catch (e) {
  console.error("Η βάση δεν έχει συγχρονιστεί ακόμα.", e)
  }
