@@ -23,11 +23,11 @@ export default async function FinancesPage() {
  title="Οικονομικά & Ταμείο"
  description="Γενικό Λογιστικό Βιβλίο Εσόδων - Εξόδων."
  actions={
-      <div className="flex items-center gap-3">
-        <LedgerExportActions />
-        <TransactionDialog categories={categories} />
-      </div>
-    }
+ <div className="flex items-center gap-3">
+ <LedgerExportActions />
+ <TransactionDialog categories={categories} />
+ </div>
+ }
  />
 
  {/* DASHBOARD STATS */}
@@ -121,8 +121,8 @@ export default async function FinancesPage() {
  </td>
  <td className="px-6 py-3 text-center">
  {d.type === 'INCOME' 
- ? <span className="inline-flex px-2 py-0.5 rounded-full bg-[var(--success-light)] text-[var(--success)] text-xs font-bold ring-1 ring-inset ring-emerald-600/20">Έσοδο</span> 
- : <span className="inline-flex px-2 py-0.5 rounded-full bg-[var(--danger-light)] text-[var(--danger)] text-xs font-bold ring-1 ring-inset ring-rose-600/20">Έξοδο</span>}
+ ? <span className="inline-flex px-2 py-0.5 rounded-full badge badge-success text-xs font-bold ring-1 ring-inset ring-emerald-600/20">Έσοδο</span> 
+ : <span className="inline-flex px-2 py-0.5 rounded-full badge badge-danger text-xs font-bold ring-1 ring-inset ring-rose-600/20">Έξοδο</span>}
  </td>
  <td className={`px-6 py-3 text-right font-bold whitespace-nowrap font-mono ${d.type === 'INCOME' ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
  {d.type === 'INCOME' ? '+' : '-'} {d.amount.toFixed(2)} €
@@ -133,17 +133,17 @@ export default async function FinancesPage() {
  </td>
  <td className="px-6 py-3 text-center">
  <div className="flex items-center justify-center gap-1">
-  <PrintReceiptBtn tx={{ 
-   id: d.id, 
-   type: d.type, 
-   date: d.date, 
-   amount: d.amount, 
-   category: d.category?.name, 
-   purpose: d.purpose || d.description, 
-   personName: d.donorName || d.vendor,
-   receiptNumber: d.receiptNumber
-  }} />
-  <DeleteTransactionBtn id={d.id} type={d.type} />
+ <PrintReceiptBtn tx={{ 
+ id: d.id, 
+ type: d.type, 
+ date: d.date, 
+ amount: d.amount, 
+ category: d.category?.name, 
+ purpose: d.purpose || d.description, 
+ personName: d.donorName || d.vendor,
+ receiptNumber: d.receiptNumber
+ }} />
+ <DeleteTransactionBtn id={d.id} type={d.type} />
  </div>
  </td>
  </tr>
@@ -174,16 +174,16 @@ export default async function FinancesPage() {
  </div>
  </CardContent>
  </Card>
-  {/* Separator / BI */}
-  <div className="border-t border-border/50 pt-8 hidden sm:block">
-    <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 mb-6 text-foreground">
-      <BarChart3 className="w-5 h-5 text-primary"/>
-      Επισκόπηση Business Intelligence
-    </h2>
-    <FinanceBIClient {...biStats} />
-  </div>
+ {/* Separator / BI */}
+ <div className="border-t border-border/50 pt-8 hidden sm:block">
+ <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 mb-6 text-foreground">
+ <BarChart3 className="w-5 h-5 text-primary"/>
+ Επισκόπηση Business Intelligence
+ </h2>
+ <FinanceBIClient {...biStats} />
+ </div>
 </div>
 </div>
 </div>
-  );
+ );
 }
