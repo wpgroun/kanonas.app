@@ -130,7 +130,7 @@ export default function DocumentsClient({ initialTemplates }: any) {
     const res = await uploadDocTemplate(fd);
     setUploading(false);
     if (res.success) {
-      setUploadedTemplateId(res.templateId);
+      setUploadedTemplateId(res.templateId ?? null);
       setUploadVars(res.variables || []);
       setDetectedFormat(res.varFormat || 'mustache');
       setWizardStep(2);
@@ -411,8 +411,9 @@ export default function DocumentsClient({ initialTemplates }: any) {
                   )}
                 </div>
               )}
+            </div>
 
-              {/* Footer Navigation */}
+            {/* Footer Navigation */}
             <div className="p-5 border-t border-[var(--border)] bg-[var(--background)] flex justify-between items-center">
               <button 
                 onClick={() => wizardStep === 0 ? resetWizard() : wizardStep === 2 ? null : setWizardStep(wizardStep - 1)} 

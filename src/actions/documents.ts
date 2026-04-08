@@ -77,8 +77,12 @@ export async function uploadDocTemplate(formData: FormData) {
     let detectedFormat = 'mustache'
 
     if (ext === '.docx' || ext === '.doc') {
-      const mammoth = await import('mammoth')
-      const { value: plainText } = await mammoth.extractRawText({ path: filePath })
+      const PizZip = (await import('pizzip')).default
+      const fs = await import('fs/promises')
+      const content = await fs.readFile(filePath)
+      const zip = new PizZip(content)
+      const xml = zip.file('word/document.xml')?.asText() || ''
+      const plainText = xml.replace(/<[^>]+>/g, ' ')
 
       const mustacheMatches = Array.from(plainText.matchAll(/\{\{([^}]+)\}\}/g)).map(m => m[1].trim())
       const singleCurlyMatches = Array.from(plainText.matchAll(/(?<!\{)\{([^}]+)\}(?!\})/g)).map(m => m[1].trim())

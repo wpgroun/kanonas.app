@@ -205,7 +205,7 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>) {
            // Merge split <w:t> tags within the same <w:r> run
            xml = xml.replace(/(<w:r[^>]*>)(.*?)<\/w:r>/g, (match, rTag, inside) => {
                const textPieces: string[] = [];
-               let mergedInside = inside.replace(/<w:t([^>]*)>(.*?)<\/w:t>/g, (tMatch, tAttrs, tText) => {
+               let mergedInside = inside.replace(/<w:t([^>]*)>(.*?)<\/w:t>/g, (tMatch: string, tAttrs: string, tText: string) => {
                    textPieces.push(tText);
                    return ''; // remove it
                });
