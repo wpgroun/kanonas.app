@@ -192,9 +192,15 @@ export default function RegisterPage() {
  </div>
  </div>
 
- <button type="submit"disabled={loading} className="btn btn-primary w-full mt-4 disabled:opacity-60">
- {loading ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Ολοκλήρωση Εγγραφής'}
+ <button type="submit" disabled={loading} className="btn btn-primary w-full mt-6 disabled:opacity-60 relative overflow-hidden group">
+  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+  {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto"/> : (
+    <span className="flex items-center justify-center gap-2 relative z-10">
+      Αποδοχή & Εγγραφή <span className="bg-white text-[var(--brand)] text-[10px] uppercase font-black px-2 py-0.5 rounded-full ml-2 shadow-sm">14 ΗΜΕΡΕΣ ΔΟΚΙΜΗ</span>
+    </span>
+  )}
  </button>
+ <p className="text-center text-xs text-[var(--text-muted)] mt-3 font-medium">Δεν απαιτείται πιστωτική κάρτα.</p>
  </form>
  </div>
 

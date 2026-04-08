@@ -23,6 +23,19 @@ export async function getSubscriptionExpiryWarning(templeId: string): Promise<Ex
  if (session?.isSuperAdmin) return null
  if (!templeId) return null
  try {
+ const temple = await prisma.temple.findUnique({
+  where: { id: templeId },
+  select: { subscriptionStatus: true, subscriptionEndDate: true }
+ })
+ 
+ if (temple?.subscriptionStatus === 'trial' && temple.subscriptionEndDate) {
+   const daysLeft = Math.ceil((temple.subscriptionEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+   if (daysLeft <= 0) return null // Already expired
+   if (daysLeft <= 3) return { daysLeft, level: 'danger' }
+   if (daysLeft <= 7) return { daysLeft, level: 'warning' }
+   return null
+ }
+
  const sub = await prisma.subscription.findFirst({
  where: { templeId, status: 'active' },
  select: { expiresAt: true, stripeSubscriptionId: true }

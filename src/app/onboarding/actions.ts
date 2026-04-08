@@ -25,15 +25,7 @@ export async function setupTemple(data: {
  return { success: false, error: 'Αυτό το email χρησιμοποιείται ήδη.' }
  }
 
- // [SECURITY] MASTER_ONBOARDING_PASSWORD check:
- // In production, this env var MUST be set — rejects all registrations if not configured.
- const requiredMaster = process.env.MASTER_ONBOARDING_PASSWORD;
- if (process.env.NODE_ENV === 'production' && !requiredMaster) {
- return { success: false, error: 'Η αυτόματη εγγραφή δεν είναι ενεργοποιημένη. Επικοινωνήστε με την υποστήριξη.' };
- }
- if (requiredMaster && requiredMaster !== data.masterPassword) {
- return { success: false, error: 'Λανθασμένος Κωδικός Εγκατάστασης (Master Password).' };
- }
+
 
  const passwordHash = await bcrypt.hash(data.adminPassword, 12)
 
@@ -45,11 +37,18 @@ export async function setupTemple(data: {
  metropolis = await tx.metropolis.create({ data: { name: data.metropolisName } })
  }
 
+ const trialEnd = new Date()
+ trialEnd.setDate(trialEnd.getDate() + 14)
+
  // 2. Create Temple
  const temple = await tx.temple.create({
  data: {
  metropolisId: metropolis.id,
  name: data.templeName,
+ subscriptionStatus: 'trial',
+ subscriptionPlan: 'basic',
+ subscriptionStartDate: new Date(),
+ subscriptionEndDate: trialEnd,
  city: data.city || '',
  email: data.email || null,
  settings: JSON.stringify({

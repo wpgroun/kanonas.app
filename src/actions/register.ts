@@ -25,18 +25,25 @@ export async function registerTempleAndAdmin(data: {
  const passwordHash = await bcrypt.hash(data.adminPasswordPlain, 10)
 
  // 2. Create Temple, User, and link them using a transaction
- await prisma.$transaction(async (tx) => {
+ const result = await prisma.$transaction(async (tx) => {
  // Find or Create Metropolis
  let metropolis = await tx.metropolis.findFirst({ where: { name: data.metropolisName } })
  if (!metropolis) {
  metropolis = await tx.metropolis.create({ data: { name: data.metropolisName } })
  }
 
+ const trialEnd = new Date()
+ trialEnd.setDate(trialEnd.getDate() + 14)
+
  // Create new temple
  const newTemple = await tx.temple.create({
  data: {
  name: data.templeName,
  metropolisId: metropolis.id,
+ subscriptionStatus: 'trial',
+ subscriptionPlan: 'basic',
+ subscriptionStartDate: new Date(),
+ subscriptionEndDate: trialEnd,
  // create a default basic setting set
  settings: JSON.stringify({
  metropolisName: metropolis.name,
@@ -79,10 +86,41 @@ export async function registerTempleAndAdmin(data: {
  data: {
  templeId: newTemple.id,
  planId: basicPlan.id,
- status: 'active',
+ status: 'trial',
  billingCycle: 'monthly',
  }
  })
+
+ // Create a UserSession record for the active session
+ await tx.userSession.create({
+   data: {
+     userId: newUser.id,
+     userAgent: 'Registration Flow'
+   }
+ })
+
+ return { newUser, newTemple }
+ })
+
+ // Set the Auth Cookie directly so the user is logged in
+ const { encrypt } = await import('@/lib/auth')
+ const { cookies } = await import('next/headers')
+ 
+ const token = await encrypt({
+   userId: result.newUser.id,
+   templeId: result.newTemple.id,
+   isSuperAdmin: false,
+   isHeadPriest: true,
+   canViewFinances: true,
+   canEditFinances: true,
+   roleName: 'Προϊστάμενος'
+ })
+ 
+ ;(await cookies()).set('Kanonas_auth', token, {
+   httpOnly: true,
+   secure: process.env.NODE_ENV === 'production',
+   path: '/',
+   maxAge: 60 * 60 * 24 * 7
  })
 
  return { success: true }
