@@ -123,7 +123,26 @@ export async function registerTempleAndAdmin(data: {
    maxAge: 60 * 60 * 24 * 7
  })
 
- return { success: true }
+  try {
+    const { sendEmail } = await import('./notifications')
+    await sendEmail({
+      to: data.adminEmail,
+      subject: "Καλώς ήρθατε στο Κανόνας — Ξεκινήστε τη δωρεάν δοκιμή σας",
+      title: "Καλώς ήρθατε στο Κανόνας",
+      greeting: `Γεια σας ${data.adminFirstName},`,
+      body: `
+        <p>Ο λογαριασμός σας για τον Ναό <b>${data.templeName}</b> δημιουργήθηκε επιτυχώς.</p>
+        <p>Έχετε 14 ημέρες δωρεάν δοκιμή χωρίς πιστωτική κάρτα.</p>
+      `,
+      ctaText: "Μεταβείτε στον Πίνακα Ελέγχου",
+      ctaUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://kanonas.app'}/admin`,
+      templeId: result.newTemple.id
+    })
+  } catch(err) {
+    console.error('[Register] Failed to send welcome email:', err)
+  }
+
+  return { success: true }
  } catch (e: any) {
  console.error('[Register]', e)
  return { success: false, error: e.message || 'Αποτυχία εγγραφής. Παρακαλώ δοκιμάστε ξανά.' }
