@@ -151,9 +151,23 @@ export default function ParishionersClient({ parishioners }: { parishioners: any
                   </div>
                 </div>
                 <div className="bg-muted/30 border-t border-border px-5 py-3 flex items-center justify-between mt-auto">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                    Ενεργός
-                  </span>
+                  {p.status === 'active' || !p.status ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      Ενεργός
+                    </span>
+                  ) : p.status === 'inactive' ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                      Ανενεργός
+                    </span>
+                  ) : p.status === 'deceased' ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-zinc-800 text-zinc-100 border border-zinc-900">
+                      Εκδημήσας
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                      Άγνωστο
+                    </span>
+                  )}
                   <Link href={`/admin/parishioners/${p.id}`}>
                     <Button variant="ghost" size="sm" className="h-8 text-xs font-medium hover:text-indigo-700 bg-white shadow-sm border border-border/50">
                       <UserCircle2 className="w-4 h-4 mr-1.5"/> Προβολή
