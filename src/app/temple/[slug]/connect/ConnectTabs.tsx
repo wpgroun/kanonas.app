@@ -4,7 +4,7 @@ import { useState } from 'react';
 import ConnectForm from './ConnectForm';
 import PrayerRequestForm from './PrayerRequestForm';
 
-export default function ConnectTabs({ slug }: { slug: string }) {
+export default function ConnectTabs({ slug, docTypes }: { slug: string, docTypes?: any[] }) {
  const [activeTab, setActiveTab] = useState<'requests' | 'diptychs'>('requests');
 
  return (
@@ -33,7 +33,7 @@ export default function ConnectTabs({ slug }: { slug: string }) {
  </div>
 
  <div className="animate-in fade-in duration-300">
- {activeTab === 'requests' ? <ConnectForm slug={slug} /> : <PrayerRequestForm slug={slug} />}
+ {activeTab === 'requests' ? <ConnectForm slug={slug} docTypes={docTypes || []} /> : <PrayerRequestForm slug={slug} />}
  </div>
  </div>
 );

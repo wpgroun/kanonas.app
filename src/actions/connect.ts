@@ -75,12 +75,45 @@ export async function updateRequestStatus(id: string, status: 'PENDING' | 'APPRO
 // Anonymous method for citizens to track their requests
 export async function trackCitizenRequest(id: string) {
  try {
- const request = await prisma.citizenRequest.findUnique({
- where: { id },
- select: { id: true, type: true, status: true, applicantName: true, createdAt: true, temple: { select: { name: true } } }
- });
- return request;
+  const request = await prisma.citizenRequest.findUnique({
+   where: { id },
+   select: { id: true, type: true, status: true, applicantName: true, createdAt: true, temple: { select: { name: true } } }
+  });
+  return request;
  } catch (e) {
- return null;
+  return null;
  }
+}
+
+export async function getTempleDocTypes(templeSlug: string) {
+  const temple = await prisma.temple.findUnique({ where: { slug: templeSlug } });
+  if (!temple) return [];
+
+  const templates = await prisma.docTemplate.findMany({
+    where: { templeId: temple.id }
+  });
+
+  return templates.map(t => {
+    let vars: string[] = [];
+    let format = 'mustache';
+    try {
+      if (t.context) {
+        const parsed = JSON.parse(t.context);
+        if (Array.isArray(parsed)) {
+          vars = parsed;
+        } else {
+          vars = parsed.vars || [];
+          format = parsed.format || 'mustache';
+        }
+      }
+    } catch {}
+    
+    return {
+      id: t.id,
+      nameEl: t.nameEl,
+      docType: t.docType,
+      vars,
+      format
+    };
+  });
 }

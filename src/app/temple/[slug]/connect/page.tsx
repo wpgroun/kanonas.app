@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import ConnectTabs from './ConnectTabs';
 import { Church } from 'lucide-react';
+import { getTempleDocTypes } from '@/actions/connect';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
  const temple = await prisma.temple.findUnique({ where: { slug: params.slug } });
@@ -18,6 +19,8 @@ export default async function PublicConnectPage({ params }: { params: { slug: st
  </div>
 );
  }
+
+ const docTypes = await getTempleDocTypes(temple.slug as string);
 
  return (
  <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
@@ -38,7 +41,7 @@ export default async function PublicConnectPage({ params }: { params: { slug: st
  <div className="max-w-4xl mx-auto -mt-8 relative z-10 px-4 pb-20">
  <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-6 md:p-10">
  {/* Client Component Handle Form Logic */}
- <ConnectTabs slug={temple.slug as string} />
+ <ConnectTabs slug={temple.slug as string} docTypes={docTypes} />
  </div>
  </div>
  </div>
