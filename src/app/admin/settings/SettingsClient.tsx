@@ -23,9 +23,10 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  smtpHost: initialData.settings?.smtpHost || '',
  smtpPort: initialData.settings?.smtpPort || '',
  smtpUser: initialData.settings?.smtpUser || '',
- smtpPass: initialData.settings?.smtpPass || '',
- smsToken: initialData.settings?.smsToken || '',
- viberToken: initialData.settings?.viberToken || '',
+    smtpPass: initialData.settings?.smtpPass || '',
+    smsToken: initialData.settings?.smsToken || '',
+    smsSenderId: initialData.settings?.smsSenderId || '',
+    viberToken: initialData.settings?.viberToken || '',
  // Protocol Settings
  protocolPrefix: initialData.settings?.protocolPrefix || '',
  protocolStartNumber: initialData.settings?.protocolStartNumber || '1',
@@ -190,10 +191,15 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><MessageSquare className="text-purple-500"/> SMS & Viber Πύλες</h3>
  <p className="text-xs text-[var(--text-muted)] mb-6">Auth Tokens του παρόχου σας (Twilio / Apifon) για SMS.</p>
  <div className="space-y-4">
- <div>
- <label className="text-xs font-semibold text-[var(--text-secondary)]">SMS Gateway API Key</label>
- <Input placeholder="Bearer sk_test_..." value={formData.settings.smsToken} onChange={e => setFormData({...formData, settings: {...formData.settings, smsToken: e.target.value}})} className="mt-1"/>
- </div>
+  <div>
+  <label className="text-xs font-semibold text-[var(--text-secondary)]">SMS Gateway API Key</label>
+  <Input placeholder="Bearer sk_test_..." value={formData.settings.smsToken} onChange={e => setFormData({...formData, settings: {...formData.settings, smsToken: e.target.value}})} className="mt-1"/>
+  </div>
+  <div>
+  <label className="text-xs font-semibold text-[var(--text-secondary)]">SMS Αποστολέας (Sender ID)</label>
+  <Input placeholder="π.χ. AgDimitrios" maxLength={11} value={formData.settings.smsSenderId} onChange={e => setFormData({...formData, settings: {...formData.settings, smsSenderId: e.target.value}})} className="mt-1 font-mono"/>
+  <p className="text-[10px] text-[var(--text-muted)] mt-1">Μέγιστο 11 λατινικοί χαρακτήρες. Εμφανίζεται ως αποστολέας στα SMS.</p>
+  </div>
  <div>
  <label className="text-xs font-semibold text-[var(--text-secondary)]">Viber Official Bot Token</label>
  <Input placeholder="Κωδικός λογαριασμού Viber Bot" value={formData.settings.viberToken} onChange={e => setFormData({...formData, settings: {...formData.settings, viberToken: e.target.value}})} className="mt-1"/>

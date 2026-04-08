@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendCeremonyReminderEmail } from '@/lib/emailService';
+import { sendSMS } from '@/lib/sms';
 
 /**
  * Cron endpoint — called daily by Railway/Vercel scheduler.
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
  customerEmail: { not: null },
  },
  include: {
- temple: { select: { name: true } },
+ temple: { select: { name: true, settings: true } },
  },
  });
 
@@ -46,14 +47,26 @@ export async function GET(req: NextRequest) {
  }
 
  try {
- await sendCeremonyReminderEmail({
- to: token.customerEmail,
- familyName: token.customerName || 'Αγαπητή Οικογένεια',
- serviceType: token.serviceType as 'GAMOS' | 'VAPTISI',
- ceremonyDate: token.ceremonyDate.toLocaleDateString('el-GR'),
- templeName: token.temple.name,
- });
- results.push({ id: token.id, status: 'sent' });
+  await sendCeremonyReminderEmail({
+    to: token.customerEmail,
+    familyName: token.customerName || 'Αγαπητή Οικογένεια',
+    serviceType: token.serviceType as 'GAMOS' | 'VAPTISI',
+    ceremonyDate: token.ceremonyDate.toLocaleDateString('el-GR'),
+    templeName: token.temple.name,
+  });
+
+  // Example SMS call passing the temple's smsSenderId
+  let templeSettings: any = {};
+  if (token.temple.settings) {
+    try {
+      templeSettings = JSON.parse(token.temple.settings);
+    } catch (e) {}
+  }
+  
+  // If the token or customer had a phone number, we would send it like this:
+  // await sendSMS([customerPhone], `Υπενθύμιση...`, { smsSenderId: templeSettings.smsSenderId });
+
+  results.push({ id: token.id, status: 'sent' });
  } catch (emailError) {
  console.error(`[Cron] Failed to send reminder for token ${token.id}:`, emailError);
  results.push({ id: token.id, status: 'error', reason: String(emailError) });

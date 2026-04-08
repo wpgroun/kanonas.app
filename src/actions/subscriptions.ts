@@ -188,6 +188,56 @@ export async function getStripeInvoices() {
   }
 }
 
+/** User requests manual bank transfer for a plan */
+export async function requestBankTransfer(planName: string, billingCycle: 'monthly' | 'yearly') {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+
+  try {
+    const temple = await prisma.temple.findUnique({ where: { id: templeId } })
+    const plan = await prisma.subscriptionPlan.findUnique({ where: { name: planName } })
+
+    if (!plan) return { success: false, error: 'Το πακέτο δεν βρέθηκε.' }
+
+    // Clear any existing pending_manual for this temple
+    await prisma.subscription.deleteMany({
+      where: { templeId, status: 'pending_manual' }
+    })
+
+    // Create the pending manual subscription
+    await prisma.subscription.create({
+      data: {
+        templeId,
+        planId: plan.id,
+        status: 'pending_manual',
+        billingCycle
+      }
+    })
+
+    // Send email to billing@kanonas.app
+    const { sendEmail } = await import('@/actions/notifications')
+    await sendEmail({
+      to: 'billing@kanonas.app',
+      subject: `Νέο Αίτημα Τραπεζικής Κατάθεσης - ${temple?.name || templeId}`,
+      title: 'Νέο αίτημα τραπεζικής κατάθεσης',
+      body: `
+        <strong>Ναός:</strong> ${temple?.name}<br/>
+        <strong>URL Slug / ID:</strong> ${temple?.slug || templeId}<br/>
+        <strong>Email Επικοινωνίας:</strong> ${temple?.email || '-'}<br/>
+        <strong>Πακέτο:</strong> ${planName}<br/>
+        <strong>Κύκλος Χρέωσης:</strong> ${billingCycle === 'yearly' ? 'Ετήσιος' : 'Μηνιαίος'}<br/><br/>
+        Αναμένεται κατάθεση με αιτιολογία: ΚΑΝΟΝΑΣ-${templeId ? templeId.substring(templeId.length - 6).toUpperCase() : '000000'}-${planName.substring(0,3).toUpperCase()}
+      `
+    })
+
+    return { success: true }
+  } catch (e: any) {
+    console.error('[Bank Transfer]', e)
+    return { success: false, error: e.message }
+  }
+}
+
+
 // ─── SUPER ADMIN — Manual plan management ─────────────────────────────────────
 
 /** Super admin: get all subscriptions across all temples */

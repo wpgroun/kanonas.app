@@ -2,12 +2,31 @@
 
 import { CheckCircle2, FileText, Download, LayoutGrid, History, CreditCard, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { requestBankTransfer } from '@/actions/subscriptions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import CheckoutButton from './CheckoutButton';
 import CancelButton from './CancelButton';
 
-export default function SubscriptionClient({ currentSub, allPlans, invoices, searchParams }: any) {
+export default function SubscriptionClient({ currentSub, allPlans, invoices, searchParams, templeId, bankDetails }: any) {
+  const [bankModalPlan, setBankModalPlan] = useState<any>(null);
+  const [bankLoading, setBankLoading] = useState(false);
+
+  const handleBankRequest = async () => {
+    setBankLoading(true);
+    // Fixed billingCycle to yearly for simplicity, or we can add a toggle.
+    const res = await requestBankTransfer(bankModalPlan.name, 'yearly');
+    setBankLoading(false);
+    if (res.success) {
+      toast.success('Το αίτημά σας καταχωρήθηκε!');
+      setBankModalPlan(null);
+    } else {
+      toast.error('Πρόβλημα: ' + res.error);
+    }
+  };
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-center bg-[var(--surface)] p-6 rounded-2xl shadow-sm border border-[var(--border)]">
@@ -199,7 +218,12 @@ export default function SubscriptionClient({ currentSub, allPlans, invoices, sea
                       ΕΝΕΡΓΟ
                     </button>
                   ) : (
-                    <CheckoutButton planId={plan.id} name={plan.name} />
+                    <div className="flex flex-col gap-2 w-full">
+                      <CheckoutButton planId={plan.id} name={plan.name} />
+                      <button onClick={() => setBankModalPlan(plan)} className="w-full py-2.5 bg-[var(--surface)] border border-[var(--border)] text-slate-700 font-bold rounded-xl transition-colors hover:bg-slate-50 text-sm">
+                        Τραπεζική Μεταφορά
+                      </button>
+                    </div>
                   )}
                 </Card>
               );
@@ -208,6 +232,48 @@ export default function SubscriptionClient({ currentSub, allPlans, invoices, sea
         </TabsContent>
         
       </Tabs>
+
+      <Dialog open={!!bankModalPlan} onOpenChange={(open) => !open && setBankModalPlan(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Πληρωμή με Τραπεζική Κατάθεση</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-slate-50 border border-[var(--border)] rounded-xl p-4 space-y-2">
+              <div className="flex justify-between items-center border-b border-[var(--border)] pb-2 mb-2">
+                <span className="text-[var(--text-muted)] text-sm">Δικαιούχος</span>
+                <span className="font-bold text-[var(--foreground)]">{bankDetails?.beneficiary}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-[var(--border)] pb-2 mb-2">
+                <span className="text-[var(--text-muted)] text-sm">Τράπεζα</span>
+                <span className="font-bold text-[var(--foreground)]">{bankDetails?.name}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[var(--text-muted)] text-sm mb-1">IBAN</span>
+                <span className="font-mono text-sm font-bold p-2 bg-white border border-[var(--border)] rounded text-center">
+                  {bankDetails?.iban}
+                </span>
+              </div>
+              <div className="flex flex-col pt-2">
+                <span className="text-[var(--text-muted)] text-sm mb-1">Αιτιολογία Κατάθεσης</span>
+                <span className="font-mono text-sm font-bold p-2 bg-amber-50 text-amber-900 border border-amber-200 rounded text-center">
+                  ΚΑΝΟΝΑΣ-{templeId ? templeId.substring(templeId.length - 6).toUpperCase() : '000000'}-{bankModalPlan?.name?.substring(0,3).toUpperCase()}
+                </span>
+              </div>
+              <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed text-center">
+                Μετά την κατάθεση, στείλτε μας το αποδεικτικό στο <b>billing@kanonas.app</b> για άμεση ενεργοποίηση της συνδρομής.
+              </p>
+            </div>
+            <button 
+              disabled={bankLoading}
+              onClick={handleBankRequest} 
+              className="btn btn-primary w-full disabled:opacity-50"
+            >
+              {bankLoading ? 'Αποστολή...' : 'Ολοκλήρωσα την Κατάθεση'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

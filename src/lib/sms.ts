@@ -5,13 +5,27 @@ interface YubotoSmsConfig {
  senderId: string;
 }
 
-export async function sendSMS(phoneNumbers: string[], message: string) {
- // Try to use environment variables, fallback for MVP/dev purposes
- const apiKey = process.env.YUBOTO_API_KEY || 'test_api_key';
- const senderId = process.env.YUBOTO_SENDER_ID || 'Κανόνας'; // Max 11 latin characters
+export async function sendSMS(
+  phoneNumbers: string[], 
+  message: string,
+  templeSettings?: { smsSenderId?: string }
+) {
+  const apiKey = process.env.YUBOTO_API_KEY || 'test_api_key';
 
- // Mock implementation for development when no API Key is present
- if (!process.env.YUBOTO_API_KEY) {
+  const isValidSender = (id?: string) => {
+    if (!id) return false;
+    return /^[A-Za-z0-9]{1,11}$/.test(id);
+  };
+
+  let senderId = 'Kanonas';
+  if (isValidSender(templeSettings?.smsSenderId)) {
+    senderId = templeSettings!.smsSenderId!;
+  } else if (isValidSender(process.env.YUBOTO_SENDER_ID)) {
+    senderId = process.env.YUBOTO_SENDER_ID!;
+  }
+
+  // Mock implementation for development when no API Key is present
+  if (!process.env.YUBOTO_API_KEY) {
  console.log(`\n[YUBOTO SMS MOCK - TEST MODE]`);
  console.log(`📤 Sender: ${senderId}`);
  console.log(`📞 Receivers: ${phoneNumbers.join(', ')}`);
