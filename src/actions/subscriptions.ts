@@ -38,10 +38,10 @@ export async function getSubscriptionExpiryWarning(templeId: string): Promise<Ex
 
  const sub = await prisma.subscription.findFirst({
  where: { templeId, status: 'active' },
- select: { expiresAt: true, stripeSubscriptionId: true }
+ select: { expiresAt: true, vivaOrderCode: true }
  })
- // No subscription or Stripe-managed auto-renewing → no warning needed
- if (!sub || !sub.expiresAt || sub.stripeSubscriptionId) return null
+ // No subscription
+ if (!sub || !sub.expiresAt) return null
 
  const daysLeft = Math.ceil((sub.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
  if (daysLeft <= 0) return null // Already expired — handled by feature gate
@@ -77,115 +77,116 @@ export async function getMySubscription() {
 }
 
 /**
- * Creates a Stripe Checkout Session for a temple to subscribe.
- * Returns the Stripe checkout URL.
- * Only works for non-Metropolis plans.
+ * Creates a Viva Wallet Checkout Session for a temple to subscribe.
+ * Returns the Smart Checkout URL.
  */
 export async function createCheckoutSession(planId: string, billingCycle: 'monthly' | 'yearly') {
- const session = await requireAuth()
- const templeId = await getCurrentTempleId()
+  const session = await requireAuth()
+  const templeId = await getCurrentTempleId()
 
- const plan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } })
- if (!plan) return { success: false, error: 'Το πακέτο δεν βρέθηκε.' }
- if (plan.isMetropolis) return { success: false, error: 'Το πακέτο Μητρόπολης ενεργοποιείται μόνο χειροκίνητα από Super Admin.' }
+  const plan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } })
+  if (!plan) return { success: false, error: 'Το πακέτο δεν βρέθηκε.' }
+  if (plan.isMetropolis) return { success: false, error: 'Το πακέτο Μητρόπολης ενεργοποιείται μόνο χειροκίνητα.' }
 
- const stripePriceId = billingCycle === 'yearly' ? plan.stripePriceYearlyId : plan.stripePriceMonthlyId
- if (!stripePriceId) return { success: false, error: 'Δεν έχει οριστεί Stripe Price για αυτό το πακέτο.' }
+  const platformSettings = await prisma.platformSettings.findUnique({ where: { id: "singleton" } })
+  const vivaClientId = platformSettings?.vivaClientId || process.env.VIVA_CLIENT_ID
+  const vivaClientSecret = platformSettings?.vivaClientSecret || process.env.VIVA_CLIENT_SECRET
+  const vivaSourceCode = platformSettings?.vivaSourceCode || process.env.VIVA_SOURCE_CODE
+  const isDemo = platformSettings?.vivaDemo ?? true
 
- try {
- const stripe = (await import('stripe')).default
- const stripeClient = new stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-03-31.basil' })
+  if (!vivaClientId || !vivaClientSecret || !vivaSourceCode) {
+    return { success: false, error: 'Το σύστημα πληρωμών Viva δεν έχει ρυθμιστεί.' }
+  }
 
- const temple = await prisma.temple.findUnique({ where: { id: templeId } })
- const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://kanonas.app'
+  const priceAmount = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly
+  const amountInCents = Math.round(priceAmount * 100)
 
- const checkoutSession = await stripeClient.checkout.sessions.create({
- mode: 'subscription',
- line_items: [{ price: stripePriceId, quantity: 1 }],
- customer_email: temple?.email ?? undefined,
- metadata: { templeId, planId, billingCycle },
- success_url: `${baseUrl}/admin/subscription?success=1`,
- cancel_url: `${baseUrl}/admin/subscription?cancelled=1`,
- locale: 'el',
- allow_promotion_codes: true,
- })
+  try {
+    // 1. Get OAuth2 Token
+    const authString = btoa(`${vivaClientId}:${vivaClientSecret}`)
+    const tokenRes = await fetch('https://accounts.vivapayments.com/connect/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${authString}`
+      },
+      body: 'grant_type=client_credentials'
+    })
 
- return { success: true, url: checkoutSession.url }
- } catch (e: any) {
- console.error('[Stripe] Checkout error:', e)
- return { success: false, error: e.message }
- }
+    if (!tokenRes.ok) {
+      const errText = await tokenRes.text();
+      console.error('[Viva] Token Error:', errText);
+      throw new Error('Viva API authentication failed');
+    }
+
+    const { access_token } = await tokenRes.json()
+
+    // 2. Create Payment Order
+    const orderRes = await fetch(`${isDemo ? 'https://demo.api.vivapayments.com' : 'https://api.vivapayments.com'}/checkout/v2/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${access_token}`
+      },
+      body: JSON.stringify({
+        amount: amountInCents,
+        customerTrns: `Κανόνας - ${plan.name}`,
+        merchantTrns: `${templeId}-${planId}-${billingCycle}`,
+        paymentTimeout: 300,
+        preauth: false,
+        allowRecurring: false,
+        maxInstallments: 0,
+        sourceCode: vivaSourceCode,
+        tags: [templeId, planId, billingCycle]
+      })
+    })
+
+    if (!orderRes.ok) {
+      const errText = await orderRes.text();
+      console.error('[Viva] Order Error:', errText);
+      throw new Error('Failed to create Viva payment order');
+    }
+
+    const { orderCode } = await orderRes.json()
+    const checkoutUrl = isDemo 
+      ? `https://demo.vivapayments.com/web/checkout?ref=${orderCode}`
+      : `https://www.vivapayments.com/web/checkout?ref=${orderCode}`
+
+    return { success: true, url: checkoutUrl }
+  } catch (e: any) {
+    console.error('[Viva Wallet] Checkout error:', e)
+    return { success: false, error: e.message }
+  }
 }
 
-/** Cancel the active Stripe subscription */
+/** Cancel the active Viva Wallet subscription */
 export async function cancelMySubscription() {
- const session = await requireAuth()
- const templeId = await getCurrentTempleId()
-
- try {
- const sub = await prisma.subscription.findFirst({
- where: { templeId, status: 'active' },
- })
- if (!sub) return { success: false, error: 'Δεν βρέθηκε ενεργή συνδρομή.' }
- if (!sub.stripeSubscriptionId) return { success: false, error: 'Η συνδρομή δεν είναι Stripe-managed.' }
-
- const stripe = (await import('stripe')).default
- const stripeClient = new stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-03-31.basil' })
-
- // Cancel at period end (grace period)
- await stripeClient.subscriptions.update(sub.stripeSubscriptionId, {
- cancel_at_period_end: true,
- })
-
- await prisma.subscription.update({
- where: { id: sub.id },
- data: { status: 'cancelled' },
- })
-
- revalidatePath('/admin/subscription')
- return { success: true }
- } catch (e: any) {
- return { success: false, error: e.message }
- }
-}
-
-
-/** Fetch Stripe Invoices for the active tenant */
-export async function getStripeInvoices() {
-  await requireAuth()
+  const session = await requireAuth()
   const templeId = await getCurrentTempleId()
 
   try {
     const sub = await prisma.subscription.findFirst({
-      where: { templeId },
-      orderBy: { createdAt: 'desc' }
-    });
+      where: { templeId, status: 'active' },
+    })
+    if (!sub) return { success: false, error: 'Δεν βρέθηκε ενεργή συνδρομή.' }
     
-    if (!sub || !sub.stripeSubscriptionId) return [];
+    // Viva Checkout orders don't auto-renew from our side using Smart Checkout
+    // But we mark it cancelled in DB
+    await prisma.subscription.update({
+      where: { id: sub.id },
+      data: { status: 'cancelled' },
+    })
 
-    const stripe = (await import('stripe')).default;
-    const stripeClient = new stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-03-31.basil' });
-
-    const stripeSub = await stripeClient.subscriptions.retrieve(sub.stripeSubscriptionId);
-    if (!stripeSub || !stripeSub.customer) return [];
-
-    const invoices = await stripeClient.invoices.list({
-      customer: typeof stripeSub.customer === 'string' ? stripeSub.customer : stripeSub.customer.id,
-      limit: 10,
-    });
-
-    return invoices.data.map(inv => ({
-      id: inv.id,
-      number: inv.number,
-      amountPaid: inv.amount_paid / 100,
-      status: inv.status,
-      date: new Date(inv.created * 1000),
-      pdfUrl: inv.invoice_pdf
-    }));
-  } catch (e) {
-    console.error('[Stripe Invoices] Error:', e);
-    return [];
+    revalidatePath('/admin/subscription')
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
   }
+}
+
+/** Fetch Invoices (Viva doesn't return invoices this way easily, returning empty for now) */
+export async function getStripeInvoices() {
+  return [];
 }
 
 /** User requests manual bank transfer for a plan */

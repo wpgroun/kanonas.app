@@ -1,87 +1,70 @@
-import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Viva Wallet endpoint verification
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url)
+  const key = searchParams.get('Key') || searchParams.get('key')
+  
+  if (key) {
+    return NextResponse.json({ Key: key })
+  }
+  return new NextResponse('Bad Request', { status: 400 })
+}
+
 export async function POST(req: Request) {
- const body = await req.text()
- 
- const headersList = await headers()
- const signature = headersList.get('stripe-signature')
+  try {
+    const body = await req.json()
 
- if (!signature) {
- return new NextResponse('No signature provided', { status: 400 })
- }
+    // EventTypeId 1796 = Transaction Payment Created (Success)
+    if (body.EventTypeId === 1796 && body.EventData) {
+      const orderCode = body.EventData.OrderCode ? body.EventData.OrderCode.toString() : null
+      const transactionId = body.EventData.TransactionId ? body.EventData.TransactionId.toString() : null
+      
+      const tags = body.EventData.Tags || []
+      let templeId, planId, billingCycle = 'monthly'
 
- let event;
- try {
- const stripe = (await import('stripe')).default
- const stripeClient = new stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2025-03-31.basil' })
- event = stripeClient.webhooks.constructEvent(
- body,
- signature,
- process.env.STRIPE_WEBHOOK_SECRET as string
-)
- } catch (error: any) {
- return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 })
- }
+      if (tags.length >= 2) {
+        templeId = tags[0]
+        planId = tags[1]
+        billingCycle = tags[2] || 'monthly'
+      } else if (body.EventData.MerchantTrns) {
+        const parts = body.EventData.MerchantTrns.split('-')
+        if (parts.length >= 2) {
+          templeId = parts[0]
+          planId = parts[1]
+          billingCycle = parts[2] || 'monthly'
+        }
+      }
 
- try {
- if (event.type === 'checkout.session.completed') {
- const session = event.data.object as any
- // Metadata added during createCheckoutSession
- const metadata = session.metadata
- const templeId = metadata?.templeId
- const planId = metadata?.planId
- const billingCycle = metadata?.billingCycle
- 
- const stripeSubscriptionId = session.subscription as string
- const customerId = session.customer as string
+      if (templeId && planId && orderCode) {
+        // Cancel old subscriptions
+        await prisma.subscription.updateMany({
+          where: { templeId, status: 'active' },
+          data: { status: 'cancelled' }
+        })
 
- if (templeId && planId) {
- // Cancel old ones
- await prisma.subscription.updateMany({
- where: { templeId, status: 'active' },
- data: { status: 'cancelled' }
- })
+        // Create new active subscription
+        await prisma.subscription.create({
+          data: {
+            templeId,
+            planId,
+            billingCycle,
+            status: 'active',
+            vivaOrderCode: orderCode,
+            vivaTransactionId: transactionId,
+          }
+        })
+        
+        await prisma.auditLog.create({
+          data: { templeId, action: 'SUBSCRIPTION_UPGRADE', detail: `Viva Wallet checkout complete for ${planId} (Order: ${orderCode})` }
+        })
+      }
+    }
 
- // Create new active subscription mapped to Stripe IDs
- await prisma.subscription.create({
- data: {
- templeId,
- planId,
- billingCycle: billingCycle || 'monthly',
- status: 'active',
- stripeSubscriptionId,
- stripeCustomerId: customerId,
- }
- })
- 
- await prisma.auditLog.create({
- data: { templeId, action: 'SUBSCRIPTION_UPGRADE', detail: `Paid checkout complete for ${planId}` }
- })
- }
- } 
- 
- // Auto-cancel if Stripe subscription is cancelled by a missed payment / manually
- else if (event.type === 'customer.subscription.deleted') {
- const subscription = event.data.object as any
- const stripeSubscriptionId = subscription.id
- 
- const sub = await prisma.subscription.findUnique({ where: { stripeSubscriptionId } })
- if (sub) {
- await prisma.subscription.update({
- where: { id: sub.id },
- data: { status: 'cancelled', currentPeriodEnd: new Date() }
- })
- await prisma.auditLog.create({
- data: { templeId: sub.templeId, action: 'SUBSCRIPTION_CANCELLED', detail: `Stripe deleted sub ${stripeSubscriptionId}` }
- })
- }
- }
-
- return new NextResponse('Webhook processed', { status: 200 })
- } catch (error: any) {
- console.error('Webhook processing error:', error)
- return new NextResponse('Webhook processing failed', { status: 500 })
- }
+    return NextResponse.json({ success: true, message: 'Webhook processed' }, { status: 200 })
+  } catch (error: any) {
+    console.error('[Viva Webhook] Error:', error)
+    return new NextResponse('Webhook processing failed', { status: 500 })
+  }
 }

@@ -8,7 +8,7 @@ import {
   ArrowUpRight, CheckCircle2, Eye, Edit3, Key,
   CreditCard, Banknote, ChevronUp, ChevronDown,
   Pause, Play, UserCog, FileText, X, Save, RefreshCw,
-  Download, Megaphone
+  Download, Megaphone, Server
 } from "lucide-react";
 import {
   getSuperAdminStats, toggleSubscriptionStatus,
@@ -22,8 +22,9 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar
 } from 'recharts';
+import { PlatformSettingsTab } from "./PlatformSettingsTab";
 
-type Tab = 'overview' | 'subscriptions' | 'financials' | 'users';
+type Tab = 'overview' | 'subscriptions' | 'financials' | 'users' | 'settings';
 
 export default function SuperDashboard() {
   const [tab, setTab] = useState<Tab>('overview');
@@ -141,6 +142,7 @@ export default function SuperDashboard() {
     { id: 'subscriptions', label: 'Συνδρομές & Προφίλ', icon: CreditCard },
     { id: 'financials', label: 'Οικονομικά Δικτύου', icon: Banknote },
     { id: 'users', label: 'Χρήστες & Κωδικοί', icon: UserCog },
+    { id: 'settings', label: 'Ρυθμίσεις Πλατφόρμας', icon: Server },
   ];
 
   return (
@@ -479,6 +481,11 @@ export default function SuperDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ══════════════════════════ TAB: SETTINGS ══════════════════════════ */}
+      {tab === 'settings' && (
+        <PlatformSettingsTab />
       )}
 
       {/* ═══════════════════ MODAL: PROFILE ═══════════════════ */}

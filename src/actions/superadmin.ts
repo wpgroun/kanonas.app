@@ -363,3 +363,40 @@ export async function getAllUsers() {
   })
 }
 
+// ─── Platform Settings ────────────────────────────────────────────────────────
+
+export async function getPlatformSettings() {
+  await requireSuperAdmin()
+  const settings = await prisma.platformSettings.findUnique({
+    where: { id: "singleton" }
+  })
+  return settings || {}
+}
+
+export async function savePlatformSettings(data: {
+  vivaClientId?: string
+  vivaClientSecret?: string
+  vivaSourceCode?: string
+  vivaWebhookKey?: string
+  vivaDemo?: boolean
+  bankIban?: string
+  bankBeneficiary?: string
+  bankName?: string
+  smtpHost?: string
+  smtpPort?: number
+  smtpUser?: string
+  smtpPass?: string
+  yubotoApiKey?: string
+  yubotoSenderId?: string
+}) {
+  await requireSuperAdmin()
+  
+  await prisma.platformSettings.upsert({
+    where: { id: "singleton" },
+    update: data,
+    create: { id: "singleton", ...data }
+  })
+  
+  revalidatePath('/admin/super')
+  return { success: true }
+}

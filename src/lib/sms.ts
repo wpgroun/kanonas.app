@@ -5,14 +5,18 @@ interface YubotoSmsConfig {
  senderId: string;
 }
 
+import { prisma } from '@/lib/prisma';
+
 export async function sendSMS(
   phoneNumbers: string[], 
   message: string,
   templeSettings?: { smsSenderId?: string }
 ) {
-  const apiKey = process.env.YUBOTO_API_KEY || 'test_api_key';
+  const platformSettings = await prisma.platformSettings.findUnique({ where: { id: "singleton" } });
+  
+  const apiKey = platformSettings?.yubotoApiKey || process.env.YUBOTO_API_KEY || 'test_api_key';
 
-  const isValidSender = (id?: string) => {
+  const isValidSender = (id?: string | null) => {
     if (!id) return false;
     return /^[A-Za-z0-9]{1,11}$/.test(id);
   };
@@ -20,12 +24,14 @@ export async function sendSMS(
   let senderId = 'Kanonas';
   if (isValidSender(templeSettings?.smsSenderId)) {
     senderId = templeSettings!.smsSenderId!;
+  } else if (isValidSender(platformSettings?.yubotoSenderId)) {
+    senderId = platformSettings!.yubotoSenderId!;
   } else if (isValidSender(process.env.YUBOTO_SENDER_ID)) {
     senderId = process.env.YUBOTO_SENDER_ID!;
   }
 
   // Mock implementation for development when no API Key is present
-  if (!process.env.YUBOTO_API_KEY) {
+  if (!platformSettings?.yubotoApiKey && !process.env.YUBOTO_API_KEY) {
  console.log(`\n[YUBOTO SMS MOCK - TEST MODE]`);
  console.log(`📤 Sender: ${senderId}`);
  console.log(`📞 Receivers: ${phoneNumbers.join(', ')}`);

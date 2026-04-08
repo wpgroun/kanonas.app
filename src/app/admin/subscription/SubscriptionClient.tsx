@@ -96,7 +96,7 @@ export default function SubscriptionClient({ currentSub, allPlans, invoices, sea
                   <button className="flex-1 bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white font-bold py-2 rounded-lg transition-colors text-sm">
                     Είσοδος
                   </button>
-                  {currentSub?.stripeSubscriptionId && currentSub.status !== 'cancelled' && (
+                  {currentSub?.status !== 'cancelled' && (
                     <div className="flex-1">
                       <CancelButton />
                     </div>

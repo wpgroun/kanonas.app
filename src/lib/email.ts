@@ -1,16 +1,6 @@
 import nodemailer from 'nodemailer';
 
-// By default, if no SMTP is configured, we will log the email instead of failing hard.
-// Once in production, configure SMTP host in `.env`
-const transporter = nodemailer.createTransport({
- host: process.env.SMTP_HOST || 'smtp.ethereal.email',
- port: Number(process.env.SMTP_PORT) || 587,
- secure: process.env.SMTP_SECURE === 'true',
- auth: {
- user: process.env.SMTP_USER || 'ethereal_user',
- pass: process.env.SMTP_PASS || 'ethereal_pass',
- },
-});
+import { prisma } from '@/lib/prisma';
 
 export async function sendEmail({
  to,
@@ -23,8 +13,14 @@ export async function sendEmail({
  html?: string;
  text?: string;
 }) {
+ const platformSettings = await prisma.platformSettings.findUnique({ where: { id: "singleton" } });
+ const smtpHost = platformSettings?.smtpHost || process.env.SMTP_HOST;
+ const smtpPort = platformSettings?.smtpPort || process.env.SMTP_PORT;
+ const smtpUser = platformSettings?.smtpUser || process.env.SMTP_USER;
+ const smtpPass = platformSettings?.smtpPass || process.env.SMTP_PASS;
+
  // Mock mode for local MVP development
- if (!process.env.SMTP_HOST) {
+ if (!smtpHost) {
  console.log(`\n[EMAIL MOCK - TEST MODE]`);
  console.log(`📧 To: ${to}`);
  console.log(`📌 Subject: ${subject}`);
@@ -33,8 +29,18 @@ export async function sendEmail({
  }
 
  try {
+ const transporter = nodemailer.createTransport({
+ host: smtpHost,
+ port: Number(smtpPort) || 587,
+ secure: process.env.SMTP_SECURE === 'true' || Number(smtpPort) === 465,
+ auth: {
+ user: smtpUser || 'ethereal_user',
+ pass: smtpPass || 'ethereal_pass',
+ },
+ });
+
  const info = await transporter.sendMail({
- from: `"Ιερός Ναός (Κανόνας)"<${process.env.SMTP_USER || 'noreply@kanonas.gr'}>`,
+ from: `"Ιερός Ναός (Κανόνας)"<${smtpUser || 'noreply@kanonas.gr'}>`,
  to,
  subject,
  text,

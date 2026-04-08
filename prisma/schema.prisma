@@ -12,6 +12,25 @@ generator client {
 // SYSTEM & SAAS CORE
 // =======================
 
+model PlatformSettings {
+  id               String   @id @default("singleton")
+  vivaClientId     String?
+  vivaClientSecret String?
+  vivaSourceCode   String?
+  vivaWebhookKey   String?
+  vivaDemo         Boolean  @default(true)
+  bankIban         String?
+  bankBeneficiary  String?
+  bankName         String?
+  smtpHost         String?
+  smtpPort         Int?
+  smtpUser         String?
+  smtpPass         String?
+  yubotoApiKey     String?
+  yubotoSenderId   String?
+  updatedAt        DateTime @updatedAt
+}
+
 model Metropolis {
   id      String           @id @default(cuid())
   name    String
@@ -63,10 +82,6 @@ model SubscriptionPlan {
 
   // Features included (stored as JSON array of feature keys)
   features String @default("[]") // JSON
-
-  // Stripe product/price IDs (set by super admin after creating in Stripe Dashboard)
-  stripePriceMonthlyId String?
-  stripePriceYearlyId  String?
 
   isActive  Boolean @default(true)
   sortOrder Int     @default(0)
@@ -975,9 +990,9 @@ model Subscription {
   // Billing period
   billingCycle String @default("monthly") // "monthly" or "yearly"
 
-  // Stripe fields (null for manually activated subscriptions like Metropolis)
-  stripeSubscriptionId String?   @unique
-  stripeCustomerId     String?
+  // Viva Wallet fields (null for manually activated subscriptions like Metropolis)
+  vivaOrderCode     String?   @unique
+  vivaTransactionId String?
   currentPeriodStart   DateTime?
   currentPeriodEnd     DateTime?
 
