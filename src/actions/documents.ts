@@ -55,42 +55,70 @@ export async function uploadDocTemplate(formData: FormData) {
   const file = formData.get('file') as File
   const nameEl = formData.get('nameEl') as string
   const docType = formData.get('docType') as string
-  const variables = formData.get('variables') as string // JSON array of variable names
 
   if (!file || !nameEl || !docType) {
     return { success: false, error: 'Λείπουν υποχρεωτικά πεδία.' }
   }
 
   try {
-    // Create upload directory
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'templates', templeId)
     await mkdir(uploadDir, { recursive: true })
 
-    // Generate unique filename
-    const ext = path.extname(file.name)
+    const ext = path.extname(file.name).toLowerCase()
     const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
     const filePath = path.join(uploadDir, safeName)
     
-    // Write file
     const bytes = await file.arrayBuffer()
     await writeFile(filePath, Buffer.from(bytes))
 
     const fileUrl = `/uploads/templates/${templeId}/${safeName}`
 
-    // Create DB record
-    await prisma.docTemplate.create({
+    let detectedVars: string[] = []
+    let detectedFormat = 'mustache'
+
+    if (ext === '.docx' || ext === '.doc') {
+      const mammoth = await import('mammoth')
+      const { value: plainText } = await mammoth.extractRawText({ path: filePath })
+
+      const mustacheMatches = Array.from(plainText.matchAll(/\{\{([^}]+)\}\}/g)).map(m => m[1].trim())
+      const singleCurlyMatches = Array.from(plainText.matchAll(/(?<!\{)\{([^}]+)\}(?!\})/g)).map(m => m[1].trim())
+      const bracketMatches = Array.from(plainText.matchAll(/\[([^\]]+)\]/g)).map(m => m[1].trim())
+
+      const counts = [
+        { format: 'mustache', count: mustacheMatches.length, vars: mustacheMatches },
+        { format: 'single_curly', count: singleCurlyMatches.length, vars: singleCurlyMatches },
+        { format: 'brackets', count: bracketMatches.length, vars: bracketMatches }
+      ].sort((a, b) => b.count - a.count)
+
+      if (counts[0].count > 0) {
+        detectedFormat = counts[0].format
+        detectedVars = Array.from(new Set(counts[0].vars))
+      }
+    } else {
+      const rawVars = formData.get('variables') as string
+      if (rawVars) {
+        try { detectedVars = JSON.parse(rawVars) } catch (e) {}
+      }
+    }
+
+    const contextPayload = JSON.stringify({
+      format: detectedFormat,
+      vars: detectedVars
+    })
+
+    const tpl = await prisma.docTemplate.create({
       data: {
         templeId,
         docType,
         nameEl,
         fileUrl,
         htmlContent: null,
-        context: variables || '[]', // Store detected variables
+        context: contextPayload,
       }
     })
 
     revalidatePath('/admin/documents')
-    return { success: true, fileUrl }
+    return { success: true, fileUrl, templateId: tpl.id, variables: detectedVars, varFormat: detectedFormat }
   } catch (e: any) {
     console.error('[Upload Template]', e)
     return { success: false, error: e.message }

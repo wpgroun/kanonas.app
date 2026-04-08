@@ -187,16 +187,52 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>) {
     const content = await fs.readFile(filePath)
     const zip = new PizZip(content)
 
-    const doc = new Docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-      delimiters: { start: '{{', end: '}}' }
-    })
+    let format = 'mustache';
+    try {
+      if (template.context?.startsWith('{')) {
+        const parsed = JSON.parse(template.context);
+        if (parsed.format) format = parsed.format;
+      }
+    } catch(e) {}
 
-    // Replace all {{VARIABLE}} placeholders
-    doc.render(answers)
+    let buf;
 
-    const buf = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' })
+    if (format === 'brackets' || format === 'single_curly') {
+       const xmlFile = zip.file('word/document.xml');
+       if (xmlFile) {
+           let xml = xmlFile.asText();
+
+           // Merge split <w:t> tags within the same <w:r> run
+           xml = xml.replace(/(<w:r[^>]*>)(.*?)<\/w:r>/g, (match, rTag, inside) => {
+               const textPieces: string[] = [];
+               let mergedInside = inside.replace(/<w:t([^>]*)>(.*?)<\/w:t>/g, (tMatch, tAttrs, tText) => {
+                   textPieces.push(tText);
+                   return ''; // remove it
+               });
+               if (textPieces.length > 0) {
+                   mergedInside += `<w:t xml:space="preserve">${textPieces.join('')}</w:t>`;
+               }
+               return `${rTag}${mergedInside}</w:r>`;
+           });
+
+           for (const [key, val] of Object.entries(answers)) {
+               const safeVal = (val || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+               const searchStr = format === 'brackets' ? `[${key}]` : `{${key}}`;
+               xml = xml.replaceAll(searchStr, safeVal);
+           }
+           zip.file('word/document.xml', xml);
+       }
+       buf = zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
+    } else {
+       const doc = new Docxtemplater(zip, {
+         paragraphLoop: true,
+         linebreaks: true,
+         delimiters: { start: '{{', end: '}}' }
+       });
+       doc.render(answers);
+       buf = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
+    }
+
     const base64 = buf.toString('base64')
 
     return {

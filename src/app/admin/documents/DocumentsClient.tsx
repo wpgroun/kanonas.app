@@ -76,6 +76,8 @@ export default function DocumentsClient({ initialTemplates }: any) {
   const [uploadVars, setUploadVars] = useState<string[]>([]);
   const [newVarName, setNewVarName] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadedTemplateId, setUploadedTemplateId] = useState<string | null>(null);
+  const [detectedFormat, setDetectedFormat] = useState<string>('mustache');
   const [dragActive, setDragActive] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -117,25 +119,38 @@ export default function DocumentsClient({ initialTemplates }: any) {
     setNewVarName('');
   };
 
-  const handleUpload = async () => {
+  const handleUploadAndDetect = async () => {
     if (!uploadFile || !uploadName) return;
     setUploading(true);
     const fd = new FormData();
     fd.append('file', uploadFile);
     fd.append('nameEl', uploadName);
     fd.append('docType', uploadType);
-    fd.append('variables', JSON.stringify(uploadVars));
+    fd.append('variables', '[]');
     const res = await uploadDocTemplate(fd);
     setUploading(false);
     if (res.success) {
-      resetWizard();
+      setUploadedTemplateId(res.templateId);
+      setUploadVars(res.variables || []);
+      setDetectedFormat(res.varFormat || 'mustache');
+      setWizardStep(2);
       router.refresh();
     } else alert(res.error || 'Αποτυχία');
+  };
+
+  const handleFinishWizard = async () => {
+    if (!uploadedTemplateId) return;
+    setUploading(true);
+    await updateTemplateVariables(uploadedTemplateId, uploadVars);
+    setUploading(false);
+    resetWizard();
+    router.refresh();
   };
 
   const resetWizard = () => {
     setWizardOpen(false); setWizardStep(0);
     setUploadFile(null); setUploadName(''); setUploadVars([]); setUploadType('other');
+    setUploadedTemplateId(null); setDetectedFormat('mustache');
   };
 
   const handleDelete = async (id: string) => {
@@ -156,7 +171,13 @@ export default function DocumentsClient({ initialTemplates }: any) {
   };
 
   const getVarsFromTemplate = (tpl: any): string[] => {
-    try { if (tpl.context) return JSON.parse(tpl.context); } catch {}
+    try { 
+      if (tpl.context) {
+        const parsed = JSON.parse(tpl.context);
+        if (Array.isArray(parsed)) return parsed;
+        return parsed.vars || [];
+      }
+    } catch {}
     if (tpl.htmlContent) {
       const regex = /\{\{([^}]+)\}\}/g;
       const found = new Set<string>(); let m;
@@ -166,7 +187,7 @@ export default function DocumentsClient({ initialTemplates }: any) {
     return [];
   };
 
-  const WIZARD_STEPS = ['Αρχείο', 'Στοιχεία', 'Μεταβλητές', 'Επιβεβαίωση'];
+  const WIZARD_STEPS = ['Αρχείο', 'Στοιχεία', 'Επιβεβαίωση'];
 
   return (
     <div className="container-fluid mt-6 space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -336,8 +357,9 @@ export default function DocumentsClient({ initialTemplates }: any) {
                   <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 flex gap-3 items-start">
                     <Sparkles className="w-5 h-5 text-purple-500 mt-0.5 flex-shrink-0"/>
                     <div className="text-xs text-purple-800">
-                      <p className="font-bold mb-1">Ποιες πληροφορίες αλλάζουν;</p>
-                      <p>Επιλέξτε τα πεδία που αλλάζουν κάθε φορά. Π.χ. σε ένα Πιστοποιητικό Βάπτισης, αλλάζει το όνομα του βαπτιζομένου, του νονού, η ημερομηνία κλπ. Κλικ σε κάθε ομάδα για να προσθέσετε!</p>
+                      <p className="font-bold mb-1">Αναγνωρίστηκαν δυναμικές μεταβλητές!</p>
+                      <p>Το αρχείο σας χρησιμοποιεί <b>{detectedFormat === 'brackets' ? 'Αγκύλες [Μεταβλητή]' : detectedFormat === 'single_curly' ? 'Απλά άγκιστρα {Μεταβλητή}' : 'Διπλά άγκιστρα {{Μεταβλητή}}'}</b>.</p>
+                      <p className="mt-1">Ελέγξτε τις μεταβλητές που βρέθηκαν. Μπορείτε να αφαιρέσετε λανθασμένες ή να προσθέσετε χειροκίνητα αν κάποια δεν αναγνωρίστηκε.</p>
                     </div>
                   </div>
 
@@ -390,54 +412,29 @@ export default function DocumentsClient({ initialTemplates }: any) {
                 </div>
               )}
 
-              {/* ── Step 3: Confirmation ── */}
-              {wizardStep === 3 && (
-                <div className="space-y-5">
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center">
-                    <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3"/>
-                    <h3 className="text-lg font-black text-emerald-800">Έτοιμο για Ανέβασμα!</h3>
-                    <p className="text-sm text-emerald-600 mt-1">Ελέγξτε τα στοιχεία και πατήστε "Ολοκλήρωση"</p>
-                  </div>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                      <span className="text-[var(--text-muted)] font-medium">Αρχείο</span>
-                      <span className="font-bold">{uploadFile?.name}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                      <span className="text-[var(--text-muted)] font-medium">Ονομασία</span>
-                      <span className="font-bold">{uploadName}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                      <span className="text-[var(--text-muted)] font-medium">Κατηγορία</span>
-                      <span className="font-bold">{DOC_TYPES.find(d => d.id === uploadType)?.emoji} {DOC_TYPES.find(d => d.id === uploadType)?.label}</span>
-                    </div>
-                    <div className="flex justify-between items-start py-2">
-                      <span className="text-[var(--text-muted)] font-medium">Μεταβλητές</span>
-                      <div className="text-right">
-                        {uploadVars.length === 0 ? <span className="text-[var(--text-muted)] italic">Καμία (θα τις προσθέσετε αργότερα)</span> : (
-                          <div className="flex flex-wrap justify-end gap-1">{uploadVars.map(v => <span key={v} className="text-[10px] font-mono bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded">{v}</span>)}</div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Footer Navigation */}
+              {/* Footer Navigation */}
             <div className="p-5 border-t border-[var(--border)] bg-[var(--background)] flex justify-between items-center">
-              <button onClick={() => wizardStep === 0 ? resetWizard() : setWizardStep(wizardStep - 1)} className="px-4 py-2 rounded-xl text-sm font-bold text-[var(--text-muted)] hover:bg-[var(--surface)] flex items-center gap-1">
+              <button 
+                onClick={() => wizardStep === 0 ? resetWizard() : wizardStep === 2 ? null : setWizardStep(wizardStep - 1)} 
+                disabled={wizardStep === 2 || uploading}
+                className="px-4 py-2 rounded-xl text-sm font-bold text-[var(--text-muted)] hover:bg-[var(--surface)] flex items-center gap-1 disabled:opacity-50">
                 <ChevronLeft className="w-4 h-4"/> {wizardStep === 0 ? 'Ακύρωση' : 'Πίσω'}
               </button>
-              {wizardStep < 3 ? (
-                <button onClick={() => setWizardStep(wizardStep + 1)} disabled={wizardStep === 0 && !uploadFile || wizardStep === 1 && !uploadName}
+              
+              {wizardStep === 1 ? (
+                <button onClick={handleUploadAndDetect} disabled={!uploadName || uploading}
+                  className="px-6 py-2 rounded-xl text-sm font-bold bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-40 flex items-center gap-1.5 shadow-md">
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin"/> : <>Ανέβασμα <ChevronRight className="w-4 h-4"/></>}
+                </button>
+              ) : wizardStep === 0 ? (
+                <button onClick={() => setWizardStep(1)} disabled={!uploadFile}
                   className="px-6 py-2 rounded-xl text-sm font-bold bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-40 flex items-center gap-1.5 shadow-md">
                   Επόμενο <ChevronRight className="w-4 h-4"/>
                 </button>
               ) : (
-                <button onClick={handleUpload} disabled={uploading}
+                <button onClick={handleFinishWizard} disabled={uploading}
                   className="px-8 py-2 rounded-xl text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-emerald-200">
-                  {uploading ? <Loader2 className="w-4 h-4 animate-spin"/> : <CheckCircle2 className="w-4 h-4"/>} Ολοκλήρωση
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin"/> : <CheckCircle2 className="w-4 h-4"/>} Αποθήκευση
                 </button>
               )}
             </div>
