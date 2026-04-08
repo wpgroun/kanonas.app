@@ -216,16 +216,21 @@ export default function DocumentsClient({ initialTemplates }: any) {
                   </div>
                 )}
               </div>
-              <div className="mt-6 border-t border-[var(--border)] pt-4 flex gap-2">
-                {isUpload ? (
-                  <>
-                    <a href={tpl.fileUrl} target="_blank" rel="noreferrer" className="flex-1 btn btn-ghost btn-sm bg-[var(--background)] text-slate-700 hover:bg-[var(--surface-hover)] border border-[var(--border)] shadow-sm flex items-center justify-center gap-1"><ExternalLink className="w-3.5 h-3.5"/> Προβολή</a>
-                    <button onClick={() => { setVarsModal(tpl); setEditVars(vars); setEditNewVar(''); }} className="flex-1 btn btn-ghost btn-sm bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 shadow-sm flex items-center justify-center gap-1"><Variable className="w-3.5 h-3.5"/> ({vars.length})</button>
-                  </>
-                ) : (
-                  <button onClick={() => { setEditingTemplate(tpl); setIsModalOpen(true); }} className="flex-1 btn btn-ghost btn-sm bg-[var(--background)] text-slate-700 hover:bg-[var(--surface-hover)] border border-[var(--border)] shadow-sm">Επεξεργασία</button>
-                )}
-                <button onClick={() => handleDelete(tpl.id)} className="btn btn-ghost btn-sm text-red-500 hover:bg-red-50 border border-red-200"><Trash2 className="w-3.5 h-3.5"/></button>
+              <div className="mt-6 border-t border-[var(--border)] pt-4 flex flex-col gap-2">
+                <Link href={`/admin/documents/generate?templateId=${tpl.id}`} className="w-full py-2 rounded-xl text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700 flex items-center justify-center gap-2 shadow-md transition-all active:scale-95">
+                  <FileSignature className="w-4 h-4"/> Δημιουργία
+                </Link>
+                <div className="flex gap-2">
+                  {isUpload ? (
+                    <>
+                      <a href={tpl.fileUrl} target="_blank" rel="noreferrer" className="flex-1 py-1.5 rounded-lg text-xs font-bold bg-[var(--background)] text-slate-700 hover:bg-[var(--surface-hover)] border border-[var(--border)] shadow-sm flex items-center justify-center gap-1.5"><ExternalLink className="w-3.5 h-3.5"/> Αρχείο</a>
+                      <button onClick={() => { setVarsModal(tpl); setEditVars(vars); setEditNewVar(''); }} className="flex-1 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 shadow-sm flex items-center justify-center gap-1.5"><Variable className="w-3.5 h-3.5"/> Μεταβλητές ({vars.length})</button>
+                    </>
+                  ) : (
+                    <button onClick={() => { setEditingTemplate(tpl); setIsModalOpen(true); }} className="flex-1 py-1.5 rounded-lg text-xs font-bold bg-[var(--background)] text-slate-700 hover:bg-[var(--surface-hover)] border border-[var(--border)] shadow-sm">Επεξεργασία</button>
+                  )}
+                  <button onClick={() => handleDelete(tpl.id)} className="px-3 py-1.5 rounded-lg text-sm font-bold text-red-500 hover:bg-red-50 border border-red-200 flex items-center justify-center"><Trash2 className="w-4 h-4"/></button>
+                </div>
               </div>
             </div>
           );

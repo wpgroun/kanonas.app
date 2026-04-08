@@ -131,58 +131,30 @@ async function generatePDFDoc(template: any, answers: Record<string, string>, te
     const firstPage = pages[0]
     const { width, height } = firstPage.getSize()
 
-    // Get variables from template context
-    let variables: string[] = []
-    try { variables = JSON.parse(template.context || '[]') } catch {}
-
-    // Build the filled text block
-    const lines: string[] = []
-    lines.push(`── ${template.nameEl} ──`)
-    lines.push(`Ναός: ${answers['ΝΑΟΣ_ΟΝΟΜΑ'] || temple?.name || ''}`)
-    lines.push(`Ημερομηνία: ${answers['ΗΜΕΡΟΜΗΝΙΑ'] || ''}`)
-    lines.push('')
-
-    for (const v of variables) {
-      if (['ΝΑΟΣ_ΟΝΟΜΑ', 'ΝΑΟΣ_ΔΙΕΥΘΥΝΣΗ', 'ΜΗΤΡΟΠΟΛΗ', 'ΗΜΕΡΟΜΗΝΙΑ'].includes(v)) continue
-      const value = answers[v] || ''
-      if (value) {
-        lines.push(`${v.replace(/_/g, ' ')}: ${value}`)
-      }
-    }
-
-    // Add a data overlay page at the end with all filled fields
-    const newPage = pdfDoc.addPage([width, height])
+    let y = height - 150
     const fontSize = 11
-    const lineHeight = fontSize * 1.6
-    let y = height - 60
+    const lineHeight = 20
 
-    // Header
-    newPage.drawText('ΣΤΟΙΧΕΙΑ ΕΓΓΡΑΦΟΥ', {
-      x: 50, y, size: 16, font: helveticaBold, color: rgb(0.1, 0.1, 0.1)
-    })
-    y -= 8
+    // For each variable in answers (system + user), draw it on the first page
+    for (const [key, value] of Object.entries(answers)) {
+      if (!value) continue
+      if (y < 60) break // Safety margin for bottom of page
 
-    // Divider line
-    newPage.drawRectangle({
-      x: 50, y, width: width - 100, height: 1,
-      color: rgb(0.7, 0.6, 0.4)
-    })
-    y -= 24
-
-    for (const line of lines) {
-      if (y < 60) break // stop if near bottom
-      const isHeader = line.startsWith('──')
-      newPage.drawText(line, {
-        x: 50, y,
-        size: isHeader ? 14 : fontSize,
-        font: isHeader ? helveticaBold : helvetica,
-        color: isHeader ? rgb(0.55, 0.18, 0.13) : rgb(0.1, 0.1, 0.1)
+      // Label (Bold)
+      firstPage.drawText(`${key.replace(/_/g, ' ')}:`, {
+        x: 50, y, size: fontSize, font: helveticaBold, color: rgb(0.2, 0.2, 0.2)
       })
+
+      // Value (Regular)
+      firstPage.drawText(value, {
+        x: 230, y, size: fontSize, font: helvetica, color: rgb(0.1, 0.1, 0.1)
+      })
+
       y -= lineHeight
     }
 
     // Footer
-    newPage.drawText(`Δημιουργήθηκε αυτόματα από Κανόνας — ${new Date().toLocaleDateString('el-GR')}`, {
+    firstPage.drawText(`Δημιουργήθηκε αυτόματα από το Kanonas — ${new Date().toLocaleDateString('el-GR')}`, {
       x: 50, y: 30, size: 8, font: helvetica, color: rgb(0.6, 0.6, 0.6)
     })
 
