@@ -72,12 +72,12 @@ export function HeaderLogo() {
           <Link href="/layout-14">
             <img
               src={toAbsoluteUrl('/media/app/mini-logo-gray.svg')}
-              className="dark:hidden min-h-[30px]"
+              className=" min-h-[30px]"
               alt="Thunder AI Logo"
             />
             <img
               src={toAbsoluteUrl('/media/app/mini-logo-gray-dark.svg')}
-              className="hidden dark:block min-h-[30px]"
+              className="hidden  min-h-[30px]"
               alt="Thunder AI Logo"
             />
           </Link>

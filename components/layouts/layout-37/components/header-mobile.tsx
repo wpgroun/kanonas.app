@@ -11,7 +11,7 @@ export function HeaderMobile() {
   const [isAsideSheetOpen, setIsAsideSheetOpen] = useState(false);
 
   return (
-    <header className="flex items-stretch fixed z-10 top-0 start-0 end-0 h-(--header-height-mobile) bg-zinc-100 dark:bg-zinc-900">
+    <header className="flex items-stretch fixed z-10 top-0 start-0 end-0 h-(--header-height-mobile) bg-zinc-100 ">
       <div className="flex items-stretch w-full bg-background border border-border rounded-xl shadow-xs shadow-black/5 mx-2 mt-2">
         <div className="grow flex items-center justify-between gap-2.5 px-2.5">
           <div className="flex items-center">
@@ -27,7 +27,7 @@ export function HeaderMobile() {
                 </Button>
               </SheetTrigger>
               <SheetContent
-                className="bg-zinc-100 dark:bg-zinc-900 p-0 gap-0 w-(--sidebar-width-mobile)"
+                className="bg-zinc-100  p-0 gap-0 w-(--sidebar-width-mobile)"
                 side="left"
                 close={false}
               >

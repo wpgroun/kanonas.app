@@ -26,7 +26,7 @@ export function SidebarHeader() {
             flex items-center p-[8px] gap-2
             rounded-[60px]
             bg-gradient-to-r from-primary to-purple-600
-            dark:from-purple-950 dark:to-purple-800
+             
             shadow-lg
           "
         >

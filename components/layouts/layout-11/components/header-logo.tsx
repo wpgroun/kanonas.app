@@ -50,12 +50,12 @@ export function HeaderLogo() {
       <Link href="/layout-11">
         <img
           src={toAbsoluteUrl('/media/app/mini-logo-gray.svg')}
-          className="dark:hidden size-6"
+          className=" size-6"
           alt="image"
         />
         <img
           src={toAbsoluteUrl('/media/app/mini-logo-gray-dark.svg')}
-          className="hidden dark:inline-block size-6"
+          className="hidden  size-6"
           alt="image"
         />
       </Link>

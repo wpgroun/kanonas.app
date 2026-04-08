@@ -10,7 +10,7 @@ const Header = () => {
   return (
     <header
       className={cn(
-        'flex items-center transition-[height] shrink-0 bg-(--header-bg) dark:bg-(--header-bg-dark) h-(--header-height)',
+        'flex items-center transition-[height] shrink-0 bg-(--header-bg) (--header-bg-dark) h-(--header-height)',
         headerSticky &&
           'transition-[height] fixed z-10 top-0 start-0 end-0 shadow-xs backdrop-blur-md bg-white/70',
       )}

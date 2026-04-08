@@ -30,12 +30,12 @@ export function HeaderLogo() {
       <Link href="/layout-2" className="shrink-0">
         <img
           src={toAbsoluteUrl('/media/app/mini-logo-circle.svg')}
-          className="dark:hidden min-h-[42px]"
+          className=" min-h-[42px]"
           alt="logo"
         />
         <img
           src={toAbsoluteUrl('/media/app/mini-logo-circle-dark.svg')}
-          className="hidden dark:inline-block min-h-[42px]"
+          className="hidden  min-h-[42px]"
           alt="logo"
         />
       </Link>

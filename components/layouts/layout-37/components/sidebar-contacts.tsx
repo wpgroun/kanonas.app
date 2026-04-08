@@ -46,7 +46,7 @@ export function SidebarContacts() {
             key={contact.id}
             className={cn(
               "flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors mx-2 h-8",
-              "hover:bg-background dark:hover:bg-zinc-900 group",
+              "hover:bg-background :bg-zinc-900 group",
               "in-data-[sidebar-collapsed=true]:mx-0 in-data-[sidebar-collapsed=true]:w-8 in-data-[sidebar-collapsed=true]:justify-center"
             )}
           >
@@ -80,7 +80,7 @@ export function SidebarContacts() {
         <div
           className={cn(
             "flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors mx-2 h-8",
-            "hover:bg-background dark:hover:bg-zinc-900 group",
+            "hover:bg-background :bg-zinc-900 group",
             "in-data-[sidebar-collapsed=true]:mx-0 in-data-[sidebar-collapsed=true]:w-8 in-data-[sidebar-collapsed=true]:justify-center"
           )}
         >

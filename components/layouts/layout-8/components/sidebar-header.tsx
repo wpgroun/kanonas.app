@@ -7,12 +7,12 @@ export function SidebarHeader() {
       <Link href="/layout-8">
         <img
           src={toAbsoluteUrl('/media/app/mini-logo-square-gray.svg')}
-          className="dark:hidden min-h-[42px]"
+          className=" min-h-[42px]"
           alt=""
         />
         <img
           src={toAbsoluteUrl('/media/app/mini-logo-square-gray-dark.svg')}
-          className="hidden dark:block min-h-[42px]"
+          className="hidden  min-h-[42px]"
           alt=""
         />
       </Link>

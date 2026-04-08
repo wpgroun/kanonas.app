@@ -10,7 +10,7 @@ export function Main({ children }: { children: React.ReactNode }) {
   useBodyClass(`
     [--header-height:60px]
     [--sidebar-width:270px]
-    bg-zinc-950 dark:bg-background!
+    bg-zinc-950 !
   `);
 
   return (

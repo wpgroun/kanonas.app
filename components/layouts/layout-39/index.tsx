@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export function Layout39({ children }: { children: React.ReactNode }) {
   return (
     <LayoutProvider
-      bodyClassName="bg-zinc-100 dark:bg-zinc-900 lg:overflow-hidden"
+      bodyClassName="bg-zinc-100  lg:overflow-hidden"
       style={{
         '--sidebar-width': '250px',
         '--sidebar-width-mobile': '225px',

@@ -27,7 +27,7 @@ export function Header() {
   }, [pathname]);
 
   return (
-    <header className="flex lg:hidden items-center fixed z-10 top-0 start-0 end-0 shrink-0 bg-mono dark:bg-background h-(--header-height)">
+    <header className="flex lg:hidden items-center fixed z-10 top-0 start-0 end-0 shrink-0 bg-mono  h-(--header-height)">
       <div className="container flex items-center justify-between flex-wrap gap-3">
         <Link href="/layout-10">
           <img

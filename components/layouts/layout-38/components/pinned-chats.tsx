@@ -30,7 +30,7 @@ export function PinnedChats({ selectedChat, onChatSelect }: PinnedChatsProps) {
             autoHeight
             onClick={() => onChatSelect(chat.id)}
             className={cn(
-              "w-full justify-start p-2 rounded-lg group border border-dashed border-gray-300 dark:border-gray-700 bg-muted/80",
+              "w-full justify-start p-2 rounded-lg group border border-dashed border-gray-300  bg-muted/80",
               isSelected && "bg-muted/60"
             )}
           >

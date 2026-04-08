@@ -64,7 +64,7 @@ export function ShimmeringText({
         '[--base-color:var(--color-zinc-400)] [--shimmer-color:var(--color-zinc-950)]',
         '[background-repeat:no-repeat,padding-box]',
         '[--shimmer-bg:linear-gradient(90deg,transparent_calc(50%-var(--spread)),var(--shimmer-color),transparent_calc(50%+var(--spread)))]',
-        'dark:[--base-color:var(--color-zinc-600)] dark:[--shimmer-color:var(--color-white)]',
+        ':var(--color-zinc-600)] :var(--color-white)]',
         className,
       )}
       style={

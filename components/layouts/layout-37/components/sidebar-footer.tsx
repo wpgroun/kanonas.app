@@ -55,8 +55,8 @@ export function SidebarFooter() {
         label: 'text-xs font-normal text-muted-foreground',
         item: cn(
           'flex items-center justify-center h-8 px-2 text-2sm font-normal text-foreground mx-4 in-data-[sidebar-collapsed=true]:mx-0', 
-          'hover:text-primary hover:bg-background dark:hover:bg-zinc-900 in-data-[sidebar-collapsed=true]:w-8',
-          'data-[selected=true]:bg-background dark:data-[selected=true]:bg-zinc-900 data-[selected=true]:text-primary [&[data-selected=true]_svg]:opacity-100',
+          'hover:text-primary hover:bg-background :bg-zinc-900 in-data-[sidebar-collapsed=true]:w-8',
+          'data-[selected=true]:bg-background =true]:bg-zinc-900 data-[selected=true]:text-primary [&[data-selected=true]_svg]:opacity-100',
         ),
         group: '',
       }}

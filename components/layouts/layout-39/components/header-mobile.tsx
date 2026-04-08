@@ -20,7 +20,7 @@ export function HeaderMobile() {
   const [isAsideSheetOpen, setIsAsideSheetOpen] = useState(false);
 
   return (
-    <header className="flex items-stretch fixed z-10 top-0 start-0 end-0 h-(--header-height-mobile) bg-zinc-100 dark:bg-zinc-900 pe-[var(--removed-body-scroll-bar-size,0px)]">
+    <header className="flex items-stretch fixed z-10 top-0 start-0 end-0 h-(--header-height-mobile) bg-zinc-100  pe-[var(--removed-body-scroll-bar-size,0px)]">
       <div className="flex items-stretch w-full bg-background border border-input rounded-xl shadow-xs m-2">
         <div className="container-fluid grow flex items-center justify-between gap-2.5">
           {/* Brand */}
@@ -30,8 +30,8 @@ export function HeaderMobile() {
                 flex items-center p-[5.5px] gap-2
                 rounded-[60px] border border-[rgba(255,255,255,0.3)]
                 bg-linear-to-r from-primary to-blue-600
-                dark:from-blue-950 dark:to-blue-800
-                hover:opacity-90 dark:hover:opacity-85
+                 
+                hover:opacity-90 :opacity-85
                 shadow-[0_0_0_1px_#000]
                 transition-opacity
               "

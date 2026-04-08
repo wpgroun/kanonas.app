@@ -24,17 +24,17 @@ export function Header() {
   }, [pathname]);
 
   return (
-    <header className="flex lg:hidden items-center fixed z-10 top-0 start-0 end-0 shrink-0 bg-[var(--page-bg)] dark:bg-[var(--page-bg-dark)] h-[var(--header-height)]">
+    <header className="flex lg:hidden items-center fixed z-10 top-0 start-0 end-0 shrink-0 bg-[var(--page-bg)] (--page-bg-dark)] h-[var(--header-height)]">
       <div className="container flex items-center justify-between flex-wrap gap-3">
         <Link href="/layout-4">
           <img
             src={toAbsoluteUrl('/media/app/mini-logo-gray.svg')}
-            className="dark:hidden min-h-[30px]"
+            className=" min-h-[30px]"
             alt=""
           />
           <img
             src={toAbsoluteUrl('/media/app/mini-logo-gray-dark.svg')}
-            className="hidden dark:block min-h-[30px]"
+            className="hidden  min-h-[30px]"
             alt=""
           />
         </Link>

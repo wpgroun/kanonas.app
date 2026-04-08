@@ -12,7 +12,7 @@ export function NewChatButton({ isCollapsed = false }: NewChatButtonProps) {
     <Button 
       className={cn(
         'h-10 bg-linear-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-lg text-sm transition-all rounded-full px-4 mb-5.5',
-        'dark:from-purple-950 dark:to-purple-800', 
+        ' ', 
         isCollapsed ? 'size-10 p-0 justify-center' : 'w-full justify-start gap-1.5 lg:gap-2'
       )}
       size="sm"

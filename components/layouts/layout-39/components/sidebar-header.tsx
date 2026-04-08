@@ -26,8 +26,8 @@ export function SidebarHeader() {
             flex items-center p-[5.5px] gap-2
             rounded-[60px] border border-[rgba(255,255,255,0.3)]
             bg-linear-to-r from-primary to-blue-600
-            dark:from-blue-950 dark:to-blue-800
-            hover:opacity-90 dark:hover:opacity-85
+             
+            hover:opacity-90 :opacity-85
             shadow-[0_0_0_1px_#000]
             transition-opacity
           "

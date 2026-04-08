@@ -218,8 +218,8 @@ export function MailViewHeader() {
           </TooltipContent>
         </Tooltip>
         
-        <Button variant="destructive" mode="icon" className="bg-red-50 hover:bg-red-100 dark:bg-red-950 dark:hover:bg-red-900">
-          <Trash2 className="text-red-600 dark:text-red-400" />
+        <Button variant="destructive" mode="icon" className="bg-red-50 hover:bg-red-100  :bg-red-900">
+          <Trash2 className="text-red-600 " />
         </Button>
         
         <DropdownMenu>

@@ -70,12 +70,12 @@ export function HeaderLogo() {
         <Link href="/layout-17" className="flex items-center gap-2 -ms-2.5 lg:ms-0">
           <img
             src={toAbsoluteUrl('/media/app/logo-32.svg')}
-            className="dark:hidden shrink-0 size-7.5"
+            className=" shrink-0 size-7.5"
             alt="image"
           />
           <img
             src={toAbsoluteUrl('/media/app/mini-logo-gray-dark.svg')}
-            className="hidden dark:inline-block shrink-0 size-7.5"
+            className="hidden  shrink-0 size-7.5"
             alt="image"
           />
           <span className="text-mono text-xl font-medium hidden lg:block">

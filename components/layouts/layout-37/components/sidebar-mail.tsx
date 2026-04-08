@@ -64,8 +64,8 @@ export function SidebarMail() {
         label: 'text-xs font-normal text-muted-foreground',
         item: cn(
           'h-8 px-2 text-2sm font-normal text-foreground mx-2 flex items-center justify-center', 
-          'hover:text-primary hover:bg-background dark:hover:bg-zinc-900',
-          'data-[selected=true]:bg-background dark:data-[selected=true]:bg-zinc-900 data-[selected=true]:text-primary [&[data-selected=true]_svg]:opacity-100',
+          'hover:text-primary hover:bg-background :bg-zinc-900',
+          'data-[selected=true]:bg-background =true]:bg-zinc-900 data-[selected=true]:text-primary [&[data-selected=true]_svg]:opacity-100',
           '',
         ),
         group: 'space-y-1',

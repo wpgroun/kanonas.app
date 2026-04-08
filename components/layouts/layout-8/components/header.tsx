@@ -29,12 +29,12 @@ export function Header() {
         <Link href="/">
           <img
             src={toAbsoluteUrl('/media/app/mini-logo-gray.svg')}
-            className="dark:hidden h-[30px]"
+            className=" h-[30px]"
             alt="image"
           />
           <img
             src={toAbsoluteUrl('/media/app/mini-logo-gray-dark.svg')}
-            className="hidden dark:inline-block h-[30px]"
+            className="hidden  h-[30px]"
             alt="image"
           />
         </Link>

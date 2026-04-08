@@ -74,28 +74,9 @@
     --sidebar-item-active-text: var(--brand);
   }
 
-  .dark {
-    --surface: var(--color-zinc-900);
-    --surface-hover: var(--color-zinc-800);
-    --brand: #A78BFA;
-    --brand-dark: #7C3AED;
-    --brand-light: #2E1065;
-    --text-muted: var(--color-zinc-400);
-    --danger: var(--color-red-400);
-    --danger-light: #450A0A;
-    --success: var(--color-emerald-400);
-    --success-light: #052E16;
-    --warning: var(--color-amber-400);
-    --warning-light: #451A03;
-    --info: var(--color-blue-400);
-    --info-light: #1E3A5F;
-  }
+  
 
-  input, select, textarea {
-    background-color: var(--surface);
-    color: var(--foreground);
-    border-color: var(--border);
-  }
+  
 
   html {
     scroll-behavior: smooth;

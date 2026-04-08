@@ -41,8 +41,8 @@ export function SidebarContent() {
           className={cn(
             "cursor-pointer w-full flex flex-col items-center justify-center gap-2.5 shrink-0 h-[90px] rounded-lg border transition-all duration-200",
             selected === index
-              ? "border-black dark:border-white border-2 bg-muted/80"
-              : "border border-border hover:border-zinc-950 dark:hover:border-zinc-300 hover:bg-muted/40"
+              ? "border-black  border-2 bg-muted/80"
+              : "border border-border hover:border-zinc-950 :border-zinc-300 hover:bg-muted/40"
           )}
         >
           <div

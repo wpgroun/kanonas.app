@@ -7,7 +7,7 @@ export function SearchNoResults() {
       <div className="flex justify-center">
         <img
           src={toAbsoluteUrl('/media/illustrations/33.svg')}
-          className="dark:hidden max-h-[113px]"
+          className=" max-h-[113px]"
           alt="image"
         />
         <img

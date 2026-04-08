@@ -65,7 +65,7 @@ function DateSegment({ className, ...props }: DateSegmentProps) {
 const dateInputStyles = `
   relative inline-flex items-center overflow-hidden whitespace-nowrap
   data-focus-within:ring-ring/30 data-focus-within:border-ring data-focus-within:outline-none data-focus-within:ring-[3px] 
-  data-focus-within:has-aria-invalid:ring-destructive/20 dark:data-focus-within:has-aria-invalid:ring-destructive/40 data-focus-within:has-aria-invalid:border-destructive
+  data-focus-within:has-aria-invalid:ring-destructive/20 :has-aria-invalid:ring-destructive/40 data-focus-within:has-aria-invalid:border-destructive
 `;
 
 interface DateInputProps extends DateInputPropsRa, VariantProps<typeof inputVariants> {

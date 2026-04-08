@@ -33,12 +33,12 @@ export function SidebarHeader() {
         <Link href="/layout-6">
           <img
             src={toAbsoluteUrl('/media/app/mini-logo-circle.svg')}
-            className="dark:hidden h-[42px]"
+            className=" h-[42px]"
             alt=""
           />
           <img
             src={toAbsoluteUrl('/media/app/mini-logo-circle-dark.svg')}
-            className="hidden dark:inline-block h-[42px]"
+            className="hidden  h-[42px]"
             alt=""
           />
         </Link>

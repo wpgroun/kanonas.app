@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export function Layout33({ children }: { children: React.ReactNode }) {
   return (
     <LayoutProvider
-      bodyClassName="bg-muted/30 dark:bg-zinc-900"
+      bodyClassName="bg-muted/30 "
       style={{
         '--sidebar-width': '310px',
         '--sidebar-header-height': '60px',

@@ -74,8 +74,8 @@ export function SidebarLabels() {
         label: 'text-xs font-normal text-muted-foreground',
         item: cn(
           'h-8 px-2 text-2sm font-normal text-foreground mx-2', 
-          'hover:text-primary hover:bg-background dark:hover:bg-zinc-900 in-data-[sidebar-collapsed=true]:w-8',
-          'data-[selected=true]:bg-background dark:data-[selected=true]:bg-zinc-900 data-[selected=true]:text-primary [&[data-selected=true]_svg]:opacity-100',
+          'hover:text-primary hover:bg-background :bg-zinc-900 in-data-[sidebar-collapsed=true]:w-8',
+          'data-[selected=true]:bg-background =true]:bg-zinc-900 data-[selected=true]:text-primary [&[data-selected=true]_svg]:opacity-100',
         ),
         group: '',
       }}
@@ -85,7 +85,7 @@ export function SidebarLabels() {
           <AccordionMenuGroup key={index}>
             <AccordionMenuLabel className="flex items-center justify-between">
               <span className="in-data-[sidebar-collapsed=true]:hidden">{item.title}</span>
-              <Button className="in-data-[sidebar-collapsed=true]:mx-auto hover:text-primary hover:bg-background dark:hover:bg-zinc-900 size-8 rounded-lg" size="sm" variant="ghost" mode="icon" onClick={() => setIsCreateOpen(true)}>
+              <Button className="in-data-[sidebar-collapsed=true]:mx-auto hover:text-primary hover:bg-background :bg-zinc-900 size-8 rounded-lg" size="sm" variant="ghost" mode="icon" onClick={() => setIsCreateOpen(true)}>
                 <Plus />
               </Button>
             </AccordionMenuLabel>

@@ -27,7 +27,7 @@ export function WelcomeMessageDialog({
           <div className="mb-10">
             <img
               src={toAbsoluteUrl('/media/illustrations/21.svg')}
-              className="dark:hidden max-h-[140px]"
+              className=" max-h-[140px]"
               alt="image"
             />
             <img

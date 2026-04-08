@@ -25,8 +25,8 @@ export function NewTask({ isCollapsed }: { isCollapsed: boolean }) {
             <DialogTrigger asChild>
               <Button
                 className={cn(
-                  'mx-auto w-full bg-linear-to-r from-primary to-blue-600 hover:opacity-90 dark:hover:opacity-85 text-white shadow-lg text-sm transition-opacity',
-                  'dark:from-blue-950 dark:to-blue-800',
+                  'mx-auto w-full bg-linear-to-r from-primary to-blue-600 hover:opacity-90 :opacity-85 text-white shadow-lg text-sm transition-opacity',
+                  ' ',
                 )}
                 size="icon"
               >
@@ -40,8 +40,8 @@ export function NewTask({ isCollapsed }: { isCollapsed: boolean }) {
         <DialogTrigger asChild>
           <Button
             className={cn(
-              'mx-auto w-full bg-linear-to-r from-primary to-blue-600 hover:opacity-90 dark:hover:opacity-85 text-white shadow-lg text-sm transition-opacity',
-              'dark:from-blue-950 dark:to-blue-800',
+              'mx-auto w-full bg-linear-to-r from-primary to-blue-600 hover:opacity-90 :opacity-85 text-white shadow-lg text-sm transition-opacity',
+              ' ',
             )} 
             size="md"
           >

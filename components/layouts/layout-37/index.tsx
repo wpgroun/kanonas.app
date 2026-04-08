@@ -17,7 +17,7 @@ export function Layout37({ children }: { children: React.ReactNode }) {
   return (
     <LayoutProvider
       sidebarCollapsed={false}
-      bodyClassName="bg-zinc-100 dark:bg-zinc-900 lg:overflow-hidden"
+      bodyClassName="bg-zinc-100  lg:overflow-hidden"
       style={{
         '--sidebar-width': '240px',
         '--sidebar-width-collapse': '60px',

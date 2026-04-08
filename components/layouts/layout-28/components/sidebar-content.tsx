@@ -65,7 +65,7 @@ export function SidebarContent() {
 					onClick={() => setSelected(index)}
 					className={cn(
 						'cursor-pointer w-full flex flex-col items-center justify-center gap-2.5 shrink-0 h-[90px] rounded-lg', 
-						selected === index ? "border-black dark:border-white border-2 bg-muted/80" : "border border-border"
+						selected === index ? "border-black  border-2 bg-muted/80" : "border border-border"
 					)}					
 				>
 					<div className="size-[36px] flex items-center justify-center p-2 rounded-md border-2 border-background bg-muted/80 shadow-[0_1px_3px_0_rgba(0,0,0,0.14)]">
