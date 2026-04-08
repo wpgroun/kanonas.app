@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -215,6 +215,16 @@ function DonorForm({ onDone }: { onDone: () => void }) {
   const [dob, setDob] = useState('');
   const [gender, setGender] = useState('');
 
+  // Reset fields on modal open
+  useEffect(() => {
+    setLastName('');
+    setFirstName('');
+    setPhone('');
+    setBloodType('');
+    setDob('');
+    setGender('');
+  }, []);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault(); 
     setLoading(true);
@@ -242,24 +252,24 @@ function DonorForm({ onDone }: { onDone: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Επώνυμο *</Label><Input value={lastName} onChange={e => setLastName(e.target.value)} required/></div>
-        <div><Label>Όνομα *</Label><Input value={firstName} onChange={e => setFirstName(e.target.value)} required/></div>
+        <div><Label>Επώνυμο *</Label><Input value={lastName} onChange={e => setLastName(e.target.value)} className="bg-white dark:bg-zinc-900 border-2 border-border" required/></div>
+        <div><Label>Όνομα *</Label><Input value={firstName} onChange={e => setFirstName(e.target.value)} className="bg-white dark:bg-zinc-900 border-2 border-border" required/></div>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Τηλέφωνο</Label><Input type="tel" value={phone} onChange={e => setPhone(e.target.value)}/></div>
+        <div><Label>Τηλέφωνο</Label><Input type="tel" value={phone} onChange={e => setPhone(e.target.value)} className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
         <div>
           <Label>Ομάδα Αίματος *</Label>
-          <select value={bloodType} onChange={e => setBloodType(e.target.value)} className="w-full p-2 border rounded-md text-sm" required>
+          <select value={bloodType} onChange={e => setBloodType(e.target.value)} className="w-full p-2 border-2 border-border rounded-md text-sm bg-white dark:bg-zinc-900" required>
             <option value="">— Επιλογή —</option>
             {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(g => <option key={g} value={g}>{g}</option>)}
           </select>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Ημ/νία Γέννησης</Label><Input type="date" value={dob} onChange={e => setDob(e.target.value)}/></div>
+        <div><Label>Ημ/νία Γέννησης</Label><Input type="date" value={dob} onChange={e => setDob(e.target.value)} className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
         <div>
           <Label>Φύλο</Label>
-          <select value={gender} onChange={e => setGender(e.target.value)} className="w-full p-2 border rounded-md text-sm">
+          <select value={gender} onChange={e => setGender(e.target.value)} className="w-full p-2 border-2 border-border rounded-md text-sm bg-white dark:bg-zinc-900">
             <option value="">— Επιλογή —</option><option value="M">Άνδρας</option><option value="F">Γυναίκα</option>
           </select>
         </div>
@@ -294,10 +304,10 @@ function LogDonationDialog({ donor, onDone }: { donor: any, onDone: () => void }
              <p className="text-xs text-red-600">Η καταγραφή θα θέσει το δότη σε περίοδο αναμονής 56 ημερών πριν την επόμενη δωρεά.</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div><Label>Ημερομηνία *</Label><Input type="date" name="date" required defaultValue={new Date().toISOString().split('T')[0]}/></div>
-            <div><Label>Νοσοκομείο / Κέντρο</Label><Input name="hospital"/></div>
+            <div><Label>Ημερομηνία *</Label><Input type="date" name="date" required defaultValue={new Date().toISOString().split('T')[0]} className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
+            <div><Label>Νοσοκομείο / Κέντρο</Label><Input name="hospital" className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
           </div>
-          <div><Label>Αιμοσφαιρίνη (Hgb g/dL - προαιρετικό)</Label><Input type="number" step="0.1" name="hemo"/></div>
+          <div><Label>Αιμοσφαιρίνη (Hgb g/dL - προαιρετικό)</Label><Input type="number" step="0.1" name="hemo" className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
           <Button type="submit" disabled={loading} className="w-full bg-red-600 hover:bg-red-700 text-white">Καταχώρηση Ευχαριστήριου</Button>
         </form>
       </DialogContent>
@@ -323,14 +333,14 @@ function DrivesView({ drives }: { drives: any[] }) {
                await createBloodDrive({ name: fd.get('name') as string, date: fd.get('date') as string, location: fd.get('location') as string || undefined, hospitalName: fd.get('hospital') as string || undefined, target: Number(fd.get('target')) || undefined });
                setShowForm(false); router.refresh();
              }} className="space-y-4">
-               <div><Label>Τίτλος *</Label><Input name="name" required placeholder="π.χ. Εαρινή Αιμοδοσία Αγ. Δημητρίου"/></div>
+               <div><Label>Τίτλος *</Label><Input name="name" required placeholder="π.χ. Εαρινή Αιμοδοσία Αγ. Δημητρίου" className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
                <div className="grid grid-cols-2 gap-3">
-                 <div><Label>Ημερομηνία *</Label><Input type="date" name="date" required/></div>
-                 <div><Label>Τοποθεσία</Label><Input name="location" placeholder="Αίθουσα Ι. Ναού"/></div>
+                 <div><Label>Ημερομηνία *</Label><Input type="date" name="date" required className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
+                 <div><Label>Τοποθεσία</Label><Input name="location" placeholder="Αίθουσα Ι. Ναού" className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
                </div>
                <div className="grid grid-cols-2 gap-3">
-                 <div><Label>Συνεργαζόμενο Νοσοκομείο</Label><Input name="hospital" placeholder="π.χ. Γενικό Κρατικό"/></div>
-                 <div><Label>Στόχος (Φιάλες)</Label><Input type="number" name="target" placeholder="π.χ. 50"/></div>
+                 <div><Label>Συνεργαζόμενο Νοσοκομείο</Label><Input name="hospital" placeholder="π.χ. Γενικό Κρατικό" className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
+                 <div><Label>Στόχος (Φιάλες)</Label><Input type="number" name="target" placeholder="π.χ. 50" className="bg-white dark:bg-zinc-900 border-2 border-border"/></div>
                </div>
                <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white">Δημιουργία</Button>
              </form>
