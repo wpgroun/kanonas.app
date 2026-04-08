@@ -8,7 +8,7 @@ import { CalendarIcon, UserIcon, UsersIcon, SearchIcon, CheckCircleIcon } from '
 // Usually we use Server Actions to save this:
 // import { assignPriestToToken } from '@/app/actions';
 
-export default function AssignmentsClient({ initialTokens, staffMembers }: { initialTokens: any[], staffMembers: any[] }) {
+export default function AssignmentsClient({ initialTokens, staffMembers, templeId }: { initialTokens: any[], staffMembers: any[], templeId: string }) {
  const [tokens, setTokens] = useState(initialTokens);
  const [searchTerm, setSearchTerm] = useState('');
 
@@ -37,7 +37,7 @@ export default function AssignmentsClient({ initialTokens, staffMembers }: { ini
  
  <div className="flex flex-col md:flex-row gap-3 md:items-center w-full md:w-auto">
  <a 
- href={`/api/calendar/sync?templeId=cm0testtempleid0000000001`} 
+ href={`/api/calendar/sync?templeId=${templeId}`} 
  target="_blank"
  rel="noreferrer"
  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"

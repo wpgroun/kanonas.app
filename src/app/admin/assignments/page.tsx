@@ -1,8 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import AssignmentsClient from './AssignmentsClient';
+import { getSession } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export default async function AssignmentsPage() {
- const templeId ="cm0testtempleid0000000001"; // Default dev templeId
+ const session = await getSession();
+ if (!session || !session.templeId) redirect('/login');
+ const templeId = session.templeId;
 
  // 1. Fetch Tokens for the calendar
  const tokens = await prisma.token.findMany({
@@ -30,6 +34,7 @@ export default async function AssignmentsPage() {
  <AssignmentsClient 
  initialTokens={tokens} 
  staffMembers={staff} 
+ templeId={templeId}
  />
  </div>
 );

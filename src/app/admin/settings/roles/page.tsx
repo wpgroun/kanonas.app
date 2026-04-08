@@ -1,8 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import RolesClient from './RolesClient';
+import { getSession } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export default async function RolesPage() {
- const templeId ="cm0testtempleid0000000001";
+ const session = await getSession();
+ if (!session || !session.templeId) redirect('/login');
+ const templeId = session.templeId;
  
  // Fetch existing roles
  const roles = await prisma.role.findMany({

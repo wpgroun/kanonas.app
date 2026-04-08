@@ -1,12 +1,16 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { getSession } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 
 export default async function UsersPage() {
- const TEMP_TEMPLE ="cm0testtempleid0000000001";
+ const session = await getSession();
+ if (!session || !session.templeId) redirect('/login');
+ const templeId = session.templeId;
  
  // @ts-ignore
  const users = await prisma.userTemple.findMany({
- where: { templeId: TEMP_TEMPLE },
+ where: { templeId },
  include: {
  user: true,
  role: true
@@ -15,7 +19,7 @@ export default async function UsersPage() {
 
  // @ts-ignore
  const roles = await prisma.role.findMany({
- where: { templeId: TEMP_TEMPLE }
+ where: { templeId }
  });
 
  return (
