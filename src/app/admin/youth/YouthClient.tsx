@@ -169,7 +169,7 @@ export default function YouthClient({ initialPrograms, initialParticipants }: an
  {child.enrollments.length === 0 && <span className="text-xs text-[var(--text-muted)] italic">Καμία εγγραφή</span>}
  </div>
  <div className="mt-2">
- <select className="text-xs w-full p-1 border rounded-md bg-transparent"onChange={async (e) => {
+ <select className="text-xs w-full p-1 border rounded-md bg-[var(--surface)]"onChange={async (e) => {
  if(e.target.value) {
  await enrollParticipant(e.target.value, child.id);
  router.refresh();

@@ -206,7 +206,7 @@ function CampersView({ camp, search, setSearch }: { camp: any; search: string; s
       <div className="flex justify-between items-center flex-wrap gap-3">
         <div className="flex items-center bg-muted/40 border border-border rounded-xl px-3 py-2 gap-2 flex-1 max-w-md">
           <Search className="w-4 h-4 text-muted-foreground"/>
-          <input className="bg-transparent outline-none flex-1 text-sm" placeholder="Αναζήτηση κατασκηνωτή..."
+          <input className="bg-[var(--surface)] outline-none flex-1 text-sm" placeholder="Αναζήτηση κατασκηνωτή..."
             value={search} onChange={e => setSearch(e.target.value)}/>
         </div>
         <Dialog open={showRegForm} onOpenChange={setShowRegForm}>
@@ -311,7 +311,7 @@ function RegistrationForm({ campId, groups, price, onDone }: { campId: string; g
         <div className="grid grid-cols-2 gap-3">
           <div><Label>Ημ/νία Γέννησης</Label><Input name="childBirthDate" type="date"/></div>
           <div><Label>Φύλο</Label>
-            <select name="gender" className="w-full p-2 border rounded-md bg-transparent text-sm">
+            <select name="gender" className="w-full p-2 border rounded-md bg-[var(--surface)] text-sm">
               <option value="">—</option><option value="M">Αγόρι</option><option value="F">Κορίτσι</option>
             </select>
           </div>
@@ -333,25 +333,25 @@ function RegistrationForm({ campId, groups, price, onDone }: { campId: string; g
         <p className="text-xs font-bold uppercase text-rose-600 flex items-center gap-1"><HeartPulse className="w-3.5 h-3.5"/>Ιατρικά</p>
         <Input name="allergies" placeholder="Αλλεργίες"/>
         <Input name="medications" placeholder="Φαρμακευτική αγωγή"/>
-        <textarea name="medicalNotes" placeholder="Σημειώσεις (Προαιρετικό)" rows={2} className="w-full p-2 border rounded-md bg-transparent text-sm resize-none"/>
+        <textarea name="medicalNotes" placeholder="Σημειώσεις (Προαιρετικό)" rows={2} className="w-full p-2 border rounded-md bg-[var(--surface)] text-sm resize-none"/>
       </div>
 
       {/* T-shirt + Group */}
       <div className="grid grid-cols-3 gap-3">
         <div><Label><Shirt className="w-3 h-3 inline mr-1"/>Χρώμα μπλούζας</Label>
-          <select name="tshirtColor" className="w-full p-2 border rounded-md bg-transparent text-sm">
+          <select name="tshirtColor" className="w-full p-2 border rounded-md bg-[var(--surface)] text-sm">
             <option value="">—</option><option value="WHITE">Λευκό</option><option value="BLUE">Μπλε</option>
             <option value="RED">Κόκκινο</option><option value="GREEN">Πράσινο</option><option value="YELLOW">Κίτρινο</option>
           </select>
         </div>
         <div><Label>Νούμερο</Label>
-          <select name="tshirtSize" className="w-full p-2 border rounded-md bg-transparent text-sm">
+          <select name="tshirtSize" className="w-full p-2 border rounded-md bg-[var(--surface)] text-sm">
             <option value="">—</option><option value="XS">XS</option><option value="S">S</option>
             <option value="M">M</option><option value="L">L</option><option value="XL">XL</option>
           </select>
         </div>
         <div><Label>Ομάδα</Label>
-          <select name="groupId" className="w-full p-2 border rounded-md bg-transparent text-sm">
+          <select name="groupId" className="w-full p-2 border rounded-md bg-[var(--surface)] text-sm">
             <option value="">Χωρίς ομάδα</option>
             {groups.map((g: any) => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
@@ -512,7 +512,7 @@ function StaffView({ camp }: { camp: any }) {
         <form onSubmit={handleAdd} className="flex gap-3 items-end flex-wrap">
           <div className="flex-1 min-w-[150px]"><Label>Όνομα</Label><Input name="staffName" required/></div>
           <div className="w-40"><Label>Ρόλος</Label>
-            <select name="staffRole" className="w-full p-2 border rounded-md bg-transparent text-sm" required>
+            <select name="staffRole" className="w-full p-2 border rounded-md bg-[var(--surface)] text-sm" required>
               <option value="COUNSELOR">Σύμβουλος</option><option value="LEADER">Ομαδάρχης</option>
               <option value="MEDIC">Γιατρός/Νοσηλευτής</option><option value="COOK">Μάγειρας</option>
             </select>

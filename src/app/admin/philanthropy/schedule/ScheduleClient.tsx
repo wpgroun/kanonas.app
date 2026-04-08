@@ -43,7 +43,7 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  <Card className="p-4 bg-[var(--surface)] border border-border flex flex-col md:flex-row gap-4 items-end">
  <div className="flex-1 w-full space-y-2">
  <label className="text-sm font-semibold text-[var(--text-secondary)]">Ημερομηνία</label>
- <input type="date"value={dateStr} onChange={handleDateChange} className="w-full p-2 border border-border rounded-md bg-transparent"/>
+ <input type="date"value={dateStr} onChange={handleDateChange} className="w-full p-2 border border-border rounded-md bg-[var(--surface)]"/>
  </div>
  <div className="flex-[2] w-full space-y-2">
  <label className="text-sm font-semibold text-[var(--text-secondary)]">Γεύμα Ημέρας</label>
@@ -54,7 +54,7 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  value={mealName} 
  onChange={(e)=>setMealName(e.target.value)} 
  placeholder="π.χ. Φακές με ψωμί"
- className="w-full pl-9 p-2 border border-border rounded-md bg-transparent"
+ className="w-full pl-9 p-2 border border-border rounded-md bg-[var(--surface)]"
  />
  </div>
  </div>
@@ -64,7 +64,7 @@ export default function ScheduleClient({ initialDateStr, schedule, beneficiaries
  type="number"
  value={planned} 
  onChange={(e)=>setPlanned(Number(e.target.value))} 
- className="w-full p-2 border border-border rounded-md bg-transparent"
+ className="w-full p-2 border border-border rounded-md bg-[var(--surface)]"
  />
  </div>
  <Button onClick={saveMenu} className="bg-emerald-600 hover:bg-emerald-700 w-full md:w-auto h-10 gap-2">

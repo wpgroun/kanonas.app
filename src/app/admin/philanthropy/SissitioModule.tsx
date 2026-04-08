@@ -113,7 +113,7 @@ function RecipientsView({ recipients }: { recipients: any[] }) {
       <div className="flex flex-wrap gap-4 items-center justify-between">
         <div className="flex items-center bg-muted/40 border border-border rounded-xl px-3 py-2 flex-1 max-w-sm">
           <Search className="w-4 h-4 text-muted-foreground mr-2"/>
-          <input className="bg-transparent outline-none flex-1 text-sm" placeholder="Αναζήτηση..." value={search} onChange={e => setSearch(e.target.value)} />
+          <input className="bg-[var(--surface)] outline-none flex-1 text-sm" placeholder="Αναζήτηση..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild><Button className="gap-2"><Plus className="w-4 h-4"/>Νέος Δικαιούχος</Button></DialogTrigger>

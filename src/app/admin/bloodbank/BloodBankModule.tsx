@@ -153,7 +153,7 @@ function DonorsView({ donors }: { donors: any[] }) {
         <div className="flex items-center gap-2 flex-1 max-w-lg">
           <div className="flex items-center bg-muted/40 border border-border rounded-xl px-3 py-2 flex-1">
             <Search className="w-4 h-4 text-muted-foreground mr-2"/>
-            <input className="bg-transparent outline-none flex-1 text-sm" placeholder="Αναζήτηση..." value={search} onChange={e => setSearch(e.target.value)} />
+            <input className="bg-[var(--surface)] outline-none flex-1 text-sm" placeholder="Αναζήτηση..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <select className="bg-card border rounded-xl px-3 py-2 text-sm outline-none" value={filterType} onChange={e => setFilterType(e.target.value)}>
              <option value="">Όλες οι Ομάδες</option>

@@ -63,7 +63,7 @@ export default function CalendarClient({ initialEvents }: { initialEvents: any[]
  return (
  <Card key={ev.id} className="shadow-sm border border-[var(--border)] relative transition-transform hover:-translate-y-1 hover:shadow-md" style={{ backgroundColor: `${ev.color || '#3b82f6'}15`, borderColor: `${ev.color || '#3b82f6'}30` }}>
  <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{backgroundColor: ev.color || '#3b82f6'}} />
- <CardContent className="p-5 pl-7 flex justify-between items-center bg-transparent">
+ <CardContent className="p-5 pl-7 flex justify-between items-center bg-[var(--surface)]">
  <div>
  <div className="flex items-center gap-2 mb-1">
  <span className="text-[10px] font-black tracking-widest text-white px-2 py-0.5 rounded-full"style={{backgroundColor: ev.color || '#3b82f6' }}>
@@ -126,7 +126,7 @@ export default function CalendarClient({ initialEvents }: { initialEvents: any[]
   <div className="space-y-2">
   <Label className="font-bold">Χρώμα</Label>
   <div className="flex items-center gap-2 border border-[var(--border)] rounded-xl bg-[var(--background)] px-2 h-11 focus-within:ring-2 focus-within:ring-[var(--brand)]">
-  <input type="color" value={color} onChange={e=>setColor(e.target.value)} className="w-8 h-8 rounded shrink-0 cursor-pointer outline-none border-none bg-transparent" title="Επιλογή Χρώματος" />
+  <input type="color" value={color} onChange={e=>setColor(e.target.value)} className="w-8 h-8 rounded shrink-0 cursor-pointer outline-none border-none bg-[var(--surface)]" title="Επιλογή Χρώματος" />
   <span className="text-xs text-[var(--text-muted)] font-medium uppercase font-mono">{color}</span>
   </div>
   </div>

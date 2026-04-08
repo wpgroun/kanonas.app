@@ -63,7 +63,7 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
           <input 
             type="text"
             placeholder="Αναζήτηση υλικού..."
-            className="bg-transparent outline-none border-none text-sm w-64 text-[var(--foreground)]"
+            className="bg-[var(--surface)] outline-none border-none text-sm w-64 text-[var(--foreground)]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
