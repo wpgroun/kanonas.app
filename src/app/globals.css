@@ -21,14 +21,14 @@
 
     /* ── Surfaces ── */
     --background: #F8FAFC;
-    --surface: #FFFFFF;
-    --surface-hover: #F1F5F9;
+    --surface: var(--color-white);
+    --surface-hover: var(--color-zinc-50);
     --surface-active: #E2E8F0;
 
     /* ── Text ── */
     --foreground: #0F172A;
     --text-secondary: #475569;
-    --text-muted: #94A3B8;
+    --text-muted: var(--color-zinc-500);
     --text-on-brand: #FFFFFF;
 
     /* ── Borders ── */
@@ -37,13 +37,13 @@
     --ring: rgba(124, 58, 237, 0.25);
 
     /* ── Status Colors ── */
-    --success: #10B981;
+    --success: var(--color-emerald-600);
     --success-light: #D1FAE5;
-    --warning: #F59E0B;
+    --warning: var(--color-amber-500);
     --warning-light: #FEF3C7;
-    --danger: #EF4444;
+    --danger: var(--color-red-600);
     --danger-light: #FEE2E2;
-    --info: #3B82F6;
+    --info: var(--color-blue-600);
     --info-light: #DBEAFE;
 
     /* ── Shadows (refined) ── */
@@ -72,6 +72,29 @@
     --sidebar-item-hover: var(--brand-50);
     --sidebar-item-active-bg: var(--brand-light);
     --sidebar-item-active-text: var(--brand);
+  }
+
+  .dark {
+    --surface: var(--color-zinc-900);
+    --surface-hover: var(--color-zinc-800);
+    --brand: #A78BFA;
+    --brand-dark: #7C3AED;
+    --brand-light: #2E1065;
+    --text-muted: var(--color-zinc-400);
+    --danger: var(--color-red-400);
+    --danger-light: #450A0A;
+    --success: var(--color-emerald-400);
+    --success-light: #052E16;
+    --warning: var(--color-amber-400);
+    --warning-light: #451A03;
+    --info: var(--color-blue-400);
+    --info-light: #1E3A5F;
+  }
+
+  input, select, textarea {
+    background-color: var(--surface);
+    color: var(--foreground);
+    border-color: var(--border);
   }
 
   html {
