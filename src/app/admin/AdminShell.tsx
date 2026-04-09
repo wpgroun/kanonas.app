@@ -74,7 +74,6 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  items: [
  { href: '/admin/philanthropy', icon: HeartHandshake, label: 'Φιλόπτωχο', requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Μητρώο Ωφελουμένων' },
  { href: '/admin/philanthropy/board', icon: Shield, label: 'Συμβούλιο Φιλοπτώχου', requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Συμβούλιο Φιλοπτώχου (ΕΦΤ)' },
- { href: '/admin/philanthropy/sissitio', icon: Utensils, label: 'Συσσίτιο', requiredPerm: 'canViewBeneficiaries', moduleLabel: 'Συσσίτιο' },
  { href: '/admin/youth', icon: Tent, label: 'Κατασκηνώσεις', requiredPerm: null, moduleLabel: 'Κατασκηνώσεις (Νεολαία)' },
  { href: '/admin/bloodbank', icon: HeartPulse, label: 'Τράπεζα Αίματος', requiredPerm: null, moduleLabel: 'Τράπεζα Αίματος' },
  { href: '/admin/assets', icon: Package, label: 'Περιουσιολόγιο', requiredPerm: 'canManageAssets', moduleLabel: 'Περιουσιολόγιο' },
