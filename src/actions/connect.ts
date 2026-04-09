@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/requireAuth';
 import { getCurrentTempleId } from '@/actions/core';
 import { generateFromTemplate } from './docEngine';
+import { randomUUID } from 'crypto';
+import { headers } from 'next/headers';
 
 export async function submitCitizenRequest({
  templeSlug,
@@ -221,13 +223,15 @@ export async function generateRequestDocuments(requestId: string) {
   
   const allDocs = [...citizenDocs, ...internalDocs];
   const generatedDocsJson = JSON.stringify(allDocs);
+  const signatureToken = randomUUID();
   
   await prisma.citizenRequest.update({
     where: { id: requestId },
     data: { 
        status: 'DOCS_GENERATED',
        protocolNumber,
-       generatedDocs: generatedDocsJson
+       generatedDocs: generatedDocsJson,
+       signatureToken
     }
   });
 
@@ -239,15 +243,19 @@ export async function generateRequestDocuments(requestId: string) {
       req.temple.address
     ].filter(Boolean).join(' • ');
 
-    await sendEmail({
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://kanonas.app';
+      
+      await sendEmail({
       to: req.applicantEmail,
       subject: `Τα έγγραφά σας είναι έτοιμα — ${req.temple.name}`,
       title: 'Τα Έγγραφά σας είναι Έτοιμα',
       greeting: `Αγαπητέ/ή ${req.applicantName},`,
       body: `
-        <p>Τα έγγραφά σας για <b>${req.type}</b> έχουν εκδοθεί και είναι έτοιμα.</p>
-        <p>Αριθμός Πρωτοκόλλου: <b>${protocolNumber}</b></p>
-        <p>Επικοινωνήστε με τον Ναό για την παραλαβή τους.</p>
+        <p>Τα έγγραφά σας για <b>${req.type}</b> έχουν εκδοθεί και είναι έτοιμα (Αριθμός Πρωτοκόλλου: <b>${protocolNumber}</b>).</p>
+        <p>Παρακαλούμε <a href="${baseUrl}/sign/${signatureToken}" style="font-weight:bold;color:#4f46e5;text-decoration:underline;">υπογράψτε ψηφιακά τα έγγραφά σας κάνοντας κλικ εδώ.</a></p>
+        <p>Εναλλακτικά, επισκεφθείτε την παρακάτω διεύθυνση στο πρόγραμμα περιήγησής σας:<br/>
+        <a href="${baseUrl}/sign/${signatureToken}">${baseUrl}/sign/${signatureToken}</a></p>
+        <p>Μετά την υπογραφή, μπορείτε να επικοινωνήσετε με τον Ναό για την παραλαβή του πρωτοτύπου.</p>
         <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8e8ee; font-size: 12px; color: #6b7280;">
           ${contactInfo}
         </div>
@@ -280,4 +288,27 @@ export async function getRequestDocuments(requestId: string) {
   } catch (e) {
     return { success: false, error: 'Σφάλμα ανάγνωσης εγγράφων' };
   }
+}
+
+export async function signDocuments(token: string) {
+  const req = await prisma.citizenRequest.findUnique({
+    where: { signatureToken: token }
+  });
+  
+  if (!req) return { success: false, error: 'invalid_token' };
+  if (req.signedAt) return { success: false, error: 'already_signed' };
+  
+  const headersList = await headers();
+  const ip = headersList.get('x-forwarded-for') || headersList.get('remote-addr') || 'unknown';
+  
+  await prisma.citizenRequest.update({
+    where: { id: req.id },
+    data: {
+      signedAt: new Date(),
+      signatureIp: ip,
+      status: 'COMPLETED'
+    }
+  });
+
+  return { success: true, applicantName: req.applicantName, protocol: req.protocolNumber };
 }

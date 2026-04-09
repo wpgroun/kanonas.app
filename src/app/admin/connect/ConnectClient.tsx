@@ -18,6 +18,7 @@ type RequestData = {
  assignedPriestId?: string | null;
  protocolNumber?: string | null;
  generatedDocs?: string | null;
+ signedAt?: string | Date | null;
 };
 
 export default function ConnectClient({ initialRequests, appUrl, slug, priests }: { initialRequests: RequestData[], appUrl: string, slug: string, priests: {id:string, name:string}[] }) {
@@ -241,9 +242,20 @@ export default function ConnectClient({ initialRequests, appUrl, slug, priests }
  {selectedReq.applicantPhone && <span>📞 {selectedReq.applicantPhone}</span>}
  </div>
  </div>
- <span className={`px-3 py-1 text-xs font-bold rounded-lg ${statusColors[selectedReq.status] || 'bg-slate-100 text-slate-700'}`}>
- {statusLabels[selectedReq.status] || selectedReq.status}
- </span>
+ <div className="flex flex-col gap-2 items-end">
+   <span className={`px-3 py-1 text-xs font-bold rounded-lg ${statusColors[selectedReq.status] || 'bg-slate-100 text-slate-700'}`}>
+   {statusLabels[selectedReq.status] || selectedReq.status}
+   </span>
+   {selectedReq.signedAt ? (
+     <span className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-100 text-emerald-800 flex items-center gap-1">
+       ✓ Υπεγράφη {new Date(selectedReq.signedAt).toLocaleDateString('el-GR')}
+     </span>
+   ) : selectedReq.status === 'DOCS_GENERATED' ? (
+     <span className="px-3 py-1 text-xs font-bold rounded-lg bg-amber-100 text-amber-800">
+       Αναμονή Υπογραφής
+     </span>
+   ) : null}
+ </div>
  </div>
 
  <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 mb-8">
