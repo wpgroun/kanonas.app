@@ -140,3 +140,71 @@ export async function batchImportParishioners(
  revalidatePath('/admin/parishioners')
  return { created, skipped, errors }
 }
+
+export async function importParishioners(rows: any[]) {
+  const session = await requireAuth();
+  const templeId = await getCurrentTempleId();
+
+  let imported = 0;
+  let skipped = 0;
+  const errors: any[] = [];
+  
+  // We fetch existing parishioners to check duplicates by firstName + lastName + phone
+  const existing = await prisma.parishioner.findMany({
+    where: { templeId },
+    select: { firstName: true, lastName: true, phone: true }
+  });
+  
+  const existingSet = new Set(
+    existing.map(p => `${p.firstName?.trim().toLowerCase()}|${p.lastName?.trim().toLowerCase()}|${p.phone?.trim() || ''}`)
+  );
+
+  const toCreate = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row.firstName || !row.lastName) {
+      errors.push(`Γραμμή ${i + 1}: Λείπει το όνομα ή το επώνυμο.`);
+      skipped++;
+      continue;
+    }
+
+    const key = `${row.firstName.trim().toLowerCase()}|${row.lastName.trim().toLowerCase()}|${row.phone?.trim() || ''}`;
+    if (existingSet.has(key)) {
+      skipped++;
+      continue;
+    }
+
+    // Add to set to prevent duplicates within the import itself
+    existingSet.add(key);
+
+    toCreate.push({
+      templeId,
+      firstName: row.firstName.trim(),
+      lastName: row.lastName.trim(),
+      fathersName: row.fathersName || null,
+      email: row.email || null,
+      phone: row.phone || null,
+      address: row.address || null,
+      city: row.city || null,
+      afm: row.afm || null,
+      birthDate: row.birthDate ? new Date(row.birthDate) : null,
+      status: 'active'
+    });
+  }
+
+  if (toCreate.length > 0) {
+     try {
+       const res = await prisma.parishioner.createMany({
+         data: toCreate,
+         skipDuplicates: true
+       });
+       imported = res.count;
+     } catch(e: any) {
+       return { success: false, imported: 0, skipped: rows.length, errors: [e.message] };
+     }
+  }
+
+  revalidatePath('/admin/parishioners');
+  return { success: true, imported, skipped, errors };
+}
