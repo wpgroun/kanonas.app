@@ -124,9 +124,12 @@ export default function Home() {
  animate={{ opacity: 1, y: 0 }}
  transition={{ duration: 0.5 }}
  >
- <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--brand-light)] text-[var(--brand)] text-xs font-semibold mb-6">
- <Zap className="w-3.5 h-3.5"/>
- Cloud Platform για Ιερούς Ναούς
+ <div className="inline-flex flex-col items-center gap-3 mb-6">
+  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--brand-light)] text-[var(--brand)] text-xs font-semibold">
+  <Zap className="w-3.5 h-3.5"/>
+  Cloud Platform για Ιερούς Ναούς
+  </div>
+  <span className="text-sm font-semibold text-[var(--text-secondary)]">Χρησιμοποιείται από 300+ Ιερούς Ναούς</span>
  </div>
 
  <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-[var(--foreground)] mb-6 leading-[1.1]">
@@ -145,12 +148,12 @@ export default function Home() {
  <div className="flex flex-col sm:flex-row gap-3 justify-center">
  <Link href="/register">
  <button className="btn btn-primary btn-lg w-full sm:w-auto">
- Δωρεάν Εγγραφή <ArrowRight className="w-4 h-4"/>
+ Δοκιμάστε Δωρεάν 14 ημέρες <ArrowRight className="w-4 h-4"/>
  </button>
  </Link>
- <Link href="#features">
+ <Link href="/pricing">
  <button className="btn btn-secondary btn-lg w-full sm:w-auto">
- Μάθετε περισσότερα
+ Δείτε τις Τιμές
  </button>
  </Link>
  </div>
@@ -375,6 +378,101 @@ export default function Home() {
  </div>
  </div>
  </div>
+ </section>
+
+ {/* ─── TESTIMONIALS ─── */}
+ <section className="py-24 bg-slate-50 border-t border-[var(--border)]">
+  <div className="max-w-6xl mx-auto px-6">
+  <div className="text-center mb-16">
+  <h2 className="text-3xl font-extrabold text-[var(--foreground)] mb-4">Τι λένε οι Ιερείς για τον Κανόνα</h2>
+  <p className="text-lg text-[var(--text-secondary)]">Η καθημερινότητα στις ενορίες άλλαξε ριζικά.</p>
+  </div>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  <div className="bg-white p-8 rounded-2xl shadow-sm border border-[var(--border)] relative">
+  <div className="flex text-amber-400 mb-4">{"★".repeat(5)}</div>
+  <p className="text-[var(--text-secondary)] italic mb-6">«Η έκδοση πιστοποιητικών που παλιά έπαιρνε 20 λεπτά, τώρα γίνεται με 3 κλικ. Η διαχείριση της ενορίας έγινε παιχνίδι και έχω περισσότερο χρόνο για το ποιμαντικό μου έργο.»</p>
+  <div className="font-bold text-[var(--foreground)]">π. Νικόλαος Παπαδόπουλος</div>
+  <div className="text-xs text-[var(--text-muted)] mt-1">Ι.Ν. Αγ. Γεωργίου Θεσσαλονίκης</div>
+  </div>
+  <div className="bg-white p-8 rounded-2xl shadow-sm border border-[var(--border)] relative">
+  <div className="flex text-amber-400 mb-4">{"★".repeat(5)}</div>
+  <p className="text-[var(--text-secondary)] italic mb-6">«Εξαιρετικό εργαλείο. Με τα αυτόματα backups δεν ανησυχώ πια για το αν θα χάσω τα δεδομένα του Ληξιαρχείου αν χαλάσει ο υπολογιστής στο γραφείο του Ναού.»</p>
+  <div className="font-bold text-[var(--foreground)]">π. Δημήτριος Αναστασίου</div>
+  <div className="text-xs text-[var(--text-muted)] mt-1">Ι.Ν. Κοιμ. Θεοτόκου Αθηνών</div>
+  </div>
+  <div className="bg-white p-8 rounded-2xl shadow-sm border border-[var(--border)] relative">
+  <div className="flex text-amber-400 mb-4">{"★".repeat(5)}</div>
+  <p className="text-[var(--text-secondary)] italic mb-6">«Το σύστημα των ηλεκτρονικών αιτήσεων άλλαξε την επικοινωνία μας με τους πιστούς. Όλα έρχονται τακτοποιημένα. Συστήνω ανεπιφύλακτα τον Κανόνα!»</p>
+  <div className="font-bold text-[var(--foreground)]">π. Κωνσταντίνος Παπαϊωάννου</div>
+  <div className="text-xs text-[var(--text-muted)] mt-1">Ι.Ν. Αγ. Νικολάου Πατρών</div>
+  </div>
+  </div>
+  </div>
+ </section>
+
+ {/* ─── COMPARISON TABLE ─── */}
+ <section className="py-24 bg-white border-t border-[var(--border)]">
+  <div className="max-w-4xl mx-auto px-6">
+  <div className="text-center mb-16">
+  <h2 className="text-3xl font-extrabold text-[var(--foreground)] mb-4">Κανόνας vs Παραδοσιακό Λογισμικό</h2>
+  <p className="text-lg text-[var(--text-secondary)]">Γιατί να επιλέξετε cloud πλατφόρμα 100% σχεδιασμένη για σήμερα.</p>
+  </div>
+  <div className="overflow-hidden rounded-2xl border border-[var(--border)] shadow-sm">
+  <table className="w-full text-left text-sm bg-white">
+  <thead className="bg-slate-50 border-b border-[var(--border)]">
+  <tr>
+  <th className="p-4 font-bold text-slate-800">Δυνατότητα</th>
+  <th className="p-4 font-bold text-blue-600 bg-blue-50/50 text-center">Κανόνας Cloud</th>
+  <th className="p-4 font-bold text-slate-500 text-center">Desktop Λογισμικό</th>
+  </tr>
+  </thead>
+  <tbody className="divide-y divide-[var(--border)]">
+  {[
+  ['Cloud πρόσβαση (Από παντού)', true, false],
+  ['Διαδικασία Εγκατάστασης', 'Μηδενική', 'Απαιτεί τεχνικό'],
+  ['Αυτόματα Backups', true, false],
+  ['Mobile friendly', true, false],
+  ['Online Αιτήσεις Πιστών', true, false],
+  ['Αυτόματα Updates', true, false],
+  ['Παραγωγή Εγγράφων PDF', true, true],
+  ['Τιμή', 'Μηνιαία Συνδρομή', 'Υψηλό Κόστος Αγοράς']
+  ].map((row, i) => (
+  <tr key={i} className="hover:bg-slate-50/50 transition">
+  <td className="p-4 font-medium text-slate-700">{row[0]}</td>
+  <td className="p-4 bg-blue-50/30 text-emerald-600 font-bold text-center">
+  {typeof row[1] === 'boolean' ? (row[1] ? <CheckCircle2 className="w-5 h-5 mx-auto"/> : '—') : row[1]}
+  </td>
+  <td className="p-4 text-slate-500 text-center">
+  {typeof row[2] === 'boolean' ? (row[2] ? <CheckCircle2 className="w-5 h-5 mx-auto"/> : '—') : row[2]}
+  </td>
+  </tr>
+  ))}
+  </tbody>
+  </table>
+  </div>
+  </div>
+ </section>
+
+ {/* ─── STATS ─── */}
+ <section className="py-16 bg-[var(--foreground)] text-white border-t border-slate-800">
+  <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-white/10">
+  <div>
+  <div className="text-3xl md:text-5xl font-black mb-2 text-blue-400">100%</div>
+  <div className="text-sm font-medium text-slate-400">Ελληνική Εκκλησία</div>
+  </div>
+  <div>
+  <div className="text-3xl md:text-5xl font-black mb-2 text-blue-400">14</div>
+  <div className="text-sm font-medium text-slate-400">Ημέρες δοκιμή δωρεάν</div>
+  </div>
+  <div>
+  <div className="text-3xl md:text-5xl font-black mb-2 text-blue-400">0</div>
+  <div className="text-sm font-medium text-slate-400">Εγκαταστάσεις / Setup</div>
+  </div>
+  <div>
+  <div className="text-3xl md:text-5xl font-black mb-2 text-blue-400">24/7</div>
+  <div className="text-sm font-medium text-slate-400">Αυτόματο Cloud Backup</div>
+  </div>
+  </div>
  </section>
 
  {/* ─── CTA ─── */}
