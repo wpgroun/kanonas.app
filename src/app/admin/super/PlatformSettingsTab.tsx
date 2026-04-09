@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Save, Eye, EyeOff, Server, CreditCard, Mail, MessageSquare } from 'lucide-react'
-import { getPlatformSettings, savePlatformSettings } from '@/actions/superadmin'
+import { Save, Eye, EyeOff, Server, CreditCard, Mail, MessageSquare, Search, Send, Smartphone } from 'lucide-react'
+import { getPlatformSettings, savePlatformSettings, testVivaConnection, testSmtpConnection, testSmsConnection } from '@/actions/superadmin'
 import { toast } from 'sonner'
 
 export function PlatformSettingsTab() {
@@ -19,6 +19,11 @@ export function PlatformSettingsTab() {
   const [showVivaWebhook, setShowVivaWebhook] = useState(false)
   const [showSmtpPass, setShowSmtpPass] = useState(false)
   const [showYubotoKey, setShowYubotoKey] = useState(false)
+
+  const [testingViva, setTestingViva] = useState(false)
+  const [testingSmtp, setTestingSmtp] = useState(false)
+  const [testingSms, setTestingSms] = useState(false)
+  const [testPhone, setTestPhone] = useState('')
 
   useEffect(() => {
     getPlatformSettings().then((res: any) => {
@@ -86,7 +91,20 @@ export function PlatformSettingsTab() {
              <label htmlFor="vivaDemo" className="text-sm font-bold text-[var(--foreground)]">Ενεργό Demo Mode (demo.vivapayments.com)</label>
           </div>
         </div>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-end gap-3 items-center">
+          <button 
+            onClick={async () => {
+              setTestingViva(true);
+              const res = await testVivaConnection();
+              if (res.success) toast.success(res.message, { duration: 5000 });
+              else toast.error(res.message, { duration: 5000 });
+              setTestingViva(false);
+            }} 
+            disabled={testingViva || saving} 
+            className="btn btn-outline gap-2"
+          >
+            {testingViva ? <span className="animate-spin text-lg block w-4 h-4 rounded-full border-2 border-indigo-500 border-t-transparent"/> : "🔍"} Δοκιμή Σύνδεσης
+          </button>
           <button onClick={handleSave} disabled={saving} className="btn btn-primary"><Save className="w-4 h-4 mr-2"/> Αποθήκευση Viva</button>
         </div>
       </div>
@@ -108,7 +126,8 @@ export function PlatformSettingsTab() {
             <input type="text" value={settings.bankIban || ''} onChange={e => setSettings({...settings, bankIban: e.target.value})} className="input w-full mt-1 font-mono tracking-widest" />
           </div>
         </div>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-end items-center gap-3">
+          <p className="text-sm text-[var(--success)] flex items-center mr-auto">ℹ️ Τα στοιχεία τραπεζικής μεταφοράς εμφανίζονται σωστά στους ενορίτες.</p>
           <button onClick={handleSave} disabled={saving} className="btn btn-primary"><Save className="w-4 h-4 mr-2"/> Αποθήκευση Τράπεζας</button>
         </div>
       </div>
@@ -137,7 +156,20 @@ export function PlatformSettingsTab() {
             </div>
           </div>
         </div>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-end gap-3 items-center">
+          <button 
+            onClick={async () => {
+              setTestingSmtp(true);
+              const res = await testSmtpConnection();
+              if (res.success) toast.success(res.message, { duration: 5000 });
+              else toast.error(res.message, { duration: 5000 });
+              setTestingSmtp(false);
+            }} 
+            disabled={testingSmtp || saving} 
+            className="btn btn-outline gap-2"
+          >
+            {testingSmtp ? <span className="animate-spin text-lg block w-4 h-4 rounded-full border-2 border-amber-500 border-t-transparent"/> : "📧"} Αποστολή Δοκιμαστικού
+          </button>
           <button onClick={handleSave} disabled={saving} className="btn btn-primary"><Save className="w-4 h-4 mr-2"/> Αποθήκευση Email</button>
         </div>
       </div>
@@ -164,7 +196,29 @@ export function PlatformSettingsTab() {
             }} className="input w-full mt-1 font-mono" placeholder="π.χ. Kanonas" />
           </div>
         </div>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-end gap-3 items-center">
+          <div className="flex items-center gap-2 mr-auto">
+            <input 
+              type="text" 
+              placeholder="+306912345678" 
+              value={testPhone} 
+              onChange={e => setTestPhone(e.target.value)} 
+              className="input w-36 text-sm" 
+            />
+            <button 
+              onClick={async () => {
+                setTestingSms(true);
+                const res = await testSmsConnection(testPhone);
+                if (res.success) toast.success(res.message, { duration: 5000 });
+                else toast.error(res.message, { duration: 5000 });
+                setTestingSms(false);
+              }} 
+              disabled={testingSms || saving || !testPhone} 
+              className="btn btn-outline gap-2"
+            >
+              {testingSms ? <span className="animate-spin text-lg block w-4 h-4 rounded-full border-2 border-purple-500 border-t-transparent"/> : "📱"} Αποστολή SMS
+            </button>
+          </div>
           <button onClick={handleSave} disabled={saving} className="btn btn-primary"><Save className="w-4 h-4 mr-2"/> Αποθήκευση SMS</button>
         </div>
       </div>

@@ -400,3 +400,75 @@ export async function savePlatformSettings(data: {
   revalidatePath('/admin/super')
   return { success: true }
 }
+
+// ─── Connection Tests ─────────────────────────────────────────────────────────
+
+export async function testVivaConnection() {
+  await requireSuperAdmin()
+  try {
+     const settings = await prisma.platformSettings.findUnique({ where: { id: "singleton" } });
+     if (!settings?.vivaClientId || !settings?.vivaClientSecret) {
+       return { success: false, message: "Λείπουν τα διαπιστευτήρια Viva Wallet" };
+     }
+     
+     const credentials = Buffer.from(`${settings.vivaClientId}:${settings.vivaClientSecret}`).toString('base64');
+     const baseUrl = settings.vivaDemo ? 'https://demo-accounts.vivapayments.com' : 'https://accounts.vivapayments.com';
+     
+     const res = await fetch(`${baseUrl}/connect/token`, {
+       method: 'POST',
+       headers: {
+         'Authorization': `Basic ${credentials}`,
+         'Content-Type': 'application/x-www-form-urlencoded'
+       },
+       body: 'grant_type=client_credentials'
+     });
+     
+     if (!res.ok) {
+        const errorText = await res.text();
+        return { success: false, message: `Αποτυχία: HTTP ${res.status} ${errorText}` };
+     }
+     
+     const data = await res.json();
+     if (data.access_token) {
+        return { success: true, message: "✅ Σύνδεση επιτυχής — Token λήφθηκε" };
+     }
+     return { success: false, message: "Αποτυχία: Δεν βρέθηκε token" };
+  } catch (e: any) {
+     return { success: false, message: e.message || 'Άγνωστο σφάλμα' };
+  }
+}
+
+export async function testSmtpConnection() {
+  try {
+     const session = await requireSuperAdmin()
+     const { sendEmail } = await import('@/actions/notifications')
+     // Use the super admin's email
+     const user = await prisma.user.findUnique({ where: { id: session.userId } });
+     if (!user?.email) return { success: false, message: "Δεν βρέθηκε email για τον λογαριασμό σας." };
+     
+     await sendEmail({
+       to: user.email,
+       subject: "Κανόνας — Δοκιμαστικό Email",
+       title: "Δοκιμαστικό Email",
+       greeting: "Γεια σας,",
+       body: "<p>Αν λαμβάνετε αυτό το μήνυμα, το SMTP λειτουργεί σωστά.</p>",
+       templeId: session.templeId
+     });
+     return { success: true, message: `✅ Email στάλθηκε στο ${user.email}` };
+  } catch (e: any) {
+     return { success: false, message: e.message || 'Σφάλμα κατά την αποστολή email' };
+  }
+}
+
+export async function testSmsConnection(phone: string) {
+  await requireSuperAdmin()
+  try {
+     if (!phone) return { success: false, message: "Το τηλέφωνο είναι υποχρεωτικό." };
+     const { sendSMS } = await import('@/lib/sms')
+     
+     await sendSMS([phone], "Κανόνας: Δοκιμαστικό μήνυμα. Η σύνδεση λειτουργεί σωστά.");
+     return { success: true, message: `✅ SMS στάλθηκε στο ${phone}` };
+  } catch(e: any) {
+     return { success: false, message: e.message || 'Σφάλμα κατά την αποστολή SMS' };
+  }
+}
