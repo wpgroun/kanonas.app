@@ -31,42 +31,54 @@ export async function GET(req: NextRequest) {
  lt: fourDaysFromNow,
  },
  status: { not: 'completed' },
- customerEmail: { not: null },
+ OR: [
+ { customerEmail: { not: null } },
+ { customerPhone: { not: null } }
+ ]
  },
  include: {
- temple: { select: { name: true, settings: true } },
+ temple: { select: { name: true, phoneNumber: true, settings: true } },
  },
  });
 
- const results: { id: string; status: 'sent' | 'skipped' | 'error'; reason?: string }[] = [];
+ const results: { id: string; status: 'sent' | 'skipped' | 'error'; emailSent?: boolean; smsSent?: boolean; reason?: string }[] = [];
 
  for (const token of upcomingTokens) {
- if (!token.customerEmail || !token.ceremonyDate) {
- results.push({ id: token.id, status: 'skipped', reason: 'No email or date' });
+ if (!token.ceremonyDate || (!token.customerEmail && !token.customerPhone)) {
+ results.push({ id: token.id, status: 'skipped', reason: 'No email, phone, or date' });
  continue;
  }
 
  try {
-  await sendCeremonyReminderEmail({
-    to: token.customerEmail,
-    familyName: token.customerName || 'Αγαπητή Οικογένεια',
-    serviceType: token.serviceType as 'GAMOS' | 'VAPTISI',
-    ceremonyDate: token.ceremonyDate.toLocaleDateString('el-GR'),
-    templeName: token.temple.name,
-  });
-
-  // Example SMS call passing the temple's smsSenderId
-  let templeSettings: any = {};
-  if (token.temple.settings) {
-    try {
-      templeSettings = JSON.parse(token.temple.settings);
-    } catch (e) {}
+  let emailSent = false;
+  if (token.customerEmail) {
+    await sendCeremonyReminderEmail({
+      to: token.customerEmail,
+      familyName: token.customerName || 'Αγαπητή Οικογένεια',
+      serviceType: token.serviceType as 'GAMOS' | 'VAPTISI',
+      ceremonyDate: token.ceremonyDate.toLocaleDateString('el-GR'),
+      templeName: token.temple.name,
+    });
+    emailSent = true;
   }
-  
-  // If the token or customer had a phone number, we would send it like this:
-  // await sendSMS([customerPhone], `Υπενθύμιση...`, { smsSenderId: templeSettings.smsSenderId });
 
-  results.push({ id: token.id, status: 'sent' });
+  let smsSent = false;
+  if (token.customerPhone) {
+    let templeSettings: any = {};
+    if (token.temple.settings) {
+      try {
+        templeSettings = JSON.parse(token.temple.settings);
+      } catch (e) {}
+    }
+    
+    const serviceName = token.serviceType === 'GAMOS' ? 'Γάμος' : token.serviceType === 'VAPTISI' ? 'Βάπτιση' : token.serviceType;
+    const msg = `Υπενθύμιση: ${serviceName} στον ${token.temple.name} σε 3 ημέρες (${token.ceremonyDate.toLocaleDateString('el-GR')}). Πληροφορίες: ${token.temple.phoneNumber || '-'}`;
+    
+    await sendSMS([token.customerPhone], msg, { smsSenderId: templeSettings.smsSenderId });
+    smsSent = true;
+  }
+
+  results.push({ id: token.id, status: 'sent', emailSent, smsSent });
  } catch (emailError) {
  console.error(`[Cron] Failed to send reminder for token ${token.id}:`, emailError);
  results.push({ id: token.id, status: 'error', reason: String(emailError) });

@@ -370,6 +370,7 @@ model Token {
 
   customerName  String?
   customerEmail String?
+  customerPhone String?
   ceremonyDate  DateTime?
 
   assignedPriest   String?
@@ -1100,6 +1101,10 @@ model CitizenRequest {
 
   // Το σώμα της αίτησης δυναμικά
   payload String // JSON string with names, dates, requests
+
+  signatureToken  String?  @unique
+  signedAt        DateTime?
+  signatureIp     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
