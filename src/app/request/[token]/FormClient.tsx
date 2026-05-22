@@ -268,10 +268,17 @@ export default function FormClient({ token }: { token: any }) {
  {/* VAPTISI */}
  <div className="bg-muted/30 p-5 rounded-xl border border-border">
  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Νεοφώτιστος/η</h3>
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="space-y-2"><Label>Όνομα (Ονομαστική Πτώση - πχ. \"Μαρία\", \"Γεώργιος\")</Label><Input value={childFirst} onChange={e=>setChildFirst(e.target.value)} required /></div>
- <div className="space-y-2"><Label>Επώνυμο</Label><Input value={childLast} onChange={e=>setChildLast(e.target.value)} required /></div>
- </div>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div className="space-y-2">
+    <Label>Όνομα Νεοφώτιστου/ης</Label>
+    <Input value={childFirst} onChange={e=>setChildFirst(e.target.value)} required />
+    <p className="text-xs text-muted-foreground">Ονομαστική πτώση — π.χ. &quot;Μαρία&quot;, &quot;Γεώργιος&quot;</p>
+  </div>
+  <div className="space-y-2">
+    <Label>Επώνυμο</Label>
+    <Input value={childLast} onChange={e=>setChildLast(e.target.value)} required />
+  </div>
+  </div>
  <div className="mt-4"><FileUploader templeId={token.templeId} tokenId={token.id} docType="PISTOPOIITIKO"label="Ληξιαρχική Πράξη Γέννησης Παιδιού"/></div>
  </div>
 
