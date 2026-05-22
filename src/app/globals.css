@@ -579,3 +579,19 @@
   .admin-main { padding: 0 !important; overflow: visible !important; }
   .topbar { display: none !important; }
 }
+
+/* ── Select Dropdown and Popover Fixes ── */
+.bg-popover {
+  background-color: var(--popover, #ffffff) !important;
+}
+.text-popover-foreground {
+  color: var(--popover-foreground, #0f172a) !important;
+}
+[data-slot="select-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="popover-content"] {
+  background-color: var(--popover, #ffffff) !important;
+  color: var(--popover-foreground, #0f172a) !important;
+  z-index: 9999 !important;
+}
+
