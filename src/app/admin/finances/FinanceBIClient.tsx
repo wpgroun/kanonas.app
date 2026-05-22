@@ -73,11 +73,11 @@ export default function FinanceBIClient({ currentYearData, prevYearData, byCateg
  <div className="space-y-6 animate-in fade-in duration-500">
  
  {/* Scope Toggles */}
- <div className="flex bg-slate-100 p-1.5 rounded-xl w-max">
- <button onClick={() => setTab('INCOMES')} className={`px-5 py-2.5 rounded-lg text-sm font-black tracking-wider uppercase transition-all ${tab === 'INCOMES' ? 'bg-[var(--surface)] shadow-sm text-[var(--success)]' : 'text-[var(--text-muted)] hover:text-slate-700'}`}>
+ <div className="flex bg-muted/70 p-1.5 rounded-xl w-max">
+ <button onClick={() => setTab('INCOMES')} className={`px-5 py-2.5 rounded-lg text-sm font-black tracking-wider uppercase transition-all ${tab === 'INCOMES' ? 'bg-[var(--surface)] shadow-sm text-[var(--success)]' : 'text-[var(--text-muted)] hover:text-foreground'}`}>
  <Banknote className="w-4 h-4 inline-block mr-2"/> Έσοδα
  </button>
- <button onClick={() => setTab('EXPENSES')} className={`px-5 py-2.5 rounded-lg text-sm font-black tracking-wider uppercase transition-all ${tab === 'EXPENSES' ? 'bg-[var(--surface)] shadow-sm text-[var(--danger)]' : 'text-[var(--text-muted)] hover:text-slate-700'}`}>
+ <button onClick={() => setTab('EXPENSES')} className={`px-5 py-2.5 rounded-lg text-sm font-black tracking-wider uppercase transition-all ${tab === 'EXPENSES' ? 'bg-[var(--surface)] shadow-sm text-[var(--danger)]' : 'text-[var(--text-muted)] hover:text-foreground'}`}>
  <Wallet className="w-4 h-4 inline-block mr-2"/> Έξοδα (Δαπάνες)
  </button>
  </div>
@@ -87,7 +87,7 @@ export default function FinanceBIClient({ currentYearData, prevYearData, byCateg
  <Card className="shadow-sm border-border/50">
  <CardContent className="p-5">
  <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Σύνολο {year}</p>
- <p className="text-3xl font-black text-foreground mt-1 tracking-tight">
+ <p className="text-xl sm:text-2xl font-black text-foreground mt-1 tracking-tight font-mono">
  €{currentTotal.toLocaleString('el-GR', { minimumFractionDigits: 2 })}
  </p>
  <div className={`flex items-center gap-1 mt-2 text-xs font-bold uppercase tracking-wider ${isPositiveTrend ? (isIncome?'text-[var(--success)]':'text-[var(--danger)]') : (!isPositiveTrend && diff !== 0 ? (isIncome?'text-[var(--danger)]':'text-[var(--success)]') : 'text-muted-foreground')}`}>
@@ -99,7 +99,7 @@ export default function FinanceBIClient({ currentYearData, prevYearData, byCateg
  <Card className="shadow-sm border-border/50">
  <CardContent className="p-5">
  <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Σύνολο {year - 1}</p>
- <p className="text-3xl font-black text-muted-foreground mt-1 tracking-tight">
+ <p className="text-xl sm:text-2xl font-black text-muted-foreground mt-1 tracking-tight font-mono">
  €{prevTotal.toLocaleString('el-GR', { minimumFractionDigits: 2 })}
  </p>
  </CardContent>
@@ -107,7 +107,7 @@ export default function FinanceBIClient({ currentYearData, prevYearData, byCateg
  <Card className="shadow-sm border-border/50">
  <CardContent className="p-5">
  <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Μέσος Όρος / Μήνα ({year})</p>
- <p className="text-3xl font-black text-foreground mt-1 tracking-tight">
+ <p className="text-xl sm:text-2xl font-black text-foreground mt-1 tracking-tight font-mono">
  €{currentTotal > 0 ? (currentTotal / Math.max(currentYearData.filter((m:any) => isIncome ? m.incomeTotal > 0 : m.expenseTotal > 0).length, 1)).toLocaleString('el-GR', { minimumFractionDigits: 2 }) : '0,00'}
  </p>
  </CardContent>
@@ -196,10 +196,10 @@ export default function FinanceBIClient({ currentYearData, prevYearData, byCateg
  return (
  <div key={i} className="space-y-1.5">
  <div className="flex justify-between text-sm">
- <span className="font-bold text-slate-700">{c.purpose || 'Αδιευκρίνιστο'} <span className="font-mono text-xs text-[var(--text-muted)] ml-1">({pct.toFixed(0)}%)</span></span>
- <span className="text-muted-foreground font-black">€{c.total.toLocaleString('el-GR', { minimumFractionDigits: 2 })}</span>
+ <span className="font-bold text-foreground">{c.purpose || 'Αδιευκρίνιστο'} <span className="font-mono text-xs text-[var(--text-muted)] ml-1">({pct.toFixed(0)}%)</span></span>
+ <span className="text-muted-foreground font-black font-mono">€{c.total.toLocaleString('el-GR', { minimumFractionDigits: 2 })}</span>
  </div>
- <div className="w-full bg-slate-100 rounded-full h-2">
+ <div className="w-full bg-muted rounded-full h-2">
  <div
  className="h-2 rounded-full transition-all"
  style={{ width: `${pct}%`, backgroundColor: COLORS[i % COLORS.length] }}
@@ -215,4 +215,3 @@ export default function FinanceBIClient({ currentYearData, prevYearData, byCateg
  </div>
 );
 }
-

@@ -31,27 +31,19 @@ export default async function FinancesPage() {
  />
 
  {/* DASHBOARD STATS */}
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
  
  {/* ΥΠΟΛΟΙΠΟ */}
- <Card className="shadow-2xl border-0 overflow-hidden relative group">
- <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-blue-700 to-indigo-900 group-hover:scale-105 transition-transform duration-700"></div>
- <CardContent className="p-7 relative z-10">
- <div className="flex justify-between items-start">
- <div>
- <p className="text-blue-100 font-bold tracking-wider text-xs uppercase mb-2">Τρέχον Υπόλοιπο (Ταμείο)</p>
- <h3 className="text-4xl font-black font-mono text-white tracking-tight">€ {currentBalance.toLocaleString('el-GR', {minimumFractionDigits: 2})}</h3>
- </div>
- <div className="p-4 bg-[var(--surface)]/10 backdrop-blur-md rounded-2xl shadow-inner border border-white/20">
- <Scale className="w-8 h-8 text-white"/>
- </div>
- </div>
- {/* Minimal line chart decoration */}
- <div className="mt-6 flex items-end gap-1.5 opacity-40">
- {[40, 70, 45, 90, 65, 100, 80].map((h, i) => (
- <div key={i} className="w-full bg-[var(--surface)] rounded-t-sm"style={{height: `${h/4}px`}}></div>
-))}
- </div>
+ <Card className="shadow-xl border-0 bg-[var(--surface)] overflow-hidden relative group">
+ <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--brand)]/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
+ <CardContent className="p-7 flex flex-col justify-center h-full relative z-10 border-l-4 border-[var(--brand)] rounded-l-md">
+ <div className="text-xs uppercase tracking-wider font-extrabold flex items-center justify-between text-[var(--text-muted)] mb-3">
+ <span className="flex items-center gap-1.5"><Scale className="w-4 h-4 text-[var(--brand)]"/> Τρεχον Υπολοιπο (Ταμειο)</span>
+ <div className="p-2 bg-[var(--brand-light)] rounded-xl text-[var(--brand)]"><Scale className="w-5 h-5"/></div>
+  </div>
+  <div className="text-xl sm:text-2xl lg:text-3xl font-mono font-black text-[var(--foreground)] tracking-tight">
+  € {currentBalance.toLocaleString('el-GR', {minimumFractionDigits: 2})}
+  </div>
  </CardContent>
  </Card>
  
@@ -62,10 +54,10 @@ export default async function FinancesPage() {
  <div className="text-xs uppercase tracking-wider font-extrabold flex items-center justify-between text-[var(--text-muted)] mb-3">
  <span className="flex items-center gap-1.5"><ArrowUpRight className="w-4 h-4 text-emerald-500"/> ΣΥΝΟΛΙΚΑ ΕΣΟΔΑ</span>
  <div className="p-2 bg-[var(--success-light)] rounded-xl text-emerald-500"><Banknote className="w-5 h-5"/></div>
- </div>
- <div className="text-3xl font-mono font-black text-[var(--foreground)] tracking-tight">
- € {biStats.totalIncome.toLocaleString('el-GR', {minimumFractionDigits: 2})}
- </div>
+  </div>
+  <div className="text-xl sm:text-2xl lg:text-3xl font-mono font-black text-[var(--foreground)] tracking-tight">
+  € {biStats.totalIncome.toLocaleString('el-GR', {minimumFractionDigits: 2})}
+  </div>
  </CardContent>
  </Card>
 
@@ -76,19 +68,18 @@ export default async function FinancesPage() {
  <div className="text-xs uppercase tracking-wider font-extrabold flex items-center justify-between text-[var(--text-muted)] mb-3">
  <span className="flex items-center gap-1.5"><ArrowDownRight className="w-4 h-4 text-[var(--danger)]"/> ΣΥΝΟΛΙΚΑ ΕΞΟΔΑ</span>
  <div className="p-2 bg-[var(--danger-light)] rounded-xl text-[var(--danger)]"><Wallet className="w-5 h-5"/></div>
- </div>
- <div className="text-3xl font-mono font-black text-[var(--foreground)] tracking-tight">
- € {biStats.totalExpense.toLocaleString('el-GR', {minimumFractionDigits: 2})}
- </div>
+  </div>
+  <div className="text-xl sm:text-2xl lg:text-3xl font-mono font-black text-[var(--foreground)] tracking-tight">
+  € {biStats.totalExpense.toLocaleString('el-GR', {minimumFractionDigits: 2})}
+  </div>
  </CardContent>
  </Card>
 
  </div>
 
- <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+ <div className="space-y-6">
  
  {/* RECENT TRANSACTIONS (LEDGER) */}
- <div className="col-span-1 xl:col-span-3 space-y-6">
  <QuarterlyWidget />
 
  <Card className="shadow-sm border-border/50">
@@ -152,37 +143,35 @@ export default async function FinancesPage() {
  </table>
  </div>
  </Card>
- </div>
 
- {/* ΑΝΑΛΥΣΗ ΚΑΤΗΓΟΡΙΩΝ */}
- <div className="col-span-1">
- <Card className="shadow-sm border-border/50 h-full overflow-hidden flex flex-col">
+ {/* ΑΝΑΛΥΣΗ ΚΑΤΗΓΟΡΙΩΝ (HORIZONTAL) */}
+ <Card className="shadow-sm border-border/50">
  <CardHeader className="pb-3 border-b border-border/50 bg-muted/20">
- <CardTitle className="text-base flex items-center gap-2"><PieChart className="w-4 h-4"/> Ανάλυση Εσόδων</CardTitle>
+ <CardTitle className="text-base flex items-center gap-2"><PieChart className="w-4 h-4"/> Ανάλυση Εσόδων ανά Κατηγορία</CardTitle>
  </CardHeader>
- <CardContent className="px-0 py-2 flex-grow overflow-y-auto">
- <div className="divide-y divide-border/50">
+ <CardContent className="p-6">
+ <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
  {biStats.byCategory.slice(0, 5).map((c: any) => (
- <div key={c.purpose} className="flex justify-between items-center py-3 px-5 hover:bg-muted/30 transition-colors">
- <span className="text-sm font-medium">{c.purpose}</span>
- <strong className="text-sm font-mono text-[var(--success)]">€ {c.total.toFixed(2)}</strong>
+ <div key={c.purpose} className="bg-muted/30 hover:bg-muted/50 transition-colors p-4 rounded-xl border border-border/50 flex flex-col justify-between">
+ <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-2">{c.purpose}</div>
+ <div className="text-lg font-black font-mono text-[var(--success)]">€ {c.total.toFixed(2)}</div>
  </div>
 ))}
  {biStats.byCategory.length === 0 && (
- <div className="py-6 text-center text-muted-foreground text-sm">Καμία κίνηση.</div>
+ <div className="col-span-full py-6 text-center text-muted-foreground text-sm">Καμία κίνηση.</div>
 )}
  </div>
  </CardContent>
  </Card>
- {/* Separator / BI */}
+
+ {/* BUSINESS INTELLIGENCE SECTION */}
  <div className="border-t border-border/50 pt-8 hidden sm:block">
  <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 mb-6 text-foreground">
- <BarChart3 className="w-5 h-5 text-primary"/>
+ <BarChart3 className="w-5 h-5 text-[var(--brand)]"/>
  Επισκόπηση Business Intelligence
  </h2>
  <FinanceBIClient {...biStats} />
  </div>
-</div>
 </div>
 </div>
  );

@@ -36,9 +36,9 @@ export default function QuarterlyWidget() {
  }
 
  return (
- <div className="bg-gradient-to-br from-indigo-50 to-white rounded-3xl p-6 border border-indigo-100 shadow-sm relative overflow-hidden">
+ <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-sm relative overflow-hidden">
  <div className="absolute top-0 right-0 p-6 opacity-10">
- <Calculator className="w-24 h-24 text-indigo-500"/>
+ <Calculator className="w-24 h-24 text-[var(--brand)]"/>
  </div>
  
  <div className="relative z-10">
@@ -53,11 +53,11 @@ export default function QuarterlyWidget() {
 ) : (
  <div className="space-y-4">
  <div className="flex flex-col sm:flex-row gap-4">
- <select value={year} onChange={e => setYear(Number(e.target.value))} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-2 text-sm font-bold outline-none flex-1">
+ <select value={year} onChange={e => setYear(Number(e.target.value))} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-2 text-sm font-bold outline-none flex-1 text-[var(--foreground)]">
  <option value={2026}>Έτος 2026</option>
  <option value={2025}>Έτος 2025</option>
  </select>
- <select value={quarter} onChange={e => setQuarter(Number(e.target.value))} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-2 text-sm font-bold outline-none flex-1">
+ <select value={quarter} onChange={e => setQuarter(Number(e.target.value))} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-2 text-sm font-bold outline-none flex-1 text-[var(--foreground)]">
  <option value={1}>Α' Τρίμηνο</option>
  <option value={2}>Β' Τρίμηνο</option>
  <option value={3}>Γ' Τρίμηνο</option>
@@ -66,29 +66,29 @@ export default function QuarterlyWidget() {
  </div>
 
  {status === 'IDLE' && (
- <button onClick={handleCalculate} className="w-full bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-indigo-200 transition-colors flex justify-center items-center gap-2">
+ <button onClick={handleCalculate} className="w-full bg-[var(--brand)] hover:bg-[var(--brand-dark)] text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-[var(--brand)]/10 transition-all flex justify-center items-center gap-2 cursor-pointer">
  <Calculator className="w-4 h-4"/> Υπολογισμός Κρατήσεων
  </button>
 )}
 
- {status === 'CALCULATING' && <p className="text-sm text-indigo-500 font-bold animate-pulse text-center">Υπολογισμός...</p>}
+ {status === 'CALCULATING' && <p className="text-sm text-[var(--brand)] font-bold animate-pulse text-center">Υπολογισμός...</p>}
 
  {status === 'READY' && taxes && (
- <div className="bg-[var(--surface)] border border-indigo-100 rounded-xl p-4 shadow-sm mt-4 animate-in fade-in zoom-in-95">
+ <div className="bg-muted/30 border border-border/50 rounded-xl p-4 shadow-sm mt-4 animate-in fade-in zoom-in-95">
  <p className="text-xs font-bold text-[var(--text-muted)] mb-2 border-b border-[var(--border)] pb-2">
- Θεωρηθέντα Έσοδα: <span className="text-[var(--foreground)]">{taxes.totalIncome.toFixed(2)} €</span>
+ Θεωρηθέντα Έσοδα: <span className="text-[var(--foreground)] font-mono">{taxes.totalIncome.toFixed(2)} €</span>
  </p>
  
  <div className="space-y-2 mb-4">
  {taxes.taxes.map((t: any, idx: number) => (
  <div key={idx} className="flex justify-between items-center text-sm">
  <span className="text-[var(--text-secondary)] font-medium">{t.name}</span>
- <span className="font-bold text-[var(--danger)]">{(t.amount).toFixed(2)} €</span>
+ <span className="font-bold text-[var(--danger)] font-mono">{(t.amount).toFixed(2)} €</span>
  </div>
 ))}
  </div>
  
- <button onClick={handlePay} className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-rose-200 transition-colors flex justify-center items-center gap-2">
+ <button onClick={handlePay} className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-rose-600/10 transition-all flex justify-center items-center gap-2 cursor-pointer">
  <AlertCircle className="w-4 h-4"/> Έκδοση Ενταλμάτων & Πληρωμή
  </button>
  </div>
