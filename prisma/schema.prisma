@@ -1277,6 +1277,8 @@ model CentralEvent {
   description String?
   startDate   DateTime
   endDate     DateTime
+  startTime   String? // e.g. "09:00"
+  endTime     String? // e.g. "12:00"
   isPublic    Boolean  @default(true)
   category    String? // e.g. "ΛΕΙΤΟΥΡΓΙΑ", "ΣΥΝΕΔΡΙΟ", "ΚΑΤΑΣΚΗΝΩΣΗ"
   color       String? // Hex color for the calendar

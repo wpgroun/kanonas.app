@@ -43,6 +43,8 @@ export async function addCentralEvent(data: any) {
  description: data.description,
  startDate: new Date(data.startDate),
  endDate: new Date(data.endDate),
+ startTime: data.startTime || null,
+ endTime: data.endTime || null,
  category: data.category,
  color: data.color || '#3b82f6', // Default blue
  }

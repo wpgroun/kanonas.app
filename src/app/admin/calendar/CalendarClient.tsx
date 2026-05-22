@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CalendarDays, Save, Trash2, MapPin } from 'lucide-react';
+import { CalendarDays, Save, Trash2, MapPin, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function CalendarClient({ initialEvents }: { initialEvents: any[] }) {
@@ -15,7 +15,9 @@ export default function CalendarClient({ initialEvents }: { initialEvents: any[]
  const [title, setTitle] = useState('');
  const [description, setDescription] = useState('');
  const [startDate, setStartDate] = useState('');
+ const [startTime, setStartTime] = useState('');
  const [endDate, setEndDate] = useState('');
+ const [endTime, setEndTime] = useState('');
  const [category, setCategory] = useState('ΣΥΝΕΔΡΙΟ');
  
  const categoryColors: Record<string, string> = {
@@ -39,10 +41,12 @@ export default function CalendarClient({ initialEvents }: { initialEvents: any[]
  setLoading(true);
  await addCentralEvent({
  title, description, startDate, endDate: endDate || startDate,
+ startTime: startTime || null, endTime: endTime || null,
  category, color
  });
  setLoading(false);
  setTitle(''); setDescription('');
+ setStartDate(''); setStartTime(''); setEndDate(''); setEndTime('');
  router.refresh();
  };
 
@@ -81,6 +85,12 @@ export default function CalendarClient({ initialEvents }: { initialEvents: any[]
  <div className="text-sm font-semibold text-[var(--text-muted)] mt-1 flex items-center gap-2">
  <CalendarDays className="w-4 h-4"/>
  {sd.toLocaleDateString('el-GR', {day: '2-digit', month: 'short', year:'numeric'})}
+ {(ev.startTime || ev.endTime) && (
+ <span className="flex items-center gap-1 ml-1">
+ <Clock className="w-3.5 h-3.5"/>
+ {ev.startTime}{ev.endTime ? ` – ${ev.endTime}` : ''}
+ </span>
+ )}
  </div>
  {ev.description && <p className="text-[var(--text-muted)] mt-2 text-sm">{ev.description}</p>}
  </div>
@@ -132,16 +142,28 @@ export default function CalendarClient({ initialEvents }: { initialEvents: any[]
   </div>
  </div>
 
- <div className="grid grid-cols-2 gap-3">
- <div className="space-y-2">
- <Label className="font-bold">Έναρξη</Label>
- <Input type="date"required value={startDate} onChange={e=>setStartDate(e.target.value)} className="h-11 rounded-xl bg-[var(--background)]"/>
- </div>
- <div className="space-y-2">
- <Label className="font-bold">Λήξη</Label>
- <Input type="date"value={endDate} onChange={e=>setEndDate(e.target.value)} className="h-11 rounded-xl bg-[var(--background)]"/>
- </div>
- </div>
+ <div className="space-y-3">
+  <div className="grid grid-cols-2 gap-3">
+  <div className="space-y-2">
+  <Label className="font-bold">Ημ. Έναρξης</Label>
+  <Input type="date" required value={startDate} onChange={e=>setStartDate(e.target.value)} className="h-11 rounded-xl bg-[var(--background)]"/>
+  </div>
+  <div className="space-y-2">
+  <Label className="font-bold">Ώρα Έναρξης</Label>
+  <Input type="time" value={startTime} onChange={e=>setStartTime(e.target.value)} className="h-11 rounded-xl bg-[var(--background)]"/>
+  </div>
+  </div>
+  <div className="grid grid-cols-2 gap-3">
+  <div className="space-y-2">
+  <Label className="font-bold">Ημ. Λήξης</Label>
+  <Input type="date" value={endDate} onChange={e=>setEndDate(e.target.value)} className="h-11 rounded-xl bg-[var(--background)]"/>
+  </div>
+  <div className="space-y-2">
+  <Label className="font-bold">Ώρα Λήξης</Label>
+  <Input type="time" value={endTime} onChange={e=>setEndTime(e.target.value)} className="h-11 rounded-xl bg-[var(--background)]"/>
+  </div>
+  </div>
+  </div>
 
  <div className="space-y-2">
  <Label className="font-bold">Περιγραφή</Label>
