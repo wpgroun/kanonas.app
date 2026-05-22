@@ -49,9 +49,9 @@ export default function AddPersonForm({ tokenId, parishioners }: AddPersonFormPr
  return (
  <Card className="mt-6 border-dashed bg-muted/20">
  <CardContent className="pt-6">
- <form onSubmit={handleLink} className="flex flex-col md:flex-row gap-4 items-end">
+ <form onSubmit={handleLink} className="flex flex-col gap-4">
  
- <div className="flex-1 w-full space-y-2">
+ <div className="w-full space-y-2">
  <Label>Επιλογή Ενορίτη *</Label>
  <div className="relative">
  <select 
@@ -60,7 +60,7 @@ export default function AddPersonForm({ tokenId, parishioners }: AddPersonFormPr
  required
  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
  >
- <option value=""disabled>-- Αναζήτηση από Μητρώο --</option>
+ <option value="" disabled>-- Αναζήτηση από Μητρώο --</option>
  {parishioners.map(p => (
  <option key={p.id} value={p.id}>{p.lastName} {p.firstName}</option>
 ))}
@@ -68,7 +68,7 @@ export default function AddPersonForm({ tokenId, parishioners }: AddPersonFormPr
  </div>
  </div>
 
- <div className="flex-1 w-full space-y-2">
+ <div className="w-full space-y-2">
  <Label>Ρόλος στo Μυστήριο *</Label>
  <Select value={role} onValueChange={setRole} required>
  <SelectTrigger>
@@ -85,7 +85,7 @@ export default function AddPersonForm({ tokenId, parishioners }: AddPersonFormPr
  </Select>
  </div>
 
- <Button type="submit"disabled={loading} className="w-full md:w-auto shrink-0 mt-4 md:mt-0">
+ <Button type="submit" disabled={loading} className="w-full">
  {loading ? 'Σύνδεση...' : <><Link2 className="w-4 h-4 mr-2"/> Σύνδεση</>}
  </Button>
  </form>

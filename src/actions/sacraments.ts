@@ -108,6 +108,26 @@ export async function linkPersonToSacrament(tokenId: string, parishionerId: stri
  }
 }
 
+export async function removePersonFromSacrament(ceremonyPersonId: string) {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+  try {
+  const cp = await prisma.ceremonyPerson.findUnique({
+  where: { id: ceremonyPersonId },
+  include: { token: true }
+  })
+  if (!cp) return { success: false, error: 'Δεν βρέθηκε' }
+  if (cp.token.templeId !== templeId) return { success: false, error: 'Μη εξουσιοδοτημένη ενέργεια' }
+
+  await prisma.ceremonyPerson.delete({ where: { id: ceremonyPersonId } })
+  revalidatePath(`/admin/requests/${cp.tokenId}`)
+  return { success: true }
+  } catch (e) {
+  console.error("Σφάλμα διαγραφής προσώπου:", e)
+  return { success: false, error: 'Αποτυχία διαγραφής' }
+  }
+}
+
 export async function markTokenAsDocsGenerated(tokenId: string, assignedPriest: string, bookNumber?: string, protocolNumber?: string) {
  await requireAuth()
  try {

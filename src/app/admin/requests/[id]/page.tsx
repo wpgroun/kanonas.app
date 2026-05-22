@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Clock, CalendarIcon, Users, UserX, Printer } from 'lucide-react'
+import RemovePersonButton from './RemovePersonButton'
 
 export default async function RequestDetailsPage({ params }: { params: { id: string } }) {
  const { id } = await params;
@@ -189,9 +190,7 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
  <div className="font-semibold text-sm">{cp.lastName} {cp.firstName}</div>
  <div className="text-[11px] text-muted-foreground">ID: {cp.parishionerId?.slice(-6)}</div>
  </div>
- <Button variant="ghost"size="icon"className="text-destructive hover:bg-destructive hover:text-white"title="Διαγραφή">
- <UserX className="w-4 h-4"/>
- </Button>
+ <RemovePersonButton ceremonyPersonId={cp.id} />
  </div>
 ))}
  </div>
