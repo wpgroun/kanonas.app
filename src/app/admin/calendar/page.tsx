@@ -10,7 +10,7 @@ export default async function CalendarPage() {
  <div className="container-fluid mt-6 space-y-6">
  <PageHeader 
  title="Ημερολόγιο (Events)"
- description="Πολυεπίπεδο ημερολόγιο δράσεων Еνορίας και Ιεράς Μητρόπολης."
+ description="Πολυεπίπεδο ημερολόγιο δράσεων Ενορίας και Ιεράς Μητρόπολης."
  />
  <CalendarClient initialEvents={events || []} />
  </div>

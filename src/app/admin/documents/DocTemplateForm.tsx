@@ -25,7 +25,7 @@ export default function DocTemplateForm({ template, onClose }: { template?: any,
   const [form, setForm] = useState({
     nameEl: template?.nameEl || '',
     docType: template?.docType || 'vaptisi',
-    htmlContent: template?.htmlContent || '<h1>Πιστοποιητικό Βαπτίσεως</h1>\n<p>Ο/Η κάτωθι <b>{{IEΡΕΑΣ_ΟΝΟΜΑ}}</b>, εφημέριος του ναού...</p>\n<p>Τέκνο του <b>{{ΠΑΤΕΡΑΣ_ΟΝΟΜΑ}}</b> και της <b>{{ΜΗΤΕΡΑ_ΟΝΟΜΑ}}</b></p>',
+    htmlContent: template?.htmlContent || '<h1>Πιστοποιητικό Βαπτίσεως</h1>\n<p>Ο/Η κάτωθι <b>{{ΙΕΡΕΑΣ_ΟΝΟΜΑ}}</b>, εφημέριος του ναού...</p>\n<p>Τέκνο του <b>{{ΠΑΤΕΡΑΣ_ΟΝΟΜΑ}}</b> και της <b>{{ΜΗΤΕΡΑ_ΟΝΟΜΑ}}</b></p>',
     conditionRules: template?.conditionRules || ''
   });
 

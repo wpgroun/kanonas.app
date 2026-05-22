@@ -154,8 +154,8 @@ export async function addTransaction(data: { type: 'INCOME'|'EXPENSE', categoryI
  await tx.auditLog.create({
  data: {
  templeId, userId: session.userId, userEmail: session.userEmail, 
- action: `NEA ЕГГРАФΗ ${data.type}`, 
- detail: `Kαταχώρηση €${data.amount} στο [${data.categoryId}]`
+ action: `ΝΕΑ ΕΓΓΡΑΦΗ ${data.type}`, 
+ detail: `Καταχώρηση €${data.amount} στο [${data.categoryId}]`
  }
  }).catch(()=>{});
 

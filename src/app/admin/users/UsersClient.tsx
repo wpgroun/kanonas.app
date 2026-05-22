@@ -84,7 +84,7 @@ export default function UsersClient({ initialStaff, roles }: { initialStaff: any
  </div>
 
  <div className="space-y-2">
- <Label className="flex items-center gap-1.5"><KeyRound className="w-3.5 h-3.5 text-muted-foreground"/> Աρχικός Κωδικός</Label>
+ <Label className="flex items-center gap-1.5"><KeyRound className="w-3.5 h-3.5 text-muted-foreground"/> Αρχικός Κωδικός</Label>
  <Input required type="password"value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="Τουλάχιστον 6 χαρακτήρες"/>
  <div className="text-[10px] text-muted-foreground">Δώστε αυτόν τον κωδικό στον υπάλληλο.</div>
  </div>

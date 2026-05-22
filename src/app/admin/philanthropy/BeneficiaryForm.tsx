@@ -21,7 +21,7 @@ export default function BeneficiaryForm({ isOpen, onClose }: { isOpen: boolean, 
     
     const afm = (fd.get('afm') as string || '').trim();
     if (!afm || afm.length !== 9 || !/^\d{9}$/.test(afm)) {
-      setError('Tο ΑΦΜ πρέπει να αποτελείται από ακριβώς 9 ψηφία.');
+      setError('Το ΑΦΜ πρέπει να αποτελείται από ακριβώς 9 ψηφία.');
       setLoading(false);
       return;
     }

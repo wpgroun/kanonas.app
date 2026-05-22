@@ -37,7 +37,7 @@ export async function addStaffToTemple(data: { email: string, firstName: string,
  if (!user) {
  // User does not exist in the whole system. Create them.
  if (!data.initialPassword || data.initialPassword.length < 6) {
- return { success: false, error: 'Aπαιτείται έγκυρος κωδικός πρόσβασης (τουλάχιστον 6 χαρακτήρων) για νέους λογαριασμούς.' };
+ return { success: false, error: 'Απαιτείται έγκυρος κωδικός πρόσβασης (τουλάχιστον 6 χαρακτήρων) για νέους λογαριασμούς.' };
  }
  const passwordHash = await bcrypt.hash(data.initialPassword, 10);
  user = await prisma.user.create({
@@ -137,7 +137,7 @@ export async function updateMyProfile(data: { firstName: string, lastName: strin
  const session = await requireAuth();
  
  if (!data.firstName.trim() || !data.lastName.trim()) {
- return { success: false, error: 'Tο όνομα και το επώνυμο δεν μπορούν να είναι κενά.' };
+ return { success: false, error: 'Το όνομα και το επώνυμο δεν μπορούν να είναι κενά.' };
  }
 
  try {

@@ -517,7 +517,7 @@ export async function genTransactionReceiptPdf(tx: any, settings: any): Promise<
  title: docTitle,
  subtitle: `ΑΡΙΘΜΟΣ ΠΑΡΑΣΤΑΤΙΚΟΥ: ${fakeProtocol}`,
  body: [
- { label: 'Ημερομηνία Kίνησης', value: formatGreekDate(dObj) },
+ { label: 'Ημερομηνία Κίνησης', value: formatGreekDate(dObj) },
  { label: 'Κατηγορία / Fund', value: tx.category || 'Γενικό Ταμείο' },
  { label: 'Ποσό', value: `€ ${Number(tx.amount).toLocaleString('el-GR', {minimumFractionDigits:2, maximumFractionDigits:2})}`, wide: true },
  { label: 'Αιτιολογία', value: tx.purpose || BLANK, wide: true },
