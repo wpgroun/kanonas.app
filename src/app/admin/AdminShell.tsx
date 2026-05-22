@@ -58,9 +58,11 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  group:"Μητρώα & Πιστοποιητικά",
  items: [
  { href: '/admin/parishioners', icon: Users, label: 'Μητρώο', requiredPerm: 'canManageRegistry', moduleLabel: 'Μητρώο Ενοριτών' },
+ { href: '/admin/ceremonies', icon: ClipboardList, label: 'Διαχείριση Τελετών', requiredPerm: null, moduleLabel: 'Μητρώο Ενοριτών' },
+ { href: '/admin/registry', icon: BookOpen, label: 'Μητρώα Τελετών', requiredPerm: 'canManageRegistry', moduleLabel: 'Μητρώο Ενοριτών' },
  { href: '/admin/sacraments/baptisms', icon: FileText, label: 'Βιβλίο Βαπτίσεων', requiredPerm: null, moduleLabel: 'Βαπτίσεις & Μυστήρια' },
-              { href: '/admin/sacraments/marriages', icon: FileText, label: 'Βιβλίο Γάμων', requiredPerm: null, moduleLabel: 'Γάμοι & Μυστήρια' },
-              { href: '/admin/sacraments/divorces', icon: FileText, label: 'Διαζύγια (Λύσεις)', requiredPerm: 'canManageRegistry', moduleLabel: 'Διαζύγια (Λύσεις Γάμων)' },
+ { href: '/admin/sacraments/marriages', icon: FileText, label: 'Βιβλίο Γάμων', requiredPerm: null, moduleLabel: 'Γάμοι & Μυστήρια' },
+ { href: '/admin/sacraments/divorces', icon: FileText, label: 'Διαζύγια (Λύσεις)', requiredPerm: 'canManageRegistry', moduleLabel: 'Διαζύγια (Λύσεις Γάμων)' },
  { href: '/admin/sacraments/funerals', icon: FileText, label: 'Ληξιαρχείο (Εκδημίες)', requiredPerm: 'canManageRegistry', moduleLabel: 'Ληξιαρχείο & Εκδημίες' },
  ]
  },

@@ -173,7 +173,9 @@ model Temple {
   // Camps
   campSessions             CampSession[]
   campCampers              CampCamper[]
+  ceremonies               Ceremony[]
 }
+
 
 model KanbanTask {
   id          String    @id @default(cuid())
@@ -1647,3 +1649,43 @@ model SystemAnnouncement {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// =======================
+// CEREMONIES MODULE
+// =======================
+
+model Ceremony {
+  id             String             @id @default(cuid())
+  templeId       String
+  temple         Temple             @relation(fields: [templeId], references: [id], onDelete: Cascade)
+  type           String             // "MARRIAGE" | "BAPTISM" | "FUNERAL"
+  subtype        String             // MARRIAGE: "A" | "B" | "C". BAPTISM: "INFANT" | "ADULT" | "CHRISMATION". FUNERAL: "STANDARD"
+  date           DateTime
+  priest         String?
+  status         String             @default("PENDING") // "PENDING" | "COMPLETED" | "CANCELLED"
+  registryNumber String?            // e.g. Γ-2025-001, Β-2025-001, Κ-2025-001
+  sequenceNumber Int                @default(0)
+  detailsJson    String             @default("{}") // Stores fields dynamically (groom, bride, parents, etc.)
+  documents      CeremonyDocument[]
+
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([templeId, type, date])
+}
+
+model CeremonyDocument {
+  id              String   @id @default(cuid())
+  ceremonyId      String
+  ceremony        Ceremony @relation(fields: [ceremonyId], references: [id], onDelete: Cascade)
+  
+  name            String   // Document name
+  status          String   @default("PENDING") // "PENDING" | "RECEIVED" | "NOT_REQUIRED"
+  rejectionReason String?  // Justification/explanation if NOT_REQUIRED
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([ceremonyId])
+}
+
