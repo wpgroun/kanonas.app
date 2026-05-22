@@ -221,7 +221,7 @@ export default function ParishionerProfileClient({ p, beneficiary, relationships
  Ημ/νία: <span className="font-medium text-foreground">{cp.token?.ceremonyDate ? new Date(cp.token.ceremonyDate).toLocaleDateString('el-GR') : 'Άγνωστη'}</span>
  </div>
  <Link href={`/admin/requests/${cp.token?.id}`} className="text-primary text-sm font-semibold hover:underline block">
- Άνοιγμα Καρτέλας Մυστηρίου &rarr;
+ Άνοιγμα Καρτέλας Μυστηρίου &rarr;
  </Link>
  </div>
 ))}
