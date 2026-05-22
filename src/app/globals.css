@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@theme {
+  --spacing-8.5: 2.125rem;
+  --spacing-1.25: 0.3125rem;
+  --text-sm--line-height: 1.25rem;
+}
+
 /* ═══════════════════════════════════════════════════════════
    KANONAS — Design System v2
    Modern, Minimal, Light-mode only

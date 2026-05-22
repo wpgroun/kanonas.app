@@ -53,15 +53,16 @@ export async function getPendingRequests() {
 }
 
 export async function getTokens() {
- const templeId = await getCurrentTempleId()
- try {
- return await prisma.token.findMany({
- where: { templeId },
- orderBy: { createdAt: 'desc' }
- })
- } catch (e) {
- return []
- }
+  const templeId = await getCurrentTempleId()
+  try {
+    return await prisma.token.findMany({
+      where: { templeId },
+      include: { ceremonyMeta: true },
+      orderBy: { createdAt: 'desc' }
+    })
+  } catch (e) {
+    return []
+  }
 }
 
 export async function getRequestDetails(tokenId: string) {

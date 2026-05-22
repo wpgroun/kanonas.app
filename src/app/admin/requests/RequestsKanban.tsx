@@ -58,14 +58,33 @@ export default function RequestsKanban({ tokens }: { tokens: any[] }) {
  Καμία εγγραφή
  </div>
 )}
- {colItems.map(token => (
- <Card key={token.id} className="p-3 shadow-sm hover:shadow-md transition-all border border-[var(--border)] bg-[var(--surface)] group relative">
- <div className="flex justify-between items-start mb-2">
- <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-slate-100 text-[var(--text-secondary)]">
- {token.serviceType === 'GAMOS' ? '💍 Γάμος' : '🕊️ Βάπτιση'}
- </span>
- <span className="text-[10px] font-mono text-[var(--text-muted)]">#{token.tokenStr?.slice(-6).toUpperCase()}</span>
- </div>
+  {colItems.map(token => {
+    let marriageClass = null;
+    if (token.serviceType === 'GAMOS' && token.ceremonyMeta?.dataJson) {
+      try {
+        const meta = JSON.parse(token.ceremonyMeta.dataJson);
+        const groomPrev = (meta.groomStatus === 'diazevmenos' || meta.groomStatus === 'xiros') ? 1 : 0;
+        const bridePrev = (meta.brideStatus === 'diazevmeni' || meta.brideStatus === 'xira') ? 1 : 0;
+        const maxPrev = Math.max(groomPrev, bridePrev);
+        marriageClass = maxPrev === 0 ? 'Α' : maxPrev === 1 ? 'Β' : 'Γ';
+      } catch (e) {}
+    }
+
+    return (
+      <Card key={token.id} className="p-3 shadow-sm hover:shadow-md transition-all border border-[var(--border)] bg-[var(--surface)] group relative">
+        <div className="flex justify-between items-start mb-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-slate-100 text-[var(--text-secondary)]">
+              {token.serviceType === 'GAMOS' ? '💍 Γάμος' : '🕊️ Βάπτιση'}
+            </span>
+            {marriageClass && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] uppercase font-black bg-indigo-50 border border-indigo-200 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300">
+                Τάξη {marriageClass}'
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] font-mono text-[var(--text-muted)]">#{token.tokenStr?.slice(-6).toUpperCase()}</span>
+        </div>
  
  <div className="font-bold text-sm text-foreground mb-1">
  {token.ceremonyDate ? new Date(token.ceremonyDate).toLocaleDateString('el-GR') : 'Άγνωστη Ημ/νία'}
@@ -86,7 +105,7 @@ export default function RequestsKanban({ tokens }: { tokens: any[] }) {
  </Button>
  </Link>
  </Card>
-))}
+)})}
  </div>
  </div>
 )

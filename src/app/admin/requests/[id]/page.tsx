@@ -22,7 +22,18 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
  // Fetch all parishioners from CRM to populate the dropdown
  const allParishioners = await getParishioners();
 
- const isGamos = token.serviceType === 'GAMOS';
+  const isGamos = token.serviceType === 'GAMOS';
+
+  let marriageClass = null;
+  if (isGamos && token.ceremonyMeta?.dataJson) {
+    try {
+      const meta = JSON.parse(token.ceremonyMeta.dataJson);
+      const groomPrev = (meta.groomStatus === 'diazevmenos' || meta.groomStatus === 'xiros') ? 1 : 0;
+      const bridePrev = (meta.brideStatus === 'diazevmeni' || meta.brideStatus === 'xira') ? 1 : 0;
+      const maxPrev = Math.max(groomPrev, bridePrev);
+      marriageClass = maxPrev === 0 ? 'Α' : maxPrev === 1 ? 'Β' : 'Γ';
+    } catch (e) {}
+  }
 
  return (
  <div className="container-fluid mt-6 space-y-6 max-w-5xl animate-in fade-in duration-500">
@@ -52,7 +63,14 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
  <div className="flex items-center gap-3">
  <div className="text-3xl bg-secondary p-3 rounded-xl">{isGamos ? '💍' : '🕊️'}</div>
  <div>
+ <div className="flex items-center gap-2">
  <CardTitle className="text-xl">{isGamos ? 'Γάμος' : 'Βάπτιση'}</CardTitle>
+ {marriageClass && (
+ <Badge className="bg-indigo-600 text-white hover:bg-indigo-600 font-extrabold uppercase text-xs px-2.5 py-0.5 rounded">
+ {marriageClass}' Τάξη
+ </Badge>
+ )}
+ </div>
  <CardDescription>Γενικά Στοιχεία</CardDescription>
  </div>
  </div>

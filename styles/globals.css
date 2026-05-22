@@ -54,6 +54,10 @@
 
 /** Theme Setup **/
 @theme inline {
+  --spacing-8.5: 2.125rem;
+  --spacing-1.25: 0.3125rem;
+  --text-sm--line-height: 1.25rem;
+
   /** Base Colors **/
   --color-background: var(--background);
   --color-foreground: var(--foreground);
