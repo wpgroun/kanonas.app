@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useRef, useEffect } from 'react';
 import { LayoutDashboard, Users, FileText, Banknote, Calendar,
  BookOpen, HeartHandshake, Package, ClipboardList, Settings,
  LogOut, ChevronLeft, Menu, Bell, ShieldCheck, Mail, KanbanSquare, Tent,
@@ -28,6 +28,18 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  const [collapsed, setCollapsed] = useState(false);
  const [mobileOpen, setMobileOpen] = useState(false);
  const [bannerDismissed, setBannerDismissed] = useState(false);
+ const [userMenuOpen, setUserMenuOpen] = useState(false);
+ const userMenuRef = useRef<HTMLDivElement>(null);
+
+ useEffect(() => {
+   const handleClickOutside = (e: MouseEvent) => {
+     if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+       setUserMenuOpen(false);
+     }
+   };
+   if (userMenuOpen) document.addEventListener('mousedown', handleClickOutside);
+   return () => document.removeEventListener('mousedown', handleClickOutside);
+ }, [userMenuOpen]);
 
  const navGroups = [
  {
@@ -256,11 +268,58 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  >
  <Bell className="w-[18px] h-[18px]"/>
  </button>
- <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center">
- <span className="text-white text-xs font-bold">
- {(perms.userEmail as string)?.[0]?.toUpperCase() ?? 'Α'}
- </span>
- </div>
+  <div className="relative" ref={userMenuRef}>
+  <button
+  id="user-menu-trigger"
+  onClick={() => setUserMenuOpen(prev => !prev)}
+  className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center ring-2 ring-transparent hover:ring-[#7C3AED]/40 transition-all duration-150 cursor-pointer"
+  aria-label="Μενού χρήστη"
+  aria-expanded={userMenuOpen}
+  aria-haspopup="true"
+  >
+  <span className="text-white text-xs font-bold select-none">
+  {(perms.userEmail as string)?.[0]?.toUpperCase() ?? 'Α'}
+  </span>
+  </button>
+
+  {userMenuOpen && (
+  <div
+  id="user-menu-dropdown"
+  className="absolute right-0 mt-2 w-56 z-50 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xl overflow-hidden"
+  role="menu"
+  >
+  {/* User info header */}
+  <div className="px-4 py-3 border-b border-[var(--border)] bg-[var(--surface-hover)]">
+  <p className="text-[0.7rem] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-0.5">Συνδεδεμένος ως</p>
+  <p className="text-sm font-medium text-[var(--foreground)] truncate">{perms.userEmail as string}</p>
+  </div>
+
+  {/* Actions */}
+  <div className="py-1">
+  <Link
+  href="/admin/profile"
+  role="menuitem"
+  onClick={() => setUserMenuOpen(false)}
+  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)] transition-colors"
+  >
+  <UserCircle className="w-4 h-4 flex-shrink-0" />
+  Ο Λογαριασμός Μου
+  </Link>
+
+  <div className="h-px bg-[var(--border)] mx-3 my-1" />
+
+  <button
+  role="menuitem"
+  onClick={async () => { setUserMenuOpen(false); await handleLogout(); }}
+  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-[var(--danger)] hover:bg-[var(--danger-light)] transition-colors"
+  >
+  <LogOut className="w-4 h-4 flex-shrink-0" />
+  Αποσύνδεση
+  </button>
+  </div>
+  </div>
+  )}
+  </div>
  </div>
  </header>
 
