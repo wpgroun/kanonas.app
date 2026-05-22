@@ -72,7 +72,7 @@ function EventDot({ color, isMajor }: { color: string; isMajor?: boolean }) {
   );
 }
 
-function EventPill({ event, onClick }: { event: AggregatedCalendarEvent; onClick: () => void }) {
+function EventPill({ event, onClick }: { event: AggregatedCalendarEvent; onClick: (e: React.MouseEvent) => void }) {
   return (
     <button
       onClick={onClick}
