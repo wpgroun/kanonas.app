@@ -6,10 +6,11 @@ export const metadata = {
  title: 'Γενικό Πρωτόκολλο | Kanonas',
 };
 
-export default async function ProtocolPage({ searchParams }: { searchParams: { owner?: string, q?: string, page?: string } }) {
- const currentOwner = searchParams.owner || 'TEMPLE';
- const query = searchParams.q || '';
- const page = parseInt(searchParams.page || '1');
+export default async function ProtocolPage({ searchParams }: { searchParams: Promise<{ owner?: string, q?: string, page?: string }> }) {
+ const resolvedParams = await searchParams;
+ const currentOwner = resolvedParams.owner || 'TEMPLE';
+ const query = resolvedParams.q || '';
+ const page = parseInt(resolvedParams.page || '1');
 
  const { data: protocols, total, pages } = await getProtocols(currentOwner, page, query);
 

@@ -11,12 +11,14 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
  const router = useRouter();
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [direction, setDirection] = useState('IN');
+ const [activeOwner, setActiveOwner] = useState(currentOwner);
 
  const handleFilter = (ownerType: string) => {
+ setActiveOwner(ownerType);
  const params = new URLSearchParams(window.location.search);
  params.set('owner', ownerType);
  params.set('page', '1');
- router.push(`/admin/protocol?${params.toString()}`); router.refresh();
+ router.push(`/admin/protocol?${params.toString()}`);
  };
 
  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,12 +38,12 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
  <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
  <button 
  onClick={() => handleFilter('TEMPLE')}
- className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${currentOwner === 'TEMPLE' ? 'bg-[var(--surface)] shadow text-primary' : 'text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}>
+ className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${activeOwner === 'TEMPLE' ? 'bg-[var(--surface)] shadow text-primary' : 'text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}>
  Ιερός Ναός
  </button>
  <button 
  onClick={() => handleFilter('PHILOPTOCHOS')}
- className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${currentOwner === 'PHILOPTOCHOS' ? 'bg-[var(--surface)] shadow text-primary' : 'text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}>
+ className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${activeOwner === 'PHILOPTOCHOS' ? 'bg-[var(--surface)] shadow text-primary' : 'text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}>
  Φιλόπτωχο Ταμείο
  </button>
  </div>
@@ -125,13 +127,13 @@ export default function ProtocolClient({ initialRecords, currentOwner, currentPa
  <div className="p-6 border-b border-border flex justify-between items-center bg-[var(--background)]">
  <div>
  <h2 className="text-xl font-bold">Πρωτοκόλληση Εγγράφου</h2>
- <p className="text-sm text-[var(--text-muted)]">Βιβλίο: <span className="font-semibold text-primary">{currentOwner === 'TEMPLE' ? 'Ιερού Ναού' : 'Φιλοπτώχου'}</span></p>
+ <p className="text-sm text-[var(--text-muted)]">Βιβλίο: <span className="font-semibold text-primary">{activeOwner === 'TEMPLE' ? 'Ιερού Ναού' : 'Φιλοπτώχου'}</span></p>
  </div>
  <button onClick={() => setIsModalOpen(false)} className="text-[var(--text-muted)] hover:text-red-500 text-2xl leading-none">&times;</button>
  </div>
  
  <form action={async (formData) => {
- formData.append('owner', currentOwner);
+ formData.append('owner', activeOwner);
  const { addProtocolEntry } = await import('@/actions/protocol');
  toast.promise(addProtocolEntry(formData), {
  loading: 'Πρωτοκόλληση...',
