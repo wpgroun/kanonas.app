@@ -163,18 +163,22 @@ export default function DashboardClient({ stats }: { stats: any }) {
  </div>
 )}
 
- {stats.upcomingNamedays?.length > 0 && (
- <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-blue-200 shadow-sm transition-all hover:shadow-md">
- <div className="flex items-center gap-3">
- <div className="p-2 bg-blue-50 rounded-md text-blue-600"><Gift className="w-5 h-5"/></div>
- <div>
- <p className="text-sm font-bold text-foreground">Πλησιάζουν {stats.upcomingNamedays.length} Εορτές Ενοριτών</p>
- <p className="text-xs text-muted-foreground">Ευκαιρία για μαζική αποστολή ευχετηρίων!</p>
- </div>
- </div>
- <Link href="/admin/mailing"><Button size="sm"variant="outline"className="h-8 text-blue-600 border-blue-200">Mailing Ευχών</Button></Link>
- </div>
-)}
+  {stats.upcomingNamedays?.length > 0 && (() => {
+  const todayCount = stats.upcomingNamedays.filter((nd: any) => nd.isToday).length;
+  const upcomingCount = stats.upcomingNamedays.filter((nd: any) => !nd.isToday).length;
+  return (
+  <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-blue-200 shadow-sm transition-all hover:shadow-md">
+  <div className="flex items-center gap-3">
+  <div className="p-2 bg-blue-50 rounded-md text-blue-600"><Gift className="w-5 h-5"/></div>
+  <div>
+  {todayCount > 0 && <p className="text-sm font-bold text-foreground">🎉 {todayCount} {todayCount === 1 ? 'ενορίτης εορτάζει' : 'ενορίτες εορτάζουν'} σήμερα!</p>}
+  {upcomingCount > 0 && <p className="text-xs text-muted-foreground">{upcomingCount} ακόμα εορτές τις επόμενες μέρες</p>}
+  </div>
+  </div>
+  <Link href="/admin/mailing"><Button size="sm" variant="outline" className="h-8 text-blue-600 border-blue-200">Ευχές</Button></Link>
+  </div>
+  );
+ })()}
  
  <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-purple-200 shadow-sm transition-all hover:shadow-md">
  <div className="flex items-center gap-3">
@@ -392,39 +396,81 @@ export default function DashboardClient({ stats }: { stats: any }) {
  </div>
  </div>
 
- {/* Upcoming Namedays */}
+ {/* Ποιμαντική — Εορτάζοντες */}
  <div className="card p-5">
  <div className="flex justify-between items-center mb-4">
  <h2 className="text-sm font-bold text-[var(--foreground)] flex items-center gap-2">
  <Gift className="w-4 h-4 text-[var(--brand)]"/>
  Ποιμαντική
  </h2>
- <Link href="/admin/parishioners"className="text-xs font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
- Ευχές <ChevronRight className="w-3 h-3"/>
+ <Link href="/admin/parishioners" className="text-xs font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
+ Μητρώο <ChevronRight className="w-3 h-3"/>
  </Link>
  </div>
- {stats.upcomingNamedays?.length > 0 ? (
+ {stats.upcomingNamedays?.length > 0 ? (() => {
+ const todayList = stats.upcomingNamedays.filter((nd: any) => nd.isToday);
+ const upcomingList = stats.upcomingNamedays.filter((nd: any) => !nd.isToday).slice(0, 4);
+ return (
+ <div className="space-y-3">
+ {todayList.length > 0 && (
+ <div>
+ <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1.5">🎉 Σήμερα Εορτάζουν</p>
+ <div className="space-y-1.5">
+ {todayList.map((nd: any, i: number) => (
+ <div key={`today-${nd.parishionerId}-${i}`} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+ <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+ <span className="text-xs font-black text-white">{nd.firstName[0]}</span>
+ </div>
+ <div className="flex-1 min-w-0">
+ <p className="text-sm font-bold text-amber-900 truncate">{nd.fullName}</p>
+ {nd.phone && <p className="text-xs text-amber-700">{nd.phone}</p>}
+ </div>
+ <span className="text-lg">🎂</span>
+ </div>
+ ))}
+ </div>
+ </div>
+ )}
+ {upcomingList.length > 0 && (
+ <div>
+ {todayList.length > 0 && <div className="border-t border-[var(--border)] pt-2"/>}
+ <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Επόμενες Ημέρες</p>
  <div className="space-y-1">
- {stats.upcomingNamedays.slice(0, 5).map((nd: any, i: number) => (
- <div key={`${nd.parishionerId}-${i}`} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[var(--surface-hover)] transition-colors group cursor-pointer">
- <div className="w-8 h-8 rounded-full bg-[var(--brand-light)] flex items-center justify-center flex-shrink-0">
- <span className="text-xs font-bold text-[var(--brand)]">{nd.firstName[0]}</span>
+ {upcomingList.map((nd: any, i: number) => (
+ <div key={`upcoming-${nd.parishionerId}-${i}`} className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-[var(--surface-hover)] transition-colors">
+ <div className="w-7 h-7 rounded-full bg-[var(--brand-light)] flex items-center justify-center flex-shrink-0">
+ <span className="text-[11px] font-bold text-[var(--brand)]">{nd.firstName[0]}</span>
  </div>
  <div className="flex-1 min-w-0">
  <p className="text-sm font-semibold text-[var(--foreground)] truncate">{nd.fullName}</p>
- <p className="text-xs text-[var(--text-muted)] truncate flex items-center gap-1">
- <Clock className="w-3 h-3"/>
- {new Date(nd.celebrationDate).toLocaleDateString('el-GR', { day: 'numeric', month: 'short' })} ({nd.feastStr})
+ <p className="text-[11px] text-[var(--text-muted)]">
+ {new Date(nd.celebrationDate).toLocaleDateString('el-GR', { weekday: 'short', day: 'numeric', month: 'short' })}
+ {nd.daysUntil === 1 ? ' — Αύριο' : nd.daysUntil === 2 ? ' — Μεθαύριο' : ` — σε ${nd.daysUntil} μέρες`}
  </p>
  </div>
  </div>
-))}
+ ))}
  </div>
-) : (
- <div className="empty-state py-6">
+ </div>
+ )}
+ {todayList.length === 0 && upcomingList.length === 0 && (
+ <div className="empty-state py-4">
  <Gift className="empty-state-icon"/>
  <p className="empty-state-title">Κανείς εορτάζων</p>
  <p className="empty-state-desc">Τις επόμενες 7 ημέρες</p>
+ </div>
+ )}
+ </div>
+ );
+ })() : (
+ <div className="empty-state py-6">
+ <Gift className="empty-state-icon"/>
+ <p className="empty-state-title">Κανείς εορτάζων</p>
+ <p className="empty-state-desc">Δεν υπάρχουν εορτές ενοριτών τις επόμενες 7 ημέρες</p>
+ </div>
+ )}
+ </div>
+
  </div>
 )}
  </div>
