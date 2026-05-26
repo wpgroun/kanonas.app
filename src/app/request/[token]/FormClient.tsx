@@ -318,7 +318,7 @@ export default function FormClient({ token }: { token: any }) {
  {/* Groom Father */}
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="space-y-2">
- <Label>Έγγραφο Ταυτοπροσωπίας Πατέρα Γαμπρού ({groomFather})</Label>
+ <Label>Έγγραφο Ταυτοπροσωπίας Πατέρα Γαμπρού{groomFather ? ` (${groomFather})` : ''}</Label>
  <Select value={groomFatherDocType} onValueChange={setGroomFatherDocType}>
  <SelectTrigger><SelectValue/></SelectTrigger>
  <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
@@ -330,7 +330,7 @@ export default function FormClient({ token }: { token: any }) {
  {/* Groom Mother */}
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="space-y-2">
- <Label>Έγγραφο Ταυτοπροσωπίας Μητέρας Γαμπρού ({groomMotherFirst})</Label>
+ <Label>Έγγραφο Ταυτοπροσωπίας Μητέρας Γαμπρού{groomMotherFirst ? ` (${groomMotherFirst})` : ''}</Label>
  <Select value={groomMotherDocType} onValueChange={setGroomMotherDocType}>
  <SelectTrigger><SelectValue/></SelectTrigger>
  <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
@@ -397,7 +397,7 @@ export default function FormClient({ token }: { token: any }) {
   {/* Bride Father */}
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
   <div className="space-y-2">
-  <Label>Έγγραφο Ταυτοπροσωπίας Πατέρα Νύφης ({brideFather})</Label>
+  <Label>Έγγραφο Ταυτοπροσωπίας Πατέρα Νύφης{brideFather ? ` (${brideFather})` : ''}</Label>
   <Select value={brideFatherDocType} onValueChange={setBrideFatherDocType}>
   <SelectTrigger><SelectValue/></SelectTrigger>
   <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
@@ -409,7 +409,7 @@ export default function FormClient({ token }: { token: any }) {
   {/* Bride Mother */}
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
   <div className="space-y-2">
-  <Label>Έγγραφο Ταυτοπροσωπίας Μητέρας Νύφης ({brideMotherFirst})</Label>
+  <Label>Έγγραφο Ταυτοπροσωπίας Μητέρας Νύφης{brideMotherFirst ? ` (${brideMotherFirst})` : ''}</Label>
   <Select value={brideMotherDocType} onValueChange={setBrideMotherDocType}>
   <SelectTrigger><SelectValue/></SelectTrigger>
   <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
