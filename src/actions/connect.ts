@@ -521,12 +521,10 @@ export async function shareWithMetropolisSystem(opts: {
 export async function getPublicTemples() {
   try {
     return await prisma.temple.findMany({
-      where: {
-        slug: { not: null }
-      },
       select: {
         name: true,
         slug: true,
+        id: true,
         city: true
       },
       orderBy: {

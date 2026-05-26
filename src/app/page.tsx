@@ -408,7 +408,7 @@ export default function Home() {
  <span className="text-xl md:text-2xl font-extrabold text-blue-400">Ειδική Τιμολόγηση</span>
  </div>
  <ul className="space-y-3 mb-8">
- {['Metropolis"Hawk\'s Eye"Dashboard', 'Κεντρικός Έλεγχος всех Ναών', 'Αθροιστικά KPIs / Στατιστικά', 'Super Admin"Dive-In"', 'Bulk Licensing για 50+ Ναούς'].map(item => (
+ {['Metropolis"Hawk\'s Eye"Dashboard', 'Κεντρικός Έλεγχος όλων των Ναών', 'Αθροιστικά KPIs / Στατιστικά', 'Super Admin"Dive-In"', 'Bulk Licensing για 50+ Ναούς'].map(item => (
  <li key={item} className="flex items-start gap-2 text-xs text-slate-300 font-medium">
  <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-blue-500 flex-shrink-0"/>
  {item}
@@ -440,7 +440,7 @@ export default function Home() {
   <div className="bg-white p-8 rounded-2xl shadow-sm border border-[var(--border)] relative">
   <div className="flex text-amber-400 mb-4">{"★".repeat(5)}</div>
   <p className="text-[var(--text-secondary)] italic mb-6">«Εξαιρετικό εργαλείο. Με τα αυτόματα backups δεν ανησυχώ πια για το αν θα χάσω τα δεδομένα του Ληξιαρχείου αν χαλάσει ο υπολογιστής στο γραφείο του Ναού.»</p>
-  <div className="font-bold text-[var(--foreground)]">π. Δημήτριος Αναστασίου</div>
+  <div className="font-bold text-[var(--dg)]">π. Δημήτριος Αναστασίου</div>
   <div className="text-xs text-[var(--text-muted)] mt-1">Ι.Ν. Κοιμ. Θεοτόκου Αθηνών</div>
   </div>
   <div className="bg-white p-8 rounded-2xl shadow-sm border border-[var(--border)] relative">
@@ -608,7 +608,7 @@ export default function Home() {
               >
                 <option value="">Επιλέξτε Ναό...</option>
                 {temples.map((t: any) => (
-                  <option key={t.slug} value={t.slug}>
+                  <option key={t.slug || t.id} value={t.slug || t.id}>
                     {t.name} ({t.city || '—'})
                   </option>
                 ))}

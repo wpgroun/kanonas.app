@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 export const metadata = { title: 'Κράτηση Μυστηρίου | Kanonas Connect' };
 
 export default async function BookingPage({ params }: { params: { slug: string } }) {
-  const temple = await prisma.temple.findUnique({
+  let temple = await prisma.temple.findUnique({
     where: { slug: params.slug },
     include: {
       bookingSlots: {
@@ -14,6 +14,18 @@ export default async function BookingPage({ params }: { params: { slug: string }
       }
     }
   });
+
+  if (!temple) {
+    temple = await prisma.temple.findUnique({
+      where: { id: params.slug },
+      include: {
+        bookingSlots: {
+          where: { isBooked: false, startTime: { gte: new Date() } },
+          orderBy: { startTime: 'asc' }
+        }
+      }
+    });
+  }
 
   if (!temple) notFound();
 
