@@ -38,13 +38,15 @@ export default function GenerateAllDocsButton({
   serviceType,
   hasProtocol = false,
   customerEmail,
-  customerName
+  customerName,
+  coupleEmails = []
 }: {
   tokenId: string;
   serviceType: string;
   hasProtocol?: boolean;
   customerEmail?: string | null;
   customerName?: string | null;
+  coupleEmails?: string[];
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -146,27 +148,49 @@ export default function GenerateAllDocsButton({
       return;
     }
 
-    // Trigger download first
-    await downloadTargetZip('couple', 'Ζευγάρι');
+    const emailList = coupleEmails.length > 0 ? coupleEmails : (customerEmail ? [customerEmail] : []);
 
-    if (!customerEmail) {
+    if (emailList.length === 0) {
       toast.warning('Δεν έχει καταχωρηθεί Email επικοινωνίας για το ζευγάρι. Η αποστολή Email παραλείφθηκε.');
       return;
     }
 
     setSendingCouple(true);
     try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+
+      targetDocs.forEach(d => {
+        const binaryString = atob(d.base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        zip.file(d.filename, bytes);
+      });
+
+      const zipBase64 = await zip.generateAsync({ type: 'base64' });
+
       await sendRoutingEmail({
-        to: customerEmail,
+        to: emailList.join(', '),
         subject: `Έγγραφα Μυστηρίου — ${customerName || 'Οικογένεια'}`,
         body: `
           <h3>Αγαπητή οικογένεια,</h3>
-          <p>Σας αποστέλλουμε συνημμένα τα έτοιμα έγγραφα για το μυστήριο σας.</p>
+          <p>Σας αποστέλλουμε συνημμένα τα έτοιμα έγγραφα για το μυστήριο σας σε συμπιεσμένο αρχείο ZIP.</p>
           <p>Παρακαλούμε να τα ελέγξετε και να επικοινωνήσετε με τον Ναό αν απαιτείται κάποια διόρθωση.</p>
         `,
-        files: targetDocs.map(d => ({ filename: d.filename, base64: d.base64 }))
+        files: [
+          {
+            filename: `Fakelos_Mystiriou_${customerName || 'Zeygari'}.zip`,
+            base64: zipBase64,
+            type: 'zip'
+          }
+        ]
       });
-      toast.success(`Τα έγγραφα στάλθηκαν με email στο ${customerEmail}.`);
+      toast.success(`Τα έγγραφα στάλθηκαν με email στο ${emailList.join(', ')}.`);
+      
+      // Also download locally for convenience
+      await downloadTargetZip('couple', 'Ζευγάρι');
     } catch (err) {
       console.error(err);
       toast.error('Αποτυχία αποστολής email στο ζευγάρι.');
@@ -184,6 +208,20 @@ export default function GenerateAllDocsButton({
 
     setSendingMetro(true);
     try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+
+      targetDocs.forEach(d => {
+        const binaryString = atob(d.base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        zip.file(d.filename, bytes);
+      });
+
+      const zipBase64 = await zip.generateAsync({ type: 'base64' });
+
       const shareRes = await shareWithMetropolisSystem({
         tokenId,
         files: targetDocs.map(d => ({ key: d.key, label: d.label, filename: d.filename, base64: d.base64 }))
@@ -200,10 +238,16 @@ export default function GenerateAllDocsButton({
             subject: `Υποβολή Εγγράφων Μυστηρίου — Ενορία: ${customerName || '—'}`,
             body: `
               <h3>Ιερά Μητρόπολη,</h3>
-              <p>Σας υποβάλλουμε συνημμένα τα έγγραφα του μυστηρίου που τελέστηκε/θα τελεστεί στον Ναό μας.</p>
+              <p>Σας υποβάλλουμε συνημμένα σε αρχείο ZIP τα έγγραφα του μυστηρίου που τελέστηκε/θα τελεστεί στον Ναό μας.</p>
               <p>Όνομα οικογένειας: <strong>${customerName || '—'}</strong></p>
             `,
-            files: targetDocs.map(d => ({ filename: d.filename, base64: d.base64 }))
+            files: [
+              {
+                filename: `Fakelos_Mitropolis_${customerName || 'Mysterio'}.zip`,
+                base64: zipBase64,
+                type: 'zip'
+              }
+            ]
           });
           toast.success(`Τα έγγραφα στάλθηκαν με email στη Μητρόπολη (${shareRes.email}).`);
         }

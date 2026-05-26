@@ -68,14 +68,18 @@ export default function FormClient({ token }: { token: any }) {
  const [groomStatus, setGroomStatus] = useState(existingMeta.groomStatus || 'agamos');
  const [groomDivorceRef, setGroomDivorceRef] = useState(existingMeta.groomDivorceRef || '');
  const [groomSymfonoRef, setGroomSymfonoRef] = useState(existingMeta.groomSymfonoRef || '');
+ const [groomEmail, setGroomEmail] = useState(existingMeta.groomEmail || '');
  
  const [brideStatus, setBrideStatus] = useState(existingMeta.brideStatus || 'agami');
  const [brideDivorceRef, setBrideDivorceRef] = useState(existingMeta.brideDivorceRef || '');
  const [brideSymfonoRef, setBrideSymfonoRef] = useState(existingMeta.brideSymfonoRef || '');
+ const [brideEmail, setBrideEmail] = useState(existingMeta.brideEmail || '');
  const [koumparosIsOrthodox, setKoumparosIsOrthodox] = useState(existingMeta.koumparosIsOrthodox || '');
 
  const [parentsMarriage, setParentsMarriage] = useState(existingMeta.parentsMarriage || '');
  const [anadoxosIsOrthodox, setAnadoxosIsOrthodox] = useState(existingMeta.anadoxosIsOrthodox || '');
+ const [fatherEmail, setFatherEmail] = useState(existingMeta.fatherEmail || '');
+ const [motherEmail, setMotherEmail] = useState(existingMeta.motherEmail || '');
 
  // Persons State
  // GROOM
@@ -120,13 +124,15 @@ export default function FormClient({ token }: { token: any }) {
  brideStatus, 
  brideDivorceRef: brideStatus === 'diazevmeni' ? brideDivorceRef : undefined, 
  brideSymfonoRef: brideStatus === 'symfono' ? brideSymfonoRef : undefined,
- koumparosIsOrthodox 
+ koumparosIsOrthodox,
+ groomEmail,
+ brideEmail
  };
  personsArr.push({ role: 'groom', firstName: groomFirst, lastName: groomLast, fathersName: groomFather });
  personsArr.push({ role: 'bride', firstName: brideFirst, lastName: brideLast, fathersName: brideFather });
  personsArr.push({ role: 'koumparos', firstName: koumparosFirst, lastName: koumparosLast });
  } else {
- payload = { parentsMarriage, anadoxosIsOrthodox, childName: childFirst };
+ payload = { parentsMarriage, anadoxosIsOrthodox, childName: childFirst, fatherEmail, motherEmail };
  personsArr.push({ role: 'child', firstName: childFirst, lastName: childLast });
  personsArr.push({ role: 'father', firstName: parentFirst, lastName: parentLast }); // Generic role
  personsArr.push({ role: 'godparent', firstName: godparentFirst, lastName: godparentLast });
@@ -183,10 +189,11 @@ export default function FormClient({ token }: { token: any }) {
  {/* GROOM */}
  <div className="bg-muted/30 p-5 rounded-xl border border-border">
  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Νυμφίος (Γαμπρός)</h3>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+ <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
  <div className="space-y-2"><Label>Όνομα</Label><Input value={groomFirst} onChange={e=>setGroomFirst(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={groomLast} onChange={e=>setGroomLast(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Πατρώνυμο</Label><Input value={groomFather} onChange={e=>setGroomFather(e.target.value)} required /></div>
+ <div className="space-y-2"><Label>Email</Label><Input type="email" value={groomEmail} onChange={e=>setGroomEmail(e.target.value)} required /></div>
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="space-y-2">
@@ -217,10 +224,11 @@ export default function FormClient({ token }: { token: any }) {
  {/* BRIDE */}
  <div className="bg-muted/30 p-5 rounded-xl border border-border">
  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 bg-pink-500 rounded-full"></div> Νύμφη</h3>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+ <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
  <div className="space-y-2"><Label>Όνομα</Label><Input value={brideFirst} onChange={e=>setBrideFirst(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Επώνυμο (Πατρικό)</Label><Input value={brideLast} onChange={e=>setBrideLast(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Πατρώνυμο</Label><Input value={brideFather} onChange={e=>setBrideFather(e.target.value)} required /></div>
+ <div className="space-y-2"><Label>Email</Label><Input type="email" value={brideEmail} onChange={e=>setBrideEmail(e.target.value)} required /></div>
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="space-y-2">
@@ -290,6 +298,10 @@ export default function FormClient({ token }: { token: any }) {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
  <div className="space-y-2"><Label>Όνομα</Label><Input value={parentFirst} onChange={e=>setParentFirst(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={parentLast} onChange={e=>setParentLast(e.target.value)} required /></div>
+ </div>
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+ <div className="space-y-2"><Label>Email Πατέρα</Label><Input type="email" value={fatherEmail} onChange={e=>setFatherEmail(e.target.value)} required /></div>
+ <div className="space-y-2"><Label>Email Μητέρας</Label><Input type="email" value={motherEmail} onChange={e=>setMotherEmail(e.target.value)} required /></div>
  </div>
  <div className="space-y-2 max-w-md">
  <Label>Είδος Γάμου Γονέων</Label>

@@ -35,6 +35,23 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
     } catch (e) {}
   }
 
+  let coupleEmails: string[] = [];
+  if (token.customerEmail) {
+    coupleEmails.push(token.customerEmail);
+  }
+  if (token.ceremonyMeta?.dataJson) {
+    try {
+      const meta = JSON.parse(token.ceremonyMeta.dataJson);
+      if (token.serviceType === 'GAMOS') {
+        if (meta.groomEmail && !coupleEmails.includes(meta.groomEmail)) coupleEmails.push(meta.groomEmail);
+        if (meta.brideEmail && !coupleEmails.includes(meta.brideEmail)) coupleEmails.push(meta.brideEmail);
+      } else {
+        if (meta.fatherEmail && !coupleEmails.includes(meta.fatherEmail)) coupleEmails.push(meta.fatherEmail);
+        if (meta.motherEmail && !coupleEmails.includes(meta.motherEmail)) coupleEmails.push(meta.motherEmail);
+      }
+    } catch (e) {}
+  }
+
  return (
  <div className="container-fluid mt-6 space-y-6 max-w-5xl animate-in fade-in duration-500">
  
@@ -81,6 +98,7 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
     hasProtocol={!!token.protocolNumber} 
     customerEmail={token.customerEmail}
     customerName={token.customerName}
+    coupleEmails={coupleEmails}
   />
  <Badge variant="outline"className="bg-amber-100 text-[var(--warning)] hover:bg-amber-100 border-amber-200">
  <Clock className="w-3 h-3 mr-1"/> Σε Εκκρεμότητα
@@ -169,6 +187,30 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
  {meta.anadoxosIsOrthodox === 'yes' ? 'Ναι' : 'ΟΧΙ (Προσοχή!)'}
  </span>
  </div>
+)}
+ {meta.groomEmail && (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 border-t border-border/50 pt-2 pb-2">
+  <span className="text-muted-foreground">Email Γαμπρού:</span>
+  <span className="font-semibold col-span-2">{meta.groomEmail}</span>
+  </div>
+)}
+  {meta.brideEmail && (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 border-b border-border/50 pb-2">
+  <span className="text-muted-foreground">Email Νύφης:</span>
+  <span className="font-semibold col-span-2">{meta.brideEmail}</span>
+  </div>
+)}
+  {meta.fatherEmail && (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 border-t border-border/50 pt-2 pb-2">
+  <span className="text-muted-foreground">Email Πατέρα:</span>
+  <span className="font-semibold col-span-2">{meta.fatherEmail}</span>
+  </div>
+)}
+  {meta.motherEmail && (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 border-b border-border/50 pb-2">
+  <span className="text-muted-foreground">Email Μητέρας:</span>
+  <span className="font-semibold col-span-2">{meta.motherEmail}</span>
+  </div>
 )}
  </>
 );

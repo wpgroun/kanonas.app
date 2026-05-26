@@ -6,6 +6,8 @@ import { getCurrentTempleId } from '@/actions/core';
 import { generateFromTemplate } from './docEngine';
 import { randomUUID } from 'crypto';
 import { headers } from 'next/headers';
+import fs from 'fs';
+import path from 'path';
 
 export async function submitCitizenRequest({
  templeSlug,
@@ -347,7 +349,7 @@ export async function sendRoutingEmail(opts: {
     attachments: opts.files.map(f => ({
       filename: f.filename,
       content: Buffer.from(f.base64, 'base64'),
-      contentType: f.type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf'
+      contentType: f.type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : f.type === 'zip' ? 'application/zip' : 'application/pdf'
     }))
   });
 
@@ -373,32 +375,145 @@ export async function shareWithMetropolisSystem(opts: {
 
   const token = await prisma.token.findUnique({
     where: { id: opts.tokenId },
-    include: { ceremonyMeta: true }
+    include: { ceremonyMeta: true, persons: true }
   });
 
-  if (token) {
-    let meta: any = {};
-    if (token.ceremonyMeta?.dataJson) {
-      try { meta = JSON.parse(token.ceremonyMeta.dataJson); } catch {}
-    }
-    meta.sharedWithMetropolis = true;
-    meta.sharedWithMetropolisAt = new Date().toISOString();
-    
-    await prisma.ceremonyMeta.upsert({
-      where: { tokenId: token.id },
-      create: { tokenId: token.id, dataJson: JSON.stringify(meta) },
-      update: { dataJson: JSON.stringify(meta) }
-    });
+  if (!token) {
+    return { success: false, error: "Το μυστήριο δεν βρέθηκε." };
+  }
 
-    await prisma.auditLog.create({
-      data: {
-        templeId: templeId as string,
-        action: 'METROPOLIS_SHARE',
-        detail: `Κοινή χρήση ${opts.files.length} εγγράφων με τη Μητρόπολη ${temple.metropolis.name}`,
-        userId: session.userId as string
+  // --- METROPOLIS INTEGRATION (AUTO-FILL METROPOLIS ARCHIVE) ---
+  let metropolisTemple = await prisma.temple.findFirst({
+    where: {
+      metropolisId: temple.metropolisId,
+      subscriptions: {
+        some: {
+          status: 'active',
+          plan: {
+            isMetropolis: true
+          }
+        }
+      }
+    }
+  });
+
+  if (!metropolisTemple) {
+    metropolisTemple = await prisma.temple.findFirst({
+      where: {
+        metropolisId: temple.metropolisId,
+        OR: [
+          { name: { contains: 'Μητρόπολη' } },
+          { name: { contains: 'Μητροπολιτικός' } },
+          { slug: { contains: 'metropolis' } }
+        ]
       }
     });
   }
+
+  if (metropolisTemple && metropolisTemple.id !== temple.id) {
+    const metroTokenStr = `${token.tokenStr}-metro`;
+
+    let metroToken = await prisma.token.findUnique({
+      where: { tokenStr: metroTokenStr }
+    });
+
+    const metroTokenData = {
+      templeId: metropolisTemple.id,
+      tokenStr: metroTokenStr,
+      serviceType: token.serviceType,
+      status: 'docs_generated',
+      customerName: token.customerName,
+      customerEmail: token.customerEmail,
+      customerPhone: token.customerPhone,
+      ceremonyDate: token.ceremonyDate,
+      assignedPriest: token.assignedPriest,
+      assignedPsaltis: token.assignedPsaltis,
+      assignedNeokomos: token.assignedNeokomos,
+      protocolNumber: token.protocolNumber,
+      bookNumber: token.bookNumber,
+      submissionComplete: true
+    };
+
+    if (metroToken) {
+      metroToken = await prisma.token.update({
+        where: { id: metroToken.id },
+        data: metroTokenData
+      });
+    } else {
+      metroToken = await prisma.token.create({
+        data: metroTokenData
+      });
+    }
+
+    await prisma.ceremonyMeta.upsert({
+      where: { tokenId: metroToken.id },
+      create: { tokenId: metroToken.id, dataJson: token.ceremonyMeta?.dataJson || '{}' },
+      update: { dataJson: token.ceremonyMeta?.dataJson || '{}' }
+    });
+
+    await prisma.ceremonyPerson.deleteMany({ where: { tokenId: metroToken.id } });
+    if (token.persons.length > 0) {
+      await prisma.ceremonyPerson.createMany({
+        data: token.persons.map(p => ({
+          tokenId: metroToken.id,
+          role: p.role,
+          firstName: p.firstName,
+          lastName: p.lastName,
+          fathersName: p.fathersName,
+          mothersName: p.mothersName,
+          idNumber: p.idNumber,
+          afm: p.afm
+        }))
+      });
+    }
+
+    const metroBaseDir = path.join(process.cwd(), 'public', 'docs', metropolisTemple.id);
+    if (!fs.existsSync(metroBaseDir)) {
+      fs.mkdirSync(metroBaseDir, { recursive: true });
+    }
+
+    await prisma.document.deleteMany({ where: { tokenId: metroToken.id } });
+
+    for (const file of opts.files) {
+      const safeFilename = `${Date.now()}-${file.filename.replace(/[^a-zA-Z0-9.\-]/g, '_')}`;
+      const filePath = path.join(metroBaseDir, safeFilename);
+      fs.writeFileSync(filePath, Buffer.from(file.base64, 'base64'));
+
+      const storagePath = `/docs/${metropolisTemple.id}/${safeFilename}`;
+
+      await prisma.document.create({
+        data: {
+          templeId: metropolisTemple.id,
+          tokenId: metroToken.id,
+          docType: file.key,
+          fileName: file.label,
+          storagePath: storagePath
+        }
+      });
+    }
+  }
+
+  let meta: any = {};
+  if (token.ceremonyMeta?.dataJson) {
+    try { meta = JSON.parse(token.ceremonyMeta.dataJson); } catch {}
+  }
+  meta.sharedWithMetropolis = true;
+  meta.sharedWithMetropolisAt = new Date().toISOString();
+  
+  await prisma.ceremonyMeta.upsert({
+    where: { tokenId: token.id },
+    create: { tokenId: token.id, dataJson: JSON.stringify(meta) },
+    update: { dataJson: JSON.stringify(meta) }
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      templeId: templeId as string,
+      action: 'METROPOLIS_SHARE',
+      detail: `Κοινή χρήση ${opts.files.length} εγγράφων με τη Μητρόπολη ${temple.metropolis.name}`,
+      userId: session.userId as string
+    }
+  });
 
   return { success: true, metropolisName: temple.metropolis.name, email: temple.metropolis.email };
 }
