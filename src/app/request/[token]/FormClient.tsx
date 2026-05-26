@@ -212,6 +212,11 @@ export default function FormClient({ token }: { token: any }) {
 )}
  {groomStatus === 'xiros' && <FileUploader templeId={token.templeId} tokenId={token.id} docType="ALLO"label="Ληξιαρχική Πράξη Θανάτου"/>}
  </div>
+ 
+ {/* Αστυνομική Ταυτότητα Νυμφίου (Απαραίτητη) */}
+ <div className="mt-4 pt-4 border-t border-dashed border-border">
+ <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_GAMPROY" label="Αστυνομική Ταυτότητα Νυμφίου (Γαμπρού)" />
+ </div>
  </div>
 
  {/* BRIDE */}
@@ -245,6 +250,11 @@ export default function FormClient({ token }: { token: any }) {
  </div>
 )}
  {brideStatus === 'xira' && <FileUploader templeId={token.templeId} tokenId={token.id} docType="ALLO"label="Ληξιαρχική Πράξη Θανάτου"/>}
+ </div>
+
+ {/* Αστυνομική Ταυτότητα Νύμφης (Απαραίτητη) */}
+ <div className="mt-4 pt-4 border-t border-dashed border-border">
+ <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_NYFIS" label="Αστυνομική Ταυτότητα Νύμφης" />
  </div>
  </div>
 
@@ -297,6 +307,11 @@ export default function FormClient({ token }: { token: any }) {
  <SelectTrigger><SelectValue placeholder="Επιλέξτε..."/></SelectTrigger>
  <SelectContent><SelectItem value="thriskeftikos">Θρησκευτικός Γάμος</SelectItem><SelectItem value="politikos">Πολιτικός Γάμος</SelectItem><SelectItem value="simfiosi">Σύμφωνο Συμβίωσης</SelectItem><SelectItem value="monogoneiki">Μονογονεϊκή Οικογένεια</SelectItem></SelectContent>
  </Select>
+ </div>
+ 
+ {/* Αστυνομική Ταυτότητα Γονέα / Κηδεμόνα (Απαραίτητη) */}
+ <div className="mt-4 pt-4 border-t border-dashed border-border">
+ <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_GONEA" label="Αστυνομική Ταυτότητα Γονέα / Κηδεμόνα" />
  </div>
  </div>
 
