@@ -19,17 +19,18 @@ export async function getUpcomingNamedays(daysAhead: number = 7) {
   today.setHours(0, 0, 0, 0)
 
   const results: {
-    parishionerId: string
-    fullName: string
-    firstName: string
-    phone: string | null
-    celebrationDate: Date
-    feastNames: string[]
+    date: string
+    names: string[]
     isToday: boolean
     daysUntil: number
+    parishioners: {
+      id: string
+      fullName: string
+      firstName: string
+      phone: string | null
+    }[]
   }[] = []
 
-  // For each upcoming day, check each parishioner
   for (let i = 0; i < daysAhead; i++) {
     const d = new Date(today)
     d.setDate(d.getDate() + i)
@@ -37,28 +38,33 @@ export async function getUpcomingNamedays(daysAhead: number = 7) {
     const celebratingNames = getCelebratingNamesForDate(d)
     if (celebratingNames.length === 0) continue
 
+    const matchingParishioners: {
+      id: string
+      fullName: string
+      firstName: string
+      phone: string | null
+    }[] = []
+
     for (const p of parishioners) {
-      const normName = normalizeGreekName(p.firstName)
       if (isNameday(p.firstName, d)) {
-        // Avoid duplicates (same person, same date)
-        const alreadyAdded = results.some(r => r.parishionerId === p.id && r.celebrationDate.getTime() === d.getTime())
-        if (!alreadyAdded) {
-          results.push({
-            parishionerId: p.id,
-            fullName: `${p.firstName} ${p.lastName}`,
-            firstName: p.firstName,
-            phone: p.mobile || p.phone || null,
-            celebrationDate: d,
-            feastNames: celebratingNames,
-            isToday: i === 0,
-            daysUntil: i,
-          })
-        }
+        matchingParishioners.push({
+          id: p.id,
+          fullName: `${p.firstName} ${p.lastName}`,
+          firstName: p.firstName,
+          phone: p.mobile || p.phone || null,
+        })
       }
     }
+
+    results.push({
+      date: d.toISOString(),
+      names: celebratingNames,
+      isToday: i === 0,
+      daysUntil: i,
+      parishioners: matchingParishioners,
+    })
   }
 
-  results.sort((a, b) => a.celebrationDate.getTime() - b.celebrationDate.getTime())
   return results
 }
 
