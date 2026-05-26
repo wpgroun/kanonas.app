@@ -288,7 +288,7 @@ export default function FormClient({ token }: { token: any }) {
  <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
  </Select>
  </div>
- <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_GAMPROY" label={groomDocType === 'identity' ? 'Αστυνομική Ταυτότητα Νυμφίου (Γαμπρού)' : 'Διαβατήριο Νυμφίου (Γαμπρού)'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_GAMPROY")} />
+ <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_GAMPROY" label={groomDocType === 'identity' ? 'Αστυνομική Ταυτότητα Νυμφίου (Γαμπρού) (Υποχρεωτικό)' : 'Διαβατήριο Νυμφίου (Γαμπρού) (Υποχρεωτικό)'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_GAMPROY")} />
  </div>
  </div>
 
@@ -338,7 +338,7 @@ export default function FormClient({ token }: { token: any }) {
   <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
   </Select>
   </div>
-  <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_NYFIS" label={brideDocType === 'identity' ? 'Αστυνομική Ταυτότητα Νύμφης' : 'Διαβατήριο Νύμφης'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_NYFIS")} />
+  <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_NYFIS" label={brideDocType === 'identity' ? 'Αστυνομική Ταυτότητα Νύμφης (Υποχρεωτικό)' : 'Διαβατήριο Νύμφης (Υποχρεωτικό)'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_NYFIS")} />
   </div>
  </div>
 
@@ -408,7 +408,7 @@ export default function FormClient({ token }: { token: any }) {
   <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
   </Select>
   </div>
-  <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_PATERA" label={fatherDocType === 'identity' ? 'Αστυνομική Ταυτότητα Πατέρα' : 'Διαβατήριο Πατέρα'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_PATERA")} />
+  <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_PATERA" label={fatherDocType === 'identity' ? 'Αστυνομική Ταυτότητα Πατέρα (Υποχρεωτικό)' : 'Διαβατήριο Πατέρα (Υποχρεωτικό)'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_PATERA")} />
   </div>
   </div>
 
@@ -433,7 +433,7 @@ export default function FormClient({ token }: { token: any }) {
   <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
   </Select>
   </div>
-  <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_MITERAS" label={motherDocType === 'identity' ? 'Αστυνομική Ταυτότητα Μητέρας' : 'Διαβατήριο Μητέρας'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_MITERAS")} />
+  <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_MITERAS" label={motherDocType === 'identity' ? 'Αστυνομική Ταυτότητα Μητέρας (Υποχρεωτικό)' : 'Διαβατήριο Μητέρας (Υποχρεωτικό)'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_MITERAS")} />
   </div>
   </div>
 
