@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/requireAuth';
 import { getCurrentTempleId } from '@/actions/core';
+import { generateBookingSlotsForTemple } from './connectBooking';
 
 export async function getTempleSettings() {
  const templeId = await getCurrentTempleId();
@@ -76,15 +77,24 @@ export async function updateTempleSettings(data: {
  }
  });
 
- await prisma.auditLog.create({
- data: {
- templeId,
- userId: session.userId,
- userEmail: session.userEmail,
- action: 'UPDATE_SETTINGS',
- detail: 'Ενημερώθηκαν οι Κεντρικές Ρυθμίσεις (Settings & Integrations) του Ναού.'
- }
- });
+  // If schedule is updated, regenerate booking slots
+  if (data.settings?.bookingSchedule) {
+    try {
+      await generateBookingSlotsForTemple(templeId, data.settings.bookingSchedule);
+    } catch (err) {
+      console.error("Error regenerating slots during settings update:", err);
+    }
+  }
+
+  await prisma.auditLog.create({
+    data: {
+      templeId,
+      userId: session.userId,
+      userEmail: session.userEmail,
+      action: 'UPDATE_SETTINGS',
+      detail: 'Ενημερώθηκαν οι Κεντρικές Ρυθμίσεις (Settings & Integrations) του Ναού.'
+    }
+  });
 
  return { success: true };
  } catch (e: any) {

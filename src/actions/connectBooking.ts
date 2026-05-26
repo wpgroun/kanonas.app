@@ -136,3 +136,103 @@ export async function submitPublicBooking(data: {
 
   return { success: true, tokenStr: randomHash };
 }
+
+function createAthensDate(year: number, month: number, date: number, hours: number, minutes: number): Date {
+  const base = new Date(Date.UTC(year, month, date, hours, minutes));
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Athens',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: false
+  });
+  
+  const parts = formatter.formatToParts(base);
+  const partMap: Record<string, number> = {};
+  parts.forEach(p => {
+    if (p.type !== 'literal') {
+      partMap[p.type] = parseInt(p.value, 10);
+    }
+  });
+  
+  const tzDateMs = Date.UTC(partMap.year, partMap.month - 1, partMap.day, partMap.hour, partMap.minute, 0);
+  const diffMs = tzDateMs - base.getTime();
+  const targetMs = Date.UTC(year, month, date, hours, minutes, 0) - diffMs;
+  return new Date(targetMs);
+}
+
+export async function generateBookingSlotsForTemple(templeId: string, schedule: any) {
+  const disabledDays = schedule?.disabledDaysOfWeek ?? [1, 3];
+  const timeSlots = schedule?.timeSlots ?? ['17:00', '18:00', '19:00', '20:00'];
+  const exceptionalDates = schedule?.exceptionalDisabledDates ?? [];
+  const duration = schedule?.gamosDurationMin ?? 45;
+
+  const today = new Date();
+
+  // Clear unbooked future slots
+  await prisma.bookingSlot.deleteMany({
+    where: {
+      templeId,
+      isBooked: false,
+      startTime: { gte: today }
+    }
+  });
+
+  const slotsToCreate = [];
+
+  for (let i = 1; i <= 60; i++) {
+    const candidateDate = new Date(today);
+    candidateDate.setDate(today.getDate() + i);
+    
+    // Check if day of week is disabled
+    const dayOfWeek = candidateDate.getDay();
+    if (disabledDays.includes(dayOfWeek)) {
+      continue;
+    }
+    
+    // Check if exceptional date YYYY-MM-DD
+    const year = candidateDate.getFullYear();
+    const month = String(candidateDate.getMonth() + 1).padStart(2, '0');
+    const day = String(candidateDate.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    if (exceptionalDates.includes(dateStr)) {
+      continue;
+    }
+    
+    for (const time of timeSlots) {
+      const [hoursStr, minutesStr] = time.split(':');
+      const hours = parseInt(hoursStr, 10);
+      const minutes = parseInt(minutesStr, 10);
+      
+      const slotStart = createAthensDate(
+        candidateDate.getFullYear(),
+        candidateDate.getMonth(),
+        candidateDate.getDate(),
+        hours,
+        minutes
+      );
+      
+      const slotEnd = new Date(slotStart.getTime() + duration * 60000);
+      
+      slotsToCreate.push({
+        templeId,
+        serviceType: 'ANY',
+        startTime: slotStart,
+        endTime: slotEnd,
+        isBooked: false
+      });
+    }
+  }
+
+  if (slotsToCreate.length > 0) {
+    await prisma.bookingSlot.createMany({
+      data: slotsToCreate
+    });
+  }
+
+  return { success: true };
+}
+

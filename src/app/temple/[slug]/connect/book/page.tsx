@@ -1,6 +1,7 @@
 import BookingWizard from './BookingWizard';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { generateBookingSlotsForTemple } from '@/actions/connectBooking';
 
 export const metadata = { title: 'Κράτηση Μυστηρίου | Kanonas Connect' };
 
@@ -30,6 +31,35 @@ export default async function BookingPage({ params }: { params: { slug: string }
   }
 
   if (!temple) notFound();
+
+  // If there are no future booking slots, generate them on the fly
+  if (temple.bookingSlots.length === 0) {
+    let schedule = null;
+    try {
+      if (temple.settings) {
+        const parsed = JSON.parse(temple.settings);
+        schedule = parsed.bookingSchedule;
+      }
+    } catch (e) {
+      console.error("Failed to parse temple settings:", e);
+    }
+    
+    await generateBookingSlotsForTemple(temple.id, schedule);
+    
+    // Reload temple with the new slots
+    const updatedTemple = await prisma.temple.findUnique({
+      where: { id: temple.id },
+      include: {
+        bookingSlots: {
+          where: { isBooked: false, startTime: { gte: new Date() } },
+          orderBy: { startTime: 'asc' }
+        }
+      }
+    });
+    if (updatedTemple) {
+      temple = updatedTemple;
+    }
+  }
 
   // Group slots by date for easy parsing in the calendar UI
   const availableSlots = temple.bookingSlots.map(s => ({
