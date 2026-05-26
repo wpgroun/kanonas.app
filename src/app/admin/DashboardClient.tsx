@@ -79,6 +79,67 @@ const ChartTooltip = ({ active, payload, label }: any) => {
  return null
 }
 
+// ── Ποιμαντική: list of today + upcoming namedays ─────────────────────────────
+
+function NamedayList({ namedays }: { namedays: any[] }) {
+ const todayList = namedays.filter((nd: any) => nd.isToday)
+ const upcomingList = namedays.filter((nd: any) => !nd.isToday).slice(0, 4)
+ return (
+ <div className="space-y-3">
+ {todayList.length > 0 && (
+ <div>
+ <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1.5">🎉 Σήμερα Εορτάζουν</p>
+ <div className="space-y-1.5">
+ {todayList.map((nd: any, i: number) => (
+ <div key={`today-${nd.parishionerId}-${i}`} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+ <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+ <span className="text-xs font-black text-white">{nd.firstName[0]}</span>
+ </div>
+ <div className="flex-1 min-w-0">
+ <p className="text-sm font-bold text-amber-900 truncate">{nd.fullName}</p>
+ {nd.phone && <p className="text-xs text-amber-700">{nd.phone}</p>}
+ </div>
+ <span className="text-lg">🎂</span>
+ </div>
+ ))}
+ </div>
+ </div>
+ )}
+ {upcomingList.length > 0 && (
+ <div>
+ {todayList.length > 0 && <div className="border-t border-[var(--border)] my-2"/>}
+ <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Επόμενες Ημέρες</p>
+ <div className="space-y-1">
+ {upcomingList.map((nd: any, i: number) => (
+ <div key={`upcoming-${nd.parishionerId}-${i}`} className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-[var(--surface-hover)] transition-colors">
+ <div className="w-7 h-7 rounded-full bg-[var(--brand-light)] flex items-center justify-center flex-shrink-0">
+ <span className="text-[11px] font-bold text-[var(--brand)]">{nd.firstName[0]}</span>
+ </div>
+ <div className="flex-1 min-w-0">
+ <p className="text-sm font-semibold text-[var(--foreground)] truncate">{nd.fullName}</p>
+ <p className="text-[11px] text-[var(--text-muted)]">
+ {new Date(nd.celebrationDate).toLocaleDateString('el-GR', { weekday: 'short', day: 'numeric', month: 'short' })}
+ {nd.daysUntil === 1 ? ' — Αύριο' : nd.daysUntil === 2 ? ' — Μεθαύριο' : ` — σε ${nd.daysUntil} μέρες`}
+ </p>
+ </div>
+ </div>
+ ))}
+ </div>
+ </div>
+ )}
+ {todayList.length === 0 && upcomingList.length === 0 && (
+ <div className="empty-state py-4">
+ <Gift className="empty-state-icon"/>
+ <p className="empty-state-title">Κανείς εορτάζων</p>
+ <p className="empty-state-desc">Τις επόμενες 7 ημέρες</p>
+ </div>
+ )}
+ </div>
+ )
+}
+
+// ── Main Dashboard ─────────────────────────────────────────────────────────────
+
 export default function DashboardClient({ stats }: { stats: any }) {
  return (
  <div className="space-y-6 pb-8">
@@ -108,7 +169,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  </div>
  </div>
 
- {/* System Announcements (from Super Admin) */}
+ {/* System Announcements */}
  {stats.announcements?.length > 0 && (
  <div className="space-y-2 mb-4">
  {stats.announcements.map((ann: any) => {
@@ -143,7 +204,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  </span>
  Έξυπνος Βοηθός (Action Center)
  </h2>
- 
+
  <div className="space-y-3">
  {stats.pendingRequests > 0 ? (
  <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-warning/20 shadow-sm transition-all hover:shadow-md">
@@ -154,7 +215,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  <p className="text-xs text-muted-foreground">Απαιτείται έγκριση δικαιολογητικών.</p>
  </div>
  </div>
- <Link href="/admin/requests"><Button size="sm"variant="outline"className="h-8">Διαχείριση</Button></Link>
+ <Link href="/admin/requests"><Button size="sm" variant="outline" className="h-8">Διαχείριση</Button></Link>
  </div>
 ) : (
  <div className="flex items-center gap-3 p-3 bg-[var(--surface)] rounded-lg border shadow-sm">
@@ -163,23 +224,24 @@ export default function DashboardClient({ stats }: { stats: any }) {
  </div>
 )}
 
-  {stats.upcomingNamedays?.length > 0 && (() => {
-  const todayCount = stats.upcomingNamedays.filter((nd: any) => nd.isToday).length;
-  const upcomingCount = stats.upcomingNamedays.filter((nd: any) => !nd.isToday).length;
-  return (
-  <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-blue-200 shadow-sm transition-all hover:shadow-md">
-  <div className="flex items-center gap-3">
-  <div className="p-2 bg-blue-50 rounded-md text-blue-600"><Gift className="w-5 h-5"/></div>
-  <div>
-  {todayCount > 0 && <p className="text-sm font-bold text-foreground">🎉 {todayCount} {todayCount === 1 ? 'ενορίτης εορτάζει' : 'ενορίτες εορτάζουν'} σήμερα!</p>}
-  {upcomingCount > 0 && <p className="text-xs text-muted-foreground">{upcomingCount} ακόμα εορτές τις επόμενες μέρες</p>}
-  </div>
-  </div>
-  <Link href="/admin/mailing"><Button size="sm" variant="outline" className="h-8 text-blue-600 border-blue-200">Ευχές</Button></Link>
-  </div>
-  );
+ {stats.upcomingNamedays?.length > 0 && (() => {
+ const todayCount = stats.upcomingNamedays.filter((nd: any) => nd.isToday).length
+ const upcomingCount = stats.upcomingNamedays.filter((nd: any) => !nd.isToday).length
+ return (
+ <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-blue-200 shadow-sm transition-all hover:shadow-md">
+ <div className="flex items-center gap-3">
+ <div className="p-2 bg-blue-50 rounded-md text-blue-600"><Gift className="w-5 h-5"/></div>
+ <div>
+ {todayCount > 0 && <p className="text-sm font-bold text-foreground">🎉 {todayCount} {todayCount === 1 ? 'ενορίτης εορτάζει' : 'ενορίτες εορτάζουν'} σήμερα!</p>}
+ {upcomingCount > 0 && <p className="text-xs text-muted-foreground">{upcomingCount} ακόμα εορτές τις επόμενες μέρες</p>}
+ {todayCount === 0 && upcomingCount > 0 && <p className="text-sm font-bold text-foreground">Πλησιάζουν {upcomingCount} Εορτές Ενοριτών</p>}
+ </div>
+ </div>
+ <Link href="/admin/mailing"><Button size="sm" variant="outline" className="h-8 text-blue-600 border-blue-200">Ευχές</Button></Link>
+ </div>
+ )
  })()}
- 
+
  <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg border border-purple-200 shadow-sm transition-all hover:shadow-md">
  <div className="flex items-center gap-3">
  <div className="p-2 bg-purple-50 rounded-md text-purple-600"><HeartHandshake className="w-5 h-5"/></div>
@@ -188,7 +250,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  <p className="text-xs text-muted-foreground">Μην ξεχάσετε να οργανώσετε τις βάρδιες εθελοντών.</p>
  </div>
  </div>
- <Link href="/admin/ministries"><Button size="sm"variant="outline"className="h-8 text-purple-600 border-purple-200">Βάρδιες</Button></Link>
+ <Link href="/admin/ministries"><Button size="sm" variant="outline" className="h-8 text-purple-600 border-purple-200">Βάρδιες</Button></Link>
  </div>
  </div>
  </div>
@@ -235,24 +297,24 @@ export default function DashboardClient({ stats }: { stats: any }) {
  <h2 className="text-sm font-bold text-[var(--foreground)]">Τάση Εσόδων</h2>
  <p className="text-xs text-[var(--text-muted)]">Τελευταίοι 6 μήνες</p>
  </div>
- <Link href="/admin/finances"className="text-xs font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
+ <Link href="/admin/finances" className="text-xs font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
  Αναλυτικά <ChevronRight className="w-3 h-3"/>
  </Link>
  </div>
  <div className="w-full h-[220px]">
- <ResponsiveContainer width="100%"height="100%">
+ <ResponsiveContainer width="100%" height="100%">
  <AreaChart data={stats.revenueTrend} margin={{ top: 5, right: 5, bottom: 0, left: -10 }}>
  <defs>
- <linearGradient id="revenueGrad"x1="0"y1="0"x2="0"y2="1">
- <stop offset="5%"stopColor="#7C3AED"stopOpacity={0.15} />
- <stop offset="95%"stopColor="#7C3AED"stopOpacity={0} />
+ <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.15} />
+ <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
  </linearGradient>
  </defs>
- <CartesianGrid strokeDasharray="3 3"vertical={false} stroke="var(--border)"/>
- <XAxis dataKey="name"axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }} dy={8} />
+ <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)"/>
+ <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }} dy={8} />
  <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} dx={-5} tickFormatter={(v) => `€${v}`} />
  <Tooltip content={<ChartTooltip />} />
- <Area type="monotone"dataKey="Έσοδα"stroke="#7C3AED"strokeWidth={2} fill="url(#revenueGrad)"dot={{ r: 3.5, fill: '#7C3AED', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5, fill: '#4F46E5' }} />
+ <Area type="monotone" dataKey="Έσοδα" stroke="#7C3AED" strokeWidth={2} fill="url(#revenueGrad)" dot={{ r: 3.5, fill: '#7C3AED', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5, fill: '#4F46E5' }} />
  </AreaChart>
  </ResponsiveContainer>
  </div>
@@ -267,9 +329,9 @@ export default function DashboardClient({ stats }: { stats: any }) {
  {stats.sacramentsData?.length > 0 ? (
  <>
  <div className="w-full h-[160px]">
- <ResponsiveContainer width="100%"height="100%">
+ <ResponsiveContainer width="100%" height="100%">
  <PieChart>
- <Pie data={stats.sacramentsData} cx="50%"cy="50%"innerRadius={45} outerRadius={65} paddingAngle={3} dataKey="value"stroke="none">
+ <Pie data={stats.sacramentsData} cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={3} dataKey="value" stroke="none">
  {stats.sacramentsData?.map((_: any, index: number) => (
  <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
 ))}
@@ -282,12 +344,12 @@ export default function DashboardClient({ stats }: { stats: any }) {
  {stats.sacramentsData?.slice(0, 4).map((entry: any, index: number) => (
  <div key={entry.name} className="flex items-center justify-between text-xs">
  <div className="flex items-center gap-2">
- <span className="w-2 h-2 rounded-full flex-shrink-0"style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
+ <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
  <span className="text-[var(--text-secondary)] font-medium">{entry.name}</span>
  </div>
  <span className="font-bold text-[var(--foreground)]">{entry.value}</span>
  </div>
-))}
+ ))}
  </div>
  </>
 ) : (
@@ -300,8 +362,9 @@ export default function DashboardClient({ stats }: { stats: any }) {
  </div>
  </div>
 
- {/* Bottom Row */}
+ {/* Bottom Row: Requests | Parishioners | Ποιμαντική */}
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
  {/* Recent Requests */}
  <div className="card p-5">
  <div className="flex justify-between items-center mb-4">
@@ -309,7 +372,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  <ClipboardList className="w-4 h-4 text-[var(--brand)]"/>
  Πρόσφατα Αιτήματα
  </h2>
- <Link href="/admin/requests"className="text-xs font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
+ <Link href="/admin/requests" className="text-xs font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
  Όλα <ChevronRight className="w-3 h-3"/>
  </Link>
  </div>
@@ -332,7 +395,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  <span className={`badge ${st.cls} flex-shrink-0`}>{st.label}</span>
  </div>
  </Link>
-)
+ )
  })}
  </div>
 ) : (
@@ -351,7 +414,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  <Users className="w-4 h-4 text-[var(--brand)]"/>
  Νέες Εγγραφές
  </h2>
- <Link href="/admin/parishioners"className="text-xs font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
+ <Link href="/admin/parishioners" className="text-xs font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
  Μητρώο <ChevronRight className="w-3 h-3"/>
  </Link>
  </div>
@@ -372,7 +435,7 @@ export default function DashboardClient({ stats }: { stats: any }) {
  </div>
  </div>
  </Link>
-))}
+ ))}
  </div>
 ) : (
  <div className="empty-state py-6">
@@ -407,73 +470,17 @@ export default function DashboardClient({ stats }: { stats: any }) {
  Μητρώο <ChevronRight className="w-3 h-3"/>
  </Link>
  </div>
- {stats.upcomingNamedays?.length > 0 ? (() => {
- const todayList = stats.upcomingNamedays.filter((nd: any) => nd.isToday);
- const upcomingList = stats.upcomingNamedays.filter((nd: any) => !nd.isToday).slice(0, 4);
- return (
- <div className="space-y-3">
- {todayList.length > 0 && (
- <div>
- <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1.5">🎉 Σήμερα Εορτάζουν</p>
- <div className="space-y-1.5">
- {todayList.map((nd: any, i: number) => (
- <div key={`today-${nd.parishionerId}-${i}`} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-amber-50 border border-amber-200">
- <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center flex-shrink-0 shadow-sm">
- <span className="text-xs font-black text-white">{nd.firstName[0]}</span>
- </div>
- <div className="flex-1 min-w-0">
- <p className="text-sm font-bold text-amber-900 truncate">{nd.fullName}</p>
- {nd.phone && <p className="text-xs text-amber-700">{nd.phone}</p>}
- </div>
- <span className="text-lg">🎂</span>
- </div>
- ))}
- </div>
- </div>
- )}
- {upcomingList.length > 0 && (
- <div>
- {todayList.length > 0 && <div className="border-t border-[var(--border)] pt-2"/>}
- <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Επόμενες Ημέρες</p>
- <div className="space-y-1">
- {upcomingList.map((nd: any, i: number) => (
- <div key={`upcoming-${nd.parishionerId}-${i}`} className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-[var(--surface-hover)] transition-colors">
- <div className="w-7 h-7 rounded-full bg-[var(--brand-light)] flex items-center justify-center flex-shrink-0">
- <span className="text-[11px] font-bold text-[var(--brand)]">{nd.firstName[0]}</span>
- </div>
- <div className="flex-1 min-w-0">
- <p className="text-sm font-semibold text-[var(--foreground)] truncate">{nd.fullName}</p>
- <p className="text-[11px] text-[var(--text-muted)]">
- {new Date(nd.celebrationDate).toLocaleDateString('el-GR', { weekday: 'short', day: 'numeric', month: 'short' })}
- {nd.daysUntil === 1 ? ' — Αύριο' : nd.daysUntil === 2 ? ' — Μεθαύριο' : ` — σε ${nd.daysUntil} μέρες`}
- </p>
- </div>
- </div>
- ))}
- </div>
- </div>
- )}
- {todayList.length === 0 && upcomingList.length === 0 && (
- <div className="empty-state py-4">
- <Gift className="empty-state-icon"/>
- <p className="empty-state-title">Κανείς εορτάζων</p>
- <p className="empty-state-desc">Τις επόμενες 7 ημέρες</p>
- </div>
- )}
- </div>
- );
- })() : (
+ {stats.upcomingNamedays?.length > 0 ? (
+ <NamedayList namedays={stats.upcomingNamedays} />
+) : (
  <div className="empty-state py-6">
  <Gift className="empty-state-icon"/>
  <p className="empty-state-title">Κανείς εορτάζων</p>
  <p className="empty-state-desc">Δεν υπάρχουν εορτές ενοριτών τις επόμενες 7 ημέρες</p>
  </div>
- )}
- </div>
-
- </div>
 )}
  </div>
+
  </div>
  </div>
 )
