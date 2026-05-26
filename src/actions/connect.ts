@@ -517,3 +517,24 @@ export async function shareWithMetropolisSystem(opts: {
 
   return { success: true, metropolisName: temple.metropolis.name, email: temple.metropolis.email };
 }
+
+export async function getPublicTemples() {
+  try {
+    return await prisma.temple.findMany({
+      where: {
+        slug: { not: null }
+      },
+      select: {
+        name: true,
+        slug: true,
+        city: true
+      },
+      orderBy: {
+        name: 'asc'
+      }
+    });
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+}
