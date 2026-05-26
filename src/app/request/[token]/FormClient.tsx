@@ -120,6 +120,7 @@ export default function FormClient({ token }: { token: any }) {
   const [motherFather, setMotherFather] = useState(p('mother').fathersName || '');
   const [motherMaiden, setMotherMaiden] = useState(existingMeta.motherMaiden || '');
   const [motherDocType, setMotherDocType] = useState(existingMeta.motherDocType || 'identity');
+  const [anadoxosDocType, setAnadoxosDocType] = useState(existingMeta.anadoxosDocType || 'identity');
 
   // Uploaded docs tracking
   const [uploadedTypes, setUploadedTypes] = useState<string[]>(
@@ -163,10 +164,10 @@ export default function FormClient({ token }: { token: any }) {
         return;
       }
     } else {
-      const required = ['TAYTOTITA_PATERA', 'TAYTOTITA_MITERAS', 'PISTOPOIITIKO_GENNISIS', 'OIKOGENEIAKH_KATASTASH'];
+      const required = ['TAYTOTITA_PATERA', 'TAYTOTITA_MITERAS', 'TAYTOTITA_ANADOXOY', 'PISTOPOIITIKO_GENNISIS', 'OIKOGENEIAKH_KATASTASH'];
       const missing = required.filter(r => !uploadedTypes.includes(r));
       if (missing.length > 0) {
-        setErrorStr('⚠️ Παρακαλούμε ανεβάστε όλα τα απαιτούμενα δικαιολογητικά (Ταυτότητα/Διαβατήριο Πατέρα & Μητέρας, Πιστοποιητικό Γέννησης και Πιστοποιητικό Οικογενειακής Κατάστασης) πριν την υποβολή.');
+        setErrorStr('⚠️ Παρακαλούμε ανεβάστε όλα τα απαιτούμενα δικαιολογητικά (Ταυτότητα/Διαβατήριο Πατέρα, Μητέρας & Αναδόχου, Πιστοποιητικό Γέννησης και Πιστοποιητικό Οικογενειακής Κατάστασης) πριν την υποβολή.');
         setLoading(false);
         return;
       }
@@ -206,7 +207,8 @@ export default function FormClient({ token }: { token: any }) {
         childName: childFirst,
         motherMaiden,
         fatherDocType,
-        motherDocType
+        motherDocType,
+        anadoxosDocType
       };
       personsArr.push({ role: 'child', firstName: childFirst, lastName: childLast });
       personsArr.push({ role: 'father', firstName: fatherFirst, lastName: fatherLast, fathersName: fatherFather });
@@ -533,7 +535,7 @@ export default function FormClient({ token }: { token: any }) {
  <div className="space-y-2"><Label>Όνομα</Label><Input value={godparentFirst} onChange={e=>setGodparentFirst(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={godparentLast} onChange={e=>setGodparentLast(e.target.value)} required /></div>
  </div>
- <div className="space-y-2 max-w-md">
+ <div className="space-y-2 max-w-md mb-4">
  <Label>Είναι Ορθόδοξος Χριστιανός;</Label>
  <Select value={anadoxosIsOrthodox} onValueChange={setAnadoxosIsOrthodox} required>
  <SelectTrigger><SelectValue placeholder="Επιλέξτε..."/></SelectTrigger>
@@ -541,6 +543,18 @@ export default function FormClient({ token }: { token: any }) {
  </Select>
  {anadoxosIsOrthodox === 'no' && <p className="text-sm text-red-600 mt-2 font-medium">ΑΠΑΓΟΡΕΥΕΤΑΙ: Ο Ανάδοχος υποχρεούται από τους Ιερούς Κανόνες να είναι Ορθόδοξος.</p>}
  {anadoxosIsOrthodox === 'yes' && <FileUploader templeId={token.templeId} tokenId={token.id} docType="PISTOPOIITIKO"label="Πιστοποιητικό Βάπτισης ή Οικογενειακής Κατάστασης (Προαιρετικό)"/>}
+ </div>
+
+ {/* Ταυτότητα ή Διαβατήριο Αναδόχου */}
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-dashed border-border">
+ <div className="space-y-2">
+ <Label>Τύπος Εγγράφου Ταυτοπροσωπίας</Label>
+ <Select value={anadoxosDocType} onValueChange={setAnadoxosDocType}>
+ <SelectTrigger><SelectValue/></SelectTrigger>
+ <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
+ </Select>
+ </div>
+ <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_ANADOXOY" label={anadoxosDocType === 'identity' ? `Αστυνομική Ταυτότητα Αναδόχου${godparentFirst ? ` (${godparentFirst})` : ''} (Υποχρεωτικό)` : `Διαβατήριο Αναδόχου${godparentFirst ? ` (${godparentFirst})` : ''} (Υποχρεωτικό)`} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_ANADOXOY")} />
  </div>
  </div>
  </>
