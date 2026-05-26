@@ -5,15 +5,16 @@
 
 // 1. Υπολογισμός Ορθόδοξου Πάσχα (Αλγόριθμος Γκάους)
 export function getOrthodoxEaster(year: number): Date {
-  const a = year % 19;
-  const b = year % 4;
-  const c = year % 7;
-  const d = (19 * a + 15) % 30;
-  const e = (2 * b + 4 * c + 6 * d + 6) % 7;
-  const daysToAdd = d + e + 13;
-  const easter = new Date(year, 2, 21);
-  easter.setDate(easter.getDate() + daysToAdd);
-  return easter;
+  const a = year % 4;
+  const b = year % 7;
+  const c = year % 19;
+  const d = (19 * c + 15) % 30;
+  const e = (2 * a + 4 * b - d + 34) % 7;
+  const f = Math.floor((d + e + 114) / 31);
+  const g = ((d + e + 114) % 31) + 1;
+  const julianDate = new Date(year, f - 1, g);
+  julianDate.setDate(julianDate.getDate() + 13);
+  return julianDate;
 }
 
 // 2. Κανονικοποίηση Ελληνικών Ονομάτων (αφαίρεση τόνων & πεζοποίηση)
