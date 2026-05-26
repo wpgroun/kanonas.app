@@ -13,11 +13,22 @@ export async function POST(req: NextRequest) {
  const docType = formData.get('docType') as string;
  const label = formData.get('label') as string;
 
- const session = await getSession();
- if (!session || !session.templeId) {
- return NextResponse.json({ error: 'Unauthorized. Login required.' }, { status: 401 });
- }
- const templeId = session.templeId;
+  let templeId = '';
+  const session = await getSession();
+  if (session && session.templeId) {
+    templeId = session.templeId;
+  } else if (tokenId) {
+    const token = await prisma.token.findUnique({
+      where: { id: tokenId }
+    });
+    if (token) {
+      templeId = token.templeId;
+    }
+  }
+
+  if (!templeId) {
+    return NextResponse.json({ error: 'Unauthorized. Valid session or token required.' }, { status: 401 });
+  }
 
  if (!file) {
  return NextResponse.json({ error: 'Missing required file' }, { status: 400 });

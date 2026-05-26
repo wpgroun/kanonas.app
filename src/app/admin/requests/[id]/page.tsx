@@ -8,7 +8,7 @@ import ApproveRejectButtons from './ApproveRejectButtons'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Clock, CalendarIcon, Users, UserX, Printer } from 'lucide-react'
+import { ArrowLeft, Clock, CalendarIcon, Users, UserX, Printer, FileIcon, Download } from 'lucide-react'
 import RemovePersonButton from './RemovePersonButton'
 
 export default async function RequestDetailsPage({ params }: { params: { id: string } }) {
@@ -220,6 +220,40 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
  </Card>
 )}
 
+  {/* ΚΑΡΤΕΛΑ: ΨΗΦΙΑΚΑ ΔΙΚΑΙΟΛΟΓΗΤΙΚΑ (VAULT) */}
+  {token.vaultDocs && token.vaultDocs.length > 0 && (
+  <Card className="shadow-sm border-border/50 border-l-4 border-l-blue-500 mt-6">
+  <CardHeader className="pb-3 border-b border-border/50 bg-muted/10">
+  <CardTitle className="text-lg flex items-center gap-2 text-blue-600">
+  📂 Ψηφιακά Δικαιολογητικά (Ανέβασμα από Πολίτη)
+  </CardTitle>
+  </CardHeader>
+  <CardContent className="pt-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {token.vaultDocs.map((doc: any) => (
+  <div key={doc.id} className="flex items-start justify-between gap-4 p-4 border border-border rounded-lg bg-card hover:border-primary/40 transition-colors">
+  <div className="flex items-start gap-3 min-w-0">
+  <div className="bg-blue-50 p-2.5 rounded-lg flex-shrink-0">
+  <FileIcon className="w-5 h-5 text-blue-600"/>
+  </div>
+  <div className="min-w-0">
+  <p className="font-semibold text-sm truncate text-foreground">{doc.label || doc.fileName}</p>
+  <div className="text-[11px] text-muted-foreground mt-0.5 flex flex-wrap gap-2">
+  <span className="font-mono bg-muted px-1.5 rounded text-primary">{doc.docType}</span>
+  <span>{(doc.fileSize / 1024).toFixed(0)} KB</span>
+  </div>
+  </div>
+  </div>
+  <a href={doc.filePath} target="_blank"rel="noreferrer"className="text-muted-foreground hover:text-primary p-1.5 rounded transition-colors shrink-0">
+  <Download className="w-4 h-4"/>
+  </a>
+  </div>
+ ))}
+  </div>
+  </CardContent>
+  </Card>
+ )}
+
  {/* ΚΑΡΤΕΛΑ 1.5: ΕΣΩΤΕΡΙΚΑ ΣΤΟΙΧΕΙΑ ΝΑΟΥ ΚΑΙ ΕΚΤΥΠΩΣΗ */}
  <AdminMetaForm token={token} />
 
@@ -251,7 +285,9 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
  cp.role === 'koumbaros' ? 'ΚΟΥΜΠΑΡΟΣ' : 
  cp.role === 'godfather' ? 'ΑΝΑΔΟΧΟΣ' : 
  cp.role === 'child' ? 'ΤΕΚΝΟ' : 
- cp.role === 'parent' ? 'ΓΟΝΕΑΣ' : cp.role}
+ cp.role === 'parent' ? 'ΓΟΝΕΑΣ' : 
+ cp.role === 'father' ? 'ΠΑΤΕΡΑΣ' : 
+ cp.role === 'mother' ? 'ΜΗΤΕΡΑ' : cp.role}
  </Badge>
  <div className="font-semibold text-sm">{cp.lastName} {cp.firstName}</div>
  <div className="text-[11px] text-muted-foreground">ID: {cp.parishionerId?.slice(-6)}</div>

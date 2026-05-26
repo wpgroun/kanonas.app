@@ -10,9 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CheckCircle2, UserCircle, Users, Quote, UploadCloud } from 'lucide-react'
 
 // Sub-component for Background Uploading
-const FileUploader = ({ templeId, tokenId, label, docType }: any) => {
+const FileUploader = ({ templeId, tokenId, label, docType, onUploadSuccess, initialFilename }: any) => {
  const [uploading, setUploading] = useState(false);
- const [filename, setFilename] = useState('');
+ const [filename, setFilename] = useState(initialFilename || '');
 
  const handleChange = async (e: any) => {
  const file = e.target.files?.[0];
@@ -30,6 +30,7 @@ const FileUploader = ({ templeId, tokenId, label, docType }: any) => {
  const res = await fetch('/api/vault/upload', { method: 'POST', body: formData });
  if (res.ok) {
  setFilename(file.name);
+ if (onUploadSuccess) onUploadSuccess(docType);
  } else {
  alert('Αποτυχία ανεβάσματος.');
  }
@@ -76,72 +77,133 @@ export default function FormClient({ token }: { token: any }) {
 
  const [parentsMarriage, setParentsMarriage] = useState(existingMeta.parentsMarriage || '');
  const [anadoxosIsOrthodox, setAnadoxosIsOrthodox] = useState(existingMeta.anadoxosIsOrthodox || '');
+  // Persons State
+  // GROOM
+  const [groomFirst, setGroomFirst] = useState(p('groom').firstName || '');
+  const [groomLast, setGroomLast] = useState(p('groom').lastName || '');
+  const [groomFather, setGroomFather] = useState(p('groom').fathersName || '');
+  const [groomMotherFirst, setGroomMotherFirst] = useState(existingMeta.groomMotherFirst || '');
+  const [groomMotherMaiden, setGroomMotherMaiden] = useState(existingMeta.groomMotherMaiden || '');
+  const [groomDocType, setGroomDocType] = useState(existingMeta.groomDocType || 'identity');
 
- // Persons State
- // GROOM
- const [groomFirst, setGroomFirst] = useState(p('groom').firstName || '');
- const [groomLast, setGroomLast] = useState(p('groom').lastName || '');
- const [groomFather, setGroomFather] = useState(p('groom').fathersName || '');
+  // BRIDE
+  const [brideFirst, setBrideFirst] = useState(p('bride').firstName || '');
+  const [brideLast, setBrideLast] = useState(p('bride').lastName || '');
+  const [brideFather, setBrideFather] = useState(p('bride').fathersName || '');
+  const [brideMotherFirst, setBrideMotherFirst] = useState(existingMeta.brideMotherFirst || '');
+  const [brideMotherMaiden, setBrideMotherMaiden] = useState(existingMeta.brideMotherMaiden || '');
+  const [brideDocType, setBrideDocType] = useState(existingMeta.brideDocType || 'identity');
 
- // BRIDE
- const [brideFirst, setBrideFirst] = useState(p('bride').firstName || '');
- const [brideLast, setBrideLast] = useState(p('bride').lastName || '');
- const [brideFather, setBrideFather] = useState(p('bride').fathersName || '');
+  // KOUMPAROS
+  const [koumparosFirst, setKoumparosFirst] = useState(p('koumparos').firstName || '');
+  const [koumparosLast, setKoumparosLast] = useState(p('koumparos').lastName || '');
 
- // KOUMPAROS
- const [koumparosFirst, setKoumparosFirst] = useState(p('koumparos').firstName || '');
- const [koumparosLast, setKoumparosLast] = useState(p('koumparos').lastName || '');
+  // CHILD & GODPARENT
+  const [childFirst, setChildFirst] = useState(p('child').firstName || existingMeta.childName || '');
+  const [childLast, setChildLast] = useState(p('child').lastName || '');
+  const [godparentFirst, setGodparentFirst] = useState(p('godparent').firstName || '');
+  const [godparentLast, setGodparentLast] = useState(p('godparent').lastName || '');
 
- // CHILD & PARENT & GODPARENT
- const [childFirst, setChildFirst] = useState(p('child').firstName || existingMeta.childName || '');
- const [childLast, setChildLast] = useState(p('child').lastName || '');
- 
- const [parentFirst, setParentFirst] = useState(p('father').firstName || p('mother').firstName || '');
- const [parentLast, setParentLast] = useState(p('father').lastName || p('mother').lastName || '');
- 
- const [godparentFirst, setGodparentFirst] = useState(p('godparent').firstName || '');
- const [godparentLast, setGodparentLast] = useState(p('godparent').lastName || '');
+  // BAPTISM PARENTS
+  const [fatherFirst, setFatherFirst] = useState(p('father').firstName || '');
+  const [fatherLast, setFatherLast] = useState(p('father').lastName || '');
+  const [fatherFather, setFatherFather] = useState(p('father').fathersName || '');
+  const [fatherDocType, setFatherDocType] = useState(existingMeta.fatherDocType || 'identity');
 
- const isGamos = token.serviceType === 'GAMOS';
+  const [motherFirst, setMotherFirst] = useState(p('mother').firstName || '');
+  const [motherLast, setMotherLast] = useState(p('mother').lastName || '');
+  const [motherFather, setMotherFather] = useState(p('mother').fathersName || '');
+  const [motherMaiden, setMotherMaiden] = useState(existingMeta.motherMaiden || '');
+  const [motherDocType, setMotherDocType] = useState(existingMeta.motherDocType || 'identity');
 
- const handleSubmit = async (e: any) => {
- e.preventDefault();
- setLoading(true);
- setErrorStr('');
+  // Uploaded docs tracking
+  const [uploadedTypes, setUploadedTypes] = useState<string[]>(
+    token.vaultDocs?.map((d: any) => d.docType) || []
+  );
 
- let payload: any = {};
- let personsArr: any[] = [];
+  const handleUploadSuccess = (docType: string) => {
+    setUploadedTypes(prev => {
+      if (prev.includes(docType)) return prev;
+      return [...prev, docType];
+    });
+  };
 
- if (isGamos) {
- payload = { 
- groomStatus, 
- groomDivorceRef: groomStatus === 'diazevmenos' ? groomDivorceRef : undefined, 
- groomSymfonoRef: groomStatus === 'symfono' ? groomSymfonoRef : undefined,
- brideStatus, 
- brideDivorceRef: brideStatus === 'diazevmeni' ? brideDivorceRef : undefined, 
- brideSymfonoRef: brideStatus === 'symfono' ? brideSymfonoRef : undefined,
- koumparosIsOrthodox
- };
- personsArr.push({ role: 'groom', firstName: groomFirst, lastName: groomLast, fathersName: groomFather });
- personsArr.push({ role: 'bride', firstName: brideFirst, lastName: brideLast, fathersName: brideFather });
- personsArr.push({ role: 'koumparos', firstName: koumparosFirst, lastName: koumparosLast });
- } else {
- payload = { parentsMarriage, anadoxosIsOrthodox, childName: childFirst };
- personsArr.push({ role: 'child', firstName: childFirst, lastName: childLast });
- personsArr.push({ role: 'father', firstName: parentFirst, lastName: parentLast });
- personsArr.push({ role: 'godparent', firstName: godparentFirst, lastName: godparentLast });
- }
+  const getInitialFilename = (docType: string) => {
+    const doc = token.vaultDocs?.find((d: any) => d.docType === docType);
+    return doc ? doc.fileName : '';
+  };
 
- const res = await savePublicTokenAnswers(token.tokenStr, JSON.stringify(payload), personsArr);
- 
- if (res.success) {
- setSuccess(true);
- window.scrollTo({ top: 0, behavior: 'smooth' });
- } else {
- setErrorStr(res.error || 'Σφάλμα υποβολής. Παρακαλούμε δοκιμάστε ξανά.');
- }
- setLoading(false);
- }
+  const isGamos = token.serviceType === 'GAMOS';
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorStr('');
+
+    // ENFORCE DOCUMENT UPLOADS
+    if (isGamos) {
+      if (!uploadedTypes.includes('TAYTOTITA_GAMPROY') || !uploadedTypes.includes('TAYTOTITA_NYFIS')) {
+        setErrorStr('⚠️ Παρακαλούμε ανεβάστε τα απαραίτητα έγγραφα ταυτοπροσωπίας (Ταυτότητα ή Διαβατήριο) για τον Νυμφίο και τη Νύμφη.');
+        setLoading(false);
+        return;
+      }
+    } else {
+      const required = ['TAYTOTITA_PATERA', 'TAYTOTITA_MITERAS', 'PISTOPOIITIKO_GENNISIS', 'OIKOGENEIAKH_KATASTASH'];
+      const missing = required.filter(r => !uploadedTypes.includes(r));
+      if (missing.length > 0) {
+        setErrorStr('⚠️ Παρακαλούμε ανεβάστε όλα τα απαιτούμενα δικαιολογητικά (Ταυτότητα/Διαβατήριο Πατέρα & Μητέρας, Πιστοποιητικό Γέννησης και Πιστοποιητικό Οικογενειακής Κατάστασης) πριν την υποβολή.');
+        setLoading(false);
+        return;
+      }
+    }
+
+    let payload: any = {};
+    let personsArr: any[] = [];
+
+    if (isGamos) {
+      payload = { 
+        groomStatus, 
+        groomDivorceRef: groomStatus === 'diazevmenos' ? groomDivorceRef : undefined, 
+        groomSymfonoRef: groomStatus === 'symfono' ? groomSymfonoRef : undefined,
+        brideStatus, 
+        brideDivorceRef: brideStatus === 'diazevmeni' ? brideDivorceRef : undefined, 
+        brideSymfonoRef: brideStatus === 'symfono' ? brideSymfonoRef : undefined,
+        koumparosIsOrthodox,
+        groomMotherFirst,
+        groomMotherMaiden,
+        brideMotherFirst,
+        brideMotherMaiden,
+        groomDocType,
+        brideDocType
+      };
+      personsArr.push({ role: 'groom', firstName: groomFirst, lastName: groomLast, fathersName: groomFather });
+      personsArr.push({ role: 'bride', firstName: brideFirst, lastName: brideLast, fathersName: brideFather });
+      personsArr.push({ role: 'koumparos', firstName: koumparosFirst, lastName: koumparosLast });
+    } else {
+      payload = { 
+        parentsMarriage, 
+        anadoxosIsOrthodox, 
+        childName: childFirst,
+        motherMaiden,
+        fatherDocType,
+        motherDocType
+      };
+      personsArr.push({ role: 'child', firstName: childFirst, lastName: childLast });
+      personsArr.push({ role: 'father', firstName: fatherFirst, lastName: fatherLast, fathersName: fatherFather });
+      personsArr.push({ role: 'mother', firstName: motherFirst, lastName: motherLast, fathersName: motherFather });
+      personsArr.push({ role: 'godparent', firstName: godparentFirst, lastName: godparentLast });
+    }
+
+    const res = await savePublicTokenAnswers(token.tokenStr, JSON.stringify(payload), personsArr);
+    
+    if (res.success) {
+      setSuccess(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setErrorStr(res.error || 'Σφάλμα υποβολής. Παρακαλούμε δοκιμάστε ξανά.');
+    }
+    setLoading(false);
+  }
 
   if (success) {
     return (
@@ -188,6 +250,10 @@ export default function FormClient({ token }: { token: any }) {
  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={groomLast} onChange={e=>setGroomLast(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Πατρώνυμο</Label><Input value={groomFather} onChange={e=>setGroomFather(e.target.value)} required /></div>
  </div>
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+ <div className="space-y-2"><Label>Όνομα Μητέρας</Label><Input value={groomMotherFirst} onChange={e=>setGroomMotherFirst(e.target.value)} required /></div>
+ <div className="space-y-2"><Label>Πατρικό Επώνυμο Μητέρας</Label><Input value={groomMotherMaiden} onChange={e=>setGroomMotherMaiden(e.target.value)} required /></div>
+ </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="space-y-2">
  <Label>Οικογενειακή Κατάσταση</Label>
@@ -213,9 +279,16 @@ export default function FormClient({ token }: { token: any }) {
  {groomStatus === 'xiros' && <FileUploader templeId={token.templeId} tokenId={token.id} docType="ALLO"label="Ληξιαρχική Πράξη Θανάτου"/>}
  </div>
  
- {/* Αστυνομική Ταυτότητα Νυμφίου (Απαραίτητη) */}
- <div className="mt-4 pt-4 border-t border-dashed border-border">
- <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_GAMPROY" label="Αστυνομική Ταυτότητα Νυμφίου (Γαμπρού)" />
+ {/* Αστυνομική Ταυτότητα ή Διαβατήριο Νυμφίου (Απαραίτητη) */}
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-dashed border-border">
+ <div className="space-y-2">
+ <Label>Τύπος Εγγράφου Ταυτοπροσωπίας</Label>
+ <Select value={groomDocType} onValueChange={setGroomDocType}>
+ <SelectTrigger><SelectValue/></SelectTrigger>
+ <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
+ </Select>
+ </div>
+ <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_GAMPROY" label={groomDocType === 'identity' ? 'Αστυνομική Ταυτότητα Νυμφίου (Γαμπρού)' : 'Διαβατήριο Νυμφίου (Γαμπρού)'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_GAMPROY")} />
  </div>
  </div>
 
@@ -226,6 +299,10 @@ export default function FormClient({ token }: { token: any }) {
  <div className="space-y-2"><Label>Όνομα</Label><Input value={brideFirst} onChange={e=>setBrideFirst(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Επώνυμο (Πατρικό)</Label><Input value={brideLast} onChange={e=>setBrideLast(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Πατρώνυμο</Label><Input value={brideFather} onChange={e=>setBrideFather(e.target.value)} required /></div>
+ </div>
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+ <div className="space-y-2"><Label>Όνομα Μητέρας</Label><Input value={brideMotherFirst} onChange={e=>setBrideMotherFirst(e.target.value)} required /></div>
+ <div className="space-y-2"><Label>Πατρικό Επώνυμο Μητέρας</Label><Input value={brideMotherMaiden} onChange={e=>setBrideMotherMaiden(e.target.value)} required /></div>
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="space-y-2">
@@ -252,10 +329,17 @@ export default function FormClient({ token }: { token: any }) {
  {brideStatus === 'xira' && <FileUploader templeId={token.templeId} tokenId={token.id} docType="ALLO"label="Ληξιαρχική Πράξη Θανάτου"/>}
  </div>
 
- {/* Αστυνομική Ταυτότητα Νύμφης (Απαραίτητη) */}
- <div className="mt-4 pt-4 border-t border-dashed border-border">
- <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_NYFIS" label="Αστυνομική Ταυτότητα Νύμφης" />
- </div>
+  {/* Αστυνομική Ταυτότητα ή Διαβατήριο Νύμφης (Απαραίτητη) */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-dashed border-border">
+  <div className="space-y-2">
+  <Label>Τύπος Εγγράφου Ταυτοπροσωπίας</Label>
+  <Select value={brideDocType} onValueChange={setBrideDocType}>
+  <SelectTrigger><SelectValue/></SelectTrigger>
+  <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
+  </Select>
+  </div>
+  <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_NYFIS" label={brideDocType === 'identity' ? 'Αστυνομική Ταυτότητα Νύμφης' : 'Διαβατήριο Νύμφης'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_NYFIS")} />
+  </div>
  </div>
 
  {/* KOUMPAROS */}
@@ -292,28 +376,66 @@ export default function FormClient({ token }: { token: any }) {
     <Input value={childLast} onChange={e=>setChildLast(e.target.value)} required />
   </div>
   </div>
- <div className="mt-4"><FileUploader templeId={token.templeId} tokenId={token.id} docType="PISTOPOIITIKO"label="Ληξιαρχική Πράξη Γέννησης Παιδιού"/></div>
+  {/* Πιστοποιητικό Γέννησης & Οικογενειακής Κατάστασης (Απαραίτητα) */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-dashed border-border">
+  <FileUploader templeId={token.templeId} tokenId={token.id} docType="PISTOPOIITIKO_GENNISIS" label="Πιστοποιητικό Γέννησης (Υποχρεωτικό)" onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("PISTOPOIITIKO_GENNISIS")} />
+  <FileUploader templeId={token.templeId} tokenId={token.id} docType="OIKOGENEIAKH_KATASTASH" label="Πιστοποιητικό Οικογενειακής Κατάστασης (Υποχρεωτικό)" onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("OIKOGENEIAKH_KATASTASH")} />
+  </div>
  </div>
 
- <div className="bg-muted/30 p-5 rounded-xl border border-border">
- <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 bg-purple-500 rounded-full"></div> Κηδεμόνας / Γονέας υποβάλλων</h3>
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
- <div className="space-y-2"><Label>Όνομα</Label><Input value={parentFirst} onChange={e=>setParentFirst(e.target.value)} required /></div>
- <div className="space-y-2"><Label>Επώνυμο</Label><Input value={parentLast} onChange={e=>setParentLast(e.target.value)} required /></div>
- </div>
- <div className="space-y-2 max-w-md">
- <Label>Είδος Γάμου Γονέων</Label>
- <Select value={parentsMarriage} onValueChange={setParentsMarriage} required>
- <SelectTrigger><SelectValue placeholder="Επιλέξτε..."/></SelectTrigger>
- <SelectContent><SelectItem value="thriskeftikos">Θρησκευτικός Γάμος</SelectItem><SelectItem value="politikos">Πολιτικός Γάμος</SelectItem><SelectItem value="simfiosi">Σύμφωνο Συμβίωσης</SelectItem><SelectItem value="monogoneiki">Μονογονεϊκή Οικογένεια</SelectItem></SelectContent>
- </Select>
- </div>
- 
- {/* Αστυνομική Ταυτότητα Γονέα / Κηδεμόνα (Απαραίτητη) */}
- <div className="mt-4 pt-4 border-t border-dashed border-border">
- <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_GONEA" label="Αστυνομική Ταυτότητα Γονέα / Κηδεμόνα" />
- </div>
- </div>
+  {/* FATHER */}
+  <div className="bg-muted/30 p-5 rounded-xl border border-border">
+  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Πατέρας</h3>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+  <div className="space-y-2"><Label>Όνομα</Label><Input value={fatherFirst} onChange={e=>setFatherFirst(e.target.value)} required /></div>
+  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={fatherLast} onChange={e=>setFatherLast(e.target.value)} required /></div>
+  <div className="space-y-2"><Label>Πατρώνυμο</Label><Input value={fatherFather} onChange={e=>setFatherFather(e.target.value)} required /></div>
+  </div>
+  <div className="space-y-2 max-w-md">
+  <Label>Είδος Γάμου Γονέων</Label>
+  <Select value={parentsMarriage} onValueChange={setParentsMarriage} required>
+  <SelectTrigger><SelectValue placeholder="Επιλέξτε..."/></SelectTrigger>
+  <SelectContent><SelectItem value="thriskeftikos">Θρησκευτικός Γάμος</SelectItem><SelectItem value="politikos">Πολιτικός Γάμος</SelectItem><SelectItem value="simfiosi">Σύμφωνο Συμβίωσης</SelectItem><SelectItem value="monogoneiki">Μονογονεϊκή Οικογένεια</SelectItem></SelectContent>
+  </Select>
+  </div>
+  
+  {/* Ταυτότητα ή Διαβατήριο Πατέρα */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-dashed border-border">
+  <div className="space-y-2">
+  <Label>Τύπος Εγγράφου Ταυτοπροσωπίας</Label>
+  <Select value={fatherDocType} onValueChange={setFatherDocType}>
+  <SelectTrigger><SelectValue/></SelectTrigger>
+  <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
+  </Select>
+  </div>
+  <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_PATERA" label={fatherDocType === 'identity' ? 'Αστυνομική Ταυτότητα Πατέρα' : 'Διαβατήριο Πατέρα'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_PATERA")} />
+  </div>
+  </div>
+
+  {/* MOTHER */}
+  <div className="bg-muted/30 p-5 rounded-xl border border-border">
+  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 bg-pink-500 rounded-full"></div> Μητέρα</h3>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+  <div className="space-y-2"><Label>Όνομα</Label><Input value={motherFirst} onChange={e=>setMotherFirst(e.target.value)} required /></div>
+  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={motherLast} onChange={e=>setMotherLast(e.target.value)} required /></div>
+  <div className="space-y-2"><Label>Πατρώνυμο</Label><Input value={motherFather} onChange={e=>setMotherFather(e.target.value)} required /></div>
+  </div>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+  <div className="space-y-2"><Label>Πατρικό Επώνυμο</Label><Input value={motherMaiden} onChange={e=>setMotherMaiden(e.target.value)} required /></div>
+  </div>
+  
+  {/* Ταυτότητα ή Διαβατήριο Μητέρας */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-dashed border-border">
+  <div className="space-y-2">
+  <Label>Τύπος Εγγράφου Ταυτοπροσωπίας</Label>
+  <Select value={motherDocType} onValueChange={setMotherDocType}>
+  <SelectTrigger><SelectValue/></SelectTrigger>
+  <SelectContent><SelectItem value="identity">Αστυνομική Ταυτότητα</SelectItem><SelectItem value="passport">Διαβατήριο</SelectItem></SelectContent>
+  </Select>
+  </div>
+  <FileUploader templeId={token.templeId} tokenId={token.id} docType="TAYTOTITA_MITERAS" label={motherDocType === 'identity' ? 'Αστυνομική Ταυτότητα Μητέρας' : 'Διαβατήριο Μητέρας'} onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("TAYTOTITA_MITERAS")} />
+  </div>
+  </div>
 
  <div className="bg-muted/30 p-5 rounded-xl border border-border">
  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 bg-amber-500 rounded-full"></div> Ανάδοχος (Νονός/Νονά)</h3>

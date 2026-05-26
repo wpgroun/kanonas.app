@@ -332,7 +332,8 @@ async function genBaptistiko(t: TokenData, settings: any): Promise<Buffer> {
  const pdfDoc = await PDFDocument.create();
  const meta = parseSettings(t.ceremonyMeta?.dataJson);
  const childName = meta.childName || BLANK;
- const parent = findPerson(t.persons, 'father') || findPerson(t.persons, 'mother');
+ const father = findPerson(t.persons, 'father');
+ const mother = findPerson(t.persons, 'mother');
  const godparent = findPerson(t.persons, 'godparent');
 
  await buildDocumentPage(pdfDoc, {
@@ -344,7 +345,7 @@ async function genBaptistiko(t: TokenData, settings: any): Promise<Buffer> {
  { label: 'Νεοφώτιστος/η', value: childName },
  { label: 'Ονομαστική', value: childName },
  { label: 'Γεννητική', value: declineGreekName(childName, 'genitive') },
- { label: 'Γονέας', value: parent ? `${parent.firstName} ${parent.lastName}` : BLANK },
+ { label: 'Γονείς', value: (father && mother) ? `Πατήρ: ${father.firstName} ${father.lastName}, Μήτηρ: ${mother.firstName} ${mother.lastName}` : father ? `Πατήρ: ${father.firstName} ${father.lastName}` : mother ? `Μήτηρ: ${mother.firstName} ${mother.lastName}` : BLANK },
  { label: 'Ανάδοχος', value: godparent ? `${godparent.firstName} ${godparent.lastName}` : BLANK },
  { label: 'Ημερομηνία Βάπτισης', value: formatGreekDate(t.ceremonyDate) },
  { label: 'Αρ. Βιβλίου Βαπτίσεων', value: t.bookNumber || BLANK },
@@ -382,7 +383,8 @@ async function genDilosiBaptiseos(t: TokenData, settings: any): Promise<Buffer> 
 async function genBebaiosiBaptiseos(t: TokenData, settings: any): Promise<Buffer> {
  const pdfDoc = await PDFDocument.create();
  const meta = parseSettings(t.ceremonyMeta?.dataJson);
- const parent = findPerson(t.persons, 'father') || findPerson(t.persons, 'mother');
+ const father = findPerson(t.persons, 'father');
+ const mother = findPerson(t.persons, 'mother');
 
  await buildDocumentPage(pdfDoc, {
  metropolisHeader: settings.metropolisName || 'Ιερά Μητρόπολη',
@@ -392,7 +394,7 @@ async function genBebaiosiBaptiseos(t: TokenData, settings: any): Promise<Buffer
  body: [
  { label: 'Βεβαιώνεται η τέλεση Βάπτισης', value: '' },
  { label: 'Όνομα Νεοφωτίστου/ης', value: meta.childName || BLANK },
- { label: 'Γονέας', value: parent ? `${parent.firstName} ${parent.lastName}` : BLANK },
+ { label: 'Γονείς', value: (father && mother) ? `Πατήρ: ${father.firstName} ${father.lastName}, Μήτηρ: ${mother.firstName} ${mother.lastName}` : father ? `Πατήρ: ${father.firstName} ${father.lastName}` : mother ? `Μήτηρ: ${mother.firstName} ${mother.lastName}` : BLANK },
  { label: 'Ημερομηνία', value: formatGreekDate(t.ceremonyDate) },
  { label: 'Αρ. Βιβλίου', value: t.bookNumber || BLANK },
  { label: 'Εφημέριος', value: t.assignedPriest || settings.priests?.[0]?.name || BLANK },

@@ -211,7 +211,7 @@ export default function ParishionerProfileClient({ p, beneficiary, relationships
  <div key={cp.id} className="border-l-4 border-l-primary bg-muted/20 border border-border p-5 rounded-r-xl">
  <div className="flex justify-between items-center mb-3">
  <span className="font-bold text-foreground">
- {cp.role === 'groom' ? 'Γαμπρός' : cp.role === 'bride' ? 'Νύφη' : cp.role === 'koumbaros' ? 'Κουμπάρος' : cp.role === 'godfather' ? 'Ανάδοχος' : cp.role}
+  {cp.role === 'groom' ? 'Γαμπρός' : cp.role === 'bride' ? 'Νύφη' : cp.role === 'koumbaros' ? 'Κουμπάρος' : cp.role === 'godfather' ? 'Ανάδοχος' : cp.role === 'father' ? 'Πατέρας' : cp.role === 'mother' ? 'Μητέρα' : cp.role}
  </span>
  <Badge variant="outline"className="bg-background">
  {cp.token?.serviceType === 'GAMOS' ? 'Γάμος' : 'Βάπτιση'}

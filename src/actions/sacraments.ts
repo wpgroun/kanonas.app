@@ -72,7 +72,8 @@ export async function getRequestDetails(tokenId: string) {
  where: { id: tokenId, templeId },
  include: {
  persons: { include: { parishioner: true } },
- ceremonyMeta: true
+ ceremonyMeta: true,
+ vaultDocs: true
  }
  })
  } catch (e) {
@@ -181,19 +182,20 @@ export async function markTokenAsDocsGenerated(tokenId: string, assignedPriest: 
 }
 
 export async function verifyTokenByHash(tokenStr: string) {
- // Public — no auth required (used by end-users filling in the form)
- try {
- return await prisma.token.findUnique({
- where: { tokenStr },
- include: {
- temple: { select: { name: true, city: true } },
- persons: true,
- ceremonyMeta: true
- }
- })
- } catch (e) {
- return null
- }
+  // Public — no auth required (used by end-users filling in the form)
+  try {
+    return await prisma.token.findUnique({
+      where: { tokenStr },
+      include: {
+        temple: { select: { name: true, city: true } },
+        persons: true,
+        ceremonyMeta: true,
+        vaultDocs: true
+      }
+    })
+  } catch (e) {
+    return null
+  }
 }
 
 export async function savePublicTokenAnswers(tokenStr: string, answersStr: string, personsArr?: {role: string, firstName: string, lastName: string, fathersName?: string, mothersName?: string}[]) {
