@@ -89,3 +89,50 @@ export async function submitBookingRequest(templeId: string, slotId: string, ans
 
   return { success: true, trackingId: request.id };
 }
+
+import { randomBytes } from 'crypto';
+
+export async function submitPublicBooking(data: {
+  templeId: string;
+  slotId: string;
+  serviceType: string;
+  name: string;
+  phone: string;
+  email: string;
+}) {
+  const randomHash = randomBytes(32).toString('hex');
+
+  // 1. Lock the slot
+  const slot = await prisma.bookingSlot.update({
+    where: { id: data.slotId },
+    data: {
+      isBooked: true,
+      connectTokenHash: randomHash
+    }
+  });
+
+  // 2. Create the Token
+  const token = await prisma.token.create({
+    data: {
+      templeId: data.templeId,
+      tokenStr: randomHash,
+      serviceType: data.serviceType,
+      status: 'pending',
+      customerName: data.name,
+      customerPhone: data.phone,
+      customerEmail: data.email,
+      ceremonyDate: slot.startTime,
+      submissionComplete: false
+    }
+  });
+
+  // 3. Create the empty CeremonyMeta
+  await prisma.ceremonyMeta.create({
+    data: {
+      tokenId: token.id,
+      dataJson: '{}'
+    }
+  });
+
+  return { success: true, tokenStr: randomHash };
+}

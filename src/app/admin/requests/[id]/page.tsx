@@ -75,7 +75,13 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
  </div>
  </div>
  <div className="flex items-center gap-3 mt-4 md:mt-0">
- <GenerateAllDocsButton tokenId={token.id} serviceType={token.serviceType} hasProtocol={!!token.protocolNumber} />
+ <GenerateAllDocsButton 
+    tokenId={token.id} 
+    serviceType={token.serviceType} 
+    hasProtocol={!!token.protocolNumber} 
+    customerEmail={token.customerEmail}
+    customerName={token.customerName}
+  />
  <Badge variant="outline"className="bg-amber-100 text-[var(--warning)] hover:bg-amber-100 border-amber-200">
  <Clock className="w-3 h-3 mr-1"/> Σε Εκκρεμότητα
  </Badge>

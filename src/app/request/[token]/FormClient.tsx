@@ -143,19 +143,22 @@ export default function FormClient({ token }: { token: any }) {
  setLoading(false);
  }
 
- if (success) {
- return (
- <Card className="shadow-md border-border/50 text-center py-12 px-4 animate-in fade-in zoom-in-95 bg-white">
- <div className="flex justify-center mb-6">
- <CheckCircle2 className="w-20 h-20 text-green-500"/>
- </div>
- <h2 className="text-2xl font-bold text-foreground mb-4">Επιτυχής Καταχώρηση!</h2>
- <p className="text-muted-foreground mb-8 max-w-md mx-auto">
- Τα στοιχεία σας υποβλήθηκαν και τα τυχόν αρχεία αποθηκεύτηκαν με ασφάλεια. Ο ιερέας θα ελέγξει την ορθότητά τους προκειμένου να προχωρήσει στην έκδοση των επίσημων εγγράφων.
- </p>
- </Card>
-);
- }
+  if (success) {
+    return (
+      <Card className="shadow-md border-border/50 text-center py-12 px-4 animate-in fade-in zoom-in-95 bg-white">
+        <div className="flex justify-center mb-6">
+          <CheckCircle2 className="w-20 h-20 text-green-500"/>
+        </div>
+        <h2 className="text-2xl font-bold text-foreground mb-4">Επιτυχής Υποβολή!</h2>
+        <p className="text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
+          Τα στοιχεία σας υποβλήθηκαν με ασφάλεια. 
+          <span className="block mt-4 text-amber-800 bg-amber-50 p-3.5 rounded-xl border border-amber-200 text-sm font-semibold">
+            ⚠️ Σημείωση: Μέχρι να ολοκληρωθεί ο έλεγχος των εγγράφων και των δικαιολογητικών από την Ενορία, η ημερομηνία δεν δεσμεύεται οριστικά.
+          </span>
+        </p>
+      </Card>
+    );
+  }
 
  return (
  <Card className="shadow-md border-border/50 mb-12">

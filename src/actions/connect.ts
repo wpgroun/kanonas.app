@@ -312,3 +312,93 @@ export async function signDocuments(token: string) {
 
   return { success: true, applicantName: req.applicantName, protocol: req.protocolNumber };
 }
+
+import nodemailer from 'nodemailer';
+import { getSession } from '@/lib/auth';
+
+export async function sendRoutingEmail(opts: {
+  to: string;
+  subject: string;
+  body: string;
+  files: Array<{ filename: string; base64: string; type?: string }>;
+}) {
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER || '',
+      pass: process.env.SMTP_PASS || '',
+    },
+  });
+
+  const FROM_NAME = process.env.SMTP_FROM_NAME || 'Κανόνας – Γραμματεία Ναού';
+  const FROM_EMAIL = process.env.SMTP_USER || 'no-reply@kanonas.gr';
+
+  await transporter.sendMail({
+    from: `${FROM_NAME} <${FROM_EMAIL}>`,
+    to: opts.to,
+    subject: opts.subject,
+    html: `
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; color: #333; line-height: 1.6;">
+        ${opts.body}
+      </div>
+    `,
+    attachments: opts.files.map(f => ({
+      filename: f.filename,
+      content: Buffer.from(f.base64, 'base64'),
+      contentType: f.type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf'
+    }))
+  });
+
+  return { success: true };
+}
+
+export async function shareWithMetropolisSystem(opts: {
+  tokenId: string;
+  files: Array<{ filename: string; label: string; key: string; base64: string; storagePath?: string }>;
+}) {
+  const session = await getSession();
+  const templeId = session?.templeId;
+  if (!templeId) throw new Error("Unauthorized");
+
+  const temple = await prisma.temple.findUnique({
+    where: { id: templeId as string },
+    include: { metropolis: true }
+  });
+
+  if (!temple || !temple.metropolisId || !temple.metropolis) {
+    return { success: false, error: "Ο Ναός δεν είναι συνδεδεμένος με κάποια Μητρόπολη στο σύστημα." };
+  }
+
+  const token = await prisma.token.findUnique({
+    where: { id: opts.tokenId },
+    include: { ceremonyMeta: true }
+  });
+
+  if (token) {
+    let meta: any = {};
+    if (token.ceremonyMeta?.dataJson) {
+      try { meta = JSON.parse(token.ceremonyMeta.dataJson); } catch {}
+    }
+    meta.sharedWithMetropolis = true;
+    meta.sharedWithMetropolisAt = new Date().toISOString();
+    
+    await prisma.ceremonyMeta.upsert({
+      where: { tokenId: token.id },
+      create: { tokenId: token.id, dataJson: JSON.stringify(meta) },
+      update: { dataJson: JSON.stringify(meta) }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        templeId: templeId as string,
+        action: 'METROPOLIS_SHARE',
+        detail: `Κοινή χρήση ${opts.files.length} εγγράφων με τη Μητρόπολη ${temple.metropolis.name}`,
+        userId: session.userId as string
+      }
+    });
+  }
+
+  return { success: true, metropolisName: temple.metropolis.name, email: temple.metropolis.email };
+}
