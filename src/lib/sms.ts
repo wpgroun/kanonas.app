@@ -39,43 +39,63 @@ export async function sendSMS(
  return { success: true, mock: true };
  }
 
- try {
- const yubotoEndpoint = 'https://services.yuboto.com/omni/v1/Send';
+  try {
+    const yubotoEndpoint = 'https://services.yuboto.com/omni/v1/Send';
 
- // Normalize phone to international format (e.g. 6912345678 → 306912345678)
- const normalizePhone = (phone: string) => {
-   let p = phone.replace(/[\s\-().+]/g, '');
-   if (p.startsWith('00')) p = p.slice(2);
-   if (p.startsWith('6') && p.length === 10) p = '30' + p;
-   if (p.startsWith('2') && p.length === 10) p = '30' + p;
-   return p;
- };
- const normalizedNumbers = phoneNumbers.map(normalizePhone);
+    // Normalize phone to international format (e.g. 6912345678 → 306912345678)
+    const normalizePhone = (phone: string) => {
+      let p = phone.replace(/[\s\-().+]/g, '');
+      if (p.startsWith('00')) p = p.slice(2);
+      if (p.startsWith('6') && p.length === 10) p = '30' + p;
+      if (p.startsWith('2') && p.length === 10) p = '30' + p;
+      return p;
+    };
+    const normalizedNumbers = phoneNumbers.map(normalizePhone);
 
- const response = await fetch(yubotoEndpoint, {
- method: 'POST',
- headers: {
- 'Content-Type': 'application/json',
- 'Authorization': apiKey,  // Yuboto Omni: plain API key
- },
- body: JSON.stringify({
- Contacts: normalizedNumbers.map(p => ({ Mobile: p })),
- Sender: senderId,
- Message: message,
- Type: 'SMS',
- })
- });
+    // Format authorization header to Basic <base64Key>
+    let authHeader = apiKey.trim();
+    if (!authHeader.startsWith('Basic ')) {
+      if (authHeader.includes('-')) {
+        authHeader = 'Basic ' + Buffer.from(authHeader).toString('base64');
+      } else {
+        authHeader = 'Basic ' + authHeader;
+      }
+    }
 
- if (!response.ok) {
- throw new Error(`Yuboto API Error: ${response.status} ${response.statusText}`);
- }
+    const response = await fetch(yubotoEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authHeader,
+      },
+      body: JSON.stringify({
+        dlr: 'false',
+        contacts: normalizedNumbers.map(p => ({
+          phonenumber: p,
+        })),
+        sms: {
+          sender: senderId,
+          text: message,
+          typesms: 'sms',
+        },
+      }),
+    });
 
- const data = await response.json();
- return { success: true, data };
- } catch (error: any) {
- console.error('SMS Sending failed:', error);
- return { success: false, error: error.message };
- }
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Yuboto API Error: ${response.status} ${errText || response.statusText}`);
+    }
+
+    const data = await response.json();
+    if (data?.ErrorCode && data.ErrorCode !== 0) {
+      throw new Error(`Yuboto Error (ErrorCode ${data.ErrorCode}): ${data.ErrorMessage || JSON.stringify(data)}`);
+    }
+
+    return { success: true, data };
+  } catch (error: any) {
+    console.error('SMS Sending failed:', error);
+    return { success: false, error: error.message };
+  }
 }
 
 
