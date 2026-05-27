@@ -215,3 +215,55 @@ export async function anonymizeParishioner(id: string): Promise<{ success: boole
  return { success: false, error: 'Αποτυχία ανωνυμοποίησης.' }
  }
 }
+
+export async function sendParishionerSMS(parishionerId: string, message: string): Promise<{ success: boolean; error?: string }> {
+  const session = await requireAuth()
+  const templeId = await getCurrentTempleId()
+
+  try {
+    const parishioner = await prisma.parishioner.findFirst({
+      where: { id: parishionerId, templeId }
+    })
+
+    if (!parishioner || !parishioner.phone) {
+      return { success: false, error: 'Ο ενορίτης δεν βρέθηκε ή δεν έχει δηλωμένο τηλέφωνο.' }
+    }
+
+    const temple = await prisma.temple.findUnique({
+      where: { id: templeId }
+    })
+
+    if (!temple) {
+      return { success: false, error: 'Ο Ναός δεν βρέθηκε.' }
+    }
+
+    const settings = (temple as any).settings as any
+    const { sendSMS } = await import('@/lib/sms')
+
+    const res = await sendSMS([parishioner.phone], message, {
+      smsSenderId: settings?.smsSenderId
+    })
+
+    if (res.success) {
+      await prisma.auditLog.create({
+        data: {
+          templeId,
+          userId: session.userId,
+          userEmail: session.userEmail,
+          action: 'SMS_SENT',
+          entityType: 'Parishioner',
+          entityId: parishionerId,
+          detail: `Αποστολή SMS: "${message.length > 60 ? message.slice(0, 57) + '...' : message}"`
+        }
+      })
+      
+      revalidatePath(`/admin/parishioners/${parishionerId}`)
+      return { success: true }
+    } else {
+      return { success: false, error: res.error || 'Αποτυχία αποστολής SMS.' }
+    }
+  } catch (error: any) {
+    console.error('[SMS] Send error:', error)
+    return { success: false, error: error.message || 'Σφάλμα συστήματος κατά την αποστολή SMS.' }
+  }
+}

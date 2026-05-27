@@ -11,9 +11,117 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, User, Banknote, Euro, FileText, Activity, Utensils, Info, Share2, Trash2 } from 'lucide-react'
+import { ArrowLeft, User, Banknote, Euro, FileText, Activity, Utensils, Info, Share2, Trash2, MessageSquare, Loader2 } from 'lucide-react'
 import { History } from 'lucide-react'
 import { deleteRelationship } from '@/actions/relationships'
+import { sendParishionerSMS } from '@/actions/parishioners'
+import { toast } from 'sonner'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+
+function SendSmsDialog({ parishionerId, name, phone }: { parishionerId: string; name: string; phone: string }) {
+  const [open, setOpen] = useState(false)
+  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const charCount = message.length
+  const isUnicode = /[^\u0000-\u007F]/.test(message)
+  const limit1 = isUnicode ? 70 : 160
+  const limitNext = isUnicode ? 67 : 153
+  
+  let smsCount = 1
+  if (charCount > limit1) {
+    smsCount = Math.ceil(charCount / limitNext)
+  }
+
+  const handleSend = async () => {
+    if (!message.trim()) {
+      toast.error('Παρακαλούμε εισάγετε ένα μήνυμα.')
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await sendParishionerSMS(parishionerId, message)
+      if (res.success) {
+        toast.success('Το SMS στάλθηκε επιτυχώς!')
+        setMessage('')
+        setOpen(false)
+      } else {
+        toast.error(res.error || 'Αποτυχία αποστολής SMS.')
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Σφάλμα κατά την αποστολή.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-7 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 transition-colors py-0.5 px-2">
+          <MessageSquare className="w-3 h-3 mr-1" /> Στείλε SMS
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-indigo-600" />
+            Αποστολή SMS
+          </DialogTitle>
+          <DialogDescription>
+            Στείλτε μήνυμα στον ενορίτη <b>{name}</b>.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 my-2">
+          <div className="grid grid-cols-3 gap-2 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200/60">
+            <span className="text-muted-foreground font-medium">Παραλήπτης:</span>
+            <span className="col-span-2 font-bold text-foreground">{name}</span>
+            <span className="text-muted-foreground font-medium">Τηλέφωνο:</span>
+            <span className="col-span-2 font-mono font-bold text-foreground">{phone}</span>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-muted-foreground">Μήνυμα SMS</label>
+            <Textarea
+              placeholder="Πληκτρολογήστε το μήνυμά σας εδώ..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="min-h-[100px] text-sm resize-none"
+              maxLength={400}
+            />
+            <div className="flex justify-between items-center text-[11px] text-muted-foreground px-0.5">
+              <span>
+                Χαρακτήρες: <b>{charCount}</b> / 400
+              </span>
+              <span>
+                Σύνολο SMS: <b className={smsCount > 1 ? "text-amber-600 font-bold" : "font-bold text-indigo-600"}>{smsCount}</b> ({isUnicode ? 'Unicode' : 'GSM-7'})
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={loading} className="w-full sm:w-auto">
+            Ακύρωση
+          </Button>
+          <Button size="sm" onClick={handleSend} disabled={loading} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
+            {loading ? 'Αποστολή...' : 'Αποστολή SMS'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 export default function ParishionerProfileClient({ p, beneficiary, relationships, auditLogs }: { p: any, beneficiary: any, relationships: any, auditLogs: any[] }) {
  const router = useRouter();
@@ -90,7 +198,12 @@ export default function ParishionerProfileClient({ p, beneficiary, relationships
  <CardContent className="pt-6">
  <div className="grid grid-cols-3 gap-y-4 gap-x-2 text-sm">
  <div className="text-muted-foreground font-medium">Τηλέφωνο:</div>
- <div className="col-span-2 font-semibold text-foreground">{p.phone || '-'}</div>
+ <div className="col-span-2 font-semibold text-foreground flex items-center gap-3">
+    <span>{p.phone || '-'}</span>
+    {p.phone && (
+      <SendSmsDialog parishionerId={p.id} name={`${p.firstName} ${p.lastName}`} phone={p.phone} />
+    )}
+  </div>
  
  <div className="text-muted-foreground font-medium">Email:</div>
  <div className="col-span-2 font-semibold text-foreground">{p.email || '-'}</div>
