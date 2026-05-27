@@ -215,7 +215,7 @@ export async function testSmsConnection(testPhone: string): Promise<{ success: b
         'Authorization': apiKey,
       },
       body: JSON.stringify({
-        Contacts: [normalizedPhone],
+        Contacts: [{ Mobile: normalizedPhone }],
         Sender: senderId,
         Message: 'Test SMS από Kanonas. Αν λαμβάνετε αυτό, η πύλη SMS λειτουργεί! Kanonas.gr',
         Type: 'SMS',

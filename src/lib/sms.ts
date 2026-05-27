@@ -59,7 +59,7 @@ export async function sendSMS(
  'Authorization': apiKey,  // Yuboto Omni: plain API key
  },
  body: JSON.stringify({
- Contacts: normalizedNumbers,
+ Contacts: normalizedNumbers.map(p => ({ Mobile: p })),
  Sender: senderId,
  Message: message,
  Type: 'SMS',
