@@ -127,3 +127,96 @@ export async function updateTempleSettings(data: {
 }
 
 export const saveTempleSettings = updateTempleSettings;
+
+// ─── Gateway Test Actions (Super Admin only) ────────────────────────────────
+
+export async function testSmtpConnection(): Promise<{ success: boolean; message: string }> {
+  const session = await requireAuth();
+  if (!session.isSuperAdmin) return { success: false, message: 'Δεν έχετε δικαίωμα.' };
+
+  const templeId = await getCurrentTempleId();
+  const temple = await prisma.temple.findUnique({ where: { id: templeId }, select: { settings: true, email: true } });
+  let s: Record<string, any> = {};
+  try { s = temple?.settings ? JSON.parse(temple.settings) : {}; } catch {}
+
+  const host = s.smtpHost || process.env.SMTP_HOST;
+  const port = parseInt(s.smtpPort || process.env.SMTP_PORT || '587');
+  const user = s.smtpUser || process.env.SMTP_USER;
+  const pass = s.smtpPass || process.env.SMTP_PASS;
+  const toEmail = temple?.email || session.userEmail;
+
+  if (!host || !user || !pass) {
+    return { success: false, message: 'Δεν έχουν οριστεί SMTP Host, Username ή Password.' };
+  }
+
+  try {
+    const nodemailer = await import('nodemailer');
+    const transporter = nodemailer.default.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+    });
+
+    await transporter.verify();
+    await transporter.sendMail({
+      from: `"Kanonas Test" <${user}>`,
+      to: toEmail,
+      subject: '✅ Kanonas — Δοκιμαστικό SMTP Email',
+      html: '<p>Ο διακομιστής SMTP λειτουργεί σωστά! ✅<br>Αυτό είναι ένα αυτόματο test email από το Kanonas.</p>',
+    });
+
+    return { success: true, message: `Το email στάλθηκε επιτυχώς στο ${toEmail}` };
+  } catch (e: any) {
+    return { success: false, message: `Σφάλμα SMTP: ${e.message}` };
+  }
+}
+
+export async function testSmsConnection(testPhone: string): Promise<{ success: boolean; message: string }> {
+  const session = await requireAuth();
+  if (!session.isSuperAdmin) return { success: false, message: 'Δεν έχετε δικαίωμα.' };
+
+  const templeId = await getCurrentTempleId();
+  const temple = await prisma.temple.findUnique({ where: { id: templeId }, select: { settings: true } });
+  let s: Record<string, any> = {};
+  try { s = temple?.settings ? JSON.parse(temple.settings) : {}; } catch {}
+
+  const apiKey = s.smsToken || process.env.YUBOTO_API_KEY;
+  const rawSenderId = s.smsSenderId || process.env.YUBOTO_SENDER_ID || 'Kanonas';
+  // Sender ID: max 11 alphanumeric chars
+  const senderId = rawSenderId.replace(/[^A-Za-z0-9]/g, '').slice(0, 11) || 'Kanonas';
+
+  if (!apiKey) {
+    return { success: false, message: 'Δεν έχει οριστεί SMS Gateway API Key.' };
+  }
+  if (!testPhone) {
+    return { success: false, message: 'Δεν έχετε δώσει αριθμό τηλεφώνου για το test.' };
+  }
+
+  try {
+    const response = await fetch('https://services.yuboto.com/omni/v1/Send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${Buffer.from(apiKey + ':').toString('base64')}`,
+      },
+      body: JSON.stringify({
+        phonenumbers: [testPhone],
+        sender: senderId,
+        text: 'Test SMS από Kanonas. Αν λαμβάνετε αυτό, η πύλη SMS λειτουργεί! ✅',
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+
+    const text = await response.text();
+    if (!response.ok) {
+      return { success: false, message: `Σφάλμα Yuboto API (${response.status}): ${text}` };
+    }
+    return { success: true, message: `SMS στάλθηκε στο ${testPhone}. Απόκριση: ${text.slice(0, 80)}` };
+  } catch (e: any) {
+    return { success: false, message: `Σφάλμα αποστολής SMS: ${e.message}` };
+  }
+}
+

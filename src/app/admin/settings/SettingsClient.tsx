@@ -4,14 +4,17 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { updateTempleSettings } from '@/actions/settings';
+import { updateTempleSettings, testSmtpConnection, testSmsConnection } from '@/actions/settings';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Save, Globe, KeyRound, Mail, MessageSquare, FileText, Hash, HelpCircle, CheckCircle2, Calendar } from 'lucide-react';
+import { Building2, Save, Globe, KeyRound, Mail, MessageSquare, FileText, Hash, HelpCircle, CheckCircle2, Calendar, FlaskConical, Phone } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SettingsClient({ initialData, isSuperAdmin }: { initialData: any; isSuperAdmin: boolean }) {
  const [isSaving, setIsSaving] = useState(false);
+ const [smtpTest, setSmtpTest] = useState<{ loading: boolean; result?: { success: boolean; message: string } }>({ loading: false });
+ const [smsTest, setSmsTest] = useState<{ loading: boolean; result?: { success: boolean; message: string } }>({ loading: false });
+ const [testPhone, setTestPhone] = useState('');
  const [formData, setFormData] = useState({
  name: initialData.name || '',
  taxId: initialData.taxId || '',
@@ -164,53 +167,114 @@ export default function SettingsClient({ initialData, isSuperAdmin }: { initialD
  </Card>
  </TabsContent>
 
- {/* GATEWAYS TAB */}
- <TabsContent value="gateways">
- <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- <Card className="p-6 border-border rounded-xl shadow-sm border-t-4 border-t-blue-500">
- <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Mail className="text-blue-500"/> Διακομιστής Email (SMTP)</h3>
- <p className="text-xs text-[var(--text-muted)] mb-6">Διαμορφώστε τον δικό σας διακομιστή για μαζικές αποστολές email.</p>
- <div className="space-y-4">
- <div>
- <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Host</label>
- <Input placeholder="π.χ. mail.mychurch.gr" value={formData.settings.smtpHost} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpHost: e.target.value}})} className="mt-1"/>
- </div>
- <div>
- <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Port</label>
- <Input placeholder="π.χ. 465 ή 587" value={formData.settings.smtpPort} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpPort: e.target.value}})} className="mt-1"/>
- </div>
- <div>
- <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Username</label>
- <Input placeholder="π.χ. info@mychurch.gr" value={formData.settings.smtpUser} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpUser: e.target.value}})} className="mt-1"/>
- </div>
- <div>
- <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Password</label>
- <Input type="password" placeholder="••••••••" value={formData.settings.smtpPass} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpPass: e.target.value}})} className="mt-1"/>
- </div>
- </div>
- </Card>
+  {/* GATEWAYS TAB */}
+  <TabsContent value="gateways">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
- <Card className="p-6 border-border rounded-xl shadow-sm border-t-4 border-t-purple-500">
- <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><MessageSquare className="text-purple-500"/> SMS Πύλη</h3>
- <p className="text-xs text-[var(--text-muted)] mb-6">Auth Tokens του παρόχου σας (Twilio / Apifon) για SMS.</p>
- <div className="space-y-4">
-  <div>
-  <label className="text-xs font-semibold text-[var(--text-secondary)]">SMS Gateway API Key</label>
-  <Input placeholder="Bearer sk_test_..." value={formData.settings.smsToken} onChange={e => setFormData({...formData, settings: {...formData.settings, smsToken: e.target.value}})} className="mt-1"/>
+    {/* ── SMTP Card ── */}
+    <Card className="p-6 border-border rounded-xl shadow-sm border-t-4 border-t-blue-500">
+      <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Mail className="text-blue-500"/> Διακομιστής Email (SMTP)</h3>
+      <p className="text-xs text-[var(--text-muted)] mb-6">Διαμορφώστε τον δικό σας διακομιστή για μαζικές αποστολές email.</p>
+      <div className="space-y-4">
+        <div>
+          <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Host</label>
+          <Input placeholder="π.χ. mail.mychurch.gr" value={formData.settings.smtpHost} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpHost: e.target.value}})} className="mt-1"/>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Port</label>
+          <Input placeholder="π.χ. 465 ή 587" value={formData.settings.smtpPort} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpPort: e.target.value}})} className="mt-1"/>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Username</label>
+          <Input placeholder="π.χ. info@mychurch.gr" value={formData.settings.smtpUser} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpUser: e.target.value}})} className="mt-1"/>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-[var(--text-secondary)]">SMTP Password</label>
+          <Input type="password" placeholder="••••••••" value={formData.settings.smtpPass} onChange={e => setFormData({...formData, settings: {...formData.settings, smtpPass: e.target.value}})} className="mt-1"/>
+        </div>
+      </div>
+      {/* SMTP Test */}
+      <div className="mt-5 pt-4 border-t border-dashed border-border">
+        <p className="text-[11px] text-[var(--text-muted)] mb-2">Θα σταλεί δοκιμαστικό email στο καταχωρημένο email του ναού.</p>
+        <Button
+          type="button" size="sm" variant="outline"
+          disabled={smtpTest.loading}
+          className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50"
+          onClick={async () => {
+            setSmtpTest({ loading: true, result: undefined });
+            const res = await testSmtpConnection();
+            setSmtpTest({ loading: false, result: res });
+          }}
+        >
+          <FlaskConical className="w-4 h-4" />
+          {smtpTest.loading ? 'Αποστολή...' : 'Τεστ SMTP Σύνδεσης'}
+        </Button>
+        {smtpTest.result && (
+          <div className={`mt-3 flex items-start gap-2 text-xs px-3 py-2 rounded-lg border ${smtpTest.result.success ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+            <span className="text-base leading-none mt-0.5">{smtpTest.result.success ? '✅' : '❌'}</span>
+            <span>{smtpTest.result.message}</span>
+          </div>
+        )}
+      </div>
+    </Card>
+
+    {/* ── SMS Card ── */}
+    <Card className="p-6 border-border rounded-xl shadow-sm border-t-4 border-t-purple-500">
+      <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><MessageSquare className="text-purple-500"/> SMS Πύλη</h3>
+      <p className="text-xs text-[var(--text-muted)] mb-6">Auth Token του παρόχου Yuboto για αποστολή SMS.</p>
+      <div className="space-y-4">
+        <div>
+          <label className="text-xs font-semibold text-[var(--text-secondary)]">SMS Gateway API Key</label>
+          <Input placeholder="Bearer sk_test_..." value={formData.settings.smsToken} onChange={e => setFormData({...formData, settings: {...formData.settings, smsToken: e.target.value}})} className="mt-1"/>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-[var(--text-secondary)]">SMS Αποστολέας (Sender ID)</label>
+          <Input placeholder="π.χ. AgDimitrios" maxLength={11} value={formData.settings.smsSenderId} onChange={e => setFormData({...formData, settings: {...formData.settings, smsSenderId: e.target.value}})} className="mt-1 font-mono"/>
+          <p className="text-[10px] text-[var(--text-muted)] mt-1">Μέγιστο 11 λατινικοί χαρακτήρες. Εμφανίζεται ως αποστολέας στα SMS.</p>
+        </div>
+      </div>
+      <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-100">
+        <span className="text-xs text-purple-700 block font-semibold mb-1">Πληροφορία</span>
+        <span className="text-xs text-purple-600">Αφού συμπληρώσετε το API Key, το Kanonas θα στέλνει αυτόματα μηνύματα στους Πιστούς.</span>
+      </div>
+      {/* SMS Test */}
+      <div className="mt-5 pt-4 border-t border-dashed border-border">
+        <p className="text-[11px] text-[var(--text-muted)] mb-2">Δώστε αριθμό τηλεφώνου (π.χ. 6912345678) για να στείλετε δοκιμαστικό SMS.</p>
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)]" />
+            <Input
+              placeholder="6912345678"
+              value={testPhone}
+              onChange={e => setTestPhone(e.target.value)}
+              className="pl-8 font-mono text-sm"
+            />
+          </div>
+          <Button
+            type="button" size="sm" variant="outline"
+            disabled={smsTest.loading}
+            className="flex items-center gap-2 border-purple-300 text-purple-700 hover:bg-purple-50 shrink-0"
+            onClick={async () => {
+              setSmsTest({ loading: true, result: undefined });
+              const res = await testSmsConnection(testPhone);
+              setSmsTest({ loading: false, result: res });
+            }}
+          >
+            <FlaskConical className="w-4 h-4" />
+            {smsTest.loading ? 'Αποστολή...' : 'Τεστ SMS'}
+          </Button>
+        </div>
+        {smsTest.result && (
+          <div className={`mt-3 flex items-start gap-2 text-xs px-3 py-2 rounded-lg border ${smsTest.result.success ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+            <span className="text-base leading-none mt-0.5">{smsTest.result.success ? '✅' : '❌'}</span>
+            <span>{smsTest.result.message}</span>
+          </div>
+        )}
+      </div>
+    </Card>
+
   </div>
-  <div>
-  <label className="text-xs font-semibold text-[var(--text-secondary)]">SMS Αποστολέας (Sender ID)</label>
-  <Input placeholder="π.χ. AgDimitrios" maxLength={11} value={formData.settings.smsSenderId} onChange={e => setFormData({...formData, settings: {...formData.settings, smsSenderId: e.target.value}})} className="mt-1 font-mono"/>
-  <p className="text-[10px] text-[var(--text-muted)] mt-1">Μέγιστο 11 λατινικοί χαρακτήρες. Εμφανίζεται ως αποστολέας στα SMS.</p>
-  </div>
- </div>
- <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-100">
- <span className="text-xs text-purple-700 block font-semibold mb-1">Πληροφορία</span>
- <span className="text-xs text-purple-600">Αφού συμπληρώσετε το API Key, το Kanonas θα στέλνει αυτόματα μηνύματα στους Πιστούς.</span>
- </div>
- </Card>
- </div>
- </TabsContent>
+  </TabsContent>
 
  {/* WEB TAB */}
  <TabsContent value="web" className="space-y-6">
