@@ -146,8 +146,13 @@ function generateHTMLDoc(template: any, answers: Record<string, string>, temple:
 
 async function generatePDFDoc(template: any, answers: Record<string, string>, temple: any) {
   try {
-    const filePath = path.join(process.cwd(), 'public', template.fileUrl)
-    const existingPdfBytes = await fs.readFile(filePath)
+    let existingPdfBytes: Buffer;
+    if (template.fileData) {
+      existingPdfBytes = Buffer.from(template.fileData, 'base64');
+    } else {
+      const filePath = path.join(process.cwd(), 'public', template.fileUrl)
+      existingPdfBytes = await fs.readFile(filePath)
+    }
     const pdfDoc = await PDFDocument.load(existingPdfBytes)
 
     // Embed a font that supports Greek
@@ -218,8 +223,13 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
     const Docxtemplater = (await import('docxtemplater')).default
     const PizZip = (await import('pizzip')).default
 
-    const filePath = path.join(process.cwd(), 'public', template.fileUrl)
-    const content = await fs.readFile(filePath)
+    let content: Buffer;
+    if (template.fileData) {
+      content = Buffer.from(template.fileData, 'base64');
+    } else {
+      const filePath = path.join(process.cwd(), 'public', template.fileUrl)
+      content = await fs.readFile(filePath)
+    }
     const zip = new PizZip(content)
 
     let format = 'mustache';

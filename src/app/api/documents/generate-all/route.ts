@@ -2,8 +2,110 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateAllGamosDocs, generateAllBaptisiDocs, TokenData } from '@/lib/pdfEngine';
 import { getSession } from '@/lib/auth';
+import { declineGreekName } from '@/lib/greekDeclension';
 import fs from 'fs';
 import path from 'path';
+
+function cleanGreekString(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove Greek accents/diacritics
+    .replace(/[^a-z0-9α-ω]/g, '') // keep only alphanumeric
+    .trim();
+}
+
+function findCustomTemplate(customTemplates: any[], docKey: string, serviceType: string) {
+  const serviceTypeLower = serviceType.toLowerCase();
+  
+  // 1. Direct match on docType (if saved as the specific document key)
+  let found = customTemplates.find(t => t.docType.toLowerCase() === docKey.toLowerCase());
+  if (found) return found;
+
+  // 2. Filter templates that belong to the current service category (e.g. 'vaptisi' or 'gamos')
+  const catTemplates = customTemplates.filter(t => {
+    const tType = t.docType.toLowerCase();
+    return tType === serviceTypeLower || (serviceTypeLower === 'vaptisi' && tType === 'vaptisi') || (serviceTypeLower === 'gamos' && tType === 'gamos');
+  });
+
+  if (catTemplates.length === 0) return null;
+
+  // 3. Match based on keywords in nameEl
+  const keyClean = docKey.toLowerCase();
+  
+  if (serviceTypeLower === 'vaptisi') {
+    if (keyClean === 'bebaiosi') {
+      const match = catTemplates.find(t => cleanGreekString(t.nameEl).includes('βεβαιωση'));
+      if (match) return match;
+    }
+    if (keyClean === 'baptistiko') {
+      const match = catTemplates.find(t => {
+        const cleanName = cleanGreekString(t.nameEl);
+        return (cleanName.includes('πιστοποιητικο') || cleanName.includes('βαπτιστικο') || cleanName.includes('βαπτιση')) 
+          && !cleanName.includes('βεβαιωση') 
+          && !cleanName.includes('δηλωση') 
+          && !cleanName.includes('απαντητικ');
+      });
+      if (match) return match;
+    }
+    if (keyClean === 'dilosi_anadoxou') {
+      const match = catTemplates.find(t => {
+        const cleanName = cleanGreekString(t.nameEl);
+        return cleanName.includes('δηλωση') || cleanName.includes('αναδοχ');
+      });
+      if (match) return match;
+    }
+    if (keyClean === 'apantitikon') {
+      const match = catTemplates.find(t => {
+        const cleanName = cleanGreekString(t.nameEl);
+        return cleanName.includes('απαντητικ') || cleanName.includes('απαντησ');
+      });
+      if (match) return match;
+    }
+  } else if (serviceTypeLower === 'gamos') {
+    if (keyClean === 'bebaiosi') {
+      const match = catTemplates.find(t => cleanGreekString(t.nameEl).includes('βεβαιωση'));
+      if (match) return match;
+    }
+    if (keyClean === 'aitisi') {
+      const match = catTemplates.find(t => cleanGreekString(t.nameEl).includes('αιτηση'));
+      if (match) return match;
+    }
+    if (keyClean === 'pinakas_synthikon') {
+      const match = catTemplates.find(t => {
+        const cleanName = cleanGreekString(t.nameEl);
+        return cleanName.includes('πινακας') || cleanName.includes('συνθηκ');
+      });
+      if (match) return match;
+    }
+    if (keyClean === 'gamilion') {
+      const match = catTemplates.find(t => {
+        const cleanName = cleanGreekString(t.nameEl);
+        return cleanName.includes('γαμηλιο') || cleanName.includes('γραμμα') || cleanName.includes('επιστολη');
+      });
+      if (match) return match;
+    }
+    if (keyClean === 'dilosi_gampr') {
+      const match = catTemplates.find(t => {
+        const cleanName = cleanGreekString(t.nameEl);
+        return cleanName.includes('δηλωση') && (cleanName.includes('γαμπρ') || cleanName.includes('νυμφιο'));
+      });
+      if (match) return match;
+    }
+    if (keyClean === 'dilosi_nyfis') {
+      const match = catTemplates.find(t => {
+        const cleanName = cleanGreekString(t.nameEl);
+        return cleanName.includes('δηλωση') && (cleanName.includes('νυφη') || cleanName.includes('νυμφη'));
+      });
+      if (match) return match;
+    }
+  }
+
+  // 4. Fallback: if there is only 1 template in the category, use it
+  if (catTemplates.length === 1) return catTemplates[0];
+
+  return null;
+}
 
 export async function POST(req: NextRequest) {
  try {
@@ -16,10 +118,16 @@ export async function POST(req: NextRequest) {
  const { tokenId } = await req.json();
  if (!tokenId) return NextResponse.json({ error: 'tokenId required' }, { status: 400 });
 
- const token = await prisma.token.findUnique({
- where: { id: tokenId },
- include: { temple: true, ceremonyMeta: true, persons: true }
- });
+  const token = await prisma.token.findUnique({
+    where: { id: tokenId },
+    include: {
+      temple: {
+        include: { metropolis: true }
+      },
+      ceremonyMeta: true,
+      persons: true
+    }
+  });
 
  if (!token) return NextResponse.json({ error: 'Token not found' }, { status: 404 });
 
@@ -28,59 +136,234 @@ export async function POST(req: NextRequest) {
  return NextResponse.json({ error: 'Forbidden: Access denied.' }, { status: 403 });
  }
 
- const customTemplates = await prisma.docTemplate.findMany({
- where: { templeId: token.templeId }
- });
+  const customTemplates = await prisma.docTemplate.findMany({
+    where: { templeId: token.templeId }
+  });
 
- const tokenData: TokenData = {
- id: token.id,
- serviceType: token.serviceType,
- customerName: token.customerName || 'Οικογένεια',
- ceremonyDate: token.ceremonyDate,
- assignedPriest: token.assignedPriest,
- assignedPsaltis: token.assignedPsaltis,
- protocolNumber: token.protocolNumber,
- bookNumber: token.bookNumber,
- temple: { name: token.temple.name, address: token.temple.address, settings: token.temple.settings },
- ceremonyMeta: token.ceremonyMeta ? { dataJson: token.ceremonyMeta.dataJson } : null,
- persons: token.persons.map(p => ({ role: p.role, firstName: p.firstName, lastName: p.lastName, fathersName: p.fathersName })),
- customTemplates: customTemplates.map(t => ({ docType: t.docType, nameEl: t.nameEl, htmlContent: t.htmlContent })),
- };
+  // ─── Build Rich Answers Map for Custom Templates ───────────────────────
+  const answers: Record<string, string> = {};
+  
+  if (token.ceremonyMeta?.dataJson) {
+    try {
+      const meta = JSON.parse(token.ceremonyMeta.dataJson);
+      for (const [k, v] of Object.entries(meta)) {
+        if (v !== null && v !== undefined) {
+          answers[k] = String(v);
+        }
+      }
+    } catch(e) {}
+  }
 
- const isGamos = token.serviceType === 'GAMOS';
- const docs = isGamos ? await generateAllGamosDocs(tokenData) : await generateAllBaptisiDocs(tokenData);
+  for (const p of token.persons) {
+    const role = p.role;
+    answers[`${role}FirstName`] = p.firstName || '';
+    answers[`${role}LastName`] = p.lastName || '';
+    answers[`${role}FullName`] = `${p.firstName || ''} ${p.lastName || ''}`.trim();
+    answers[`${role}FathersName`] = p.fathersName || '';
+    answers[`${role}_firstName`] = p.firstName || '';
+    answers[`${role}_lastName`] = p.lastName || '';
+    answers[`${role}_fullName`] = `${p.firstName || ''} ${p.lastName || ''}`.trim();
+    answers[`${role}_fathersName`] = p.fathersName || '';
+  }
 
- const result = [];
- for (const doc of docs) {
- // Persist to File System
- const baseDir = path.join(process.cwd(), 'public', 'docs', token.templeId);
- if (!fs.existsSync(baseDir)) fs.mkdirSync(baseDir, { recursive: true });
- 
- const safeFilename = `${Date.now()}-${doc.filename.replace(/[^a-zA-Z0-9.\-]/g, '_')}`;
- const filePath = path.join(baseDir, safeFilename);
- fs.writeFileSync(filePath, Buffer.from(doc.buffer));
- 
- const storagePath = `/docs/${token.templeId}/${safeFilename}`;
+  const serviceTypeLower = token.serviceType.toLowerCase();
+  let childGender: 'male' | 'female' = 'male'; // fallback
 
- // Persist to Database Object
- await prisma.document.create({
- data: {
- templeId: token.templeId,
- tokenId: token.id,
- docType: doc.key,
- fileName: doc.label,
- storagePath: storagePath
- }
- });
+  if (serviceTypeLower === 'vaptisi') {
+    const father = token.persons.find(p => p.role === 'father');
+    const mother = token.persons.find(p => p.role === 'mother');
+    const godparent = token.persons.find(p => p.role === 'godparent');
 
- result.push({
- key: doc.key,
- label: doc.label,
- filename: doc.filename,
- base64: Buffer.from(doc.buffer).toString('base64'),
- storagePath
- });
- }
+    const childName = answers['childName'] || answers['name'] || '';
+    const childLastName = answers['childLastName'] || answers['lastName'] || father?.lastName || '';
+
+    // Simple gender heuristic based on child's name
+    const childNameLower = childName.toLowerCase();
+    if (childNameLower.endsWith('α') || childNameLower.endsWith('η') || childNameLower.endsWith('ω') || childNameLower.endsWith('ου') || childNameLower.endsWith('η')) {
+      childGender = 'female';
+    }
+    
+    // Explicit gender setting from answers if present
+    const genderVal = answers['gender'] || answers['childGender'] || answers['φύλο'] || answers['φυλο'] || answers['γένος'] || '';
+    const gValLower = String(genderVal).toLowerCase();
+    if (gValLower.includes('θηλ') || gValLower.includes('female') || gValLower === 'θ' || gValLower === 'f') {
+      childGender = 'female';
+    }
+
+    answers['Όνομα'] = childName;
+    answers['Επώνυμο'] = childLastName;
+    answers['ΟΝΟΜΑ'] = childName;
+    answers['ΕΠΩΝΥΜΟ'] = childLastName;
+    
+    // gender helpers
+    answers['γεννηθείς/σα'] = childGender === 'male' ? 'γεννηθείς' : 'γεννηθείσα';
+    answers['γεννηθεις/σα'] = childGender === 'male' ? 'γεννηθείς' : 'γεννηθείσα';
+    answers['ο/η'] = childGender === 'male' ? 'ο' : 'η';
+    answers['του/της'] = childGender === 'male' ? 'του' : 'της';
+
+    if (father) {
+      // In narrative templates, "Πατρώνυμο" is typically the father's first name in genitive case (e.g. "του [Πατρώνυμο]" -> "του Στεφάνου")
+      const fatherFirstGenitive = declineGreekName(father.firstName || '', 'genitive', 'male');
+      answers['Πατρώνυμο'] = fatherFirstGenitive;
+      answers['Όνομα_Πατέρα'] = father.firstName || '';
+      answers['Όνομα_Πατέρα_Γενική'] = fatherFirstGenitive;
+      answers['Επώνυμο_Πατέρα'] = father.lastName || '';
+      answers['Επώνυμο_Πατέρα_Γενική'] = declineGreekName(father.lastName || '', 'genitive', 'male');
+      
+      answers['ΠΑΤΡΩΝΥΜΟ'] = fatherFirstGenitive;
+      answers['ΟΝΟΜΑ_ΠΑΤΕΡΑ'] = father.firstName || '';
+      answers['ΕΠΩΝΥΜΟ_ΠΑΤΕΡΑ'] = father.lastName || '';
+    }
+    if (mother) {
+      // Mother's name in genitive case
+      const motherFirstGenitive = declineGreekName(mother.firstName || '', 'genitive', 'female');
+      answers['Μητρώνυμο'] = motherFirstGenitive;
+      answers['Όνομα_Μητέρας'] = mother.firstName || '';
+      answers['Όνομα_Μητέρας_Γενική'] = motherFirstGenitive;
+      answers['Επώνυμο_Μητέρας'] = mother.lastName || '';
+      answers['Επώνυμο_Μητέρας_Γενική'] = declineGreekName(mother.lastName || '', 'genitive', 'female');
+      
+      answers['ΜΗΤΡΩΝΥΜΟ'] = motherFirstGenitive;
+      answers['ΟΝΟΜΑ_ΜΗΤΕΡΑΣ'] = mother.firstName || '';
+      answers['ΕΠΩΝΥΜΟ_ΜΗΤΕΡΑΣ'] = mother.lastName || '';
+    }
+    if (godparent) {
+      const godparentFullName = `${godparent.firstName || ''} ${godparent.lastName || ''}`.trim();
+      answers['Ανάδοχος'] = godparentFullName;
+      answers['Όνομα_Αναδόχου'] = godparent.firstName || '';
+      answers['Επώνυμο_Αναδόχου'] = godparent.lastName || '';
+      
+      answers['ΑΝΑΔΟΧΟΣ'] = godparentFullName;
+      answers['ΟΝΟΜΑ_ΑΝΑΔΟΧΟΥ'] = godparent.firstName || '';
+      answers['ΕΠΩΝΥΜΟ_ΑΝΑΔΟΧΟΥ'] = godparent.lastName || '';
+    }
+  } else if (serviceTypeLower === 'gamos') {
+    const groom = token.persons.find(p => p.role === 'groom');
+    const bride = token.persons.find(p => p.role === 'bride');
+    
+    if (groom) {
+      answers['Όνομα_Γαμπρού'] = groom.firstName || '';
+      answers['Επώνυμο_Γαμπρού'] = groom.lastName || '';
+      answers['Πατρώνυμο_Γαμπρού'] = groom.fathersName || '';
+      
+      answers['ΟΝΟΜΑ_ΓΑΜΠΡΟΥ'] = groom.firstName || '';
+      answers['ΕΠΩΝΥΜΟ_ΓΑΜΠΡΟΥ'] = groom.lastName || '';
+      answers['ΠΑΤΡΩΝΥΜΟ_ΓΑΜΠΡΟΥ'] = groom.fathersName || '';
+    }
+    if (bride) {
+      answers['Όνομα_Νύφης'] = bride.firstName || '';
+      answers['Επώνυμο_Νύφης'] = bride.lastName || '';
+      answers['Πατρώνυμο_Νύφης'] = bride.fathersName || '';
+      
+      answers['ΟΝΟΜΑ_ΝΥΦΗΣ'] = bride.firstName || '';
+      answers['ΕΠΩΝΥΜΟ_ΝΥΦΗΣ'] = bride.lastName || '';
+      answers['ΠΑΤΡΩΝΥΜΟ_ΝΥΦΗΣ'] = bride.fathersName || '';
+    }
+  }
+
+  const grDate = token.ceremonyDate ? new Date(token.ceremonyDate).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  answers['ΑΡΙΘΜ_ΠΡΩΤΟΚΟΛΛΟΥ'] = token.protocolNumber || '';
+  answers['protocolNumber'] = token.protocolNumber || '';
+  answers['ΑΡΙΘΜ_ΒΙΒΛΙΟΥ'] = token.bookNumber || '';
+  answers['bookNumber'] = token.bookNumber || '';
+  answers['ΗΜΕΡΟΜΗΝΙΑ_ΤΕΛΕΣΗΣ'] = grDate;
+  answers['ceremonyDate'] = grDate;
+
+  if (token.ceremonyDate) {
+    const d = new Date(token.ceremonyDate);
+    const months = ['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'];
+    answers['Ημέρα_Τέλεσης'] = String(d.getDate());
+    answers['Μήνας_Τέλεσης'] = months[d.getMonth()];
+    answers['Έτος_Τέλεσης'] = String(d.getFullYear());
+    answers['day'] = String(d.getDate());
+    answers['month'] = months[d.getMonth()];
+    answers['year'] = String(d.getFullYear());
+  }
+  
+  answers['Εφημέριος'] = token.assignedPriest || '';
+  answers['ΕΦΗΜΕΡΙΟΣ'] = token.assignedPriest || '';
+  answers['assignedPriest'] = token.assignedPriest || '';
+
+  answers['ΝΑΟΣ_ΟΝΟΜΑ'] = token.temple.name || '';
+  answers['templeName'] = token.temple.name || '';
+  answers['ΝΑΟΣ_ΔΙΕΥΘΥΝΣΗ'] = token.temple.address || '';
+  answers['ΜΗΤΡΟΠΟΛΗ'] = token.temple.metropolis?.name || '';
+  answers['metropolisName'] = token.temple.metropolis?.name || '';
+  answers['ΗΜΕΡΟΜΗΝΙΑ'] = new Date().toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' });
+  // ───────────────────────────────────────────────────────────────────────
+
+  const tokenData: TokenData = {
+    id: token.id,
+    serviceType: token.serviceType,
+    customerName: token.customerName || 'Οικογένεια',
+    ceremonyDate: token.ceremonyDate,
+    assignedPriest: token.assignedPriest,
+    assignedPsaltis: token.assignedPsaltis,
+    protocolNumber: token.protocolNumber,
+    bookNumber: token.bookNumber,
+    temple: { name: token.temple.name, address: token.temple.address, settings: token.temple.settings },
+    ceremonyMeta: token.ceremonyMeta ? { dataJson: token.ceremonyMeta.dataJson } : null,
+    persons: token.persons.map(p => ({ role: p.role, firstName: p.firstName, lastName: p.lastName, fathersName: p.fathersName })),
+    customTemplates: customTemplates.map(t => ({ docType: t.docType, nameEl: t.nameEl, htmlContent: t.htmlContent })),
+  };
+
+  const isGamos = token.serviceType.toLowerCase() === 'gamos';
+  const docs = isGamos ? await generateAllGamosDocs(tokenData) : await generateAllBaptisiDocs(tokenData);
+
+  const { generateFromTemplate } = await import('@/actions/docEngine');
+
+  const result = [];
+  for (const doc of docs) {
+    const customTpl = findCustomTemplate(customTemplates, doc.key, token.serviceType);
+
+    let fileBuffer: Buffer = doc.buffer;
+    let filename: string = doc.filename;
+
+    if (customTpl) {
+      console.log(`[generate-all] Generating custom template for ${doc.key} (ID: ${customTpl.id})`);
+      const genRes: any = await generateFromTemplate(customTpl.id, answers);
+      if (genRes.success) {
+        if (genRes.type === 'pdf' || genRes.type === 'docx') {
+          fileBuffer = Buffer.from(genRes.base64, 'base64');
+          filename = genRes.filename;
+        } else if (genRes.type === 'html') {
+          fileBuffer = Buffer.from(genRes.html, 'utf-8');
+          filename = `${doc.label.replace(/\s+/g, '_')}_${Date.now()}.html`;
+        }
+      } else {
+        console.error(`[generate-all] Failed to generate custom template for ${doc.key}:`, genRes.error);
+      }
+    }
+
+    // Persist to File System
+    const baseDir = path.join(process.cwd(), 'public', 'docs', token.templeId);
+    if (!fs.existsSync(baseDir)) fs.mkdirSync(baseDir, { recursive: true });
+    
+    const safeFilename = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.\-]/g, '_')}`;
+    const filePath = path.join(baseDir, safeFilename);
+    fs.writeFileSync(filePath, fileBuffer);
+    
+    const storagePath = `/docs/${token.templeId}/${safeFilename}`;
+
+    // Persist to Database Object
+    await prisma.document.create({
+      data: {
+        templeId: token.templeId,
+        tokenId: token.id,
+        docType: doc.key,
+        fileName: doc.label,
+        storagePath: storagePath
+      }
+    });
+
+    result.push({
+      key: doc.key,
+      label: doc.label,
+      filename: filename,
+      base64: fileBuffer.toString('base64'),
+      storagePath
+    });
+  }
 
  return NextResponse.json({ success: true, docs: result, count: result.length });
 

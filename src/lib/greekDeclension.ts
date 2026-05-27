@@ -136,6 +136,8 @@ export function resolveGenderTokens(text: string, gender: 'male' | 'female'): st
 
   // Specific multi-option or shorthand fallbacks
   let resolved = text
+    .replace(/\[γεννηθείς\/σα\]/g, isMale ? 'γεννηθείς' : 'γεννηθείσα')
+    .replace(/\[γεννηθεις\/σα\]/g, isMale ? 'γεννηθείς' : 'γεννηθείσα')
     .replace(/\[ο\/η\/οι\]/g, isMale ? 'ο' : 'η')
     .replace(/\[τον\/την\/τους\]/g, isMale ? 'τον' : 'την')
     .replace(/\[του\/της\]/g, isMale ? 'του' : 'της')
