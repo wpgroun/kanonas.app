@@ -197,7 +197,17 @@ export async function testSmsConnection(testPhone: string): Promise<{ success: b
   }
 
   try {
-    // Yuboto Omni API — Authorization header is the raw API key (no Basic/Bearer encoding)
+    // Yuboto Omni API — uses PascalCase fields and international phone format
+    // Normalize phone: strip +, spaces, leading zeros; add Greek country code if needed
+    const normalizePhone = (phone: string) => {
+      let p = phone.replace(/[\s\-().+]/g, '');
+      if (p.startsWith('00')) p = p.slice(2);
+      if (p.startsWith('6') && p.length === 10) p = '30' + p; // GR mobile
+      if (p.startsWith('2') && p.length === 10) p = '30' + p; // GR landline
+      return p;
+    };
+    const normalizedPhone = normalizePhone(testPhone);
+
     const response = await fetch('https://services.yuboto.com/omni/v1/Send', {
       method: 'POST',
       headers: {
@@ -205,9 +215,10 @@ export async function testSmsConnection(testPhone: string): Promise<{ success: b
         'Authorization': apiKey,
       },
       body: JSON.stringify({
-        phonenumbers: [testPhone],
-        sender: senderId,
-        text: 'Test SMS από Kanonas. Αν λαμβάνετε αυτό, η πύλη SMS λειτουργεί! ✅',
+        Contacts: [normalizedPhone],
+        Sender: senderId,
+        Message: 'Test SMS από Kanonas. Αν λαμβάνετε αυτό, η πύλη SMS λειτουργεί! Kanonas.gr',
+        Type: 'SMS',
       }),
       signal: AbortSignal.timeout(15000),
     });

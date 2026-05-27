@@ -40,21 +40,29 @@ export async function sendSMS(
  }
 
  try {
- // Official Yuboto Omni API implementation (assuming standard POST structure)
- // Developers should verify the exact endpoint URL in their Yuboto Octapush Dashboard
  const yubotoEndpoint = 'https://services.yuboto.com/omni/v1/Send';
- 
- // We encode the API Key in base64 if required by Omni or just pass as header Bearer/Basic
+
+ // Normalize phone to international format (e.g. 6912345678 → 306912345678)
+ const normalizePhone = (phone: string) => {
+   let p = phone.replace(/[\s\-().+]/g, '');
+   if (p.startsWith('00')) p = p.slice(2);
+   if (p.startsWith('6') && p.length === 10) p = '30' + p;
+   if (p.startsWith('2') && p.length === 10) p = '30' + p;
+   return p;
+ };
+ const normalizedNumbers = phoneNumbers.map(normalizePhone);
+
  const response = await fetch(yubotoEndpoint, {
  method: 'POST',
  headers: {
  'Content-Type': 'application/json',
- 'Authorization': apiKey,  // Yuboto Omni: plain API key, no Basic/Bearer encoding
+ 'Authorization': apiKey,  // Yuboto Omni: plain API key
  },
  body: JSON.stringify({
- phonenumbers: phoneNumbers,
- sender: senderId,
- text: message
+ Contacts: normalizedNumbers,
+ Sender: senderId,
+ Message: message,
+ Type: 'SMS',
  })
  });
 
