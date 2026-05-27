@@ -3,8 +3,29 @@
  * Generates all required sacrament documents using pdf-lib.
  * Greek text is handled via TextEncoder with manual character mapping for proper Greek rendering.
  */
-import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
+import { PDFDocument, rgb, PageSizes } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
+import fs from 'fs';
+import path from 'path';
 import { declineGreekName } from './greekDeclension';
+
+let robotoRegularBytes: Uint8Array | null = null;
+let robotoBoldBytes: Uint8Array | null = null;
+
+export function loadPdfFonts() {
+  if (!robotoRegularBytes) {
+    const regularPath = path.join(process.cwd(), 'public', 'fonts', 'Roboto-Regular.ttf');
+    robotoRegularBytes = new Uint8Array(fs.readFileSync(regularPath));
+  }
+  if (!robotoBoldBytes) {
+    const boldPath = path.join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf');
+    robotoBoldBytes = new Uint8Array(fs.readFileSync(boldPath));
+  }
+  return {
+    regular: robotoRegularBytes,
+    bold: robotoBoldBytes,
+  };
+}
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
@@ -41,10 +62,13 @@ async function buildDocumentPage(pdfDoc: PDFDocument, options: {
  /** Optional document hash to display as reference number */
  docHash?: string;
 }): Promise<void> {
- const page = pdfDoc.addPage(PageSizes.A4);
- const { width, height } = page.getSize();
- const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
- const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const page = pdfDoc.addPage(PageSizes.A4);
+  const { width, height } = page.getSize();
+  
+  const fonts = loadPdfFonts();
+  pdfDoc.registerFontkit(fontkit);
+  const font = await pdfDoc.embedFont(fonts.regular);
+  const fontBold = await pdfDoc.embedFont(fonts.bold);
 
  let y = height - 40;
  const marginX = 50;
@@ -610,9 +634,12 @@ export async function generateMemorialPermit(memorial: any, deceased: any, templ
 // ─── MAILING & LABELS ───────────────────────────────────────────────────────
 
 export async function generateLabelsPdf(people: any[]): Promise<Buffer> {
- const pdfDoc = await PDFDocument.create();
- const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
- const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const pdfDoc = await PDFDocument.create();
+  
+  const fonts = loadPdfFonts();
+  pdfDoc.registerFontkit(fontkit);
+  const font = await pdfDoc.embedFont(fonts.regular);
+  const fontBold = await pdfDoc.embedFont(fonts.bold);
 
  // Standard Avery-style 3x7 Grid (21 labels per A4 page)
  const COLS = 3;

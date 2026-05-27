@@ -3,7 +3,8 @@
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/requireAuth'
 import { getCurrentTempleId } from './core'
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import { PDFDocument, rgb } from 'pdf-lib'
+import fontkit from '@pdf-lib/fontkit'
 import fs from 'fs/promises'
 import path from 'path'
 import { declineFullName, resolveGenderTokens } from '@/lib/greekDeclension';
@@ -150,8 +151,16 @@ async function generatePDFDoc(template: any, answers: Record<string, string>, te
     const pdfDoc = await PDFDocument.load(existingPdfBytes)
 
     // Embed a font that supports Greek
-    const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica)
-    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+    const regularPath = path.join(process.cwd(), 'public', 'fonts', 'Roboto-Regular.ttf')
+    const boldPath = path.join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf')
+    const [regularBytes, boldBytes] = await Promise.all([
+      fs.readFile(regularPath),
+      fs.readFile(boldPath)
+    ])
+
+    pdfDoc.registerFontkit(fontkit)
+    const helvetica = await pdfDoc.embedFont(regularBytes)
+    const helveticaBold = await pdfDoc.embedFont(boldBytes)
 
     const pages = pdfDoc.getPages()
     const firstPage = pages[0]

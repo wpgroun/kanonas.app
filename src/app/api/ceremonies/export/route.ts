@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
+import { PDFDocument, rgb, PageSizes } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
+import fs from 'fs/promises';
+import path from 'path';
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -51,8 +54,17 @@ export async function GET(req: Request) {
 
     // 3. Generate PDF
     const pdfDoc = await PDFDocument.create();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    
+    const regularPath = path.join(process.cwd(), 'public', 'fonts', 'Roboto-Regular.ttf');
+    const boldPath = path.join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf');
+    const [regularBytes, boldBytes] = await Promise.all([
+      fs.readFile(regularPath),
+      fs.readFile(boldPath)
+    ]);
+
+    pdfDoc.registerFontkit(fontkit);
+    const font = await pdfDoc.embedFont(regularBytes);
+    const fontBold = await pdfDoc.embedFont(boldBytes);
 
     const typeLabels: Record<string, string> = {
       MARRIAGE: 'ΓΑΜΩΝ',
