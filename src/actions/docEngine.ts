@@ -7,7 +7,7 @@ import { PDFDocument, rgb } from 'pdf-lib'
 import fontkit from '@pdf-lib/fontkit'
 import fs from 'fs/promises'
 import path from 'path'
-import { declineFullName, resolveGenderTokens, mergeSplitRuns, getNormalizedValue } from '@/lib/greekDeclension';
+import { declineFullName, declineGreekName, resolveGenderTokens, mergeSplitRuns, getNormalizedValue } from '@/lib/greekDeclension';
 
 
 /**
@@ -51,30 +51,22 @@ export async function generateFromTemplate(templateId: string, answers: Record<s
     }
   }
 
-  // Auto-decline fields that have Genitive counterpart
-  const keys = Object.keys(mergedAnswers);
-  for (const key of keys) {
-    if (key.includes('ΟΝΟΜΑ') || key.includes('ΕΠΩΝΥΜΟ') || key.includes('ΠΑΤΡΩΝΥΜΟ') || key.includes('ΜΗΤΡΩΝΥΜΟ')) {
-      const genKey = `${key}_ΓΕΝΙΚΗ`;
-      if (!mergedAnswers[genKey] && mergedAnswers[key]) {
-        mergedAnswers[genKey] = declineFullName(mergedAnswers[key], 'genitive', targetGender);
-      }
-    }
-  }
+  // Enrich answers dynamically with role variants, Greek equivalents, and cases
+  const enrichedAnswers = enrichAnswers(mergedAnswers, targetGender);
 
   // ─── HTML Template ───────────────────────────────────────────────────
   if (template.htmlContent) {
-    return generateHTMLDoc(template, mergedAnswers, temple, targetGender)
+    return generateHTMLDoc(template, enrichedAnswers, temple, targetGender)
   }
 
   // ─── PDF Template ──────────────────────────────────────────────────
   if (template.fileUrl && template.fileUrl.endsWith('.pdf')) {
-    return generatePDFDoc(template, mergedAnswers, temple)
+    return generatePDFDoc(template, enrichedAnswers, temple)
   }
 
   // ─── DOCX Template ─────────────────────────────────────────────────
   if (template.fileUrl && (template.fileUrl.endsWith('.docx') || template.fileUrl.endsWith('.doc'))) {
-    return generateDOCXDoc(template, mergedAnswers, targetGender)
+    return generateDOCXDoc(template, enrichedAnswers, targetGender)
   }
 
   return { success: false, error: 'Μη υποστηριζόμενος τύπος αρχείου.' }
@@ -87,7 +79,11 @@ export async function generateFromTemplate(templateId: string, answers: Record<s
 function generateHTMLDoc(template: any, answers: Record<string, string>, temple: any, targetGender: 'male' | 'female') {
   let filledHtml = template.htmlContent || ''
   filledHtml = filledHtml.replace(/\{\{([^}]+)\}\}/g, (_: string, varName: string) => {
-    return getNormalizedValue(varName.trim(), answers);
+    const val = getNormalizedValue(varName.trim(), answers);
+    if (!val) {
+      console.log(`[docEngine.ts] Template variable "${varName.trim()}" not found in answers map.`);
+    }
+    return val !== undefined && val !== null ? val : '';
   })
 
   const todayGr = new Date().toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -260,6 +256,9 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
             const regex = format === 'brackets' ? /\[([^\]]+)\]/g : /(?<!\{)\{([^{}]+)\}(?!\})/g;
             xml = xml.replace(regex, (match, key) => {
               const val = getNormalizedValue(key.trim(), answers);
+              if (!val) {
+                console.log(`[docEngine.ts] Template variable "${key.trim()}" (from match "${match}") not found in answers map.`);
+              }
               return (val || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             });
           }
@@ -279,7 +278,11 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
          parser: (tag) => {
            return {
              get: (scope) => {
-               return getNormalizedValue(tag, scope);
+               const val = getNormalizedValue(tag, scope);
+               if (!val) {
+                 console.log(`[docEngine.ts] Template variable "${tag}" not found in answers map.`);
+               }
+               return val;
              }
            };
          }
@@ -301,4 +304,126 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
     console.error('[DOCX Generation]', e)
     return { success: false, error: `Σφάλμα DOCX: ${e.message}` }
   }
+}
+
+export function enrichAnswers(answers: Record<string, string>, targetGender: 'male' | 'female'): Record<string, string> {
+  const enriched = { ...answers };
+  
+  // 1. Detect all roles present in the answers keys.
+  const roles = new Set<string>();
+  for (const key of Object.keys(answers)) {
+    const match = key.match(/^(groom|bride|father|mother|godparent|sponsor|witness|bestman|child)(?=[A-Z_]|$)/i);
+    if (match) {
+      roles.add(match[1].toLowerCase());
+    }
+  }
+
+  // 2. For each detected role, ensure all variants are populated in english and greek
+  for (const role of roles) {
+    const fName = answers[`${role}FirstName`] || answers[`${role}_firstName`] || answers[`${role}Name`] || answers[`${role}_name`] || '';
+    const lName = answers[`${role}LastName`] || answers[`${role}_lastName`] || '';
+    const fullName = answers[`${role}FullName`] || answers[`${role}_fullName`] || `${fName} ${lName}`.trim();
+    const patName = answers[`${role}FathersName`] || answers[`${role}_fathersName`] || '';
+    const matName = answers[`${role}MothersName`] || answers[`${role}_mothersName`] || '';
+
+    // Set standard english keys if not present
+    if (fName && !enriched[`${role}FirstName`]) enriched[`${role}FirstName`] = fName;
+    if (fName && !enriched[`${role}Name`]) enriched[`${role}Name`] = fName;
+    if (lName && !enriched[`${role}LastName`]) enriched[`${role}LastName`] = lName;
+    if (fullName && !enriched[`${role}FullName`]) enriched[`${role}FullName`] = fullName;
+    if (patName && !enriched[`${role}FathersName`]) enriched[`${role}FathersName`] = patName;
+    if (matName && !enriched[`${role}MothersName`]) enriched[`${role}MothersName`] = matName;
+
+    // Generate Greek equivalents based on the role
+    let grPrefix = '';
+    if (role === 'father') grPrefix = 'Πατέρα';
+    else if (role === 'mother') grPrefix = 'Μητέρας';
+    else if (role === 'godparent' || role === 'sponsor') grPrefix = 'Αναδόχου';
+    else if (role === 'groom') grPrefix = 'Γαμπρού';
+    else if (role === 'bride') grPrefix = 'Νύφης';
+    else if (role === 'witness' || role === 'bestman') grPrefix = 'Κουμπάρου';
+
+    if (grPrefix) {
+      if (fName) {
+        enriched[`Όνομα_${grPrefix}`] = fName;
+        enriched[`ΟΝΟΜΑ_${grPrefix.toUpperCase()}`] = fName;
+      }
+      if (lName) {
+        enriched[`Επώνυμο_${grPrefix}`] = lName;
+        enriched[`ΕΠΩΝΥΜΟ_${grPrefix.toUpperCase()}`] = lName;
+      }
+      if (fullName) {
+        enriched[`Ονοματεπώνυμο_${grPrefix}`] = fullName;
+        enriched[`ΟΝΟΜΑΤΕΠΩΝΥΜΟ_${grPrefix.toUpperCase()}`] = fullName;
+      }
+    }
+
+    // Role-specific Greek fields
+    if (role === 'father' && fullName) {
+      enriched['Πατρώνυμο'] = declineFullName(fullName, 'genitive', 'male');
+      enriched['ΠΑΤΡΩΝΥΜΟ'] = declineFullName(fullName, 'genitive', 'male');
+    }
+    if (role === 'mother' && fullName) {
+      enriched['Μητρώνυμο'] = declineFullName(fullName, 'genitive', 'female');
+      enriched['ΜΗΤΡΩΝΥΜΟ'] = declineFullName(fullName, 'genitive', 'female');
+    }
+    if ((role === 'godparent' || role === 'sponsor') && fullName) {
+      enriched['Ανάδοχος'] = fullName;
+      enriched['ΑΝΑΔΟΧΟΣ'] = fullName;
+    }
+    if (role === 'groom' && patName) {
+      enriched['Πατρώνυμο_Γαμπρού'] = declineGreekName(patName, 'genitive', 'male');
+      enriched['ΠΑΤΡΩΝΥΜΟ_ΓΑΜΠΡΟΥ'] = declineGreekName(patName, 'genitive', 'male');
+    }
+    if (role === 'bride' && patName) {
+      enriched['Πατρώνυμο_Νύφης'] = declineGreekName(patName, 'genitive', 'male');
+      enriched['ΠΑΤΡΩΝΥΜΟ_ΝΥΦΗΣ'] = declineGreekName(patName, 'genitive', 'male');
+    }
+  }
+
+  // 3. For any name/fullname key, automatically generate genitive and accusative cases
+  const allKeys = Object.keys(enriched);
+  for (const key of allKeys) {
+    const val = enriched[key];
+    if (!val || typeof val !== 'string') continue;
+
+    const isNameKey = key.includes('Name') || key.includes('name') ||
+                      key.includes('Όνομα') || key.includes('Όνομα') ||
+                      key.includes('Ονομα') || key.includes('Επώνυμο') || key.includes('Πατρώνυμο') || key.includes('Μητρώνυμο') || key.includes('Ανάδοχος') ||
+                      key.includes('ΟΝΟΜΑ') || key.includes('ΕΠΩΝΥΜΟ') || key.includes('ΠΑΤΡΩΝΥΜΟ') || key.includes('ΜΗΤΡΩΝΥΜΟ') || key.includes('ΑΝΑΔΟΧΟΣ') ||
+                      key.includes('ονοματεπωνυμο') || key.includes('ΟΝΟΜΑΤΕΠΩΝΥΜΟ');
+
+    if (isNameKey) {
+      let gender: 'male' | 'female' = 'male';
+      const keyL = key.toLowerCase();
+      if (keyL.includes('mother') || keyL.includes('bride') || keyL.includes('μητερα') || keyL.includes('νυφη') || keyL.includes('γυναίκα')) {
+        gender = 'female';
+      } else if (keyL.includes('child') || keyL.includes('παιδι')) {
+        gender = targetGender;
+      }
+
+      const genKey = `${key}_ΓΕΝΙΚΗ`;
+      if (!enriched[genKey]) {
+        enriched[genKey] = declineFullName(val, 'genitive', gender);
+      }
+      const accKey = `${key}_ΑΙΤΙΑΤΙΚΗ`;
+      if (!enriched[accKey]) {
+        enriched[accKey] = declineFullName(val, 'accusative', gender);
+      }
+    }
+  }
+
+  // 4. Custom placeholders requested by the user:
+  // fatherFullName -> Ονοματεπώνυμο_1
+  // motherFullName -> Ονοματεπώνυμο_2
+  if (enriched['fatherFullName'] && !enriched['Ονοματεπώνυμο_1']) {
+    enriched['Ονοματεπώνυμο_1'] = enriched['fatherFullName'];
+    enriched['ΟΝΟΜΑΤΕΠΩΝΥΜΟ_1'] = enriched['fatherFullName'];
+  }
+  if (enriched['motherFullName'] && !enriched['Ονοματεπώνυμο_2']) {
+    enriched['Ονοματεπώνυμο_2'] = enriched['motherFullName'];
+    enriched['ΟΝΟΜΑΤΕΠΩΝΥΜΟ_2'] = enriched['motherFullName'];
+  }
+
+  return enriched;
 }

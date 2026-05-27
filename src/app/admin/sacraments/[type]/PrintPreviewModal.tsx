@@ -22,6 +22,10 @@ export default function PrintPreviewModal({ record, templates, onClose }: any) {
       const modifier = parts[1];
       let val = getNormalizedValue(baseKey, meta);
       
+      if (!val) {
+        console.warn(`[PrintPreviewModal] Template variable "${baseKey}" (from match "${match}") not found in metadata.`);
+      }
+
       if (val) {
         if (modifier === 'GEN') val = declineGreekName(val, 'genitive');
         else if (modifier === 'ACC') val = declineGreekName(val, 'accusative');
