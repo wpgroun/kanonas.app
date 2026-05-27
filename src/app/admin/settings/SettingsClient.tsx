@@ -188,7 +188,7 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  </Card>
 
  <Card className="p-6 border-border rounded-xl shadow-sm border-t-4 border-t-purple-500">
- <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><MessageSquare className="text-purple-500"/> SMS & Viber Πύλες</h3>
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><MessageSquare className="text-purple-500"/> SMS Πύλη</h3>
  <p className="text-xs text-[var(--text-muted)] mb-6">Auth Tokens του παρόχου σας (Twilio / Apifon) για SMS.</p>
  <div className="space-y-4">
   <div>
@@ -200,10 +200,6 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
   <Input placeholder="π.χ. AgDimitrios" maxLength={11} value={formData.settings.smsSenderId} onChange={e => setFormData({...formData, settings: {...formData.settings, smsSenderId: e.target.value}})} className="mt-1 font-mono"/>
   <p className="text-[10px] text-[var(--text-muted)] mt-1">Μέγιστο 11 λατινικοί χαρακτήρες. Εμφανίζεται ως αποστολέας στα SMS.</p>
   </div>
- <div>
- <label className="text-xs font-semibold text-[var(--text-secondary)]">Viber Official Bot Token</label>
- <Input placeholder="Κωδικός λογαριασμού Viber Bot" value={formData.settings.viberToken} onChange={e => setFormData({...formData, settings: {...formData.settings, viberToken: e.target.value}})} className="mt-1"/>
- </div>
  </div>
  <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-100">
  <span className="text-xs text-purple-700 block font-semibold mb-1">Πληροφορία</span>
