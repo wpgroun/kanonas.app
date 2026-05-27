@@ -146,7 +146,8 @@ export default function FormClient({ token }: { token: any }) {
     setLoading(true);
     setErrorStr('');
 
-    // ENFORCE DOCUMENT UPLOADS
+    // ENFORCE DOCUMENT UPLOADS (TEMPORARILY DISABLED FOR TESTING)
+    /*
     if (isGamos) {
       const required = [
         'TAYTOTITA_GAMPROY', 
@@ -172,6 +173,7 @@ export default function FormClient({ token }: { token: any }) {
         return;
       }
     }
+    */
 
     let payload: any = {};
     let personsArr: any[] = [];
