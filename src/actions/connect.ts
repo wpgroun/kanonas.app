@@ -179,6 +179,33 @@ export async function generateRequestDocuments(requestId: string) {
   if (req.templateAnswers) {
     try { answers = JSON.parse(req.templateAnswers); } catch(e){}
   }
+  if (req.payload) {
+    try {
+      const parsed = JSON.parse(req.payload);
+      if (parsed && typeof parsed === 'object') {
+        if (parsed.variables && typeof parsed.variables === 'object') {
+          answers = { ...answers, ...parsed.variables };
+        } else {
+          for (const [k, v] of Object.entries(parsed)) {
+            if (v !== null && v !== undefined && k !== 'templateId' && k !== 'bookingRequest') {
+              answers[k] = String(v);
+            }
+          }
+        }
+      }
+    } catch(e){}
+  }
+
+  // Inject applicant info as well
+  answers['Ονοματεπώνυμο_Αιτούντος'] = req.applicantName || '';
+  answers['ΟΝΟΜΑΤΕΠΩΝΥΜΟ_ΑΙΤΟΥΝΤΟΣ'] = req.applicantName || '';
+  answers['applicantName'] = req.applicantName || '';
+  answers['Email_Αιτούντος'] = req.applicantEmail || '';
+  answers['EMAIL'] = req.applicantEmail || '';
+  answers['applicantEmail'] = req.applicantEmail || '';
+  answers['Τηλέφωνο_Αιτούντος'] = req.applicantPhone || '';
+  answers['ΤΗΛΕΦΩΝΟ'] = req.applicantPhone || '';
+  answers['applicantPhone'] = req.applicantPhone || '';
   
   let currentProtocol = 1;
   let templeSettings: any = {};
@@ -199,8 +226,42 @@ export async function generateRequestDocuments(requestId: string) {
   
   answers['ΑΡΙΘΜ_ΠΡΩΤΟΚΟΛΛΟΥ'] = protocolNumber;
   
+  let docTypeQuery: string = req.type;
+  if (req.type === 'BOOKING_REQUEST') {
+    let payloadType = '';
+    try {
+      const parsed = JSON.parse(req.payload || '{}');
+      if (parsed.serviceType) payloadType = parsed.serviceType;
+    } catch(e){}
+    
+    if (payloadType) {
+      docTypeQuery = payloadType;
+    } else {
+      const slot = req.bookingSlotId ? await prisma.bookingSlot.findUnique({ where: { id: req.bookingSlotId } }) : null;
+      if (slot?.serviceType) {
+        docTypeQuery = slot.serviceType;
+      }
+    }
+  }
+
+  let normalizedDocType = docTypeQuery.toLowerCase();
+  if (normalizedDocType === 'gamos' || normalizedDocType === 'gamou') {
+    normalizedDocType = 'gamos';
+  } else if (normalizedDocType === 'vaptisi' || normalizedDocType === 'vaptisis' || normalizedDocType === 'baptism') {
+    normalizedDocType = 'vaptisi';
+  } else if (normalizedDocType === 'divorce') {
+    normalizedDocType = 'divorce';
+  } else if (normalizedDocType === 'funeral') {
+    normalizedDocType = 'funeral';
+  }
+
   const templates = await prisma.docTemplate.findMany({
-    where: { templeId: req.templeId, docType: req.type }
+    where: { 
+      templeId: req.templeId, 
+      docType: {
+        in: [docTypeQuery, normalizedDocType, docTypeQuery.toLowerCase(), docTypeQuery.toUpperCase()]
+      }
+    }
   });
   
   const citizenDocs: any[] = [];
