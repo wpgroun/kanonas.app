@@ -63,7 +63,7 @@ const VAR_GROUPS = [
 
 export default function DocumentsClient({ initialTemplates }: any) {
  const router = useRouter();
- const [templates, setTemplates] = useState(initialTemplates || []);
+ const templates = initialTemplates || [];
  const [editingTemplate, setEditingTemplate] = useState<any>(null);
  const [isModalOpen, setIsModalOpen] = useState(false);
  
