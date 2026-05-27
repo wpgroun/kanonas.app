@@ -15,7 +15,7 @@ export default async function SettingsPage() {
  <p className="text-sm text-[var(--text-muted)]">Διαμορφώστε το προφίλ της Ενορίας, τις παραμέτρους Web και τα κλειδιά αποστολής μηνυμάτων (SMS/Viber/Email).</p>
  </div>
 
- <SettingsClient initialData={data} />
+ <SettingsClient initialData={data} isSuperAdmin={data.isSuperAdmin} />
  </div>
 );
 }

@@ -5,7 +5,11 @@ import { requireAuth } from '@/lib/requireAuth';
 import { getCurrentTempleId } from '@/actions/core';
 import { generateBookingSlotsForTemple } from './connectBooking';
 
+// Fields that only a Super Admin may read/write
+const SUPER_ADMIN_ONLY_SETTINGS = ['smtpHost', 'smtpPort', 'smtpUser', 'smtpPass', 'smsToken', 'smsSenderId', 'viberToken'];
+
 export async function getTempleSettings() {
+ const session = await requireAuth();
  const templeId = await getCurrentTempleId();
  
  const temple = await prisma.temple.findUnique({
@@ -16,13 +20,20 @@ export async function getTempleSettings() {
  if (!temple) throw new Error("Temple not found");
 
  // Parse JSON settings safely
- let parsedSettings = {};
+ let parsedSettings: Record<string, any> = {};
  try {
  if (temple.settings) {
  parsedSettings = JSON.parse(temple.settings);
  }
  } catch (e) {
  parsedSettings = {};
+ }
+
+ // Strip sensitive gateway fields for non-super-admins
+ if (!session.isSuperAdmin) {
+ for (const key of SUPER_ADMIN_ONLY_SETTINGS) {
+ delete parsedSettings[key];
+ }
  }
 
  return {
@@ -35,7 +46,8 @@ export async function getTempleSettings() {
  address: temple.address || '',
  city: temple.city || '',
  email: temple.email || '',
- settings: parsedSettings
+ settings: parsedSettings,
+ isSuperAdmin: session.isSuperAdmin,
  };
 }
 
@@ -63,6 +75,18 @@ export async function updateTempleSettings(data: {
  }
  }
 
+ // Non-super-admins cannot write gateway/SMTP/SMS fields — preserve existing values
+ let settingsToSave = { ...data.settings };
+ if (!session.isSuperAdmin) {
+ // Fetch the current stored settings and keep the super-admin-only fields intact
+ const existing = await prisma.temple.findUnique({ where: { id: templeId }, select: { settings: true } });
+ let existingSettings: Record<string, any> = {};
+ try { existingSettings = existing?.settings ? JSON.parse(existing.settings) : {}; } catch {}
+ for (const key of SUPER_ADMIN_ONLY_SETTINGS) {
+ settingsToSave[key] = existingSettings[key];
+ }
+ }
+
  const updated = await prisma.temple.update({
  where: { id: templeId },
  data: {
@@ -73,7 +97,7 @@ export async function updateTempleSettings(data: {
  address: data.address,
  city: data.city,
  email: data.email,
- settings: JSON.stringify(data.settings)
+ settings: JSON.stringify(settingsToSave)
  }
  });
 

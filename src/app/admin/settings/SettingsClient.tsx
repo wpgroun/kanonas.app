@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, Save, Globe, KeyRound, Mail, MessageSquare, FileText, Hash, HelpCircle, CheckCircle2, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
-export default function SettingsClient({ initialData }: { initialData: any }) {
+export default function SettingsClient({ initialData, isSuperAdmin }: { initialData: any; isSuperAdmin: boolean }) {
  const [isSaving, setIsSaving] = useState(false);
  const [formData, setFormData] = useState({
  name: initialData.name || '',
@@ -48,14 +48,14 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  }
  };
 
- const completionChecks = [
-  { label: 'Ονομασία Ναού', done: !!formData.name },
-  { label: 'Email', done: !!formData.email },
-  { label: 'Τηλέφωνο', done: !!formData.phoneNumber },
-  { label: 'Διεύθυνση', done: !!formData.address },
-  { label: 'ΑΦΜ', done: !!formData.taxId },
-  { label: 'SMTP Email', done: !!formData.settings.smtpHost },
- ];
+  const completionChecks = [
+   { label: 'Ονομασία Ναού', done: !!formData.name },
+   { label: 'Email', done: !!formData.email },
+   { label: 'Τηλέφωνο', done: !!formData.phoneNumber },
+   { label: 'Διεύθυνση', done: !!formData.address },
+   { label: 'ΑΦΜ', done: !!formData.taxId },
+   ...(isSuperAdmin ? [{ label: 'SMTP Email', done: !!formData.settings.smtpHost }] : []),
+  ];
  const completionPct = Math.round((completionChecks.filter(c => c.done).length / completionChecks.length) * 100);
 
  return (
@@ -63,7 +63,9 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  <TabsList className="mb-4 bg-slate-100 p-1 rounded-xl">
  <TabsTrigger value="general" className="rounded-lg gap-2"><Building2 className="w-4 h-4"/> Βασικά Στοιχεία</TabsTrigger>
  <TabsTrigger value="protocol" className="rounded-lg gap-2"><Hash className="w-4 h-4"/> Πρωτόκολλο</TabsTrigger>
- <TabsTrigger value="gateways" className="rounded-lg gap-2"><KeyRound className="w-4 h-4"/> Πύλες (Email/SMS)</TabsTrigger>
+ {isSuperAdmin && (
+   <TabsTrigger value="gateways" className="rounded-lg gap-2"><KeyRound className="w-4 h-4"/> Πύλες (Email/SMS)</TabsTrigger>
+ )}
  <TabsTrigger value="web" className="rounded-lg gap-2"><Globe className="w-4 h-4"/> Ιστοσελίδα</TabsTrigger>
  </TabsList>
 
