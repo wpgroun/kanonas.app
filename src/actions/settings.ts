@@ -156,9 +156,10 @@ export async function testSmtpConnection(): Promise<{ success: boolean; message:
       port,
       secure: port === 465,
       auth: { user, pass },
+      family: 4,          // Force IPv4 — avoid ENETUNREACH on IPv6-disabled hosts
       connectionTimeout: 10000,
       greetingTimeout: 10000,
-    });
+    } as any);
 
     await transporter.verify();
     await transporter.sendMail({
@@ -196,11 +197,12 @@ export async function testSmsConnection(testPhone: string): Promise<{ success: b
   }
 
   try {
+    // Yuboto Omni API — Authorization header is the raw API key (no Basic/Bearer encoding)
     const response = await fetch('https://services.yuboto.com/omni/v1/Send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${Buffer.from(apiKey + ':').toString('base64')}`,
+        'Authorization': apiKey,
       },
       body: JSON.stringify({
         phonenumbers: [testPhone],
@@ -214,7 +216,15 @@ export async function testSmsConnection(testPhone: string): Promise<{ success: b
     if (!response.ok) {
       return { success: false, message: `Σφάλμα Yuboto API (${response.status}): ${text}` };
     }
-    return { success: true, message: `SMS στάλθηκε στο ${testPhone}. Απόκριση: ${text.slice(0, 80)}` };
+
+    // Yuboto returns HTTP 200 even on errors — parse the body to detect them
+    let parsed: any = {};
+    try { parsed = JSON.parse(text); } catch {}
+    if (parsed?.ErrorCode && parsed.ErrorCode !== 0) {
+      return { success: false, message: `Σφάλμα Yuboto (ErrorCode ${parsed.ErrorCode}): ${parsed.ErrorMessage || text}` };
+    }
+
+    return { success: true, message: `SMS στάλθηκε στο ${testPhone} επιτυχώς!` };
   } catch (e: any) {
     return { success: false, message: `Σφάλμα αποστολής SMS: ${e.message}` };
   }

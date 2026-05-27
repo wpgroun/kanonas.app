@@ -49,7 +49,7 @@ export async function sendSMS(
  method: 'POST',
  headers: {
  'Content-Type': 'application/json',
- 'Authorization': `Basic ${Buffer.from(apiKey + ':').toString('base64')}` 
+ 'Authorization': apiKey,  // Yuboto Omni: plain API key, no Basic/Bearer encoding
  },
  body: JSON.stringify({
  phonenumbers: phoneNumbers,
