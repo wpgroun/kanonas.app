@@ -119,6 +119,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  { href: '/admin/audit', icon: ShieldCheck, label: 'Ιστορικό Ενεργειών', requiredPerm: 'isHeadPriest' },
  { href: '/admin/subscription', icon: CreditCard, label: 'Διαχείριση Συνδρομής', requiredPerm: 'isHeadPriest' },
  { href: '/admin/documents', icon: FileText, label: 'Πρότυπα Εγγράφων', requiredPerm: 'isHeadPriest' },
+ { href: '/admin/settings/schedule', icon: Calendar, label: 'Ωράριο Κρατήσεων', requiredPerm: 'isHeadPriest' },
  { href: '/admin/settings', icon: Settings, label: 'Ρυθμίσεις', requiredPerm: 'isHeadPriest' },
  { href: '/admin/users', icon: Users, label: 'Προσωπικό & Ρόλοι', requiredPerm: 'isHeadPriest' },
  { href: '/admin/super/announcements', icon: Megaphone, label: 'Ανακοινώσεις', requiredPerm: 'isSuperAdmin' },

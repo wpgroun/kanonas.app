@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { saveTempleSettings } from '@/actions/settings';
-import { CalendarIcon, CodeIcon, ClockIcon, SaveIcon, CopyIcon, SettingsIcon, AlertTriangleIcon } from 'lucide-react';
+import { CalendarIcon, CodeIcon, ClockIcon, SaveIcon, CopyIcon, SettingsIcon, AlertTriangleIcon, ArrowLeft } from 'lucide-react';
 
 export default function BookingSettingsClient({ initialSettings, templeId }: { initialSettings: any, templeId: string }) {
  const router = useRouter();
@@ -85,15 +86,20 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
 
  return (
  <div style={{ animation: 'fadeInUp 0.5s ease', maxWidth: '900px', margin: '0 auto', paddingBottom: '3rem' }}>
- <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
- <div>
- <h1 className="page-title text-3xl font-bold mb-2">Ρυθμίσεις Διαθεσιμότητας (Booking)</h1>
- <p className="text-muted-foreground">Έξυπνος παραμετροποιήσιμος αλγόριθμος κρατήσεων ναού.</p>
- </div>
- <button onClick={saveAll} disabled={saving} className="btn-primary flex items-center gap-2 px-6 py-2">
- {saving ? 'Αποθήκευση...' : <><SaveIcon size={18} /> Αποθήκευση</>}
- </button>
- </header>
+  <header style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+    <Link href="/admin/settings" className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-1 transition-colors w-fit">
+      <ArrowLeft size={16} /> Επιστροφή στις Ρυθμίσεις
+    </Link>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+      <div>
+        <h1 className="page-title text-3xl font-bold mb-2">Ρυθμίσεις Διαθεσιμότητας (Booking)</h1>
+        <p className="text-muted-foreground">Έξυπνος παραμετροποιήσιμος αλγόριθμος κρατήσεων ναού.</p>
+      </div>
+      <button onClick={saveAll} disabled={saving} className="btn-primary flex items-center gap-2 px-6 py-2">
+        {saving ? 'Αποθήκευση...' : <><SaveIcon size={18} /> Αποθήκευση</>}
+      </button>
+    </div>
+  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
  

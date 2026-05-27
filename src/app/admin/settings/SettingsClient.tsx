@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { updateTempleSettings } from '@/actions/settings';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Save, Globe, KeyRound, Mail, MessageSquare, FileText, Hash, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { Building2, Save, Globe, KeyRound, Mail, MessageSquare, FileText, Hash, HelpCircle, CheckCircle2, Calendar } from 'lucide-react';
+import Link from 'next/link';
 
 export default function SettingsClient({ initialData }: { initialData: any }) {
  const [isSaving, setIsSaving] = useState(false);
@@ -210,7 +211,7 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  </TabsContent>
 
  {/* WEB TAB */}
- <TabsContent value="web">
+ <TabsContent value="web" className="space-y-6">
  <Card className="p-6 border-border rounded-xl shadow-sm border-l-4 border-l-emerald-500">
  <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Globe className="text-emerald-500"/> Δημόσια Ιστοσελίδα Ναού</h3>
  <p className="text-sm text-[var(--text-secondary)] mb-6">Ορίστε το μοναδικό URL αν θέλετε δυναμική ιστοσελίδα για την Ενορία σας.</p>
@@ -227,6 +228,16 @@ export default function SettingsClient({ initialData }: { initialData: any }) {
  </div>
  <p className="text-xs text-[var(--text-muted)] mt-2">Μόνο μικρά γράμματα και παύλες (-). Δίνεται στους πιστούς.</p>
  </div>
+ </Card>
+
+ <Card className="p-6 border-border rounded-xl shadow-sm border-l-4 border-l-purple-500">
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Calendar className="text-purple-500"/> Ωράριο Κρατήσεων (Booking)</h3>
+ <p className="text-sm text-[var(--text-secondary)] mb-6">Διαμορφώστε τις επιτρεπτές ώρες έναρξης μυστηρίων, τις εξαιρέσεις και τις αργίες του Ναού για τις κρατήσεις των πολιτών.</p>
+ <Link href="/admin/settings/schedule">
+   <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-2 px-4 py-2 font-medium transition-colors cursor-pointer text-xs">
+     <Calendar className="w-4 h-4"/> Διαμόρφωση Ωραρίου Κρατήσεων
+   </Button>
+ </Link>
  </Card>
  </TabsContent>
 
