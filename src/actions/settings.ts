@@ -197,47 +197,56 @@ export async function testSmsConnection(testPhone: string): Promise<{ success: b
   }
 
   try {
-    // Yuboto Omni API — uses PascalCase fields and international phone format
-    // Normalize phone: strip +, spaces, leading zeros; add Greek country code if needed
+    // Normalize phone to international format
     const normalizePhone = (phone: string) => {
       let p = phone.replace(/[\s\-().+]/g, '');
       if (p.startsWith('00')) p = p.slice(2);
-      if (p.startsWith('6') && p.length === 10) p = '30' + p; // GR mobile
-      if (p.startsWith('2') && p.length === 10) p = '30' + p; // GR landline
+      if (p.startsWith('6') && p.length === 10) p = '30' + p;
+      if (p.startsWith('2') && p.length === 10) p = '30' + p;
       return p;
     };
     const normalizedPhone = normalizePhone(testPhone);
 
-    const response = await fetch('https://services.yuboto.com/omni/v1/Send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': apiKey,
-      },
-      body: JSON.stringify({
-        Contacts: [{ Mobile: normalizedPhone }],
-        Sender: senderId,
-        Message: 'Test SMS από Kanonas. Αν λαμβάνετε αυτό, η πύλη SMS λειτουργεί! Kanonas.gr',
-        Type: 'SMS',
-      }),
-      signal: AbortSignal.timeout(15000),
-    });
+    const msgText = 'Test SMS apo Kanonas. An lamvanete auto, i pyli SMS leitoyrgei!';
 
-    const text = await response.text();
-    if (!response.ok) {
-      return { success: false, message: `Σφάλμα Yuboto API (${response.status}): ${text}` };
-    }
+    // Try format A: Contacts as array of objects with Mobile field
+    const bodyA = { Contacts: [{ Mobile: normalizedPhone }], Sender: senderId, Message: msgText, Type: 'SMS' };
+    // Try format B: Contacts as plain string array
+    const bodyB = { Contacts: [normalizedPhone], Sender: senderId, Message: msgText, Type: 'SMS' };
+    // Try format C: phonenumbers lowercase (old format)
+    const bodyC = { phonenumbers: [normalizedPhone], sender: senderId, text: msgText };
 
-    // Yuboto returns HTTP 200 even on errors — parse the body to detect them
-    let parsed: any = {};
-    try { parsed = JSON.parse(text); } catch {}
-    if (parsed?.ErrorCode && parsed.ErrorCode !== 0) {
-      return { success: false, message: `Σφάλμα Yuboto (ErrorCode ${parsed.ErrorCode}): ${parsed.ErrorMessage || text}` };
-    }
+    const tryFormat = async (label: string, body: object) => {
+      const r = await fetch('https://services.yuboto.com/omni/v1/Send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': apiKey },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(15000),
+      });
+      const t = await r.text();
+      let parsed: any = {};
+      try { parsed = JSON.parse(t); } catch {}
+      const ok = r.ok && (!parsed?.ErrorCode || parsed.ErrorCode === 0);
+      return `[${label}] HTTP:${r.status} → ${t.slice(0, 120)}`;
+    };
 
-    return { success: true, message: `SMS στάλθηκε στο ${testPhone} επιτυχώς!` };
+    const [resA, resB, resC] = await Promise.all([
+      tryFormat('obj{Mobile}', bodyA),
+      tryFormat('str[]', bodyB),
+      tryFormat('phonenumbers', bodyC),
+    ]);
+
+    // Check if any format succeeded
+    const checkSuccess = (res: string) => res.includes('"ErrorCode":0') || res.includes('"Message":') && !res.includes('"ErrorCode":');
+    if (checkSuccess(resA)) return { success: true, message: `✅ Format obj{Mobile} λειτούργησε! Τηλ: ${normalizedPhone}` };
+    if (checkSuccess(resB)) return { success: true, message: `✅ Format str[] λειτούργησε! Τηλ: ${normalizedPhone}` };
+    if (checkSuccess(resC)) return { success: true, message: `✅ Format phonenumbers λειτούργησε! Τηλ: ${normalizedPhone}` };
+
+    return {
+      success: false,
+      message: `🔍 Debug (τηλ: ${normalizedPhone}):\n${resA}\n${resB}\n${resC}`
+    };
   } catch (e: any) {
     return { success: false, message: `Σφάλμα αποστολής SMS: ${e.message}` };
   }
 }
-
