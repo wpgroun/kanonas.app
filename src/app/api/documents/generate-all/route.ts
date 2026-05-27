@@ -15,11 +15,36 @@ function cleanGreekString(str: string): string {
     .trim();
 }
 
+function fuzzyMatch(nameEl: string, docKey: string): boolean {
+  const cleanName = cleanGreekString(nameEl);
+  const cleanKey = cleanGreekString(docKey);
+  if (!cleanName || !cleanKey) return false;
+
+  // 1. Direct contains check
+  if (cleanName.includes(cleanKey) || cleanKey.includes(cleanName)) return true;
+
+  // 2. Break docKey into parts and check contains
+  const keyParts = docKey.toLowerCase().split(/[^a-z0-9]/).filter(p => p.length >= 3);
+  for (const part of keyParts) {
+    const cleanPart = cleanGreekString(part);
+    if (cleanPart && cleanName.includes(cleanPart)) return true;
+  }
+
+  // 3. Break nameEl into parts and check if contains docKey
+  const nameParts = nameEl.toLowerCase().split(/[^a-z0-9]/).filter(p => p.length >= 3);
+  for (const part of nameParts) {
+    const cleanPart = cleanGreekString(part);
+    if (cleanPart && cleanKey.includes(cleanPart)) return true;
+  }
+
+  return false;
+}
+
 function findCustomTemplate(customTemplates: any[], docKey: string, serviceType: string) {
   const serviceTypeLower = serviceType.toLowerCase();
   
-  // 1. Direct match on docType (if saved as the specific document key)
-  let found = customTemplates.find(t => t.docType.toLowerCase() === docKey.toLowerCase());
+  // 1. Direct match on docType (if saved as the specific document key or ID)
+  let found = customTemplates.find(t => t.id === docKey || t.docType.toLowerCase() === docKey.toLowerCase());
   if (found) return found;
 
   // 2. Filter templates that belong to the current service category (e.g. 'vaptisi' or 'gamos')
@@ -28,81 +53,101 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
     return tType === serviceTypeLower || (serviceTypeLower === 'vaptisi' && tType === 'vaptisi') || (serviceTypeLower === 'gamos' && tType === 'gamos');
   });
 
-  if (catTemplates.length === 0) return null;
-
-  // 3. Match based on keywords in nameEl
-  const keyClean = docKey.toLowerCase();
-  
-  if (serviceTypeLower === 'vaptisi') {
+  if (catTemplates.length > 0) {
+    const keyClean = docKey.toLowerCase();
+    
+    // 3. Match based on keywords in nameEl (supporting both Greek and English/Latin)
     if (keyClean === 'bebaiosi') {
-      const match = catTemplates.find(t => cleanGreekString(t.nameEl).includes('βεβαιωση'));
+      const match = catTemplates.find(t => {
+        const cleanName = cleanGreekString(t.nameEl);
+        const nameL = t.nameEl.toLowerCase();
+        return cleanName.includes('βεβαιωση') || nameL.includes('bebaiosi') || nameL.includes('certificate') || nameL.includes('cert');
+      });
       if (match) return match;
     }
     if (keyClean === 'baptistiko') {
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
-        return (cleanName.includes('πιστοποιητικο') || cleanName.includes('βαπτιστικο') || cleanName.includes('βαπτιση')) 
-          && !cleanName.includes('βεβαιωση') 
-          && !cleanName.includes('δηλωση') 
-          && !cleanName.includes('απαντητικ');
+        const nameL = t.nameEl.toLowerCase();
+        return (cleanName.includes('πιστοποιητικο') || cleanName.includes('βαπτιστικο') || cleanName.includes('βαπτιση') || nameL.includes('baptistiko') || nameL.includes('baptism') || nameL.includes('sacrament')) 
+          && !cleanName.includes('βεβαιωση') && !nameL.includes('bebaiosi') && !nameL.includes('certificate')
+          && !cleanName.includes('δηλωση') && !nameL.includes('dilosi')
+          && !cleanName.includes('απαντητικ') && !nameL.includes('apantitik');
       });
       if (match) return match;
     }
     if (keyClean === 'dilosi_anadoxou') {
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
-        return cleanName.includes('δηλωση') || cleanName.includes('αναδοχ');
+        const nameL = t.nameEl.toLowerCase();
+        return cleanName.includes('δηλωση') || cleanName.includes('αναδοχ') || nameL.includes('dilosi') || nameL.includes('anadoxou') || nameL.includes('godparent') || nameL.includes('sponsor');
       });
       if (match) return match;
     }
     if (keyClean === 'apantitikon') {
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
-        return cleanName.includes('απαντητικ') || cleanName.includes('απαντησ');
+        const nameL = t.nameEl.toLowerCase();
+        return cleanName.includes('απαντητικ') || cleanName.includes('απαντησ') || nameL.includes('apantitikon') || nameL.includes('answer') || nameL.includes('reply');
       });
       if (match) return match;
     }
-  } else if (serviceTypeLower === 'gamos') {
-    if (keyClean === 'bebaiosi') {
-      const match = catTemplates.find(t => cleanGreekString(t.nameEl).includes('βεβαιωση'));
-      if (match) return match;
-    }
     if (keyClean === 'aitisi') {
-      const match = catTemplates.find(t => cleanGreekString(t.nameEl).includes('αιτηση'));
+      const match = catTemplates.find(t => {
+        const cleanName = cleanGreekString(t.nameEl);
+        const nameL = t.nameEl.toLowerCase();
+        return cleanName.includes('αιτηση') || nameL.includes('aitisi') || nameL.includes('application') || nameL.includes('request');
+      });
       if (match) return match;
     }
     if (keyClean === 'pinakas_synthikon') {
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
-        return cleanName.includes('πινακας') || cleanName.includes('συνθηκ');
+        const nameL = t.nameEl.toLowerCase();
+        return cleanName.includes('πινακας') || cleanName.includes('συνθηκ') || nameL.includes('pinakas') || nameL.includes('synthikon') || nameL.includes('conditions') || nameL.includes('table');
       });
       if (match) return match;
     }
     if (keyClean === 'gamilion') {
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
-        return cleanName.includes('γαμηλιο') || cleanName.includes('γραμμα') || cleanName.includes('επιστολη');
+        const nameL = t.nameEl.toLowerCase();
+        return cleanName.includes('γαμηλιο') || cleanName.includes('γραμμα') || cleanName.includes('επιστολη') || nameL.includes('gamilion') || nameL.includes('gramma') || nameL.includes('letter');
       });
       if (match) return match;
     }
     if (keyClean === 'dilosi_gampr') {
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
-        return cleanName.includes('δηλωση') && (cleanName.includes('γαμπρ') || cleanName.includes('νυμφιο'));
+        const nameL = t.nameEl.toLowerCase();
+        const hasDilosi = cleanName.includes('δηλωση') || nameL.includes('dilosi');
+        const hasGroom = cleanName.includes('γαμπρ') || cleanName.includes('νυμφιο') || nameL.includes('gampr') || nameL.includes('groom') || nameL.includes('nymphio');
+        return hasDilosi && hasGroom;
       });
       if (match) return match;
     }
     if (keyClean === 'dilosi_nyfis') {
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
-        return cleanName.includes('δηλωση') && (cleanName.includes('νυφη') || cleanName.includes('νυμφη'));
+        const nameL = t.nameEl.toLowerCase();
+        const hasDilosi = cleanName.includes('δηλωση') || nameL.includes('dilosi');
+        const hasBride = cleanName.includes('νυφη') || cleanName.includes('νυμφη') || nameL.includes('nyfis') || nameL.includes('bride') || nameL.includes('nymfi');
+        return hasDilosi && hasBride;
       });
       if (match) return match;
     }
+
+    // 4. Fallback fuzzy match inside the category
+    const fuzzyCatMatch = catTemplates.find(t => fuzzyMatch(t.nameEl, docKey));
+    if (fuzzyCatMatch) return fuzzyCatMatch;
+
+    // 5. Fallback: if there is only 1 template in the category, use it
+    if (catTemplates.length === 1) return catTemplates[0];
   }
 
-  // 4. Fallback: if there is only 1 template in the category, use it
-  if (catTemplates.length === 1) return catTemplates[0];
+  // 6. Global fallback search across all templates (ignoring serviceType category restriction)
+  const globalFuzzyMatch = customTemplates.find(t => fuzzyMatch(t.nameEl, docKey));
+  if (globalFuzzyMatch) return globalFuzzyMatch;
 
   return null;
 }
@@ -307,8 +352,30 @@ export async function POST(req: NextRequest) {
     customTemplates: customTemplates.map(t => ({ docType: t.docType, nameEl: t.nameEl, htmlContent: t.htmlContent })),
   };
 
-  const isGamos = token.serviceType.toLowerCase() === 'gamos';
-  const docs = isGamos ? await generateAllGamosDocs(tokenData) : await generateAllBaptisiDocs(tokenData);
+  let docs: { key: string; label: string; buffer: Buffer; filename: string }[] = [];
+  if (serviceTypeLower === 'gamos') {
+    docs = await generateAllGamosDocs(tokenData);
+  } else if (serviceTypeLower === 'vaptisi') {
+    docs = await generateAllBaptisiDocs(tokenData);
+  } else {
+    // Dynamic handling for other serviceTypes (e.g. funeral, memorial, etc.)
+    const relatedTemplates = customTemplates.filter(t => t.docType.toLowerCase() === serviceTypeLower);
+    for (const tpl of relatedTemplates) {
+      let ext = '.pdf';
+      if (tpl.fileUrl) {
+        if (tpl.fileUrl.endsWith('.docx') || tpl.fileUrl.endsWith('.doc')) ext = '.docx';
+        else if (tpl.fileUrl.endsWith('.html')) ext = '.html';
+      } else if (tpl.htmlContent) {
+        ext = '.html';
+      }
+      docs.push({
+        key: tpl.id, // match using template ID
+        label: tpl.nameEl,
+        buffer: Buffer.alloc(0), // empty buffer fallback
+        filename: `${tpl.nameEl.replace(/\s+/g, '_')}${ext}`
+      });
+    }
+  }
 
   const { generateFromTemplate } = await import('@/actions/docEngine');
 
