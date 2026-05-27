@@ -306,7 +306,7 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
   }
 }
 
-export function enrichAnswers(answers: Record<string, string>, targetGender: 'male' | 'female'): Record<string, string> {
+function enrichAnswers(answers: Record<string, string>, targetGender: 'male' | 'female'): Record<string, string> {
   const enriched = { ...answers };
   
   // 1. Detect all roles present in the answers keys.
