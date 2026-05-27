@@ -150,13 +150,12 @@ export async function testSmtpConnection(): Promise<{ success: boolean; message:
   }
 
   try {
-    const nodemailer = await import('nodemailer');
-    const transporter = nodemailer.default.createTransport({
+    const { createSafeTransporter } = await import('@/lib/email');
+    const transporter = await createSafeTransporter({
       host,
       port,
       secure: port === 465,
       auth: { user, pass },
-      family: 4,          // Force IPv4 — avoid ENETUNREACH on IPv6-disabled hosts
       connectionTimeout: 10000,
       greetingTimeout: 10000,
     } as any);

@@ -3,17 +3,18 @@
  * Wraps nodemailer with Greek-language email templates.
  */
 import nodemailer from 'nodemailer';
+import { createSafeTransporter } from './email';
 
-function getTransporter() {
- return nodemailer.createTransport({
- host: process.env.SMTP_HOST || 'smtp.gmail.com',
- port: parseInt(process.env.SMTP_PORT || '587'),
- secure: process.env.SMTP_SECURE === 'true',
- auth: {
- user: process.env.SMTP_USER || '',
- pass: process.env.SMTP_PASS || '',
- },
- });
+async function getTransporter() {
+  return createSafeTransporter({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER || '',
+      pass: process.env.SMTP_PASS || '',
+    },
+  });
 }
 
 const FROM_NAME = process.env.SMTP_FROM_NAME || 'Κανόνας – Γραμματεία Ναού';
@@ -78,7 +79,7 @@ export async function sendFormLinkEmail(opts: {
  <p>Με εκτίμηση,<br><strong>${opts.templeName || 'Ιερός Ναός'}</strong></p>
  `;
 
- const transporter = getTransporter();
+ const transporter = await getTransporter();
  await transporter.sendMail({
  from: `${FROM_NAME} <${FROM_EMAIL}>`,
  to: opts.to,
@@ -107,7 +108,7 @@ export async function sendCeremonyReminderEmail(opts: {
  <p>Με εκτίμηση,<br><strong>${opts.templeName || 'Ιερός Ναός'}</strong></p>
  `;
 
- const transporter = getTransporter();
+ const transporter = await getTransporter();
  await transporter.sendMail({
  from: `${FROM_NAME} <${FROM_EMAIL}>`,
  to: opts.to,
@@ -136,7 +137,7 @@ export async function sendProtocolIssuedEmail(opts: {
  <p>Με εκτίμηση,<br><strong>${opts.templeName || 'Ιερός Ναός'}</strong></p>
  `;
 
- const transporter = getTransporter();
+ const transporter = await getTransporter();
  await transporter.sendMail({
  from: `${FROM_NAME} <${FROM_EMAIL}>`,
  to: opts.to,
@@ -147,7 +148,7 @@ export async function sendProtocolIssuedEmail(opts: {
 
 /** Test email — called from settings page */
 export async function sendTestEmail(to: string): Promise<void> {
- const transporter = getTransporter();
+ const transporter = await getTransporter();
  await transporter.sendMail({
  from: `${FROM_NAME} <${FROM_EMAIL}>`,
  to,
@@ -163,7 +164,7 @@ export async function sendBulkParishionerEmail(
  subject: string,
  bodyHtml: string
 ): Promise<void> {
- const transporter = getTransporter();
+ const transporter = await getTransporter();
  // Send sequentially to respect SMTP rate limits
  for (const recipient of recipients) {
  const personalizedBody = bodyHtml

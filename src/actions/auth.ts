@@ -113,12 +113,12 @@ export async function loginAction(email: string, passwordPlain: string) {
  cookieStore.set('Kanonas_2fa_temp', tempToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 5 });
 
  // Send Email
- const nodemailer = await import('nodemailer');
- const transporter = nodemailer.createTransport({
- host: process.env.SMTP_HOST,
+ const { createSafeTransporter } = await import('@/lib/email');
+ const transporter = await createSafeTransporter({
+ host: process.env.SMTP_HOST!,
  port: Number(process.env.SMTP_PORT) || 587,
  secure: process.env.SMTP_PORT === '465',
- auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+ auth: { user: process.env.SMTP_USER!, pass: process.env.SMTP_PASS || '' },
  });
  await transporter.sendMail({
  from: `"Kanonas Security"<${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
@@ -229,14 +229,14 @@ export async function forgotPasswordAction(email: string) {
  })
 
  if (process.env.SMTP_HOST && process.env.SMTP_USER) {
- const nodemailer = await import('nodemailer');
- const transporter = nodemailer.createTransport({
+ const { createSafeTransporter } = await import('@/lib/email');
+ const transporter = await createSafeTransporter({
  host: process.env.SMTP_HOST,
  port: Number(process.env.SMTP_PORT) || 587,
  secure: process.env.SMTP_PORT === '465',
  auth: {
  user: process.env.SMTP_USER,
- pass: process.env.SMTP_PASS,
+ pass: process.env.SMTP_PASS || '',
  },
  });
 

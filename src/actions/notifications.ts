@@ -59,12 +59,14 @@ function buildEmailHTML(options: {
 // ═══════════════════════════════════════════════════════════════════════
 
 async function getTransporter(templeId?: string) {
+  const { createSafeTransporter } = await import('@/lib/email')
+
   // Try temple-specific SMTP first
   if (templeId) {
     const temple = await prisma.temple.findUnique({ where: { id: templeId } })
     const settings = (temple as any)?.settings as any
     if (settings?.smtpHost && settings?.smtpUser) {
-      return nodemailer.createTransport({
+      return createSafeTransporter({
         host: settings.smtpHost,
         port: parseInt(settings.smtpPort || '587'),
         secure: parseInt(settings.smtpPort || '587') === 465,
@@ -75,7 +77,7 @@ async function getTransporter(templeId?: string) {
 
   // Fallback to platform-level env SMTP
   if (process.env.SMTP_HOST) {
-    return nodemailer.createTransport({
+    return createSafeTransporter({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: parseInt(process.env.SMTP_PORT || '587') === 465,
