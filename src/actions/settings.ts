@@ -132,8 +132,6 @@ export const saveTempleSettings = updateTempleSettings;
 
 export async function testSmtpConnection(): Promise<{ success: boolean; message: string }> {
   const session = await requireAuth();
-  if (!session.isSuperAdmin) return { success: false, message: 'Δεν έχετε δικαίωμα.' };
-
   const templeId = await getCurrentTempleId();
   const temple = await prisma.temple.findUnique({ where: { id: templeId }, select: { settings: true, email: true } });
   let s: Record<string, any> = {};
@@ -176,8 +174,6 @@ export async function testSmtpConnection(): Promise<{ success: boolean; message:
 
 export async function testSmsConnection(testPhone: string): Promise<{ success: boolean; message: string }> {
   const session = await requireAuth();
-  if (!session.isSuperAdmin) return { success: false, message: 'Δεν έχετε δικαίωμα.' };
-
   const templeId = await getCurrentTempleId();
   const temple = await prisma.temple.findUnique({ where: { id: templeId }, select: { settings: true } });
   let s: Record<string, any> = {};
