@@ -7,7 +7,7 @@ import { PDFDocument, rgb } from 'pdf-lib'
 import fontkit from '@pdf-lib/fontkit'
 import fs from 'fs/promises'
 import path from 'path'
-import { declineFullName, resolveGenderTokens } from '@/lib/greekDeclension';
+import { declineFullName, resolveGenderTokens, mergeSplitRuns, getNormalizedValue } from '@/lib/greekDeclension';
 
 
 /**
@@ -87,7 +87,7 @@ export async function generateFromTemplate(templateId: string, answers: Record<s
 function generateHTMLDoc(template: any, answers: Record<string, string>, temple: any, targetGender: 'male' | 'female') {
   let filledHtml = template.htmlContent || ''
   filledHtml = filledHtml.replace(/\{\{([^}]+)\}\}/g, (_: string, varName: string) => {
-    return answers[varName.trim()] || `[${varName.trim()}]`
+    return getNormalizedValue(varName.trim(), answers);
   })
 
   const todayGr = new Date().toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -243,34 +243,30 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
     let buf;
 
     // --- Global XML Normalization & Gender Tokens ---
-    const xmlFile = zip.file('word/document.xml');
-    if (xmlFile) {
-        let xml = xmlFile.asText();
-
-        // Merge split <w:t> tags within the same <w:r> run
-        xml = xml.replace(/(<w:r[^>]*>)(.*?)<\/w:r>/g, (match, rTag, inside) => {
-            const textPieces: string[] = [];
-            let mergedInside = inside.replace(/<w:t([^>]*)>(.*?)<\/w:t>/g, (tMatch: string, tAttrs: string, tText: string) => {
-                textPieces.push(tText);
-                return ''; // remove it
+    for (const fileName of Object.keys(zip.files)) {
+      if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
+        const xmlFile = zip.file(fileName);
+        if (xmlFile) {
+          let xml = xmlFile.asText();
+          
+          // Merge split runs inside {{ }}, { }, [ ]
+          xml = mergeSplitRuns(xml);
+          
+          // Resolve Gender Tokens
+          xml = resolveGenderTokens(xml, targetGender);
+          
+          // If format is brackets or single_curly, do replacement directly in XML using normalization
+          if (format === 'brackets' || format === 'single_curly') {
+            const regex = format === 'brackets' ? /\[([^\]]+)\]/g : /(?<!\{)\{([^{}]+)\}(?!\})/g;
+            xml = xml.replace(regex, (match, key) => {
+              const val = getNormalizedValue(key.trim(), answers);
+              return (val || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             });
-            if (textPieces.length > 0) {
-                mergedInside += `<w:t xml:space="preserve">${textPieces.join('')}</w:t>`;
-            }
-            return `${rTag}${mergedInside}</w:r>`;
-        });
-
-        // Resolve Gender Tokens [ο/η]
-        xml = resolveGenderTokens(xml, targetGender);
-
-        if (format === 'brackets' || format === 'single_curly') {
-            for (const [key, val] of Object.entries(answers)) {
-                const safeVal = (val || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                const searchStr = format === 'brackets' ? `[${key}]` : `{${key}}`;
-                xml = xml.replaceAll(searchStr, safeVal);
-            }
+          }
+          
+          zip.file(fileName, xml);
         }
-        zip.file('word/document.xml', xml);
+      }
     }
 
     if (format === 'brackets' || format === 'single_curly') {
@@ -279,7 +275,14 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
        const doc = new Docxtemplater(zip, {
          paragraphLoop: true,
          linebreaks: true,
-         delimiters: { start: '{{', end: '}}' }
+         delimiters: { start: '{{', end: '}}' },
+         parser: (tag) => {
+           return {
+             get: (scope) => {
+               return getNormalizedValue(tag, scope);
+             }
+           };
+         }
        });
        doc.render(answers);
        buf = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });

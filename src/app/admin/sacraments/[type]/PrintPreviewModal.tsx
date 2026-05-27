@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 import { useRef } from 'react';
 
-import { declineGreekName } from '@/lib/greekDeclension';
+import { declineGreekName, getNormalizedValue } from '@/lib/greekDeclension';
 
 export default function PrintPreviewModal({ record, templates, onClose }: any) {
   const printRef = useRef<HTMLIFrameElement>(null);
@@ -20,13 +20,13 @@ export default function PrintPreviewModal({ record, templates, onClose }: any) {
       const parts = tagContents.trim().split(':');
       const baseKey = parts[0];
       const modifier = parts[1];
-      let val = meta[baseKey] || '';
+      let val = getNormalizedValue(baseKey, meta);
       
       if (val) {
         if (modifier === 'GEN') val = declineGreekName(val, 'genitive');
         else if (modifier === 'ACC') val = declineGreekName(val, 'accusative');
       }
-      return `<strong>${val}</strong>`;
+      return val ? `<strong>${val}</strong>` : '';
     });
   }
 

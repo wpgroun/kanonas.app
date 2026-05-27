@@ -6,6 +6,7 @@ import { getCurrentTempleId } from './core'
 import { requireAuth } from '@/lib/requireAuth'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
+import { mergeSplitRuns } from '@/lib/greekDeclension'
 
 export async function getDocTemplates(docType?: string) {
   const templeId = await getCurrentTempleId()
@@ -68,24 +69,35 @@ export async function uploadDocTemplate(formData: FormData) {
     const ext = path.extname(file.name).toLowerCase()
     const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
     const filePath = path.join(uploadDir, safeName)
+    const fileUrl = `/uploads/templates/${templeId}/${safeName}`
     
     const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    await writeFile(filePath, buffer)
-    const fileBase64 = buffer.toString('base64')
-
-    const fileUrl = `/uploads/templates/${templeId}/${safeName}`
+    let buffer: any = Buffer.from(bytes)
 
     let detectedVars: string[] = []
     let detectedFormat = 'mustache'
 
     if (ext === '.docx' || ext === '.doc') {
       const PizZip = (await import('pizzip')).default
-      const fs = await import('fs/promises')
-      const content = await fs.readFile(filePath)
-      const zip = new PizZip(content)
-      const xml = zip.file('word/document.xml')?.asText() || ''
-      const plainText = xml.replace(/<[^>]+>/g, ' ')
+      const zip = new PizZip(buffer)
+      
+      let mainXml = ''
+      for (const fileName of Object.keys(zip.files)) {
+        if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
+          const xmlFile = zip.file(fileName)
+          if (xmlFile) {
+            let xml = xmlFile.asText()
+            xml = mergeSplitRuns(xml)
+            zip.file(fileName, xml)
+            if (fileName === 'word/document.xml') {
+              mainXml = xml
+            }
+          }
+        }
+      }
+      
+      buffer = zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' })
+      const plainText = mainXml.replace(/<[^>]+>/g, ' ')
 
       const mustacheMatches = Array.from(plainText.matchAll(/\{\{([^}]+)\}\}/g)).map(m => m[1].trim())
       const singleCurlyMatches = Array.from(plainText.matchAll(/(?<!\{)\{([^}]+)\}(?!\})/g)).map(m => m[1].trim())
@@ -107,6 +119,9 @@ export async function uploadDocTemplate(formData: FormData) {
         try { detectedVars = JSON.parse(rawVars) } catch (e) {}
       }
     }
+
+    await writeFile(filePath, buffer)
+    const fileBase64 = buffer.toString('base64')
 
     const contextPayload = JSON.stringify({
       format: detectedFormat,

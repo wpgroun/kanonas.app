@@ -151,3 +151,118 @@ export function resolveGenderTokens(text: string, gender: 'male' | 'female'): st
 
   return resolved;
 }
+
+export function cleanKey(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove Greek accents/diacritics
+    .replace(/ς/g, 'σ') // normalize sigmas
+    .replace(/[^a-z0-9α-ω]/g, '') // keep only alphanumeric
+    .trim();
+}
+
+export function getNormalizedValue(placeholderKey: string, answers: Record<string, any>): string {
+  if (!answers || typeof answers !== 'object') return '';
+  const pClean = cleanKey(placeholderKey);
+  if (!pClean) return '';
+
+  // 1. Direct normalized key comparison
+  for (const [key, val] of Object.entries(answers)) {
+    if (cleanKey(key) === pClean) {
+      return val !== undefined && val !== null ? String(val) : '';
+    }
+  }
+
+  // 2. Synonyms mapping helper
+  const synonymGroups = [
+    ['ονομα', 'onoma', 'name', 'firstname', 'childname'],
+    ['επωνυμο', 'eponymo', 'lastname', 'surname', 'childlastname'],
+    ['πατρωνυμο', 'patronymo', 'patronym', 'fathersname', 'fathername', 'father', 'ονομαπατερα', 'πατερα', 'onomapatera', 'patera'],
+    ['μητρωνυμο', 'mitronymo', 'mitronym', 'mothersname', 'mothername', 'mother', 'ονομαμητερας', 'μητερας', 'μητερα', 'onomamiteras', 'miteras', 'mitera'],
+    ['αναδοχος', 'anadochos', 'godparent', 'godparentfullname', 'sponsor', 'nounos', 'νονος', 'νονα', 'nonos', 'nona'],
+    ['εφημεριος', 'efimerios', 'priest', 'assignedpriest', 'ιερεας', 'ιερεαςονομα', 'iereas', 'iereasonoma'],
+    ['ναος', 'naos', 'temple', 'templename', 'ναοσονομα', 'naosonoma'],
+    ['μητροπολη', 'metropolis', 'metropolisname', 'μητροποληονομα', 'mitropolionoma', 'mitropoli'],
+    ['ημερομηνια', 'imerominia', 'date', 'currentdate', 'today'],
+    ['ημερομηνιατελεσης', 'imerominiatelesis', 'ceremonydate', 'dateofceremony'],
+    ['πρωτοκολλο', 'protokollo', 'protocol', 'protocolnumber', 'αριθμπρωτοκολλου', 'arithmprotokollou'],
+    ['βιβλιο', 'vivlio', 'book', 'booknumber', 'αριθμβιβλιου', 'βιβλιοαριθμος', 'arithmvivliou', 'vivlioarithmos']
+  ];
+
+  const group = synonymGroups.find(g => g.map(cleanKey).includes(pClean));
+  if (group) {
+    const cleanedGroup = group.map(cleanKey);
+    for (const [key, val] of Object.entries(answers)) {
+      const kClean = cleanKey(key);
+      if (cleanedGroup.includes(kClean)) {
+        return val !== undefined && val !== null ? String(val) : '';
+      }
+    }
+  }
+
+  return '';
+}
+
+export function mergeSplitRuns(xml: string): string {
+  // Replace content of each paragraph
+  return xml.replace(/(<w:p(?: [^>]*)?>)([\s\S]*?)(<\/w:p>)/g, (match, openTag, pContent, closeTag) => {
+    let insideT = false;
+    const textChars: { char: string; nodeIndex: number }[] = [];
+    const parsedNodes: { type: 'tag' | 'char'; value: string }[] = [];
+    
+    let j = 0;
+    while (j < pContent.length) {
+      if (pContent[j] === '<') {
+        const tagEnd = pContent.indexOf('>', j);
+        if (tagEnd !== -1) {
+          const tag = pContent.slice(j, tagEnd + 1);
+          parsedNodes.push({ type: 'tag', value: tag });
+          if (tag.startsWith('<w:t')) {
+            insideT = true;
+          } else if (tag.startsWith('</w:t')) {
+            insideT = false;
+          }
+          j = tagEnd + 1;
+        } else {
+          parsedNodes.push({ type: 'char', value: pContent[j] });
+          if (insideT) {
+            textChars.push({ char: pContent[j], nodeIndex: parsedNodes.length - 1 });
+          }
+          j++;
+        }
+      } else {
+        parsedNodes.push({ type: 'char', value: pContent[j] });
+        if (insideT) {
+          textChars.push({ char: pContent[j], nodeIndex: parsedNodes.length - 1 });
+        }
+        j++;
+      }
+    }
+
+    const plainText = textChars.map(tc => tc.char).join('');
+    const placeholderRegex = /\{\{[^}]+\}\}|\{[^}]+\}|\[[^\]]+\]/g;
+    
+    let matchPl;
+    const replacements: { startNode: number; endNode: number; text: string }[] = [];
+    
+    while ((matchPl = placeholderRegex.exec(plainText)) !== null) {
+      const startIdx = matchPl.index;
+      const endIdx = startIdx + matchPl[0].length;
+      
+      const startNode = textChars[startIdx].nodeIndex;
+      const endNode = textChars[endIdx - 1].nodeIndex;
+      replacements.push({ startNode, endNode, text: matchPl[0] });
+    }
+    
+    for (const rep of replacements) {
+      parsedNodes[rep.startNode].value = rep.text;
+      for (let k = rep.startNode + 1; k <= rep.endNode; k++) {
+        parsedNodes[k].value = '';
+      }
+    }
+    
+    const newParagraphContent = parsedNodes.map(n => n.value).join('');
+    return openTag + newParagraphContent + closeTag;
+  });
+}
