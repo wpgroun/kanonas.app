@@ -70,7 +70,9 @@ export async function uploadDocTemplate(formData: FormData) {
     const filePath = path.join(uploadDir, safeName)
     
     const bytes = await file.arrayBuffer()
-    await writeFile(filePath, Buffer.from(bytes))
+    const buffer = Buffer.from(bytes)
+    await writeFile(filePath, buffer)
+    const fileBase64 = buffer.toString('base64')
 
     const fileUrl = `/uploads/templates/${templeId}/${safeName}`
 
@@ -118,6 +120,7 @@ export async function uploadDocTemplate(formData: FormData) {
         nameEl,
         visibility,
         fileUrl,
+        fileData: fileBase64,
         htmlContent: null,
         context: contextPayload,
       }

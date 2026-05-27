@@ -485,6 +485,7 @@ model DocTemplate {
   visibility  String  @default("internal") // "citizen" = sent to citizen, "internal" = staff only, "metropolis" = sent to metropolis
   htmlContent String?
   fileUrl     String?
+  fileData    String?
   context     String?
   conditionRules String? // JSON logic mapping IF variables THEN render
 
