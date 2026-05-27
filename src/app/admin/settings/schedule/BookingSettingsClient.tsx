@@ -101,10 +101,10 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
     </div>
   </header>
 
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+ <div>
  
  {/* ΑΡΙΣΤΕΡΑ: ΡΥΘΜΙΣΕΙΣ */}
- <div className="md:col-span-2 flex flex-col gap-6">
+ <div className="flex flex-col gap-6">
  <div className="glass-panel p-6">
  <h3 className="text-lg font-bold border-b border-border pb-3 mb-5 flex items-center gap-2">
  <SettingsIcon className="text-primary"size={20} /> Διάρκεια Μυστηρίων & Εξαιρέσεις
@@ -184,37 +184,6 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
  </div>
 
  </div>
-
- {/* ΔΕΞΙΑ: ΕΝΣΩΜΑΤΩΣΗ */}
- <div className="flex flex-col gap-6">
- <div className="glass-panel p-6 bg-primary/5 border-primary/20">
- <h3 className="text-lg font-bold border-b border-primary/20 pb-3 mb-5 flex items-center gap-2 text-primary">
- <CodeIcon size={20} /> Κώδικας Ενσωμάτωσης
- </h3>
- <p className="text-sm text-foreground/80 mb-5">
- Αντιγράψτε τον κώδικα HTML στο site του ναού (WordPress, Wix κλπ).
- </p>
- 
- <div className="bg-background border border-border p-3 rounded-lg overflow-x-auto mb-4 text-xs font-mono text-muted-foreground">
- {embedCode}
- </div>
-
- <button onClick={copyEmbedCode} className="w-full btn-secondary bg-primary text-primary-foreground hover:bg-primary/90 flex justify-center items-center gap-2 py-2">
- <CopyIcon size={16} /> Αντιγραφή Κώδικα
- </button>
- </div>
- 
- <div className="glass-panel p-6 p-4">
- <h4 className="flex items-center gap-2 font-bold mb-2 text-[var(--brand)]">
- <AlertTriangleIcon size={18} /> Έξυπνη Αποτροπή Συγκρούσεων
- </h4>
- <p className="text-xs text-muted-foreground leading-relaxed">
- Όταν ορίζετε διάρκεια 45λ για ένα Γάμο, και επιτρέπετε ενάρξεις ανά μισάωρο (π.χ. 18:00, 18:30). 
- Αν κάποιος κλείσει Γάμο στις 18:00, το σύστημα <b>δεν</b> θα επιτρέψει σε άλλον να επιλέξει τις 18:30, μέχρι και τις 18:45, προστατεύοντας τον ναό!
- </p>
- </div>
- </div>
-
  </div>
  </div>
 )

@@ -153,3 +153,18 @@ export async function addServiceSchedule(data: any) {
  return { success: false, error: 'Failed to add' };
  }
 }
+
+export async function clearAllServiceSchedules(): Promise<{ success: boolean; error?: string }> {
+  await requireAuth();
+  const templeId = await getCurrentTempleId();
+  try {
+    await prisma.serviceSchedule.deleteMany({
+      where: { templeId }
+    });
+    revalidatePath('/admin/schedule');
+    return { success: true };
+  } catch (error: any) {
+    console.error('[Schedule] Clear error:', error);
+    return { success: false, error: error.message || 'Αποτυχία εκκαθάρισης προγράμματος.' };
+  }
+}

@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { addServiceSchedule, deleteServiceSchedule, bulkImportOrthodoxCalendar } from '@/actions/schedule';
+import { addServiceSchedule, deleteServiceSchedule, bulkImportOrthodoxCalendar, clearAllServiceSchedules } from '@/actions/schedule';
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,18 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
     const res = await bulkImportOrthodoxCalendar(importYear);
     alert(`Επιτυχία! Προστέθηκαν ${res.inserted} εορτές. (Παραλείφθηκαν ${res.skipped} που υπήρχαν ήδη).`);
     setImporting(false);
+  };
+
+  const handleClearAll = async () => {
+    if (!confirm('Θέλετε σίγουρα να διαγράψετε όλες τις καταχωρημένες ακολουθίες/εορτές από το πρόγραμμα; Αυτή η ενέργεια δεν αναιρείται.')) return;
+    setLoading(true);
+    const res = await clearAllServiceSchedules();
+    if (res.success) {
+      alert('Το πρόγραμμα εκκαθαρίστηκε επιτυχώς!');
+    } else {
+      alert(res.error || 'Σφάλμα κατά την εκκαθάριση.');
+    }
+    setLoading(false);
   };
 
  const handleAdd = async (e: any) => {
@@ -132,13 +144,20 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
  </div>
 
  {/* List Container */}
- <div className="col-span-1 lg:col-span-2">
- {initialSchedules.length === 0 && (
+ <div className="col-span-1 lg:col-span-2 space-y-4">
+ {initialSchedules.length === 0 ? (
  <Card className="shadow-sm border-dashed border-2 border-[var(--border)] bg-[var(--background)] text-center py-16 rounded-2xl">
  <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground/30 mb-4"/>
  <p className="text-muted-foreground">Το πρόγραμμα είναι κενό. Προσθέστε τις πρώτες ακολουθίες!</p>
  </Card>
-)}
+) : (
+ <>
+ <div className="flex justify-between items-center bg-[var(--surface)] p-4 rounded-2xl border border-[var(--border)] shadow-sm">
+   <h3 className="font-bold text-sm text-foreground">Πρόγραμμα Ακολουθιών ({initialSchedules.length})</h3>
+   <Button variant="destructive" size="sm" onClick={handleClearAll} disabled={loading} className="rounded-xl flex items-center gap-1.5 font-bold h-9">
+     <Trash2 className="w-4 h-4" /> Εκκαθάριση Όλων
+   </Button>
+ </div>
  
  <div className="flex flex-col gap-3">
  {initialSchedules.map(srv => {
@@ -176,10 +195,11 @@ export default function ScheduleClient({ initialSchedules }: { initialSchedules:
 )
  })}
  </div>
+ </>
+)}
  </div>
 
  </div>
  </div>
 )
 }
-
