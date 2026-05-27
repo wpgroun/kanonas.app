@@ -10,7 +10,7 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
  const router = useRouter();
  const [saving, setSaving] = useState(false);
  
- const defaultSchedule = initialSettings?.bookingSchedule || {
+ const defaultSchedule = initialSettings?.settings?.bookingSchedule || {
  disabledDaysOfWeek: [1, 3], 
  timeSlots: ['17:00', '18:00', '19:00', '20:00'],
  bufferMinutes: 15,
@@ -69,7 +69,13 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
 
  const saveAll = async () => {
  setSaving(true);
- const updatedSettings = { ...initialSettings, bookingSchedule: schedule };
+ const updatedSettings = { 
+   ...initialSettings, 
+   settings: {
+     ...initialSettings.settings,
+     bookingSchedule: schedule 
+   }
+ };
  await saveTempleSettings(updatedSettings);
  setSaving(false);
  alert('Οι ρυθμίσεις διαθεσιμότητας αποθηκεύτηκαν!');
