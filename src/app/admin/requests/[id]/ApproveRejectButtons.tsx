@@ -33,14 +33,21 @@ export default function ApproveRejectButtons({ tokenId, status, date, title, isA
  }
  }
 
- if (isAccepted || status === 'docs_generated') {
- return (
- <div className="flex bg-[var(--success-light)] text-emerald-800 border border-[var(--success)]/20 px-4 py-3 rounded-lg items-center gap-2 text-sm mt-4">
- <CalendarCheck className="w-5 h-5 text-[var(--success)]"/>
- <div>Το μυστήριο έχει <strong>Εγκριθεί</strong> και η ώρα έχει δεσμευθεί στο πρόγραμμα του Ναού.</div>
- </div>
-);
- }
+  if (isAccepted || status === 'docs_generated') {
+    return (
+      <div className="flex flex-col gap-2 mt-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-[var(--success-light)] text-emerald-800 border border-[var(--success)]/20 px-4 py-3 rounded-lg gap-4 text-sm w-full">
+          <div className="flex items-center gap-2">
+            <CalendarCheck className="w-5 h-5 text-[var(--success)] shrink-0"/>
+            <div>Το μυστήριο έχει <strong>Εγκριθεί</strong> και η ώρα έχει δεσμευθεί στο πρόγραμμα του Ναού.</div>
+          </div>
+          <Button onClick={handleReject} disabled={loading} variant="destructive" size="sm">
+            <X className="w-4 h-4 mr-1"/> Διαγραφή
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
  return (
  <div className="flex gap-2 mt-4 p-4 bg-muted/50 rounded-lg border border-border">

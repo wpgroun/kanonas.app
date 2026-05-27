@@ -40,13 +40,29 @@ export async function getAggregatedCalendarEvents(year: number, month: number): 
   await requireAuth();
   const templeId = await getCurrentTempleId();
 
+  // Self-healing background cleanup of duplicate schedules (runs once per server process)
+  if (!(global as any)._schedulesCleaned) {
+    prisma.serviceSchedule.deleteMany({
+      where: {
+        description: {
+          contains: 'Δεσμευμένο από αίτηση'
+        }
+      }
+    }).then(res => {
+      console.log(`[Calendar Cleanup] Deleted ${res.count} duplicate service schedule records.`);
+      (global as any)._schedulesCleaned = true;
+    }).catch(err => {
+      console.error('[Calendar Cleanup] Error:', err);
+    });
+  }
+
   const start = startOfMonth(new Date(year, month - 1, 1));
   const end = endOfMonth(new Date(year, month - 1, 1));
 
   const temple = await prisma.temple.findUnique({ where: { id: templeId }, select: { metropolisId: true } });
 
   try {
-    const [services, ceremonies, centralEvents, sissitio] = await Promise.all([
+    const [services, ceremonies, centralEvents, sissitio, tokens] = await Promise.all([
       // 1. Church services (ακολουθίες)
       prisma.serviceSchedule.findMany({
         where: { templeId, date: { gte: start, lte: end } },
@@ -76,6 +92,16 @@ export async function getAggregatedCalendarEvents(year: number, month: number): 
       prisma.sissitioDay.findMany({
         where: { templeId, date: { gte: start, lte: end } },
         orderBy: { date: 'asc' },
+      }),
+
+      // 5. Approved sacrament requests (Tokens)
+      prisma.token.findMany({
+        where: {
+          templeId,
+          ceremonyDate: { gte: start, lte: end },
+          status: { in: ['accepted', 'docs_generated', 'completed'] },
+        },
+        orderBy: { ceremonyDate: 'asc' },
       }),
     ]);
 
@@ -122,6 +148,26 @@ export async function getAggregatedCalendarEvents(year: number, month: number): 
         color: TYPE_COLORS[typeKey as CalendarEventType],
         details: c.priest ? `Ιερουργών: ${c.priest}` : undefined,
         href: `/admin/ceremonies/${c.id}`,
+      });
+    }
+
+    // Map tokens (approved/advanced requests)
+    for (const t of tokens) {
+      if (!t.ceremonyDate) continue;
+      const typeKey = t.serviceType === 'GAMOS' ? 'CEREMONY_MARRIAGE' : 'CEREMONY_BAPTISM';
+      const typeLabel = t.serviceType === 'GAMOS' ? '💍 Γάμος (Αίτηση)' : '🕊️ Βάπτιση (Αίτηση)';
+      const statusLabel = t.status === 'completed' ? '✓' : '';
+
+      const d = new Date(t.ceremonyDate);
+      events.push({
+        id: t.id,
+        type: typeKey as CalendarEventType,
+        title: `${typeLabel} — ${t.customerName || 'Οικογένεια'}${statusLabel ? ` ${statusLabel}` : ''}`.trim(),
+        date: t.ceremonyDate.toISOString(),
+        time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+        color: TYPE_COLORS[typeKey as CalendarEventType],
+        details: t.assignedPriest ? `Ιερουργών: ${t.assignedPriest}` : undefined,
+        href: `/admin/requests/${t.id}`,
       });
     }
 

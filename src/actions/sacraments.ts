@@ -240,72 +240,74 @@ export async function savePublicTokenAnswers(tokenStr: string, answersStr: strin
  }
 }
 
-import { addServiceSchedule } from './schedule'
-
 export async function approveSacramentRequest(tokenId: string, date: Date | null, title: string) {
- await requireAuth()
- const templeId = await getCurrentTempleId()
- try {
- const token = await prisma.token.findFirst({ where: { id: tokenId, templeId } })
- if (!token) return { success: false, error: 'Δεν βρέθηκε' }
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+  try {
+    const token = await prisma.token.findFirst({ where: { id: tokenId, templeId } })
+    if (!token) return { success: false, error: 'Δεν βρέθηκε' }
 
- // 1. Send Email with the link (using existing function sendFormLinkAction logic)
- const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
- const tokenUrl = `${baseUrl}/request/${token.tokenStr}`
- const { sendFormLinkEmail } = await import('@/lib/emailService')
- const temple = await prisma.temple.findUnique({ where: { id: token.templeId } })
- 
- if (temple && token.customerEmail) {
- await sendFormLinkEmail({
- to: token.customerEmail,
- familyName: token.customerName || 'Οικογένεια',
- serviceType: token.serviceType as 'GAMOS' | 'VAPTISI',
- tokenUrl,
- ceremonyDate: token.ceremonyDate?.toLocaleDateString('el-GR'),
- templeName: temple.name,
- }).catch(console.error)
- }
+    // 1. Send Email with the link (using existing function sendFormLinkAction logic)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const tokenUrl = `${baseUrl}/request/${token.tokenStr}`
+    const { sendFormLinkEmail } = await import('@/lib/emailService')
+    const temple = await prisma.temple.findUnique({ where: { id: token.templeId } })
+    
+    if (temple && token.customerEmail) {
+      await sendFormLinkEmail({
+        to: token.customerEmail,
+        familyName: token.customerName || 'Οικογένεια',
+        serviceType: token.serviceType as 'GAMOS' | 'VAPTISI',
+        tokenUrl,
+        ceremonyDate: token.ceremonyDate?.toLocaleDateString('el-GR'),
+        templeName: temple.name,
+      }).catch(console.error)
+    }
 
- // 2. Add to Schedule
- if (date) {
- await addServiceSchedule({
- date: date.toISOString(),
- title: title,
- description: `Δεσμευμένο από αίτηση #${tokenId.slice(-6).toUpperCase()}`,
- isMajor: false
- });
- }
+    // 2. Mark as accepted (central calendar dynamically loads approved tokens)
+    await prisma.token.update({
+      where: { id: tokenId },
+      data: { status: 'accepted' }
+    });
 
- // 3. Mark as accepted
- await prisma.token.update({
- where: { id: tokenId },
- data: { status: 'accepted' }
- });
-
- revalidatePath(`/admin/requests/${tokenId}`)
- revalidatePath('/admin/requests')
- revalidatePath('/admin/schedule')
- return { success: true }
- } catch (e: any) {
- return { success: false, error: e.message }
- }
+    revalidatePath(`/admin/requests/${tokenId}`)
+    revalidatePath('/admin/requests')
+    revalidatePath('/admin/calendar')
+    revalidatePath('/admin/schedule')
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
 }
 
 export async function rejectSacramentRequest(tokenId: string) {
- await requireAuth()
- const templeId = await getCurrentTempleId()
- try {
- const token = await prisma.token.findFirst({ where: { id: tokenId, templeId } })
- if (!token) return { success: false, error: 'Not found' }
- 
- await prisma.token.delete({
- where: { id: tokenId }
- });
- revalidatePath('/admin/requests')
- return { success: true }
- } catch (e: any) {
- return { success: false, error: e.message }
- }
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+  try {
+    const token = await prisma.token.findFirst({ where: { id: tokenId, templeId } })
+    if (!token) return { success: false, error: 'Not found' }
+    
+    // Also delete corresponding service schedules (for old system compatibility)
+    const refCode = `#${tokenId.slice(-6).toUpperCase()}`;
+    await prisma.serviceSchedule.deleteMany({
+      where: {
+        templeId,
+        description: {
+          contains: refCode
+        }
+      }
+    });
+
+    await prisma.token.delete({
+      where: { id: tokenId }
+    });
+    revalidatePath('/admin/requests')
+    revalidatePath('/admin/calendar')
+    revalidatePath('/admin/schedule')
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
 }
 
 export async function sendFormLinkAction(tokenId: string) {
