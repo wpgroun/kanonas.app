@@ -333,7 +333,6 @@ async function generatePDFDoc(template: any, answers: Record<string, string>, te
 
 async function generateDOCXDoc(template: any, answers: Record<string, string>, targetGender: 'male' | 'female') {
   try {
-    const Docxtemplater = (await import('docxtemplater')).default
     const PizZip        = (await import('pizzip')).default
 
     let content: Buffer;
@@ -353,72 +352,74 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
       }
     } catch(e) {}
 
-    let buf;
+    // Load the per-template variable map (if any)
+    const variableMap = (template as any).variableMap as Record<string, string> | null;
 
-    // ── Global XML Normalization & Gender Tokens ──────────────────────
+    // Helper: XML-safe escaping
+    function escXml(str: string): string {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Unified replacement function for all placeholder formats
+    function replacePlaceholders(xml: string): string {
+      let regex: RegExp;
+      if (format === 'brackets') {
+        regex = /\[([^\]]+)\]/g;
+      } else if (format === 'single_curly') {
+        regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
+      } else {
+        // mustache: {{...}}
+        // NOTE: we do NOT use docxtemplater here because it crashes on placeholders
+        // containing "/" (e.g. {{ο/η}}) which it misreads as a Mustache section-close tag.
+        // Direct XML string replacement is safer and also allows variableMap to apply.
+        regex = /\{\{([^}]+)\}\}/g;
+      }
+
+      return xml.replace(regex, (match, key) => {
+        const trimmedKey = key.trim();
+
+        // Skip Mustache section / comment markers: {{#name}}, {{/name}}, {{^name}}, {{!...}}, {{>partial}}
+        if (format === 'mustache' && /^[#^/!>]/.test(trimmedKey)) return match;
+
+        // 1. Check per-template variableMap first
+        if (variableMap) {
+          const mappedField = variableMap[trimmedKey];
+          // __ignore__ means "auto-filled by system" — still try a direct lookup before giving up
+          if (mappedField === '__ignore__') {
+            const autoVal = getNormalizedValue(trimmedKey, answers);
+            return autoVal ? escXml(autoVal) : '';
+          }
+          if (mappedField && mappedField !== '__unknown__') {
+            const val = getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
+            if (val) return escXml(val);
+          }
+        }
+
+        // 2. Synonym-group / direct lookup
+        const val = getNormalizedValue(trimmedKey, answers);
+        if (val !== undefined && val !== null && val !== '') return escXml(val);
+
+        // 3. Not found — keep original placeholder so it stays visible
+        console.log(`[docEngine.ts] Template variable "${trimmedKey}" not found in answers map.`);
+        return match;
+      });
+    }
+
+    // --- Global XML Normalization, Gender Tokens & Placeholder Replacement ---
     for (const fileName of Object.keys(zip.files)) {
       if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
         const xmlFile = zip.file(fileName);
         if (xmlFile) {
           let xml = xmlFile.asText();
-
-          // ΚΡΙΣΙΜΟ: Ενώνει τα σπασμένα {{...}} runs που δημιουργεί το Word
-          xml = mergeSplitRuns(xml);
-
-          // Resolve Gender Tokens
+          xml = mergeSplitRuns(xml);          // fix split runs before replacement
           xml = resolveGenderTokens(xml, targetGender);
-
-          if (format === 'brackets' || format === 'single_curly') {
-            const regex = format === 'brackets'
-              ? /\[([^\]]+)\]/g
-              : /(?<!\{)\{([^{}]+)\}(?!\})/g;
-            xml = xml.replace(regex, (match, key) => {
-              const val = getNormalizedValue(key.trim(), answers);
-              if (!val) {
-                console.log(`[docEngine.ts] Variable "${key.trim()}" (match: "${match}") not found.`);
-              }
-              return (val || '').toString()
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-            });
-          }
-
+          xml = replacePlaceholders(xml);     // replace ALL formats here
           zip.file(fileName, xml);
         }
       }
     }
 
-    if (format === 'brackets' || format === 'single_curly') {
-      buf = zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
-    } else {
-      // mustache / default: χρησιμοποιεί {{ }} και getNormalizedValue για fuzzy matching
-      const doc = new Docxtemplater(zip, {
-        paragraphLoop: true,
-        linebreaks: true,
-        delimiters: { start: '{{', end: '}}' },
-        parser: (tag) => {
-          return {
-            get: (scope: Record<string, string>) => {
-              // Πρώτα ψάχνει στο enriched answers map
-              const val = getNormalizedValue(tag, scope);
-              if (!val) {
-                // Fallback: ψάχνει απευθείας στα answers (για keys που δεν
-                // ομαλοποιούνται σωστά)
-                const directVal = scope[tag] || scope[tag.trim()] || '';
-                if (!directVal) {
-                  console.log(`[docEngine.ts] Variable "{{${tag}}}" not found in answers.`);
-                }
-                return directVal || '';
-              }
-              return val;
-            }
-          };
-        }
-      });
-      doc.render(answers);
-      buf = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
-    }
+    const buf = zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
 
     const base64 = buf.toString('base64')
 
