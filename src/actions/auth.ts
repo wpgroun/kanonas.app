@@ -112,7 +112,7 @@ export async function loginAction(email: string, passwordPlain: string) {
  const cookieStore = await cookies();
  cookieStore.set('Kanonas_2fa_temp', tempToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 5 });
 
- // Send Email
+ // Send Email (with timeout so login never hangs if SMTP is slow)
  const { createSafeTransporter } = await import('@/lib/email');
  const transporter = await createSafeTransporter({
  host: process.env.SMTP_HOST!,
@@ -120,12 +120,16 @@ export async function loginAction(email: string, passwordPlain: string) {
  secure: process.env.SMTP_PORT === '465',
  auth: { user: process.env.SMTP_USER!, pass: process.env.SMTP_PASS || '' },
  });
- await transporter.sendMail({
- from: `"Kanonas Security"<${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
- to: user.email,
- subject: 'Κωδικός 2FA για Kanonas',
- html: `<p>Γεια σας ${user.firstName || ''},</p><p>Ο κωδικός επαλήθευσης (One-Time Password) για τη σύνδεσή σας είναι:</p><h2>${otp}</h2><p>Ισχύει για 5 λεπτά.</p>`
- }).catch(console.error);
+ const sendTimeout = new Promise<void>(resolve => setTimeout(resolve, 10000));
+ await Promise.race([
+ transporter.sendMail({
+   from: `"Kanonas Security"<${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+   to: user.email,
+   subject: 'Κωδικός 2FA για Kanonas',
+   html: `<p>Γεια σας ${user.firstName || ''},</p><p>Ο κωδικός επαλήθευσης (One-Time Password) για τη σύνδεσή σας είναι:</p><h2>${otp}</h2><p>Ισχύει για 5 λεπτά.</p>`
+ }).catch(console.error),
+ sendTimeout
+ ]);
  return { success: true, require2FA: true };
  }
  // -----------------------

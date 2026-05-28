@@ -19,7 +19,10 @@ export async function resolveHostToIPv4(host: string): Promise<string> {
     return host;
   }
   return new Promise<string>((resolve) => {
+    // 5-second timeout — prevents hanging forever if DNS is slow/unreachable
+    const timer = setTimeout(() => resolve(host), 5000);
     dns.lookup(host, { family: 4 }, (err, address) => {
+      clearTimeout(timer);
       if (err) resolve(host);
       else resolve(address);
     });
