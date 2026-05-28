@@ -64,6 +64,7 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  { href: '/admin/sacraments/marriages', icon: FileText, label: 'Βιβλίο Γάμων', requiredPerm: null, moduleLabel: 'Γάμοι & Μυστήρια' },
  { href: '/admin/sacraments/divorces', icon: FileText, label: 'Διαζύγια (Λύσεις)', requiredPerm: 'canManageRegistry', moduleLabel: 'Διαζύγια (Λύσεις Γάμων)' },
  { href: '/admin/sacraments/funerals', icon: FileText, label: 'Ληξιαρχείο (Εκδημίες)', requiredPerm: 'canManageRegistry', moduleLabel: 'Ληξιαρχείο & Εκδημίες' },
+ { href: '/admin/documents', icon: FileText, label: 'Πρότυπα Εγγράφων', requiredPerm: null, moduleLabel: 'Πρότυπα Εγγράφων' },
  ]
  },
  {

@@ -176,22 +176,16 @@ export async function generateRequestDocuments(requestId: string) {
   }
   
   let answers: Record<string, string> = {};
+  // Priority 1: templateAnswers (may be set manually by admin)
   if (req.templateAnswers) {
     try { answers = JSON.parse(req.templateAnswers); } catch(e){}
   }
-  if (req.payload) {
+  // Priority 2 (fallback): payload.variables — set by ConnectForm when citizen submits
+  if (Object.keys(answers).length === 0 && req.payload) {
     try {
       const parsed = JSON.parse(req.payload);
-      if (parsed && typeof parsed === 'object') {
-        if (parsed.variables && typeof parsed.variables === 'object') {
-          answers = { ...answers, ...parsed.variables };
-        } else {
-          for (const [k, v] of Object.entries(parsed)) {
-            if (v !== null && v !== undefined && k !== 'templateId' && k !== 'bookingRequest') {
-              answers[k] = String(v);
-            }
-          }
-        }
+      if (parsed.variables && typeof parsed.variables === 'object') {
+        answers = parsed.variables as Record<string, string>;
       }
     } catch(e){}
   }
@@ -212,19 +206,24 @@ export async function generateRequestDocuments(requestId: string) {
   if (req.temple.settings) {
      try { templeSettings = JSON.parse(req.temple.settings); } catch(e){}
   }
+  // Use protocolStartNumber from settings as the base if currentProtocolNumber is not yet set
   if (templeSettings.currentProtocolNumber) {
      currentProtocol = parseInt(templeSettings.currentProtocolNumber, 10) + 1;
+  } else if (templeSettings.protocolStartNumber) {
+     currentProtocol = parseInt(templeSettings.protocolStartNumber, 10);
   }
   templeSettings.currentProtocolNumber = currentProtocol;
-  const year = new Date().getFullYear();
-  const protocolNumber = `${currentProtocol}/${year}`;
-  
+  const year = templeSettings.protocolBookYear || new Date().getFullYear();
+  const prefix = templeSettings.protocolPrefix ? `${templeSettings.protocolPrefix}-` : '';
+  const protocolNumber = `${prefix}${currentProtocol}/${year}`;
   await prisma.temple.update({
     where: { id: req.templeId },
     data: { settings: JSON.stringify(templeSettings) }
   });
-  
+  // Add protocol number under multiple keys so any template can use it
   answers['ΑΡΙΘΜ_ΠΡΩΤΟΚΟΛΛΟΥ'] = protocolNumber;
+  answers['protocolNumber'] = protocolNumber;
+  answers['Αριθμός Πρωτοκόλλου'] = protocolNumber;
   
   let docTypeQuery: string = req.type;
   if (req.type === 'BOOKING_REQUEST') {

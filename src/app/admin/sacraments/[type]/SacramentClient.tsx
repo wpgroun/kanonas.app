@@ -74,7 +74,13 @@ export default function SacramentClient({ urlType, internalDocType, templates, i
                     <td className="p-4 font-bold text-[var(--foreground)]">{r.customerName || '-'}</td>
                     <td className="p-4 text-[var(--text-secondary)]">{new Date(r.createdAt).toLocaleDateString('el-GR')}</td>
                     <td className="p-4">
-                      <span className="px-2.5 py-1 bg-[var(--success-light)] text-[var(--success)] text-xs font-bold rounded-lg border border-[var(--success)]/20">ΟΛΟΚΛΗΡΩΜΕΝΟ</span>
+                      {r.status === 'docs_generated' || r.status === 'completed' ? (
+                        <span className="px-2.5 py-1 bg-[var(--success-light)] text-[var(--success)] text-xs font-bold rounded-lg border border-[var(--success)]/20">ΟΛΟΚΛΗΡΩΜΕΝΟ</span>
+                      ) : r.status === 'pending' ? (
+                        <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-lg border border-amber-200">ΣΕ ΑΝΑΜΟΝΗ</span>
+                      ) : (
+                        <span className="px-2.5 py-1 bg-slate-100 text-slate-500 text-xs font-bold rounded-lg border border-slate-200">{r.status?.toUpperCase() || 'ΑΓΝΩΣΤΟ'}</span>
+                      )}
                     </td>
                     <td className="p-4 text-center text-xs font-bold text-blue-600">
                       {keys} Dynamic Tags

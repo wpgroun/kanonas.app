@@ -33,9 +33,17 @@ export default function DynamicWizard({ internalDocType, templates, onClose }: a
     e.preventDefault();
     setLoading(true);
 
+    // Detect primary name: try common English keys first, then Greek name-like keys, then first non-empty value
+    const nameKeyPatterns = ['CHILD_NAME', 'GROOM_NAME', 'NAME', 'FULL_NAME'];
+    const greekNamePattern = /ονομ|επων|τεκν|νυμφ|νυμφιο/i;
+    const detectedName =
+      nameKeyPatterns.map(k => formData[k]).find(v => v) ||
+      Object.entries(formData).find(([k]) => greekNamePattern.test(k))?.[1] ||
+      Object.values(formData).find(v => v && v.trim().length > 1) ||
+      'Άγνωστο Πρόσωπο';
     const res = await saveDynamicSacrament({
       recordType: internalDocType,
-      primaryName: formData['CHILD_NAME'] || formData['GROOM_NAME'] || formData['NAME'] || 'Άγνωστο Πρόσωπο',
+      primaryName: detectedName,
       jsonData: formData
     });
 
