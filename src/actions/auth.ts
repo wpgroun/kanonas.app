@@ -97,43 +97,6 @@ export async function loginAction(email: string, passwordPlain: string) {
 
  const isSuperOrHead = userTemple?.isHeadPriest || user.isSuperAdmin || !!metropolisUser;
 
- // --- 2FA Foundation ---
- if (isSuperOrHead) {
- if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
- console.warn(`[Auth] SMTP not configured. Bypassing 2FA requirement for ${user.email}`);
- return await finalizeLogin(user, resolvedTempleId, userTemple, isSuperOrHead, ip, (metropolisUser as any)?.metropolis?.name || null);
- }
-
- const otp = Math.floor(100000 + Math.random() * 900000).toString();
- const expires = Date.now() + 1000 * 60 * 5; // 5 mins
- const tempPayload = { userId: user.id, email: user.email, otp, expires, resolvedTempleId };
- const tempToken = await encrypt(tempPayload);
- 
- const cookieStore = await cookies();
- cookieStore.set('Kanonas_2fa_temp', tempToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 5 });
-
- // Send Email (with timeout so login never hangs if SMTP is slow)
- const { createSafeTransporter } = await import('@/lib/email');
- const transporter = await createSafeTransporter({
- host: process.env.SMTP_HOST!,
- port: Number(process.env.SMTP_PORT) || 587,
- secure: process.env.SMTP_PORT === '465',
- auth: { user: process.env.SMTP_USER!, pass: process.env.SMTP_PASS || '' },
- });
- const sendTimeout = new Promise<void>(resolve => setTimeout(resolve, 10000));
- await Promise.race([
- transporter.sendMail({
-   from: `"Kanonas Security"<${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-   to: user.email,
-   subject: 'Κωδικός 2FA για Kanonas',
-   html: `<p>Γεια σας ${user.firstName || ''},</p><p>Ο κωδικός επαλήθευσης (One-Time Password) για τη σύνδεσή σας είναι:</p><h2>${otp}</h2><p>Ισχύει για 5 λεπτά.</p>`
- }).catch(console.error),
- sendTimeout
- ]);
- return { success: true, require2FA: true };
- }
- // -----------------------
-
  return await finalizeLogin(user, resolvedTempleId, userTemple, isSuperOrHead, ip, (metropolisUser as any)?.metropolis?.name || null);
  } catch (e: any) {
  // [SECURITY LOW-4] Never expose internal error details (Prisma errors, stack traces) to the client
