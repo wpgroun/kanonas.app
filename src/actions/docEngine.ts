@@ -51,8 +51,22 @@ export async function generateFromTemplate(templateId: string, answers: Record<s
     }
   }
 
+  // Apply template-specific variableMap: remap placeholder names to canonical keys
+  // e.g. { "Πατρώνυμο": "fatherName" } means answers["fatherName"] fills {{Πατρώνυμο}}
+  const variableMap: Record<string, string> = (() => {
+    try { return ((template as any).variableMap as any) || {} } catch { return {} }
+  })()
+  const remappedAnswers: Record<string, string> = { ...mergedAnswers }
+  for (const [placeholder, dataKey] of Object.entries(variableMap)) {
+    // If we have a value under the canonical dataKey, add it under the placeholder name too
+    const val = mergedAnswers[dataKey] ?? mergedAnswers[placeholder]
+    if (val !== undefined && val !== null) {
+      remappedAnswers[placeholder] = String(val)
+    }
+  }
+
   // Enrich answers dynamically with role variants, Greek equivalents, and cases
-  const enrichedAnswers = enrichAnswers(mergedAnswers, targetGender);
+  const enrichedAnswers = enrichAnswers(remappedAnswers, targetGender);
 
   // ─── HTML Template ───────────────────────────────────────────────────
   if (template.htmlContent) {

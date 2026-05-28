@@ -266,3 +266,59 @@ export function mergeSplitRuns(xml: string): string {
     return openTag + newParagraphContent + closeTag;
   });
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// Auto Variable Mapping
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Known data keys (right-hand side of variableMap) with their synonym aliases.
+ * Each entry: [canonicalKey, ...aliases]
+ */
+export const SYNONYM_GROUPS: [string, ...string[]][] = [
+  ['childName',          'ονομα', 'onoma', 'name', 'firstname', 'childname', 'παιδι', 'τεκνο'],
+  ['childLastName',      'επωνυμο', 'eponymo', 'lastname', 'surname', 'childlastname'],
+  ['childFullName',      'ονοματεπωνυμο', 'fullname', 'childfullname'],
+  ['fatherName',         'πατρωνυμο', 'patronymo', 'patronym', 'fathersname', 'fathername', 'father', 'ονομαπατερα', 'πατερας', 'onomapatera'],
+  ['fatherLastName',     'επωνυμοπατερα', 'fatherlastname', 'fathersurname'],
+  ['fatherFullName',     'ονοματεπωνυμοπατερα', 'fatherfullname'],
+  ['motherName',         'μητρωνυμο', 'mitronymo', 'mitronym', 'mothersname', 'mothername', 'mother', 'ονομαμητερας', 'μητερας', 'μητερα', 'onomamiteras'],
+  ['motherLastName',     'επωνυμομητερας', 'motherlastname', 'mothersurname'],
+  ['motherFullName',     'ονοματεπωνυμομητερας', 'motherfullname'],
+  ['godparentName',      'αναδοχος', 'anadochos', 'godparent', 'sponsor', 'nounos', 'νονος', 'νονα'],
+  ['godparentFullName',  'ονοματεπωνυμοαναδοχου', 'godparentfullname'],
+  ['groomName',          'γαμπρος', 'groom', 'groomname', 'νυμφιος', 'nymfios'],
+  ['groomFullName',      'ονοματεπωνυμογαμπρου', 'groomfullname'],
+  ['brideName',          'νυφη', 'bride', 'bridename', 'νυμφη', 'nymfi'],
+  ['brideFullName',      'ονοματεπωνυμονυφης', 'bridefullname'],
+  ['koumparosName',      'κουμπαρος', 'koumparos', 'bestman', 'paranymfos', 'παρανυμφος'],
+  ['koumparosFullName',  'ονοματεπωνυμοκουμπαρου', 'koumparosfullname'],
+  ['priestName',         'εφημεριος', 'efimerios', 'priest', 'assignedpriest', 'ιερεας'],
+  ['templeName',         'ναος', 'naos', 'temple', 'templename', 'ναοσονομα'],
+  ['metropolisName',     'μητροπολη', 'metropolis', 'metropolisname'],
+  ['ceremonyDate',       'ημερομηνιατελεσης', 'ceremonydate', 'dateofceremony', 'ημερομηνιατελετης'],
+  ['currentDate',        'ημερομηνια', 'imerominia', 'date', 'currentdate', 'today'],
+  ['protocolNumber',     'πρωτοκολλο', 'protokollo', 'protocol', 'protocolnumber', 'αριθμπρωτοκολλου'],
+  ['bookNumber',         'βιβλιο', 'vivlio', 'book', 'booknumber', 'αριθμβιβλιου'],
+  ['birthDate',          'ημερομηνιαγεννησης', 'birthdate', 'dateofbirth', 'γεννηση'],
+  ['birthPlace',         'τοποσγεννησης', 'birthplace', 'placeofbirth', 'τοποςγεννησης'],
+  ['idNumber',           'αδτ', 'adt', 'idnumber', 'identitynumber', 'αριθμοσταυτοτητας'],
+  ['afm',                'αφμ', 'afm', 'taxid', 'vat'],
+  ['address',            'διευθυνση', 'address', 'diefthynsi'],
+  ['phone',              'τηλεφωνο', 'phone', 'telephone', 'tilefono'],
+];
+
+/**
+ * Given a template placeholder (e.g. "Πατρώνυμο", "fatherName"),
+ * returns the best canonical data-key from SYNONYM_GROUPS,
+ * or null if no match is found.
+ */
+export function autoMapVariable(placeholder: string): string | null {
+  const pClean = cleanKey(placeholder);
+  for (const [canonical, ...aliases] of SYNONYM_GROUPS) {
+    const allAliases = [cleanKey(canonical), ...aliases.map(cleanKey)];
+    if (allAliases.includes(pClean)) return canonical;
+  }
+  return null;
+}
+

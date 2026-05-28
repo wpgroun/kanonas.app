@@ -488,6 +488,8 @@ model DocTemplate {
   fileData    String?
   context     String?
   conditionRules String? // JSON logic mapping IF variables THEN render
+  variableMap    Json?   // { "Πατρώνυμο": "fatherName", ... }
+  needsMapping   Boolean @default(false)
 
   settingsDocs DocTemplateSetting[]
 

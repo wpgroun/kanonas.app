@@ -3,7 +3,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Plus, Settings, FileSignature, Variable, Upload, FileUp, 
  Sparkles, X, PlusCircle, Trash2, ExternalLink, FileText, Eye,
  ChevronRight, ChevronLeft, CheckCircle2, Loader2, GripVertical,
- HelpCircle, Zap, ArrowRight } from 'lucide-react';
+ HelpCircle, Zap, ArrowRight, Map } from 'lucide-react';
 import DocTemplateForm from './DocTemplateForm';
 import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { uploadDocTemplate, deleteDocTemplate, updateTemplateVariables } from '@/actions/documents';
@@ -223,7 +223,10 @@ export default function DocumentsClient({ initialTemplates }: any) {
  const isUpload = !!tpl.fileUrl && !tpl.htmlContent;
  return (
  <div key={tpl.id} className="card hover:border-brand/30 transition-all p-5 group flex flex-col justify-between h-auto shadow-sm relative">
- {isUpload && <div className="absolute top-3 right-3"><span className="text-[10px] uppercase font-black badge badge-warning px-2 py-0.5 rounded-full border border-amber-200">PDF</span></div>}
+  {isUpload && <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
+   <span className="text-[10px] uppercase font-black badge badge-warning px-2 py-0.5 rounded-full border border-amber-200">PDF</span>
+   {tpl.needsMapping && <span className="text-[10px] uppercase font-black bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full border border-yellow-300 flex items-center gap-1"><Map className="w-2.5 h-2.5"/>Χάρτης</span>}
+  </div>}
  <div>
  <div className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-4 transition-colors ${isUpload ? 'bg-amber-50 border-amber-200 text-amber-500 group-hover:bg-amber-100' : 'bg-[var(--background)] border-[var(--border)] text-[var(--text-muted)] group-hover:text-brand group-hover:bg-brand-light/20'}`}>
  {isUpload ? <FileUp className="w-6 h-6"/> : <FileSignature className="w-6 h-6"/>}
@@ -251,6 +254,7 @@ export default function DocumentsClient({ initialTemplates }: any) {
  <>
  <a href={tpl.fileUrl} target="_blank" rel="noreferrer" className="flex-1 py-1.5 rounded-lg text-xs font-bold bg-[var(--background)] text-slate-700 hover:bg-[var(--surface-hover)] border border-[var(--border)] shadow-sm flex items-center justify-center gap-1.5"><ExternalLink className="w-3.5 h-3.5"/> Αρχείο</a>
  <button onClick={() => { setVarsModal(tpl); setEditVars(vars); setEditNewVar(''); }} className="flex-1 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 shadow-sm flex items-center justify-center gap-1.5"><Variable className="w-3.5 h-3.5"/> Μεταβλητές ({vars.length})</button>
+ <Link href={`/admin/documents/${tpl.id}/variables`} className={`flex-1 py-1.5 rounded-lg text-xs font-bold border shadow-sm flex items-center justify-center gap-1.5 ${tpl.needsMapping ? 'bg-yellow-50 text-yellow-700 border-yellow-300 hover:bg-yellow-100' : 'bg-[var(--background)] text-slate-600 border-[var(--border)] hover:bg-[var(--surface-hover)]'}`}><Map className="w-3.5 h-3.5"/> {tpl.needsMapping ? 'Αντιστοίχιση !' : 'Αντιστοίχιση'}</Link>
  </>
  ) : (
  <button onClick={() => { setEditingTemplate(tpl); setIsModalOpen(true); }} className="flex-1 py-1.5 rounded-lg text-xs font-bold bg-[var(--background)] text-slate-700 hover:bg-[var(--surface-hover)] border border-[var(--border)] shadow-sm">Επεξεργασία</button>

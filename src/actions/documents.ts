@@ -138,7 +138,8 @@ export async function uploadDocTemplate(formData: FormData) {
         fileData: fileBase64,
         htmlContent: null,
         context: contextPayload,
-      }
+        ...(detectedVars.length > 0 ? { needsMapping: true } : {}),
+      } as any
     })
 
     revalidatePath('/admin/documents')
@@ -179,5 +180,34 @@ export async function deleteDocTemplate(id: string) {
   await prisma.docTemplate.delete({ where: { id } })
   revalidatePath('/admin/documents')
   return { success: true }
+}
+
+/**
+ * Save the user-defined variable→data-key mapping for a template.
+ * variableMap: { "Πατρώνυμο": "fatherName", "Όνομα": "childName", ... }
+ * needsMapping=false once saved.
+ */
+export async function saveVariableMap(templateId: string, variableMap: Record<string, string>) {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+
+  const existing = await prisma.docTemplate.findFirst({ where: { id: templateId, templeId } })
+  if (!existing) return { success: false, error: 'Template not found' }
+
+  await prisma.docTemplate.update({
+    where: { id: templateId },
+    data: { variableMap: variableMap as any, needsMapping: false } as any
+  })
+
+  revalidatePath('/admin/documents')
+  return { success: true }
+}
+
+/**
+ * Get a single template by ID (for the mapping page).
+ */
+export async function getTemplateById(templateId: string) {
+  const templeId = await getCurrentTempleId()
+  return prisma.docTemplate.findFirst({ where: { id: templateId, templeId } })
 }
 
