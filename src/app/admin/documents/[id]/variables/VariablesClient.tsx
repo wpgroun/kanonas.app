@@ -156,6 +156,14 @@ export default function VariablesClient({ template }: Props) {
         </div>
       )}
 
+      {/* All mapped — success banner */}
+      {totalVars > 0 && mappedCount === totalVars && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm text-emerald-800">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+          <span><strong>Όλες οι μεταβλητές αναγνωρίστηκαν αυτόματα</strong> — δεν απαιτείται καμία ενέργεια. Μπορείτε να αποθηκεύσετε αμέσως.</span>
+        </div>
+      )}
+
       {/* Variable Mapping Table */}
       {vars.length === 0 ? (
         <div className="card p-8 text-center space-y-3">

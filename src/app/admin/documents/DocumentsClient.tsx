@@ -145,8 +145,13 @@ export default function DocumentsClient({ initialTemplates }: any) {
  setUploading(true);
  await updateTemplateVariables(uploadedTemplateId, uploadVars);
  setUploading(false);
+ const redirectId = uploadedTemplateId;
  resetWizard();
  router.refresh();
+ // Redirect to variable mapping page so user can review/confirm mappings
+ setTimeout(() => {
+   router.push(`/admin/documents/${redirectId}/variables`);
+ }, 400);
  };
 
  const resetWizard = () => {

@@ -455,29 +455,49 @@ export async function POST(req: NextRequest) {
   };
 
   let docs: { key: string; label: string; buffer: Buffer; filename: string }[] = [];
-  if (serviceTypeLower === 'gamos') {
+
+  // Any uploaded file templates (DOCX/PDF) for this temple — regardless of docType.
+  // If the temple has uploaded their own files, never fall back to generic hardcoded PDFs.
+  const hasAnyUploadedFiles = customTemplates.some(t => t.fileUrl || t.fileData);
+
+  // Helper to turn a template record into a doc entry
+  const tplToEntry = (tpl: any) => {
+    let ext = '.pdf';
+    if (tpl.fileUrl) {
+      if (tpl.fileUrl.endsWith('.docx') || tpl.fileUrl.endsWith('.doc')) ext = '.docx';
+      else if (tpl.fileUrl.endsWith('.html')) ext = '.html';
+    } else if (tpl.htmlContent) {
+      ext = '.html';
+    }
+    return {
+      key: tpl.id,
+      label: tpl.nameEl,
+      buffer: Buffer.alloc(0),
+      filename: `${tpl.nameEl.replace(/\s+/g, '_')}${ext}`,
+    };
+  };
+
+  // Templates matching the ceremony type exactly
+  const templatesForType = customTemplates.filter(t => t.docType.toLowerCase() === serviceTypeLower);
+
+  if (templatesForType.length > 0) {
+    // Best case: templates with correct ceremony type
+    docs = templatesForType.map(tplToEntry);
+  } else if (hasAnyUploadedFiles) {
+    // Temple has uploaded files but with wrong/missing docType → use ALL uploaded templates.
+    // Admin should fix categories via the 🏷️ button on /admin/documents.
+    console.warn(`[generate-all] No templates for docType="${serviceTypeLower}" — using ALL uploaded templates as fallback (fix template categories in /admin/documents)`);
+    docs = customTemplates.filter(t => t.fileUrl || t.fileData || t.htmlContent).map(tplToEntry);
+  } else if (serviceTypeLower === 'gamos') {
     docs = await generateAllGamosDocs(tokenData);
   } else if (serviceTypeLower === 'vaptisi') {
     docs = await generateAllBaptisiDocs(tokenData);
   } else {
-    // Dynamic handling for other serviceTypes (e.g. funeral, memorial, etc.)
+    // Dynamic handling for other serviceTypes with no uploaded templates
     const relatedTemplates = customTemplates.filter(t => t.docType.toLowerCase() === serviceTypeLower);
-    for (const tpl of relatedTemplates) {
-      let ext = '.pdf';
-      if (tpl.fileUrl) {
-        if (tpl.fileUrl.endsWith('.docx') || tpl.fileUrl.endsWith('.doc')) ext = '.docx';
-        else if (tpl.fileUrl.endsWith('.html')) ext = '.html';
-      } else if (tpl.htmlContent) {
-        ext = '.html';
-      }
-      docs.push({
-        key: tpl.id, // match using template ID
-        label: tpl.nameEl,
-        buffer: Buffer.alloc(0), // empty buffer fallback
-        filename: `${tpl.nameEl.replace(/\s+/g, '_')}${ext}`
-      });
-    }
+    docs = relatedTemplates.map(tplToEntry);
   }
+
 
   const { generateFromTemplate } = await import('@/actions/docEngine');
 

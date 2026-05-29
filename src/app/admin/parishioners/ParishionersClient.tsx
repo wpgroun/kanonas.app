@@ -5,13 +5,34 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Users, Plus, Mail, Phone, UserCircle2, Search } from 'lucide-react'
+import { Users, Plus, Mail, Phone, UserCircle2, Search, Trash2, Loader2 } from 'lucide-react'
+import { deduplicateParishioners } from '@/actions/parishioners'
+import { useRouter } from 'next/navigation'
 
 const ALPHABET = ['Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ','Ν','Ξ','Ο','Π','Ρ','Σ','Τ','Υ','Φ','Χ','Ψ','Ω']
 
 export default function ParishionersClient({ parishioners }: { parishioners: any[] }) {
+ const router = useRouter()
  const [search, setSearch] = useState('')
  const [selectedLetter, setSelectedLetter] = useState<string | null>(null)
+ const [deduping, setDeduping] = useState(false)
+
+ const handleDedup = async () => {
+   if (!confirm('Αυτή η ενέργεια θα διαγράψει ΜΟΝΙΜΑ τους διπλότυπους ενορίτες (κρατώντας τον παλαιότερο). Συνέχεια;')) return
+   setDeduping(true)
+   const res = await deduplicateParishioners()
+   setDeduping(false)
+   if (res.success) {
+     if (res.deleted === 0) {
+       alert('Δεν βρέθηκαν διπλοί ενορίτες.')
+     } else {
+       alert(`Εκκαθάριση ολοκληρώθηκε!\nΒρέθηκαν ${res.groups} ομάδες διπλών.\nΔιαγράφηκαν ${res.deleted} αντίγραφα.`)
+       router.refresh()
+     }
+   } else {
+     alert(res.error || 'Σφάλμα κατά την εκκαθάριση.')
+   }
+ }
 
  const activeLetters = new Set(
  parishioners.map(p => {
@@ -59,11 +80,18 @@ export default function ParishionersClient({ parishioners }: { parishioners: any
  Διαχειριστείτε τους πιστούς, τις οικογένειες και το ποίμνιο της ενορίας σας.
  </p>
  </div>
- <Link href="/admin/parishioners/new">
- <Button className="btn btn-primary shadow-md">
- <Plus className="w-4 h-4 mr-2"/> Νέος Ενορίτης
- </Button>
- </Link>
+ <div className="flex gap-2">
+   <Button variant="outline" onClick={handleDedup} disabled={deduping}
+     className="border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold">
+     {deduping ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1"/> : <Trash2 className="w-3.5 h-3.5 mr-1"/>}
+     Εκκαθάριση Διπλών
+   </Button>
+   <Link href="/admin/parishioners/new">
+     <Button className="btn btn-primary shadow-md">
+       <Plus className="w-4 h-4 mr-2"/> Νέος Ενορίτης
+     </Button>
+   </Link>
+ </div>
  </div>
 
  <Card className="p-4 card">

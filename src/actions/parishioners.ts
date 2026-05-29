@@ -216,7 +216,68 @@ export async function anonymizeParishioner(id: string): Promise<{ success: boole
  }
 }
 
+/**
+ * Find duplicate parishioners (same firstName + lastName, case-insensitive)
+ * and delete all but the OLDEST one (keep original, delete copies).
+ * Returns the count of deleted duplicates.
+ */
+export async function deduplicateParishioners(): Promise<{ success: boolean; deleted: number; groups: number; error?: string }> {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+  try {
+    // Load all parishioners for this temple
+    const all = await prisma.parishioner.findMany({
+      where: { templeId },
+      orderBy: { createdAt: 'asc' }, // oldest first → keep oldest
+      select: { id: true, firstName: true, lastName: true, createdAt: true },
+    })
+
+    // Group by normalized (lowercase, trimmed) firstName + lastName
+    const groups = new Map<string, string[]>() // key → [id1, id2, ...]
+    for (const p of all) {
+      const key = `${(p.firstName || '').trim().toLowerCase()}|${(p.lastName || '').trim().toLowerCase()}`
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key)!.push(p.id)
+    }
+
+    // Collect IDs to delete (all but the first/oldest in each duplicate group)
+    const toDelete: string[] = []
+    let dupGroups = 0
+    for (const [, ids] of groups) {
+      if (ids.length > 1) {
+        dupGroups++
+        // Keep ids[0] (oldest), delete the rest
+        toDelete.push(...ids.slice(1))
+      }
+    }
+
+    if (toDelete.length === 0) {
+      return { success: true, deleted: 0, groups: 0 }
+    }
+
+    // Delete duplicates one by one, skip any that have relations (tokens, donations etc.)
+    let deletedCount = 0
+    for (const id of toDelete) {
+      try {
+        await prisma.parishioner.delete({ where: { id } })
+        deletedCount++
+      } catch (e) {
+        // Has relations — skip, cannot safely delete
+        console.warn(`[dedup] Skipped parishioner ${id} (has relations)`)
+      }
+    }
+
+    revalidatePath('/admin/parishioners')
+    revalidatePath('/admin/registry')
+    return { success: true, deleted: deletedCount, groups: dupGroups }
+  } catch (error: any) {
+    console.error('[dedup] Error:', error)
+    return { success: false, deleted: 0, groups: 0, error: error.message }
+  }
+}
+
 export async function sendParishionerSMS(parishionerId: string, message: string): Promise<{ success: boolean; error?: string }> {
+
   const session = await requireAuth()
   const templeId = await getCurrentTempleId()
 
