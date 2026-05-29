@@ -183,6 +183,19 @@ export async function deleteDocTemplate(id: string) {
 }
 
 /**
+ * Update the docType (category) of an uploaded template without re-uploading.
+ */
+export async function updateDocTemplateType(templateId: string, docType: string) {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+  const existing = await prisma.docTemplate.findFirst({ where: { id: templateId, templeId } })
+  if (!existing) return { success: false, error: 'Template not found' }
+  await prisma.docTemplate.update({ where: { id: templateId }, data: { docType } })
+  revalidatePath('/admin/documents')
+  return { success: true }
+}
+
+/**
  * Save the user-defined variable→data-key mapping for a template.
  * variableMap: { "Πατρώνυμο": "fatherName", "Όνομα": "childName", ... }
  * needsMapping=false once saved.

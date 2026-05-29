@@ -425,6 +425,17 @@ export async function POST(req: NextRequest) {
   answers['ΝΑΟΣ_ΔΙΕΥΘΥΝΣΗ'] = token.temple.address || '';
   answers['ΜΗΤΡΟΠΟΛΗ'] = token.temple.metropolis?.name || '';
   answers['metropolisName'] = token.temple.metropolis?.name || '';
+
+  // Πόλη Ναού — from temple.city field or temple settings JSON
+  const templeCity: string = (token.temple as any).city
+    || templeSettingsObj.city
+    || templeSettingsObj.templeCity
+    || '';
+  answers['templeCity']    = templeCity;
+  answers['ΠόληΝαού']      = templeCity;
+  answers['ΠΟΛΗ_ΝΑΟΥ']     = templeCity;
+  answers['ΤόποςΤελετής']  = templeCity;
+
   answers['ΗΜΕΡΟΜΗΝΙΑ'] = new Date().toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' });
   // ───────────────────────────────────────────────────────────────────────
 
