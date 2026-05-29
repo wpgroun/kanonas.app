@@ -242,7 +242,6 @@ export default function FormClient({ token }: { token: any }) {
           Τόμος: civilRegistryTome,
           Έτος_Ληξιαρχικής: civilRegistryYear,
           Πόλεως: godparentCity,
-          godparentCity: godparentCity,
         }
       };
       personsArr.push({ role: 'child', firstName: childFirst, lastName: childLast });
