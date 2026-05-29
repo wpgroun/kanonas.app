@@ -162,6 +162,30 @@ export function cleanKey(str: string): string {
     .trim();
 }
 
+// ─── Example-value pattern recognition constants ─────────────────────────────
+// Greek month names (nominative + genitive) expressed as cleanKey output
+export const GREEK_MONTHS_CLEAN = new Set<string>([
+  'ιανουαριοσ','ιανουαριου',
+  'φεβρουαριοσ','φεβρουαριου',
+  'μαρτιοσ','μαρτιου',
+  'απριλιοσ','απριλιου',
+  'μαιοσ','μαιου',
+  'ιουνιοσ','ιουνιου',
+  'ιουλιοσ','ιουλιου',
+  'αυγουστοσ','αυγουστου',
+  'σεπτεμβριοσ','σεπτεμβριου',
+  'οκτωβριοσ','οκτωβριου',
+  'νοεμβριοσ','νοεμβριου',
+  'δεκεμβριοσ','δεκεμβριου',
+]);
+// Ordinal-day placeholder: [7ην], [17η], [21ης] — 1-2 digits + η/ην/ης
+export const ORDINAL_DAY_RE = /^\d{1,2}(ην|ης|η)$/;
+// 4-digit year used as an example value: [2020], [1996]
+export const EXAMPLE_YEAR_RE = /^\d{4}$/;
+// Ecclesiastical title prefix → the placeholder is a priest full name
+export const PRIEST_TITLE_RE =
+  /^(αρχιμανδριτ|πρεσβυτερο|ιερε|πρωτοπρεσβυτερ|επισκοπ|μητροπολιτ|διακον|αρχιεπισκοπ)/;
+
 export function getNormalizedValue(placeholderKey: string, answers: Record<string, any>): string {
   if (!answers || typeof answers !== 'object') return '';
   const pClean = cleanKey(placeholderKey);
@@ -187,7 +211,22 @@ export function getNormalizedValue(placeholderKey: string, answers: Record<strin
     ['ημερομηνια', 'imerominia', 'date', 'currentdate', 'today'],
     ['ημερομηνιατελεσης', 'imerominiatelesis', 'ceremonydate', 'dateofceremony'],
     ['πρωτοκολλο', 'protokollo', 'protocol', 'protocolnumber', 'αριθμπρωτοκολλου', 'arithmprotokollou'],
-    ['βιβλιο', 'vivlio', 'book', 'booknumber', 'αριθμβιβλιου', 'βιβλιοαριθμος', 'arithmvivliou', 'vivlioarithmos']
+    ['βιβλιο', 'vivlio', 'book', 'booknumber', 'αριθμβιβλιου', 'βιβλιοαριθμος', 'arithmvivliou', 'vivlioarithmos'],
+    // ceremony month (group 13 — index 12)
+    ['μηναστελεσησ', 'μηνοστελεσησ', 'ceremonymonth', 'μηνασ', 'μηνοσ', 'month', 'μηνας'],
+    // day name (group 14 — index 13) + example day-of-week values
+    ['ημερα', 'ημεραεβδομαδασ', 'dayname', 'weekday', 'ημερατελεσησεβδ',
+     'κυριακη', 'δευτερα', 'τριτη', 'τεταρτη', 'πεμπτη', 'παρασκευη', 'σαββατο'],
+    // child gender + example values
+    ['φυλο', 'φυλοτεκνου', 'childgender', 'gender', 'αρρεν', 'θηλυ', 'θηλυκο', 'αρσεν'],
+    // birth month
+    ['μηνασγεννησησ', 'μηνοσγεννησεωσ', 'birthmonth', 'μηναγεννησησ', 'μηνγεννησησ'],
+    // birth year
+    ['εποσγεννησεωσ', 'εποσγεννησησ', 'birthyear', 'yearofbirth', 'εποσγεν'],
+    // ceremony year
+    ['εποστελεσησ', 'ceremonyyear', 'yearofceremony', 'ετοστελεσησ'],
+    // ceremony time
+    ['ωρα', 'ωρατελεσησ', 'ceremonytime', 'time', 'hour'],
   ];
 
   const group = synonymGroups.find(g => g.map(cleanKey).includes(pClean));
@@ -198,6 +237,60 @@ export function getNormalizedValue(placeholderKey: string, answers: Record<strin
       if (cleanedGroup.includes(kClean)) {
         return val !== undefined && val !== null ? String(val) : '';
       }
+    }
+  }
+
+  // 3. Pattern-based recognition for example-value placeholders ────────────────
+  // Handles templates that use concrete example values as placeholder names,
+  // e.g. [Αυγούστου] instead of [Μηνός], or [7ην] instead of [00ην].
+
+  // Greek month name (any month, any grammatical form)
+  if (GREEK_MONTHS_CLEAN.has(pClean)) {
+    // Birth month first (Βαπτιστικό-style: "γεννηθέν την 7ην Αυγούστου 2020")
+    for (const [k, v] of Object.entries(answers)) {
+      if (['birthmonth','μηνασγεννησησ','μηνοσγεννησεωσ'].includes(cleanKey(k)) && v) return String(v);
+    }
+    // Fall back: ceremony month
+    for (const [k, v] of Object.entries(answers)) {
+      if (['μηνασ','μηνοσ','month','ceremonymonth','μηνας'].includes(cleanKey(k)) && v !== undefined && v !== null) return String(v);
+    }
+  }
+
+  // Ordinal-day pattern: [7ην], [17η], [21ης]
+  if (ORDINAL_DAY_RE.test(pClean)) {
+    // Birth day first
+    for (const [k, v] of Object.entries(answers)) {
+      if (['birthday','ημεραγεννησεωσ','ημεραγεννησησ'].includes(cleanKey(k)) && v) return String(v);
+    }
+    // Fall back: ceremony day ordinal [00ην]
+    for (const [k, v] of Object.entries(answers)) {
+      if (cleanKey(k) === '00ην' && v) return String(v);
+    }
+  }
+
+  // 4-digit year as example value: [2020], [1996]
+  if (EXAMPLE_YEAR_RE.test(pClean) && +pClean >= 1900 && +pClean <= 2100) {
+    // Birth year first
+    for (const [k, v] of Object.entries(answers)) {
+      if (['birthyear','εποσγεννησεωσ','εποσγεννησησ'].includes(cleanKey(k)) && v) return String(v);
+    }
+    // Fall back: ceremony year [0000]
+    for (const [k, v] of Object.entries(answers)) {
+      if (cleanKey(k) === '0000' && v) return String(v);
+    }
+  }
+
+  // Ecclesiastical title prefix → treat as priest full name
+  if (PRIEST_TITLE_RE.test(pClean)) {
+    for (const [k, v] of Object.entries(answers)) {
+      if (['εφημεριοσ','efimerios','priest','assignedpriest'].includes(cleanKey(k)) && v) return String(v);
+    }
+  }
+
+  // Time as example value: [12:00], [09:30] — test original string (colon lost in pClean)
+  if (/^\d{1,2}:\d{2}$/.test(placeholderKey.trim())) {
+    for (const [k, v] of Object.entries(answers)) {
+      if (['ωρα','ωρατελεσησ','ceremonytime','time','hour'].includes(cleanKey(k)) && v !== undefined && v !== null) return String(v);
     }
   }
 
@@ -267,6 +360,7 @@ export function mergeSplitRuns(xml: string): string {
   });
 }
 
+
 // ═══════════════════════════════════════════════════════════════════════
 // Auto Variable Mapping
 // ═══════════════════════════════════════════════════════════════════════
@@ -306,6 +400,19 @@ export const SYNONYM_GROUPS: [string, ...string[]][] = [
   ['afm',                'αφμ', 'afm', 'taxid', 'vat'],
   ['address',            'διευθυνση', 'address', 'diefthynsi'],
   ['phone',              'τηλεφωνο', 'phone', 'telephone', 'tilefono'],
+  // Day names as example values
+  ['dayName',            'ημερα', 'dayname', 'weekday',
+   'κυριακη', 'δευτερα', 'τριτη', 'τεταρτη', 'πεμπτη', 'παρασκευη', 'σαββατο'],
+  // Gender example values
+  ['childGender',        'φυλο', 'childgender', 'gender', 'αρρεν', 'θηλυ', 'θηλυκο', 'αρσεν'],
+  // Birth date components
+  ['birthDay',           'ημεραγεννησεωσ', 'ημεραγεννησησ', 'birthday', 'birthdaynumber'],
+  ['birthMonth',         'μηνασγεννησησ', 'μηνοσγεννησεωσ', 'birthmonth', 'μηναγεννησησ'],
+  ['birthYear',          'εποσγεννησεωσ', 'εποσγεννησησ', 'birthyear', 'yearofbirth'],
+  // Ceremony date components
+  ['ceremonyDay',        'ημερατελεσησ', 'ceremonyday', 'daynumber'],
+  ['ceremonyYear',       'εποστελεσησ', 'ceremonyyear', 'yearofceremony', 'ετοστελεσησ'],
+  ['ceremonyTime',       'ωρα', 'ωρατελεσησ', 'ceremonytime', 'time', 'hour'],
 ];
 
 /**
@@ -314,11 +421,35 @@ export const SYNONYM_GROUPS: [string, ...string[]][] = [
  * or null if no match is found.
  */
 export function autoMapVariable(placeholder: string): string | null {
-  const pClean = cleanKey(placeholder);
+  const raw = placeholder.trim();
+  const pClean = cleanKey(raw);
+
+  // Pass 1: exact/synonym match in SYNONYM_GROUPS
   for (const [canonical, ...aliases] of SYNONYM_GROUPS) {
     const allAliases = [cleanKey(canonical), ...aliases.map(cleanKey)];
     if (allAliases.includes(pClean)) return canonical;
   }
+
+  // ── Numeric / format-hint patterns ──────────────────────────────────────────
+  // Exceptions: 4-digit example years (e.g. [2020]) and HH:MM example times (e.g. [12:00]).
+  if (/^\d{1,2}:\d{2}$/.test(raw)) return 'ceremonyTime';  // [12:00], [09:30]
+  const isExampleYear = /^\d{4}$/.test(raw) && +raw >= 1900 && +raw <= 2100;
+  if (!isExampleYear && /^[\d: ]+$/.test(raw)) return '__ignore__';
+  if (/^[Α-Ωα-ω]\d+$/u.test(raw)) return '__ignore__';
+
+  // Pass 3: Example-value pattern recognition ──────────────────────────────────
+  // Greek month name → birthMonth
+  if (GREEK_MONTHS_CLEAN.has(pClean)) return 'birthMonth';
+
+  // Ordinal day [7ην], [17η] → birthDay
+  if (ORDINAL_DAY_RE.test(pClean)) return 'birthDay';
+
+  // 4-digit year in plausible range → birthYear
+  if (EXAMPLE_YEAR_RE.test(pClean) && +raw >= 1900 && +raw <= 2100) return 'birthYear';
+
+  // Ecclesiastical title prefix → priest
+  if (PRIEST_TITLE_RE.test(pClean)) return 'priestName';
+
   return null;
 }
 

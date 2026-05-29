@@ -401,6 +401,10 @@ export async function POST(req: NextRequest) {
     answers['00 Μήνας 0000'] = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
     answers['0000'] = String(d.getFullYear());
     answers['00'] = String(d.getDate()).padStart(2, '0');
+    // Standard semantic keys for ceremony day/year (used by synonym groups and
+    // as fallback targets in the example-value pattern matcher)
+    answers['ceremonyDay']  = String(d.getDate());
+    answers['ceremonyYear'] = String(d.getFullYear());
   }
   
   answers['Εφημέριος'] = token.assignedPriest || '';
