@@ -212,6 +212,20 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
   <span className="font-semibold col-span-2">{meta.motherEmail}</span>
   </div>
 )}
+              {(meta.birthDate || meta.birthCity || meta.civilRegistry || meta.civilRegistryNumber || meta.civilRegistryTome || meta.civilRegistryYear || meta.godparentCity) && (
+                <div className="mt-2 pt-3 border-t border-border/50">
+                  <div className="text-xs font-bold uppercase tracking-wide text-blue-600 mb-2">📜 Ληξιαρχικά Στοιχεία (από Πολίτη)</div>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                    {meta.birthDate && (<><span className="text-muted-foreground">Ημ/νία Γέννησης:</span><span className="font-semibold">{new Date(meta.birthDate).toLocaleDateString('el-GR')}</span></>)}
+                    {meta.birthCity && (<><span className="text-muted-foreground">Πόλη Γέννησης:</span><span className="font-semibold">{meta.birthCity}</span></>)}
+                    {meta.civilRegistry && (<><span className="text-muted-foreground">Ληξιαρχείο:</span><span className="font-semibold">{meta.civilRegistry}</span></>)}
+                    {meta.civilRegistryNumber && (<><span className="text-muted-foreground">Αρ. Ληξιαρχικής:</span><span className="font-semibold">{meta.civilRegistryNumber}</span></>)}
+                    {meta.civilRegistryTome && (<><span className="text-muted-foreground">Τόμος:</span><span className="font-semibold">{meta.civilRegistryTome}</span></>)}
+                    {meta.civilRegistryYear && (<><span className="text-muted-foreground">Έτος:</span><span className="font-semibold">{meta.civilRegistryYear}</span></>)}
+                    {meta.godparentCity && (<><span className="text-muted-foreground">Πόλη Αναδόχου:</span><span className="font-semibold">{meta.godparentCity}</span></>)}
+                  </div>
+                </div>
+              )}
  </>
 );
  })()}

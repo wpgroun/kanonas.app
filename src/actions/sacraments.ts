@@ -337,3 +337,44 @@ export async function sendFormLinkAction(tokenId: string) {
  return { success: false, error: e.message }
  }
 }
+
+export async function updateCeremonyMetaByAdmin(
+  tokenId: string,
+  metaFields: {
+    birthDate?: string;
+    birthCity?: string;
+    civilRegistry?: string;
+    civilRegistryNumber?: string;
+    civilRegistryTome?: string;
+    civilRegistryYear?: string;
+    godparentCity?: string;
+  }
+) {
+  const session = await requireAuth();
+  const templeId = session.templeId as string;
+  try {
+    const token = await prisma.token.findFirst({ where: { id: tokenId, templeId } });
+    if (!token) return { success: false, error: 'Δεν βρέθηκε' };
+
+    const existing = await prisma.ceremonyMeta.findUnique({ where: { tokenId } });
+    let data: Record<string, any> = {};
+    if (existing?.dataJson) {
+      try { data = JSON.parse(existing.dataJson); } catch (e) {}
+    }
+    for (const [k, v] of Object.entries(metaFields)) {
+      if (v !== undefined && v !== null) data[k] = v;
+    }
+
+    await prisma.ceremonyMeta.upsert({
+      where: { tokenId },
+      create: { tokenId, dataJson: JSON.stringify(data) },
+      update: { dataJson: JSON.stringify(data) },
+    });
+
+    revalidatePath(`/admin/requests/${tokenId}`);
+    return { success: true };
+  } catch (e: any) {
+    console.error('updateCeremonyMetaByAdmin error:', e);
+    return { success: false, error: e.message };
+  }
+}

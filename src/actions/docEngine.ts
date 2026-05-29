@@ -365,49 +365,42 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
     //          null    → mustache section marker, keep original
     //          undefined → genuinely not found, keep placeholder visible
     function lookupKey(trimmedKey: string, isMustache: boolean): string | null | undefined {
-      if (isMustache && /^[#^/!>]/.test(trimmedKey)) return null;
-
-      if (variableMap) {
-        const mappedField = variableMap[trimmedKey];
-        if (mappedField === '__ignore__') {
-          const autoVal = getNormalizedValue(trimmedKey, answers);
-          return autoVal !== '' ? autoVal : '';
-        }
-        if (mappedField && mappedField !== '__unknown__') {
-          return getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
-        }
+      // 1. Try variableMap directly
+      if (variableMap && variableMap[trimmedKey] !== undefined) {
+        const mapped = variableMap[trimmedKey];
+        if (mapped === '__ignore__') return getNormalizedValue(trimmedKey, answers) ?? '';
+        if (mapped === '__unknown__') return undefined;
+        return getNormalizedValue(mapped, answers) ?? answers[mapped] ?? '';
       }
-
-      // Direct hasOwnProperty check — honours keys explicitly set to '' (empty string)
+      // 2. Try hasOwnProperty on answers (honors empty strings)
       if (Object.prototype.hasOwnProperty.call(answers, trimmedKey)) {
         return answers[trimmedKey] ?? '';
       }
-
-      // Synonym-group / normalized key lookup
-      const val = getNormalizedValue(trimmedKey, answers);
-      if (val !== '') return val;
-
+      // 3. Try synonym lookup via getNormalizedValue
+      const synResult = getNormalizedValue(trimmedKey, answers);
+      if (synResult !== undefined && synResult !== '') return synResult;
+      // 4. Mustache section markers (# / /) — keep them
+      if (isMustache && (trimmedKey.startsWith('#') || trimmedKey.startsWith('/'))) return null;
       return undefined;
     }
 
     // Apply replacement for a single regex pattern
     function replaceWithPattern(xml: string, regex: RegExp, isMustache: boolean): string {
-      return xml.replace(regex, (match, key) => {
-        const trimmedKey = key.trim();
+      return xml.replace(regex, (match, rawKey) => {
+        const trimmedKey = rawKey.trim();
         const result = lookupKey(trimmedKey, isMustache);
-        if (result === null) return match;
-        if (result !== undefined) return escXml(result);
-        console.log(`[docEngine.ts] Template variable "${trimmedKey}" not found in answers map.`);
-        return match;
+        if (result === null) return match;    // keep section marker
+        if (result === undefined) return match; // not found — keep placeholder
+        return escXml(result);
       });
     }
 
     // Always run ALL three formats in sequence so mixed templates work correctly.
     // Many Greek church DOCX files use {{...}} for names AND [...] for date/registry fields.
     function replacePlaceholders(xml: string): string {
-      xml = replaceWithPattern(xml, /\{\{([^}]+)\}\}/g, true);
-      xml = replaceWithPattern(xml, /\[([^\]]+)\]/g, false);
-      xml = replaceWithPattern(xml, /(?<!\{)\{([^{}]+)\}(?!\})/g, false);
+      xml = replaceWithPattern(xml, /\{\{([^}]+)\}\}/g, true);   // {{...}}
+      xml = replaceWithPattern(xml, /\[([^\]]+)\]/g, false);      // [...]
+      xml = replaceWithPattern(xml, /\{([^}]+)\}/g, false);       // {...}
       return xml;
     }
 

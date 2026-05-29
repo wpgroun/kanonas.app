@@ -297,6 +297,64 @@ export async function POST(req: NextRequest) {
       } else {
         answers['και Ανάδοχος 2 κάτοικος Πόλεως'] = '';
       }
+
+      // ── Civil registry field mapping ────────────────────────────────
+      if (answers['birthCity']) {
+        answers['Πόλη'] = answers['birthCity'];
+        answers['ΠόληΓέννησης'] = answers['birthCity'];
+      }
+      if (answers['civilRegistry']) {
+        answers['ληξιαρχείο'] = answers['civilRegistry'];
+        answers['Ληξιαρχείο'] = answers['civilRegistry'];
+      }
+      if (answers['civilRegistryNumber']) {
+        answers['ΑριθμόςΛηξιαρχικής'] = answers['civilRegistryNumber'];
+        answers['ΑριθμόςΠράξης'] = answers['civilRegistryNumber'];
+      }
+      if (answers['civilRegistryTome']) {
+        answers['ΤόμοςΛηξιαρχείου'] = answers['civilRegistryTome'];
+        answers['Τόμος'] = answers['civilRegistryTome'];
+      }
+      if (answers['civilRegistryYear']) {
+        answers['ΈτοςΛηξιαρχικής'] = answers['civilRegistryYear'];
+      }
+      if (answers['godparentCity']) {
+        answers['Πόλεως'] = answers['godparentCity'];
+        answers['ΠόληΑναδόχου'] = answers['godparentCity'];
+      }
+      if (answers['birthDate']) {
+        const bd = new Date(answers['birthDate']);
+        const dayNum = bd.getDate();
+        const monthNames = ['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'];
+        const monthName = monthNames[bd.getMonth()];
+        const yearNum = bd.getFullYear();
+        const dayPadded = String(dayNum).padStart(2, '0');
+        answers['ΗμερομηνίαΓέννησης'] = bd.toLocaleDateString('el-GR');
+        answers['birthDateFormatted'] = bd.toLocaleDateString('el-GR');
+        answers['00ῇ Μήνος 0000'] = `${dayPadded}ῇ ${monthName} ${yearNum}`;
+        answers['00 Μήνας 0000'] = `${dayPadded} ${monthName} ${yearNum}`;
+        answers['00ην Μηνός'] = `${dayPadded}ην ${monthName}`;
+      }
+      // Book number and year from token
+      if (token.bookNumber) answers['000'] = token.bookNumber;
+      const ceremonyYear = token.ceremonyDate ? new Date(token.ceremonyDate).getFullYear().toString() : new Date().getFullYear().toString();
+      answers['0000'] = ceremonyYear;
+      // Ceremony day (padded)
+      if (token.ceremonyDate) {
+        const cd = new Date(token.ceremonyDate);
+        answers['00'] = String(cd.getDate()).padStart(2, '0');
+        const dayNames = ['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
+        answers['Ημέρα'] = dayNames[cd.getDay()];
+      }
+      // Conditional second godparent phrase
+      const godparent2 = answers['godparent2Name'] || answers['anadochos2'] || '';
+      answers['και Ανάδοχος 2 κάτοικος Πόλεως'] = godparent2
+        ? `και ${godparent2} κάτοικος ${answers['Πόλεως'] || ''}`
+        : answers['και Ανάδοχος 2 κάτοικος Πόλεως'] || '';
+      // Priest title from temple settings if available
+      if (!answers['Εφημέριος'] && token.assignedPriest) {
+        answers['Εφημέριος'] = token.assignedPriest;
+      }
   } else if (serviceTypeLower === 'gamos') {
     const groom = token.persons.find(p => p.role === 'groom');
     const bride = token.persons.find(p => p.role === 'bride');
