@@ -122,6 +122,15 @@ export default function FormClient({ token }: { token: any }) {
   const [motherDocType, setMotherDocType] = useState(existingMeta.motherDocType || 'identity');
   const [anadoxosDocType, setAnadoxosDocType] = useState(existingMeta.anadoxosDocType || 'identity');
 
+  // BAPTISM CIVIL REGISTRY FIELDS
+  const [birthDate, setBirthDate] = useState(existingMeta.birthDate || '');
+  const [birthCity, setBirthCity] = useState(existingMeta.birthCity || '');
+  const [civilRegistry, setCivilRegistry] = useState(existingMeta.civilRegistry || '');
+  const [civilRegistryNumber, setCivilRegistryNumber] = useState(existingMeta.civilRegistryNumber || '');
+  const [civilRegistryTome, setCivilRegistryTome] = useState(existingMeta.civilRegistryTome || '');
+  const [civilRegistryYear, setCivilRegistryYear] = useState(existingMeta.civilRegistryYear || '');
+  const [godparentCity, setGodparentCity] = useState(existingMeta.godparentCity || '');
+
   // Uploaded docs tracking
   const [uploadedTypes, setUploadedTypes] = useState<string[]>(
     token.vaultDocs?.map((d: any) => d.docType) || []
@@ -210,7 +219,31 @@ export default function FormClient({ token }: { token: any }) {
         motherMaiden,
         fatherDocType,
         motherDocType,
-        anadoxosDocType
+        anadoxosDocType,
+        birthDate,
+        birthCity,
+        civilRegistry,
+        civilRegistryNumber,
+        civilRegistryTome,
+        civilRegistryYear,
+        godparentCity,
+        variables: {
+          birthDate,
+          birthCity,
+          civilRegistry,
+          civilRegistryNumber,
+          civilRegistryTome,
+          civilRegistryYear,
+          godparentCity,
+          Ημερομηνία_Γέννησης: birthDate,
+          Πόλη_Γέννησης: birthCity,
+          Ληξιαρχείο: civilRegistry,
+          Αριθμός_Ληξιαρχικής_Πράξης: civilRegistryNumber,
+          Τόμος: civilRegistryTome,
+          Έτος_Ληξιαρχικής: civilRegistryYear,
+          Πόλεως: godparentCity,
+          godparentCity: godparentCity,
+        }
       };
       personsArr.push({ role: 'child', firstName: childFirst, lastName: childLast });
       personsArr.push({ role: 'father', firstName: fatherFirst, lastName: fatherLast, fathersName: fatherFather });
@@ -475,6 +508,36 @@ export default function FormClient({ token }: { token: any }) {
   <FileUploader templeId={token.templeId} tokenId={token.id} docType="PISTOPOIITIKO_GENNISIS" label="Πιστοποιητικό Γέννησης (Υποχρεωτικό)" onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("PISTOPOIITIKO_GENNISIS")} />
   <FileUploader templeId={token.templeId} tokenId={token.id} docType="OIKOGENEIAKH_KATASTASH" label="Πιστοποιητικό Οικογενειακής Κατάστασης (Υποχρεωτικό)" onUploadSuccess={handleUploadSuccess} initialFilename={getInitialFilename("OIKOGENEIAKH_KATASTASH")} />
   </div>
+  {/* Ληξιαρχικά Στοιχεία Νεοφώτιστου */}
+  <div className="mt-4 pt-4 border-t border-dashed border-border">
+  <h4 className="font-medium text-xs uppercase text-muted-foreground tracking-wider mb-3">Ληξιαρχικά Στοιχεία</h4>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label>Ημερομηνία Γέννησης <span className="text-red-500">*</span></Label>
+        <Input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} required />
+      </div>
+      <div className="space-y-2">
+        <Label>Πόλη Γέννησης <span className="text-red-500">*</span></Label>
+        <Input value={birthCity} onChange={e => setBirthCity(e.target.value)} placeholder="π.χ. Θεσσαλονίκη" required />
+      </div>
+      <div className="space-y-2">
+        <Label>Ληξιαρχείο <span className="text-red-500">*</span></Label>
+        <Input value={civilRegistry} onChange={e => setCivilRegistry(e.target.value)} placeholder="π.χ. Ληξιαρχείο Θεσσαλονίκης" required />
+      </div>
+      <div className="space-y-2">
+        <Label>Αριθμός Ληξιαρχικής Πράξης <span className="text-red-500">*</span></Label>
+        <Input value={civilRegistryNumber} onChange={e => setCivilRegistryNumber(e.target.value)} placeholder="π.χ. 1234" required />
+      </div>
+      <div className="space-y-2">
+        <Label>Τόμος <span className="text-red-500">*</span></Label>
+        <Input value={civilRegistryTome} onChange={e => setCivilRegistryTome(e.target.value)} placeholder="π.χ. 05" required />
+      </div>
+      <div className="space-y-2">
+        <Label>Έτος Ληξιαρχικής <span className="text-red-500">*</span></Label>
+        <Input value={civilRegistryYear} onChange={e => setCivilRegistryYear(e.target.value)} placeholder="π.χ. 2024" required />
+      </div>
+  </div>
+  </div>
  </div>
 
   {/* FATHER */}
@@ -536,6 +599,9 @@ export default function FormClient({ token }: { token: any }) {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
  <div className="space-y-2"><Label>Όνομα</Label><Input value={godparentFirst} onChange={e=>setGodparentFirst(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={godparentLast} onChange={e=>setGodparentLast(e.target.value)} required /></div>
+ </div>
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+ <div className="space-y-2"><Label>Πόλη Κατοικίας <span className="text-red-500">*</span></Label><Input value={godparentCity} onChange={e=>setGodparentCity(e.target.value)} placeholder="π.χ. Αθήνα" required /></div>
  </div>
  <div className="space-y-2 max-w-md mb-4">
  <Label>Είναι Ορθόδοξος Χριστιανός;</Label>

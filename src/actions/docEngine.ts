@@ -360,26 +360,34 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // Core lookup: variableMap → synonym groups → direct key
-    function lookupKey(trimmedKey: string, isMustache: boolean): string | null {
+    // Core lookup: variableMap → direct key → synonym groups
+    // Returns: string  → replace with this value (may be empty string to clear the placeholder)
+    //          null    → mustache section marker, keep original
+    //          undefined → genuinely not found, keep placeholder visible
+    function lookupKey(trimmedKey: string, isMustache: boolean): string | null | undefined {
       if (isMustache && /^[#^/!>]/.test(trimmedKey)) return null;
 
       if (variableMap) {
         const mappedField = variableMap[trimmedKey];
         if (mappedField === '__ignore__') {
           const autoVal = getNormalizedValue(trimmedKey, answers);
-          return autoVal ? autoVal : '';
+          return autoVal !== '' ? autoVal : '';
         }
         if (mappedField && mappedField !== '__unknown__') {
-          const val = getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
-          if (val) return val;
+          return getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
         }
       }
 
-      const val = getNormalizedValue(trimmedKey, answers);
-      if (val !== undefined && val !== null && val !== '') return val;
+      // Direct hasOwnProperty check — honours keys explicitly set to '' (empty string)
+      if (Object.prototype.hasOwnProperty.call(answers, trimmedKey)) {
+        return answers[trimmedKey] ?? '';
+      }
 
-      return undefined as any;
+      // Synonym-group / normalized key lookup
+      const val = getNormalizedValue(trimmedKey, answers);
+      if (val !== '') return val;
+
+      return undefined;
     }
 
     // Apply replacement for a single regex pattern
