@@ -282,6 +282,21 @@ export async function POST(req: NextRequest) {
       answers['ΟΝΟΜΑ_ΑΝΑΔΟΧΟΥ'] = godparent.firstName || '';
       answers['ΕΠΩΝΥΜΟ_ΑΝΑΔΟΧΟΥ'] = godparent.lastName || '';
     }
+
+      // Πόλη αναδόχου → [Πόλεως]
+      if (answers['godparentCity']) {
+        answers['Πόλεως'] = answers['godparentCity'];
+        answers['ΠόληΑναδόχου'] = answers['godparentCity'];
+      }
+
+      // Conditional second-godparent block: [και Ανάδοχος 2 κάτοικος Πόλεως]
+      const gp2Full = answers['Ανάδοχος_2'] || '';
+      if (gp2Full) {
+        const gp2City = answers['godparentCity2'] || answers['godparentCity'] || '';
+        answers['και Ανάδοχος 2 κάτοικος Πόλεως'] = `και ${gp2Full} κάτοικος ${gp2City}`.trim();
+      } else {
+        answers['και Ανάδοχος 2 κάτοικος Πόλεως'] = '';
+      }
   } else if (serviceTypeLower === 'gamos') {
     const groom = token.persons.find(p => p.role === 'groom');
     const bride = token.persons.find(p => p.role === 'bride');
@@ -311,6 +326,7 @@ export async function POST(req: NextRequest) {
   answers['protocolNumber'] = token.protocolNumber || '';
   answers['ΑΡΙΘΜ_ΒΙΒΛΙΟΥ'] = token.bookNumber || '';
   answers['bookNumber'] = token.bookNumber || '';
+  answers['000'] = token.bookNumber || '';
   answers['ΗΜΕΡΟΜΗΝΙΑ_ΤΕΛΕΣΗΣ'] = grDate;
   answers['ceremonyDate'] = grDate;
 
@@ -323,11 +339,24 @@ export async function POST(req: NextRequest) {
     answers['day'] = String(d.getDate());
     answers['month'] = months[d.getMonth()];
     answers['year'] = String(d.getFullYear());
+    answers['00ην Μηνός'] = `${d.getDate()}η ${months[d.getMonth()]}`;
+    answers['00 Μήνας 0000'] = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    answers['0000'] = String(d.getFullYear());
+    answers['00'] = String(d.getDate()).padStart(2, '0');
   }
   
   answers['Εφημέριος'] = token.assignedPriest || '';
   answers['ΕΦΗΜΕΡΙΟΣ'] = token.assignedPriest || '';
   answers['assignedPriest'] = token.assignedPriest || '';
+
+  // Priest title/rank from temple settings → [Αρχιμανδρίτης του Οικουμενικού θρόνου]
+  let templeSettingsObj: any = {};
+  try { if (token.temple.settings) templeSettingsObj = JSON.parse(token.temple.settings); } catch(e) {}
+  const priestTitle = templeSettingsObj.priestTitle || '';
+  answers['Αρχιμανδρίτης του Οικουμενικού θρόνου'] = priestTitle;
+  answers['priestTitle'] = priestTitle;
+  answers['ΤίτλοςΙερέα'] = priestTitle;
+  answers['Τίτλος Ιερέα'] = priestTitle;
 
   answers['ΝΑΟΣ_ΟΝΟΜΑ'] = token.temple.name || '';
   answers['templeName'] = token.temple.name || '';

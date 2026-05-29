@@ -360,49 +360,47 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // Unified replacement function for all placeholder formats
-    function replacePlaceholders(xml: string): string {
-      let regex: RegExp;
-      if (format === 'brackets') {
-        regex = /\[([^\]]+)\]/g;
-      } else if (format === 'single_curly') {
-        regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
-      } else {
-        // mustache: {{...}}
-        // NOTE: we do NOT use docxtemplater here because it crashes on placeholders
-        // containing "/" (e.g. {{ο/η}}) which it misreads as a Mustache section-close tag.
-        // Direct XML string replacement is safer and also allows variableMap to apply.
-        regex = /\{\{([^}]+)\}\}/g;
+    // Core lookup: variableMap → synonym groups → direct key
+    function lookupKey(trimmedKey: string, isMustache: boolean): string | null {
+      if (isMustache && /^[#^/!>]/.test(trimmedKey)) return null;
+
+      if (variableMap) {
+        const mappedField = variableMap[trimmedKey];
+        if (mappedField === '__ignore__') {
+          const autoVal = getNormalizedValue(trimmedKey, answers);
+          return autoVal ? autoVal : '';
+        }
+        if (mappedField && mappedField !== '__unknown__') {
+          const val = getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
+          if (val) return val;
+        }
       }
 
+      const val = getNormalizedValue(trimmedKey, answers);
+      if (val !== undefined && val !== null && val !== '') return val;
+
+      return undefined as any;
+    }
+
+    // Apply replacement for a single regex pattern
+    function replaceWithPattern(xml: string, regex: RegExp, isMustache: boolean): string {
       return xml.replace(regex, (match, key) => {
         const trimmedKey = key.trim();
-
-        // Skip Mustache section / comment markers: {{#name}}, {{/name}}, {{^name}}, {{!...}}, {{>partial}}
-        if (format === 'mustache' && /^[#^/!>]/.test(trimmedKey)) return match;
-
-        // 1. Check per-template variableMap first
-        if (variableMap) {
-          const mappedField = variableMap[trimmedKey];
-          // __ignore__ means "auto-filled by system" — still try a direct lookup before giving up
-          if (mappedField === '__ignore__') {
-            const autoVal = getNormalizedValue(trimmedKey, answers);
-            return autoVal ? escXml(autoVal) : '';
-          }
-          if (mappedField && mappedField !== '__unknown__') {
-            const val = getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
-            if (val) return escXml(val);
-          }
-        }
-
-        // 2. Synonym-group / direct lookup
-        const val = getNormalizedValue(trimmedKey, answers);
-        if (val !== undefined && val !== null && val !== '') return escXml(val);
-
-        // 3. Not found — keep original placeholder so it stays visible
+        const result = lookupKey(trimmedKey, isMustache);
+        if (result === null) return match;
+        if (result !== undefined) return escXml(result);
         console.log(`[docEngine.ts] Template variable "${trimmedKey}" not found in answers map.`);
         return match;
       });
+    }
+
+    // Always run ALL three formats in sequence so mixed templates work correctly.
+    // Many Greek church DOCX files use {{...}} for names AND [...] for date/registry fields.
+    function replacePlaceholders(xml: string): string {
+      xml = replaceWithPattern(xml, /\{\{([^}]+)\}\}/g, true);
+      xml = replaceWithPattern(xml, /\[([^\]]+)\]/g, false);
+      xml = replaceWithPattern(xml, /(?<!\{)\{([^{}]+)\}(?!\})/g, false);
+      return xml;
     }
 
     // --- Global XML Normalization, Gender Tokens & Placeholder Replacement ---
