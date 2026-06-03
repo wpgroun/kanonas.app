@@ -209,7 +209,7 @@ export async function verify2FAAction(otp: string) {
  
  cookieStore.delete('Kanonas_2fa_temp');
 
- return await finalizeLogin(user, payload.resolvedTempleId, userTemple, true, ip, (metropolisUser as any)?.metropolis?.name || null);
+ return await finalizeLogin(user, payload.resolvedTempleId ?? '', userTemple, true, ip, (metropolisUser as any)?.metropolis?.name || null);
 }
 
 export async function logoutAction() {
