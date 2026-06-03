@@ -92,7 +92,10 @@
       "Bash(for f *)",
       "Bash(git commit -m 'Fix missing logger imports in 5 action files \\(second attempt\\) *)",
       "PowerShell($env:Path += \";C:\\\\Program Files\\\\nodejs\"; cd \"C:\\\\Users\\\\user\\\\Desktop\\\\kanonas.app-main-20260527T121207Z-3-001\\\\kanonas.app-main\"; node_modules\\\\.bin\\\\tsc --noEmit 2>&1)",
-      "Bash(git commit -m 'Fix all TypeScript errors — clean build *)"
+      "Bash(git commit -m 'Fix all TypeScript errors — clean build *)",
+      "Bash(git commit -m 'Fix string | null type for conditionVariable and conditionTargetValue *)",
+      "Bash(git commit -m 'Skip JWT_SECRET check during next build phase *)",
+      "Bash(git commit -m 'Add force-dynamic to all pages with DB queries to prevent build-time prerender errors *)"
     ]
   }
 }

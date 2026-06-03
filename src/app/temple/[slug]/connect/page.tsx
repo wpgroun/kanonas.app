@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { prisma } from '@/lib/prisma';
 import ConnectTabs from './ConnectTabs';
 import { Church } from 'lucide-react';
