@@ -99,42 +99,6 @@ export async function loginAction(email: string, passwordPlain: string) {
 
  const isSuperOrHead = userTemple?.isHeadPriest || user.isSuperAdmin || !!metropolisUser;
 
- // --- 2FA Foundation ---
- if (isSuperOrHead) {
- if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
- if (process.env.NODE_ENV === 'production') {
- return { success: false, error: 'Η 2-παραγοντική επαλήθευση είναι ενεργή αλλά το SMTP δεν έχει ρυθμιστεί. Επικοινωνήστε με τον διαχειριστή.' };
- }
- logger.warn(`[Auth] SMTP not configured — bypassing 2FA (dev mode only) for ${user.email}`);
- return await finalizeLogin(user, resolvedTempleId, userTemple, isSuperOrHead, ip, (metropolisUser as any)?.metropolis?.name || null);
- }
-
- const otp = Math.floor(100000 + Math.random() * 900000).toString();
- const expires = Date.now() + 1000 * 60 * 5; // 5 mins
- const tempPayload = { userId: user.id, email: user.email, otp, expires, resolvedTempleId };
- const tempToken = await encrypt(tempPayload);
- 
- const cookieStore = await cookies();
- cookieStore.set('Kanonas_2fa_temp', tempToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 5 });
-
- // Send Email
- const { createSafeTransporter } = await import('@/lib/email');
- const transporter = await createSafeTransporter({
- host: process.env.SMTP_HOST!,
- port: Number(process.env.SMTP_PORT) || 587,
- secure: process.env.SMTP_PORT === '465',
- auth: { user: process.env.SMTP_USER!, pass: process.env.SMTP_PASS || '' },
- });
- await transporter.sendMail({
- from: `"Kanonas Security"<${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
- to: user.email,
- subject: 'Κωδικός 2FA για Kanonas',
- html: `<p>Γεια σας ${user.firstName || ''},</p><p>Ο κωδικός επαλήθευσης (One-Time Password) για τη σύνδεσή σας είναι:</p><h2>${otp}</h2><p>Ισχύει για 5 λεπτά.</p>`
- }).catch(console.error);
- return { success: true, require2FA: true };
- }
- // -----------------------
-
  return await finalizeLogin(user, resolvedTempleId, userTemple, isSuperOrHead, ip, (metropolisUser as any)?.metropolis?.name || null);
  } catch (e: any) {
  // [SECURITY LOW-4] Never expose internal error details (Prisma errors, stack traces) to the client
@@ -189,28 +153,6 @@ async function finalizeLogin(user: any, resolvedTempleId: string, userTemple: an
  return { success: true };
 }
 
-export async function verify2FAAction(otp: string) {
- const cookieStore = await cookies();
- const tempCookie = cookieStore.get('Kanonas_2fa_temp')?.value;
- if (!tempCookie) return { success: false, error: 'Η συνεδρία 2FA έχει λήξει.' };
-
- const { decrypt } = await import('@/lib/auth');
- const payload = await decrypt(tempCookie);
- if (!payload || !payload.expires || Date.now() > payload.expires) return { success: false, error: 'Ο κωδικός έληξε.' };
- 
- if (payload.otp !== otp) return { success: false, error: 'Λανθασμένος κωδικός.' };
-
- const headerStore = await headers();
- const ip = headerStore.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-
- const user = await prisma.user.findUnique({ where: { id: payload.userId } });
- const userTemple = await prisma.userTemple.findFirst({ where: { userId: payload.userId, status: 'active', templeId: payload.resolvedTempleId }, include: { role: true } });
- const metropolisUser = await prisma.metropolisUser.findFirst({ where: { userId: payload.userId }, include: { metropolis: true } });
- 
- cookieStore.delete('Kanonas_2fa_temp');
-
- return await finalizeLogin(user, payload.resolvedTempleId ?? '', userTemple, true, ip, (metropolisUser as any)?.metropolis?.name || null);
-}
 
 export async function logoutAction() {
  ;(await cookies()).delete('Kanonas_auth')
