@@ -7,7 +7,7 @@ import { LayoutDashboard, Users, FileText, Banknote, Calendar,
  BookOpen, HeartHandshake, Package, ClipboardList, Settings,
  LogOut, ChevronLeft, Menu, Bell, ShieldCheck, Mail, KanbanSquare, Tent,
  Globe, HeartPulse, Shield, Info, CreditCard, UserCircle, AlertTriangle, X, Utensils,
- Download, Megaphone
+ Download, Megaphone, PlusCircle, Zap
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 
