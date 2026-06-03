@@ -1,9 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
+export const dynamic = 'force-dynamic';
+
 /**
- * ONE-TIME setup endpoint — PROTECTED by SETUP_SECRET env variable.
+ * ONE-TIME setup endpoint β€” PROTECTED by SETUP_SECRET env variable.
  *
  * Usage:
  * curl -H"x-setup-secret: <SETUP_SECRET>"https://your-domain.com/api/setup
@@ -35,7 +37,7 @@ export async function GET(req: NextRequest) {
 );
  }
 
- // 3. Require the initial admin password to be passed — no hardcoded passwords
+ // 3. Require the initial admin password to be passed β€” no hardcoded passwords
  const initialPassword = req.nextUrl.searchParams.get('password');
  if (!initialPassword || initialPassword.length < 12) {
  return NextResponse.json(
@@ -47,11 +49,11 @@ export async function GET(req: NextRequest) {
  try {
  // 4. Create Metropolis & Temple
  let metropolis = await prisma.metropolis.findFirst({
- where: { name: 'Ιερά Μητρόπολη Αθηνών' }
+ where: { name: 'Ξ™ΞµΟΞ¬ ΞΞ·Ο„ΟΟΟ€ΞΏΞ»Ξ· Ξ‘ΞΈΞ·Ξ½ΟΞ½' }
  });
  if (!metropolis) {
  metropolis = await prisma.metropolis.create({
- data: { name: 'Ιερά Μητρόπολη Αθηνών' }
+ data: { name: 'Ξ™ΞµΟΞ¬ ΞΞ·Ο„ΟΟΟ€ΞΏΞ»Ξ· Ξ‘ΞΈΞ·Ξ½ΟΞ½' }
  });
  }
 
@@ -60,7 +62,7 @@ export async function GET(req: NextRequest) {
  update: {},
  create: {
  id: 'cm0testtempleid0000000001',
- name: 'Ιερός Ναός Αγίου Ελευθερίου',
+ name: 'Ξ™ΞµΟΟΟ‚ ΞΞ±ΟΟ‚ Ξ‘Ξ³Ξ―ΞΏΟ… Ξ•Ξ»ΞµΟ…ΞΈΞµΟΞ―ΞΏΟ…',
  metropolisId: metropolis.id,
  email: 'info@agios-eleftherios.gr'
  }
@@ -68,9 +70,9 @@ export async function GET(req: NextRequest) {
 
  // 5. Create Default Roles (skip duplicates)
  const roleDefs = [
- { name: 'Εφημέριος', canViewFinances: false, canEditFinances: false, canManageRequests: true, canManageRegistry: true, canManageSchedule: true, canManageAssets: false },
- { name: 'Γραμματεία', canViewFinances: false, canEditFinances: false, canManageRequests: true, canManageRegistry: true, canManageSchedule: true, canManageAssets: false },
- { name: 'Συμβούλιο / Ταμίας', canViewFinances: true, canEditFinances: true, canManageRequests: false, canManageRegistry: false, canManageSchedule: false, canManageAssets: true },
+ { name: 'Ξ•Ο†Ξ·ΞΌΞ­ΟΞΉΞΏΟ‚', canViewFinances: false, canEditFinances: false, canManageRequests: true, canManageRegistry: true, canManageSchedule: true, canManageAssets: false },
+ { name: 'Ξ“ΟΞ±ΞΌΞΌΞ±Ο„ΞµΞ―Ξ±', canViewFinances: false, canEditFinances: false, canManageRequests: true, canManageRegistry: true, canManageSchedule: true, canManageAssets: false },
+ { name: 'Ξ£Ο…ΞΌΞ²ΞΏΟΞ»ΞΉΞΏ / Ξ¤Ξ±ΞΌΞ―Ξ±Ο‚', canViewFinances: true, canEditFinances: true, canManageRequests: false, canManageRegistry: false, canManageSchedule: false, canManageAssets: true },
  ];
  for (const roleDef of roleDefs) {
  await prisma.role.upsert({
@@ -86,8 +88,8 @@ export async function GET(req: NextRequest) {
  data: {
  email: 'admin@kanonas.gr',
  passwordHash,
- firstName: 'Ιωάννης',
- lastName: 'Παππάς',
+ firstName: 'Ξ™Ο‰Ξ¬Ξ½Ξ½Ξ·Ο‚',
+ lastName: 'Ξ Ξ±Ο€Ο€Ξ¬Ο‚',
  isSuperAdmin: false,
  temples: {
  create: {

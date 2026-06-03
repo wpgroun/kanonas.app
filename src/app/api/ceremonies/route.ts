@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { 
+
+
   CeremonyCreateSchema, 
   calculateMarriageClass, 
   getRequiredDocuments, 
@@ -10,11 +12,13 @@ import {
   FuneralDetailsSchema 
 } from '@/lib/ceremonies';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   const session = await getSession();
   const templeId = session?.templeId;
   if (!templeId) {
-    return NextResponse.json({ error: 'Μη εξουσιοδοτημένη πρόσβαση.' }, { status: 401 });
+    return NextResponse.json({ error: 'ΞΞ· ΞµΞΎΞΏΟ…ΟƒΞΉΞΏΞ΄ΞΏΟ„Ξ·ΞΌΞ­Ξ½Ξ· Ο€ΟΟΟƒΞ²Ξ±ΟƒΞ·.' }, { status: 401 });
   }
 
   try {
@@ -65,7 +69,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ data: ceremonies });
   } catch (err: any) {
     console.error('[GET CEREMONIES ERROR]', err);
-    return NextResponse.json({ error: 'Σφάλμα κατά την ανάκτηση των τελετών.' }, { status: 500 });
+    return NextResponse.json({ error: 'Ξ£Ο†Ξ¬Ξ»ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ Ξ±Ξ½Ξ¬ΞΊΟ„Ξ·ΟƒΞ· Ο„Ο‰Ξ½ Ο„ΞµΞ»ΞµΟ„ΟΞ½.' }, { status: 500 });
   }
 }
 
@@ -73,7 +77,7 @@ export async function POST(req: Request) {
   const session = await getSession();
   const templeId = session?.templeId;
   if (!templeId) {
-    return NextResponse.json({ error: 'Μη εξουσιοδοτημένη πρόσβαση.' }, { status: 401 });
+    return NextResponse.json({ error: 'ΞΞ· ΞµΞΎΞΏΟ…ΟƒΞΉΞΏΞ΄ΞΏΟ„Ξ·ΞΌΞ­Ξ½Ξ· Ο€ΟΟΟƒΞ²Ξ±ΟƒΞ·.' }, { status: 401 });
   }
 
   try {
@@ -119,7 +123,7 @@ export async function POST(req: Request) {
     }
 
     const year = date.getFullYear();
-    const prefix = type === 'MARRIAGE' ? 'Γ' : type === 'BAPTISM' ? 'Β' : 'Κ';
+    const prefix = type === 'MARRIAGE' ? 'Ξ“' : type === 'BAPTISM' ? 'Ξ’' : 'Ξ';
 
     // 3. Perform Transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -182,6 +186,6 @@ export async function POST(req: Request) {
 
   } catch (err: any) {
     console.error('[POST CEREMONY ERROR]', err);
-    return NextResponse.json({ error: 'Σφάλμα κατά τη δημιουργία της τελετής.' }, { status: 500 });
+    return NextResponse.json({ error: 'Ξ£Ο†Ξ¬Ξ»ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ· Ξ΄Ξ·ΞΌΞΉΞΏΟ…ΟΞ³Ξ―Ξ± Ο„Ξ·Ο‚ Ο„ΞµΞ»ΞµΟ„Ξ®Ο‚.' }, { status: 500 });
   }
 }

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { DocumentStatusUpdateSchema } from '@/lib/ceremonies';
 
+export const dynamic = 'force-dynamic';
+
 export async function PUT(req: Request, { params }: { params: Promise<{ documentId: string }> }) {
   const session = await getSession();
   const templeId = session?.templeId;

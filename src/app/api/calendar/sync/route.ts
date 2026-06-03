@@ -1,5 +1,7 @@
-import { prisma } from '@/lib/prisma'
+﻿import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
  const { searchParams } = new URL(req.url);
@@ -19,7 +21,7 @@ export async function GET(req: NextRequest) {
  const gamosDuration = settings.bookingSchedule?.gamosDurationMin || 45;
  const vaptisiDuration = settings.bookingSchedule?.vaptisiDurationMin || 30;
 
- let ics ="BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Κανόνας//GR\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nX-WR-CALNAME:Κανόνας Μυστήρια\n";
+ let ics ="BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//ΞΞ±Ξ½ΟΞ½Ξ±Ο‚//GR\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nX-WR-CALNAME:ΞΞ±Ξ½ΟΞ½Ξ±Ο‚ ΞΟ…ΟƒΟ„Ξ®ΟΞΉΞ±\n";
  
  for (const t of tokens) {
  if(!t.ceremonyDate) continue;
@@ -33,8 +35,8 @@ export async function GET(req: NextRequest) {
  return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
  };
 
- const title = t.serviceType === 'GAMOS' ? `ΓΑΜΟΣ: ${t.customerName}` : `ΒΑΠΤΙΣΗ: ${t.customerName}`;
- const desc = t.assignedPriest ? `Ιερέας: ${t.assignedPriest}` : `Εκκρεμεί ανάθεση ιερέα.`;
+ const title = t.serviceType === 'GAMOS' ? `Ξ“Ξ‘ΞΞΞ£: ${t.customerName}` : `Ξ’Ξ‘Ξ Ξ¤Ξ™Ξ£Ξ—: ${t.customerName}`;
+ const desc = t.assignedPriest ? `Ξ™ΞµΟΞ­Ξ±Ο‚: ${t.assignedPriest}` : `Ξ•ΞΊΞΊΟΞµΞΌΞµΞ― Ξ±Ξ½Ξ¬ΞΈΞµΟƒΞ· ΞΉΞµΟΞ­Ξ±.`;
  
  ics +="BEGIN:VEVENT\n";
  ics += `UID:${t.id}@kanonas.gr\n`;
@@ -51,7 +53,7 @@ export async function GET(req: NextRequest) {
  return new NextResponse(ics, {
  headers: {
  'Content-Type': 'text/calendar; charset=utf-8',
- 'Content-Disposition': 'attachment; filename="Κανόνας-sync.ics"'
+ 'Content-Disposition': 'attachment; filename="ΞΞ±Ξ½ΟΞ½Ξ±Ο‚-sync.ics"'
  }
  });
 }

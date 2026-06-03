@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { PDFDocument, rgb, PageSizes } from 'pdf-lib';
@@ -6,11 +6,13 @@ import fontkit from '@pdf-lib/fontkit';
 import fs from 'fs/promises';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   const session = await getSession();
   const templeId = session?.templeId;
   if (!templeId) {
-    return NextResponse.json({ error: 'Μη εξουσιοδοτημένη πρόσβαση.' }, { status: 401 });
+    return NextResponse.json({ error: 'ΞΞ· ΞµΞΎΞΏΟ…ΟƒΞΉΞΏΞ΄ΞΏΟ„Ξ·ΞΌΞ­Ξ½Ξ· Ο€ΟΟΟƒΞ²Ξ±ΟƒΞ·.' }, { status: 401 });
   }
 
   try {
@@ -26,8 +28,8 @@ export async function GET(req: Request) {
       include: { metropolis: true }
     });
 
-    const metropolisName = temple?.metropolis?.name || 'Ιερά Μητρόπολη';
-    const templeName = temple?.name || 'Ιερός Ναός';
+    const metropolisName = temple?.metropolis?.name || 'Ξ™ΞµΟΞ¬ ΞΞ·Ο„ΟΟΟ€ΞΏΞ»Ξ·';
+    const templeName = temple?.name || 'Ξ™ΞµΟΟΟ‚ ΞΞ±ΟΟ‚';
 
     // 2. Fetch registry data
     const whereClause: any = {
@@ -67,11 +69,11 @@ export async function GET(req: Request) {
     const fontBold = await pdfDoc.embedFont(boldBytes);
 
     const typeLabels: Record<string, string> = {
-      MARRIAGE: 'ΓΑΜΩΝ',
-      BAPTISM: 'ΒΑΠΤΙΣΕΩΝ',
-      FUNERAL: 'ΚΗΔΕΙΩΝ'
+      MARRIAGE: 'Ξ“Ξ‘ΞΞ©Ξ',
+      BAPTISM: 'Ξ’Ξ‘Ξ Ξ¤Ξ™Ξ£Ξ•Ξ©Ξ',
+      FUNERAL: 'ΞΞ—Ξ”Ξ•Ξ™Ξ©Ξ'
     };
-    const titleText = `ΜΗΤΡΩΟ ${typeLabels[type] || 'ΤΕΛΕΤΩΝ'} - ΕΤΟΣ ${year}`;
+    const titleText = `ΞΞ—Ξ¤Ξ΅Ξ©Ξ ${typeLabels[type] || 'Ξ¤Ξ•Ξ›Ξ•Ξ¤Ξ©Ξ'} - Ξ•Ξ¤ΞΞ£ ${year}`;
 
     const itemsPerPage = 15;
     const PAGE_WIDTH = PageSizes.A4[0];
@@ -94,11 +96,11 @@ export async function GET(req: Request) {
       page.drawLine({ start: { x: marginX, y }, end: { x: PAGE_WIDTH - marginX, y }, thickness: 1, color: rgb(0.2, 0.2, 0.2) });
       y -= 15;
 
-      page.drawText('Α/Α Μητρώου', { x: marginX, y, size: 9, font: fontBold });
-      page.drawText('Στοιχεία Τελετής', { x: marginX + 90, y, size: 9, font: fontBold });
-      page.drawText('Ημερομηνία', { x: marginX + 280, y, size: 9, font: fontBold });
-      page.drawText('Ιερέας', { x: marginX + 360, y, size: 9, font: fontBold });
-      page.drawText('Κατάσταση', { x: PAGE_WIDTH - marginX - 60, y, size: 9, font: fontBold });
+      page.drawText('Ξ‘/Ξ‘ ΞΞ·Ο„ΟΟΞΏΟ…', { x: marginX, y, size: 9, font: fontBold });
+      page.drawText('Ξ£Ο„ΞΏΞΉΟ‡ΞµΞ―Ξ± Ξ¤ΞµΞ»ΞµΟ„Ξ®Ο‚', { x: marginX + 90, y, size: 9, font: fontBold });
+      page.drawText('Ξ—ΞΌΞµΟΞΏΞΌΞ·Ξ½Ξ―Ξ±', { x: marginX + 280, y, size: 9, font: fontBold });
+      page.drawText('Ξ™ΞµΟΞ­Ξ±Ο‚', { x: marginX + 360, y, size: 9, font: fontBold });
+      page.drawText('ΞΞ±Ο„Ξ¬ΟƒΟ„Ξ±ΟƒΞ·', { x: PAGE_WIDTH - marginX - 60, y, size: 9, font: fontBold });
 
       y -= 8;
       page.drawLine({ start: { x: marginX, y }, end: { x: PAGE_WIDTH - marginX, y }, thickness: 0.5, color: rgb(0.5, 0.5, 0.5) });
@@ -110,9 +112,9 @@ export async function GET(req: Request) {
         const dateStr = new Date(c.date).toLocaleDateString('el-GR');
         const priestStr = c.priest || '---';
 
-        let statusStr = 'Εκκρεμεί';
-        if (c.status === 'COMPLETED') statusStr = 'Ολοκληρώθηκε';
-        if (c.status === 'CANCELLED') statusStr = 'Ακυρώθηκε';
+        let statusStr = 'Ξ•ΞΊΞΊΟΞµΞΌΞµΞ―';
+        if (c.status === 'COMPLETED') statusStr = 'ΞΞ»ΞΏΞΊΞ»Ξ·ΟΟΞΈΞ·ΞΊΞµ';
+        if (c.status === 'CANCELLED') statusStr = 'Ξ‘ΞΊΟ…ΟΟΞΈΞ·ΞΊΞµ';
 
         let detailsText = '';
         try {
@@ -125,7 +127,7 @@ export async function GET(req: Request) {
             detailsText = `${details.deceasedLastName || ''} ${details.deceasedFirstName || ''}`;
           }
         } catch {
-          detailsText = 'Σφάλμα ανάγνωσης στοιχείων';
+          detailsText = 'Ξ£Ο†Ξ¬Ξ»ΞΌΞ± Ξ±Ξ½Ξ¬Ξ³Ξ½Ο‰ΟƒΞ·Ο‚ ΟƒΟ„ΞΏΞΉΟ‡ΞµΞ―Ο‰Ξ½';
         }
 
         // Draw row content
@@ -139,14 +141,14 @@ export async function GET(req: Request) {
       });
 
       // Page footer
-      const pageNumStr = `Σελίδα ${Math.floor(i / itemsPerPage) + 1} από ${Math.ceil(ceremonies.length / itemsPerPage)}`;
+      const pageNumStr = `Ξ£ΞµΞ»Ξ―Ξ΄Ξ± ${Math.floor(i / itemsPerPage) + 1} Ξ±Ο€Ο ${Math.ceil(ceremonies.length / itemsPerPage)}`;
       const pageNumWidth = font.widthOfTextAtSize(pageNumStr, 8);
       page.drawText(pageNumStr, { x: (PAGE_WIDTH - pageNumWidth) / 2, y: 25, size: 8, font, color: rgb(0.5, 0.5, 0.5) });
     }
 
     if (ceremonies.length === 0) {
       const page = pdfDoc.addPage(PageSizes.A4);
-      page.drawText('Δεν βρέθηκαν καταχωρήσεις για το επιλεγμένο έτος.', { x: 50, y: PAGE_HEIGHT - 100, size: 12, font });
+      page.drawText('Ξ”ΞµΞ½ Ξ²ΟΞ­ΞΈΞ·ΞΊΞ±Ξ½ ΞΊΞ±Ο„Ξ±Ο‡Ο‰ΟΞ®ΟƒΞµΞΉΟ‚ Ξ³ΞΉΞ± Ο„ΞΏ ΞµΟ€ΞΉΞ»ΞµΞ³ΞΌΞ­Ξ½ΞΏ Ξ­Ο„ΞΏΟ‚.', { x: 50, y: PAGE_HEIGHT - 100, size: 12, font });
     }
 
     const pdfBytes = await pdfDoc.save();
@@ -161,6 +163,6 @@ export async function GET(req: Request) {
 
   } catch (err: any) {
     console.error('[EXPORT REGISTRY ERROR]', err);
-    return NextResponse.json({ error: 'Σφάλμα κατά την εξαγωγή του αρχείου PDF.' }, { status: 500 });
+    return NextResponse.json({ error: 'Ξ£Ο†Ξ¬Ξ»ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ ΞµΞΎΞ±Ξ³Ο‰Ξ³Ξ® Ο„ΞΏΟ… Ξ±ΟΟ‡ΞµΞ―ΞΏΟ… PDF.' }, { status: 500 });
   }
 }

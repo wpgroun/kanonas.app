@@ -1,9 +1,11 @@
 import { SignJWT, jwtVerify } from 'jose'
 
-// In production, JWT_SECRET MUST be set in environment variables.
+// In production RUNTIME, JWT_SECRET MUST be set in environment variables.
 // A missing secret would allow anyone to forge admin sessions.
-if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
- throw new Error('[Kanonas] FATAL: JWT_SECRET environment variable is not set. Aborting startup.');
+// We skip this check during the Next.js build phase (NEXT_PHASE=phase-production-build).
+const isNextBuild = process.env.NEXT_PHASE === 'phase-production-build';
+if (!isNextBuild && process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('[Kanonas] FATAL: JWT_SECRET environment variable is not set. Aborting startup.');
 }
 const secretKey = process.env.JWT_SECRET ?? 'kanonas_dev_only_fallback_do_not_use_in_prod';
 const key = new TextEncoder().encode(secretKey);

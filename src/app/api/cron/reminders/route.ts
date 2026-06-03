@@ -1,10 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendCeremonyReminderEmail } from '@/lib/emailService';
 import { sendSMS } from '@/lib/sms';
 
+export const dynamic = 'force-dynamic';
+
 /**
- * Cron endpoint — called daily by Railway/Vercel scheduler.
+ * Cron endpoint β€” called daily by Railway/Vercel scheduler.
  * Finds tokens with ceremony dates in the next 3 days and sends reminder emails.
  *
  * Security: protected by CRON_SECRET header.
@@ -54,7 +56,7 @@ export async function GET(req: NextRequest) {
   if (token.customerEmail) {
     await sendCeremonyReminderEmail({
       to: token.customerEmail,
-      familyName: token.customerName || 'Αγαπητή Οικογένεια',
+      familyName: token.customerName || 'Ξ‘Ξ³Ξ±Ο€Ξ·Ο„Ξ® ΞΞΉΞΊΞΏΞ³Ξ­Ξ½ΞµΞΉΞ±',
       serviceType: token.serviceType as 'GAMOS' | 'VAPTISI',
       ceremonyDate: token.ceremonyDate.toLocaleDateString('el-GR'),
       templeName: token.temple.name,
@@ -71,8 +73,8 @@ export async function GET(req: NextRequest) {
       } catch (e) {}
     }
     
-    const serviceName = token.serviceType === 'GAMOS' ? 'Γάμος' : token.serviceType === 'VAPTISI' ? 'Βάπτιση' : token.serviceType;
-    const msg = `Υπενθύμιση: ${serviceName} στον ${token.temple.name} σε 3 ημέρες (${token.ceremonyDate.toLocaleDateString('el-GR')}). Πληροφορίες: ${token.temple.phoneNumber || '-'}`;
+    const serviceName = token.serviceType === 'GAMOS' ? 'Ξ“Ξ¬ΞΌΞΏΟ‚' : token.serviceType === 'VAPTISI' ? 'Ξ’Ξ¬Ο€Ο„ΞΉΟƒΞ·' : token.serviceType;
+    const msg = `Ξ¥Ο€ΞµΞ½ΞΈΟΞΌΞΉΟƒΞ·: ${serviceName} ΟƒΟ„ΞΏΞ½ ${token.temple.name} ΟƒΞµ 3 Ξ·ΞΌΞ­ΟΞµΟ‚ (${token.ceremonyDate.toLocaleDateString('el-GR')}). Ξ Ξ»Ξ·ΟΞΏΟ†ΞΏΟΞ―ΞµΟ‚: ${token.temple.phoneNumber || '-'}`;
     
     await sendSMS([token.customerPhone], msg, { smsSenderId: templeSettings.smsSenderId });
     smsSent = true;

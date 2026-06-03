@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateDocxCertificate } from '@/lib/documentEngine';
 import { getSession } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
  try {
@@ -25,10 +27,10 @@ export async function POST(req: NextRequest) {
  });
 
  if (!token) {
- return NextResponse.json({ error: 'Μυστήριο δεν βρέθηκε.' }, { status: 404 });
+ return NextResponse.json({ error: 'ΞΟ…ΟƒΟ„Ξ®ΟΞΉΞΏ Ξ΄ΞµΞ½ Ξ²ΟΞ­ΞΈΞ·ΞΊΞµ.' }, { status: 404 });
  }
 
- // [SECURITY] Tenant isolation — ensure the token belongs to the user's temple
+ // [SECURITY] Tenant isolation β€” ensure the token belongs to the user's temple
  if (token.templeId !== (session.templeId as string)) {
  return NextResponse.json({ error: 'Forbidden: Access denied.' }, { status: 403 });
  }
@@ -40,9 +42,9 @@ export async function POST(req: NextRequest) {
  try {
  const buf = generateDocxCertificate(token, token.persons, fileName);
 
- const filenameOutput = `Πιστοποιητικό_${token.serviceType}_${token.protocolNumber || token.id.slice(-6)}.docx`;
+ const filenameOutput = `Ξ ΞΉΟƒΟ„ΞΏΟ€ΞΏΞΉΞ·Ο„ΞΉΞΊΟ_${token.serviceType}_${token.protocolNumber || token.id.slice(-6)}.docx`;
 
- // Return the word file as a download (Buffer → Uint8Array for NextResponse BodyInit compat)
+ // Return the word file as a download (Buffer β†’ Uint8Array for NextResponse BodyInit compat)
  return new NextResponse(new Uint8Array(buf), {
  status: 200,
  headers: {
@@ -53,7 +55,7 @@ export async function POST(req: NextRequest) {
  } catch (docxError: any) {
  console.error('Docxtemplater error:', docxError);
  return NextResponse.json(
- { error: `Σφάλμα προτύπου: Βεβαιωθείτε ότι υπάρχει το αρχείο ${fileName} στο φάκελο public/templates.` },
+ { error: `Ξ£Ο†Ξ¬Ξ»ΞΌΞ± Ο€ΟΞΏΟ„ΟΟ€ΞΏΟ…: Ξ’ΞµΞ²Ξ±ΞΉΟ‰ΞΈΞµΞ―Ο„Ξµ ΟΟ„ΞΉ Ο…Ο€Ξ¬ΟΟ‡ΞµΞΉ Ο„ΞΏ Ξ±ΟΟ‡ΞµΞ―ΞΏ ${fileName} ΟƒΟ„ΞΏ Ο†Ξ¬ΞΊΞµΞ»ΞΏ public/templates.` },
  { status: 500 }
 );
  }

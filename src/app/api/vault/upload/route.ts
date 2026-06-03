@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import fs from 'fs';
 import path from 'path';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
  try {
@@ -36,11 +38,11 @@ export async function POST(req: NextRequest) {
 
  const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
  if (!ALLOWED_TYPES.includes(file.type)) {
- return NextResponse.json({ error: 'Μη επιτρεπτός τύπος αρχείου. Δεχόμαστε μόνο PDF, JPG, PNG, WEBP.' }, { status: 400 });
+ return NextResponse.json({ error: 'ΞΞ· ΞµΟ€ΞΉΟ„ΟΞµΟ€Ο„ΟΟ‚ Ο„ΟΟ€ΞΏΟ‚ Ξ±ΟΟ‡ΞµΞ―ΞΏΟ…. Ξ”ΞµΟ‡ΟΞΌΞ±ΟƒΟ„Ξµ ΞΌΟΞ½ΞΏ PDF, JPG, PNG, WEBP.' }, { status: 400 });
  }
 
  if (file.size > 10 * 1024 * 1024) {
- return NextResponse.json({ error: 'Το αρχείο υπερβαίνει το μέγιστο όριο των 10MB.' }, { status: 400 });
+ return NextResponse.json({ error: 'Ξ¤ΞΏ Ξ±ΟΟ‡ΞµΞ―ΞΏ Ο…Ο€ΞµΟΞ²Ξ±Ξ―Ξ½ΞµΞΉ Ο„ΞΏ ΞΌΞ­Ξ³ΞΉΟƒΟ„ΞΏ ΟΟΞΉΞΏ Ο„Ο‰Ξ½ 10MB.' }, { status: 400 });
  }
 
  const buffer = Buffer.from(await file.arrayBuffer());
@@ -58,7 +60,7 @@ export async function POST(req: NextRequest) {
  const DANGEROUS_EXTENSIONS = /\.(html|htm|php|phtml|php3|php4|php5|js|jsx|ts|tsx|sh|bash|exe|bat|cmd|py|rb)$/i;
  const originalName = file.name.replace(/^[.\-]+/, ''); // strip leading dots/dashes
  if (DANGEROUS_EXTENSIONS.test(originalName)) {
- return NextResponse.json({ error: 'Μη επιτρεπτό είδος αρχείου.' }, { status: 400 });
+ return NextResponse.json({ error: 'ΞΞ· ΞµΟ€ΞΉΟ„ΟΞµΟ€Ο„Ο ΞµΞ―Ξ΄ΞΏΟ‚ Ξ±ΟΟ‡ΞµΞ―ΞΏΟ….' }, { status: 400 });
  }
  const safeBasename = originalName.replace(/[^a-zA-Z0-9.\-_]/g, '_');
  const safeFilename = `${Date.now()}-${safeBasename}`;
@@ -77,7 +79,7 @@ export async function POST(req: NextRequest) {
  parishionerId: parishionerId || null,
  tokenId: tokenId || null,
  docType: docType || 'OTHER',
- label: label || 'Ανέβασμα Αρχείου',
+ label: label || 'Ξ‘Ξ½Ξ­Ξ²Ξ±ΟƒΞΌΞ± Ξ‘ΟΟ‡ΞµΞ―ΞΏΟ…',
  fileName: file.name,
  filePath: storageUrl,
  fileSize: buffer.length,

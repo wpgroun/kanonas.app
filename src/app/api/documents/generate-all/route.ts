@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateAllGamosDocs, generateAllBaptisiDocs, TokenData } from '@/lib/pdfEngine';
 import { getSession } from '@/lib/auth';
@@ -6,12 +6,14 @@ import { declineGreekName } from '@/lib/greekDeclension';
 import fs from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 function cleanGreekString(str: string): string {
   return str
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // remove Greek accents/diacritics
-    .replace(/[^a-z0-9α-ω]/g, '') // keep only alphanumeric
+    .replace(/[^a-z0-9Ξ±-Ο‰]/g, '') // keep only alphanumeric
     .trim();
 }
 
@@ -61,7 +63,7 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
         const nameL = t.nameEl.toLowerCase();
-        return cleanName.includes('βεβαιωση') || nameL.includes('bebaiosi') || nameL.includes('certificate') || nameL.includes('cert');
+        return cleanName.includes('Ξ²ΞµΞ²Ξ±ΞΉΟ‰ΟƒΞ·') || nameL.includes('bebaiosi') || nameL.includes('certificate') || nameL.includes('cert');
       });
       if (match) return match;
     }
@@ -69,10 +71,10 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
         const nameL = t.nameEl.toLowerCase();
-        return (cleanName.includes('πιστοποιητικο') || cleanName.includes('βαπτιστικο') || cleanName.includes('βαπτιση') || nameL.includes('baptistiko') || nameL.includes('baptism') || nameL.includes('sacrament')) 
-          && !cleanName.includes('βεβαιωση') && !nameL.includes('bebaiosi') && !nameL.includes('certificate')
-          && !cleanName.includes('δηλωση') && !nameL.includes('dilosi')
-          && !cleanName.includes('απαντητικ') && !nameL.includes('apantitik');
+        return (cleanName.includes('Ο€ΞΉΟƒΟ„ΞΏΟ€ΞΏΞΉΞ·Ο„ΞΉΞΊΞΏ') || cleanName.includes('Ξ²Ξ±Ο€Ο„ΞΉΟƒΟ„ΞΉΞΊΞΏ') || cleanName.includes('Ξ²Ξ±Ο€Ο„ΞΉΟƒΞ·') || nameL.includes('baptistiko') || nameL.includes('baptism') || nameL.includes('sacrament')) 
+          && !cleanName.includes('Ξ²ΞµΞ²Ξ±ΞΉΟ‰ΟƒΞ·') && !nameL.includes('bebaiosi') && !nameL.includes('certificate')
+          && !cleanName.includes('Ξ΄Ξ·Ξ»Ο‰ΟƒΞ·') && !nameL.includes('dilosi')
+          && !cleanName.includes('Ξ±Ο€Ξ±Ξ½Ο„Ξ·Ο„ΞΉΞΊ') && !nameL.includes('apantitik');
       });
       if (match) return match;
     }
@@ -80,7 +82,7 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
         const nameL = t.nameEl.toLowerCase();
-        return cleanName.includes('δηλωση') || cleanName.includes('αναδοχ') || nameL.includes('dilosi') || nameL.includes('anadoxou') || nameL.includes('godparent') || nameL.includes('sponsor');
+        return cleanName.includes('Ξ΄Ξ·Ξ»Ο‰ΟƒΞ·') || cleanName.includes('Ξ±Ξ½Ξ±Ξ΄ΞΏΟ‡') || nameL.includes('dilosi') || nameL.includes('anadoxou') || nameL.includes('godparent') || nameL.includes('sponsor');
       });
       if (match) return match;
     }
@@ -88,7 +90,7 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
         const nameL = t.nameEl.toLowerCase();
-        return cleanName.includes('απαντητικ') || cleanName.includes('απαντησ') || nameL.includes('apantitikon') || nameL.includes('answer') || nameL.includes('reply');
+        return cleanName.includes('Ξ±Ο€Ξ±Ξ½Ο„Ξ·Ο„ΞΉΞΊ') || cleanName.includes('Ξ±Ο€Ξ±Ξ½Ο„Ξ·Οƒ') || nameL.includes('apantitikon') || nameL.includes('answer') || nameL.includes('reply');
       });
       if (match) return match;
     }
@@ -96,7 +98,7 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
         const nameL = t.nameEl.toLowerCase();
-        return cleanName.includes('αιτηση') || nameL.includes('aitisi') || nameL.includes('application') || nameL.includes('request');
+        return cleanName.includes('Ξ±ΞΉΟ„Ξ·ΟƒΞ·') || nameL.includes('aitisi') || nameL.includes('application') || nameL.includes('request');
       });
       if (match) return match;
     }
@@ -104,7 +106,7 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
         const nameL = t.nameEl.toLowerCase();
-        return cleanName.includes('πινακας') || cleanName.includes('συνθηκ') || nameL.includes('pinakas') || nameL.includes('synthikon') || nameL.includes('conditions') || nameL.includes('table');
+        return cleanName.includes('Ο€ΞΉΞ½Ξ±ΞΊΞ±Ο‚') || cleanName.includes('ΟƒΟ…Ξ½ΞΈΞ·ΞΊ') || nameL.includes('pinakas') || nameL.includes('synthikon') || nameL.includes('conditions') || nameL.includes('table');
       });
       if (match) return match;
     }
@@ -112,7 +114,7 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
         const nameL = t.nameEl.toLowerCase();
-        return cleanName.includes('γαμηλιο') || cleanName.includes('γραμμα') || cleanName.includes('επιστολη') || nameL.includes('gamilion') || nameL.includes('gramma') || nameL.includes('letter');
+        return cleanName.includes('Ξ³Ξ±ΞΌΞ·Ξ»ΞΉΞΏ') || cleanName.includes('Ξ³ΟΞ±ΞΌΞΌΞ±') || cleanName.includes('ΞµΟ€ΞΉΟƒΟ„ΞΏΞ»Ξ·') || nameL.includes('gamilion') || nameL.includes('gramma') || nameL.includes('letter');
       });
       if (match) return match;
     }
@@ -120,8 +122,8 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
         const nameL = t.nameEl.toLowerCase();
-        const hasDilosi = cleanName.includes('δηλωση') || nameL.includes('dilosi');
-        const hasGroom = cleanName.includes('γαμπρ') || cleanName.includes('νυμφιο') || nameL.includes('gampr') || nameL.includes('groom') || nameL.includes('nymphio');
+        const hasDilosi = cleanName.includes('Ξ΄Ξ·Ξ»Ο‰ΟƒΞ·') || nameL.includes('dilosi');
+        const hasGroom = cleanName.includes('Ξ³Ξ±ΞΌΟ€Ο') || cleanName.includes('Ξ½Ο…ΞΌΟ†ΞΉΞΏ') || nameL.includes('gampr') || nameL.includes('groom') || nameL.includes('nymphio');
         return hasDilosi && hasGroom;
       });
       if (match) return match;
@@ -130,8 +132,8 @@ function findCustomTemplate(customTemplates: any[], docKey: string, serviceType:
       const match = catTemplates.find(t => {
         const cleanName = cleanGreekString(t.nameEl);
         const nameL = t.nameEl.toLowerCase();
-        const hasDilosi = cleanName.includes('δηλωση') || nameL.includes('dilosi');
-        const hasBride = cleanName.includes('νυφη') || cleanName.includes('νυμφη') || nameL.includes('nyfis') || nameL.includes('bride') || nameL.includes('nymfi');
+        const hasDilosi = cleanName.includes('Ξ΄Ξ·Ξ»Ο‰ΟƒΞ·') || nameL.includes('dilosi');
+        const hasBride = cleanName.includes('Ξ½Ο…Ο†Ξ·') || cleanName.includes('Ξ½Ο…ΞΌΟ†Ξ·') || nameL.includes('nyfis') || nameL.includes('bride') || nameL.includes('nymfi');
         return hasDilosi && hasBride;
       });
       if (match) return match;
@@ -176,7 +178,7 @@ export async function POST(req: NextRequest) {
 
  if (!token) return NextResponse.json({ error: 'Token not found' }, { status: 404 });
 
- // [SECURITY] Tenant isolation — token must belong to the authenticated user's temple
+ // [SECURITY] Tenant isolation β€” token must belong to the authenticated user's temple
  if (token.templeId !== (session.templeId as string)) {
  return NextResponse.json({ error: 'Forbidden: Access denied.' }, { status: 403 });
  }
@@ -185,7 +187,7 @@ export async function POST(req: NextRequest) {
     where: { templeId: token.templeId }
   });
 
-  // ─── Build Rich Answers Map for Custom Templates ───────────────────────
+  // β”€β”€β”€ Build Rich Answers Map for Custom Templates β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
   const answers: Record<string, string> = {};
   
   if (token.ceremonyMeta?.dataJson) {
@@ -224,117 +226,117 @@ export async function POST(req: NextRequest) {
 
     // Simple gender heuristic based on child's name
     const childNameLower = childName.toLowerCase();
-    if (childNameLower.endsWith('α') || childNameLower.endsWith('η') || childNameLower.endsWith('ω') || childNameLower.endsWith('ου') || childNameLower.endsWith('η')) {
+    if (childNameLower.endsWith('Ξ±') || childNameLower.endsWith('Ξ·') || childNameLower.endsWith('Ο‰') || childNameLower.endsWith('ΞΏΟ…') || childNameLower.endsWith('Ξ·')) {
       childGender = 'female';
     }
     
     // Explicit gender setting from answers if present
-    const genderVal = answers['gender'] || answers['childGender'] || answers['φύλο'] || answers['φυλο'] || answers['γένος'] || '';
+    const genderVal = answers['gender'] || answers['childGender'] || answers['Ο†ΟΞ»ΞΏ'] || answers['Ο†Ο…Ξ»ΞΏ'] || answers['Ξ³Ξ­Ξ½ΞΏΟ‚'] || '';
     const gValLower = String(genderVal).toLowerCase();
-    if (gValLower.includes('θηλ') || gValLower.includes('female') || gValLower === 'θ' || gValLower === 'f') {
+    if (gValLower.includes('ΞΈΞ·Ξ»') || gValLower.includes('female') || gValLower === 'ΞΈ' || gValLower === 'f') {
       childGender = 'female';
     }
 
-    answers['Όνομα'] = childName;
-    answers['Επώνυμο'] = childLastName;
-    answers['ΟΝΟΜΑ'] = childName;
-    answers['ΕΠΩΝΥΜΟ'] = childLastName;
+    answers['ΞΞ½ΞΏΞΌΞ±'] = childName;
+    answers['Ξ•Ο€ΟΞ½Ο…ΞΌΞΏ'] = childLastName;
+    answers['ΞΞΞΞΞ‘'] = childName;
+    answers['Ξ•Ξ Ξ©ΞΞ¥ΞΞ'] = childLastName;
     
     // gender helpers
-    answers['γεννηθείς/σα'] = childGender === 'male' ? 'γεννηθείς' : 'γεννηθείσα';
-    answers['γεννηθεις/σα'] = childGender === 'male' ? 'γεννηθείς' : 'γεννηθείσα';
-    answers['ο/η'] = childGender === 'male' ? 'ο' : 'η';
-    answers['του/της'] = childGender === 'male' ? 'του' : 'της';
+    answers['Ξ³ΞµΞ½Ξ½Ξ·ΞΈΞµΞ―Ο‚/ΟƒΞ±'] = childGender === 'male' ? 'Ξ³ΞµΞ½Ξ½Ξ·ΞΈΞµΞ―Ο‚' : 'Ξ³ΞµΞ½Ξ½Ξ·ΞΈΞµΞ―ΟƒΞ±';
+    answers['Ξ³ΞµΞ½Ξ½Ξ·ΞΈΞµΞΉΟ‚/ΟƒΞ±'] = childGender === 'male' ? 'Ξ³ΞµΞ½Ξ½Ξ·ΞΈΞµΞ―Ο‚' : 'Ξ³ΞµΞ½Ξ½Ξ·ΞΈΞµΞ―ΟƒΞ±';
+    answers['ΞΏ/Ξ·'] = childGender === 'male' ? 'ΞΏ' : 'Ξ·';
+    answers['Ο„ΞΏΟ…/Ο„Ξ·Ο‚'] = childGender === 'male' ? 'Ο„ΞΏΟ…' : 'Ο„Ξ·Ο‚';
 
     if (father) {
-      // In narrative templates, "Πατρώνυμο" is typically the father's first name in genitive case (e.g. "του [Πατρώνυμο]" -> "του Στεφάνου")
+      // In narrative templates, "Ξ Ξ±Ο„ΟΟΞ½Ο…ΞΌΞΏ" is typically the father's first name in genitive case (e.g. "Ο„ΞΏΟ… [Ξ Ξ±Ο„ΟΟΞ½Ο…ΞΌΞΏ]" -> "Ο„ΞΏΟ… Ξ£Ο„ΞµΟ†Ξ¬Ξ½ΞΏΟ…")
       const fatherFirstGenitive = declineGreekName(father.firstName || '', 'genitive', 'male');
-      answers['Πατρώνυμο'] = fatherFirstGenitive;
-      answers['Όνομα_Πατέρα'] = father.firstName || '';
-      answers['Όνομα_Πατέρα_Γενική'] = fatherFirstGenitive;
-      answers['Επώνυμο_Πατέρα'] = father.lastName || '';
-      answers['Επώνυμο_Πατέρα_Γενική'] = declineGreekName(father.lastName || '', 'genitive', 'male');
+      answers['Ξ Ξ±Ο„ΟΟΞ½Ο…ΞΌΞΏ'] = fatherFirstGenitive;
+      answers['ΞΞ½ΞΏΞΌΞ±_Ξ Ξ±Ο„Ξ­ΟΞ±'] = father.firstName || '';
+      answers['ΞΞ½ΞΏΞΌΞ±_Ξ Ξ±Ο„Ξ­ΟΞ±_Ξ“ΞµΞ½ΞΉΞΊΞ®'] = fatherFirstGenitive;
+      answers['Ξ•Ο€ΟΞ½Ο…ΞΌΞΏ_Ξ Ξ±Ο„Ξ­ΟΞ±'] = father.lastName || '';
+      answers['Ξ•Ο€ΟΞ½Ο…ΞΌΞΏ_Ξ Ξ±Ο„Ξ­ΟΞ±_Ξ“ΞµΞ½ΞΉΞΊΞ®'] = declineGreekName(father.lastName || '', 'genitive', 'male');
       
-      answers['ΠΑΤΡΩΝΥΜΟ'] = fatherFirstGenitive;
-      answers['ΟΝΟΜΑ_ΠΑΤΕΡΑ'] = father.firstName || '';
-      answers['ΕΠΩΝΥΜΟ_ΠΑΤΕΡΑ'] = father.lastName || '';
+      answers['Ξ Ξ‘Ξ¤Ξ΅Ξ©ΞΞ¥ΞΞ'] = fatherFirstGenitive;
+      answers['ΞΞΞΞΞ‘_Ξ Ξ‘Ξ¤Ξ•Ξ΅Ξ‘'] = father.firstName || '';
+      answers['Ξ•Ξ Ξ©ΞΞ¥ΞΞ_Ξ Ξ‘Ξ¤Ξ•Ξ΅Ξ‘'] = father.lastName || '';
     }
     if (mother) {
       // Mother's name in genitive case
       const motherFirstGenitive = declineGreekName(mother.firstName || '', 'genitive', 'female');
-      answers['Μητρώνυμο'] = motherFirstGenitive;
-      answers['Όνομα_Μητέρας'] = mother.firstName || '';
-      answers['Όνομα_Μητέρας_Γενική'] = motherFirstGenitive;
-      answers['Επώνυμο_Μητέρας'] = mother.lastName || '';
-      answers['Επώνυμο_Μητέρας_Γενική'] = declineGreekName(mother.lastName || '', 'genitive', 'female');
+      answers['ΞΞ·Ο„ΟΟΞ½Ο…ΞΌΞΏ'] = motherFirstGenitive;
+      answers['ΞΞ½ΞΏΞΌΞ±_ΞΞ·Ο„Ξ­ΟΞ±Ο‚'] = mother.firstName || '';
+      answers['ΞΞ½ΞΏΞΌΞ±_ΞΞ·Ο„Ξ­ΟΞ±Ο‚_Ξ“ΞµΞ½ΞΉΞΊΞ®'] = motherFirstGenitive;
+      answers['Ξ•Ο€ΟΞ½Ο…ΞΌΞΏ_ΞΞ·Ο„Ξ­ΟΞ±Ο‚'] = mother.lastName || '';
+      answers['Ξ•Ο€ΟΞ½Ο…ΞΌΞΏ_ΞΞ·Ο„Ξ­ΟΞ±Ο‚_Ξ“ΞµΞ½ΞΉΞΊΞ®'] = declineGreekName(mother.lastName || '', 'genitive', 'female');
       
-      answers['ΜΗΤΡΩΝΥΜΟ'] = motherFirstGenitive;
-      answers['ΟΝΟΜΑ_ΜΗΤΕΡΑΣ'] = mother.firstName || '';
-      answers['ΕΠΩΝΥΜΟ_ΜΗΤΕΡΑΣ'] = mother.lastName || '';
+      answers['ΞΞ—Ξ¤Ξ΅Ξ©ΞΞ¥ΞΞ'] = motherFirstGenitive;
+      answers['ΞΞΞΞΞ‘_ΞΞ—Ξ¤Ξ•Ξ΅Ξ‘Ξ£'] = mother.firstName || '';
+      answers['Ξ•Ξ Ξ©ΞΞ¥ΞΞ_ΞΞ—Ξ¤Ξ•Ξ΅Ξ‘Ξ£'] = mother.lastName || '';
     }
     if (godparent) {
       const godparentFullName = `${godparent.firstName || ''} ${godparent.lastName || ''}`.trim();
-      answers['Ανάδοχος'] = godparentFullName;
-      answers['Όνομα_Αναδόχου'] = godparent.firstName || '';
-      answers['Επώνυμο_Αναδόχου'] = godparent.lastName || '';
+      answers['Ξ‘Ξ½Ξ¬Ξ΄ΞΏΟ‡ΞΏΟ‚'] = godparentFullName;
+      answers['ΞΞ½ΞΏΞΌΞ±_Ξ‘Ξ½Ξ±Ξ΄ΟΟ‡ΞΏΟ…'] = godparent.firstName || '';
+      answers['Ξ•Ο€ΟΞ½Ο…ΞΌΞΏ_Ξ‘Ξ½Ξ±Ξ΄ΟΟ‡ΞΏΟ…'] = godparent.lastName || '';
       
-      answers['ΑΝΑΔΟΧΟΣ'] = godparentFullName;
-      answers['ΟΝΟΜΑ_ΑΝΑΔΟΧΟΥ'] = godparent.firstName || '';
-      answers['ΕΠΩΝΥΜΟ_ΑΝΑΔΟΧΟΥ'] = godparent.lastName || '';
+      answers['Ξ‘ΞΞ‘Ξ”ΞΞ§ΞΞ£'] = godparentFullName;
+      answers['ΞΞΞΞΞ‘_Ξ‘ΞΞ‘Ξ”ΞΞ§ΞΞ¥'] = godparent.firstName || '';
+      answers['Ξ•Ξ Ξ©ΞΞ¥ΞΞ_Ξ‘ΞΞ‘Ξ”ΞΞ§ΞΞ¥'] = godparent.lastName || '';
     }
 
-      // Πόλη αναδόχου → [Πόλεως]
+      // Ξ ΟΞ»Ξ· Ξ±Ξ½Ξ±Ξ΄ΟΟ‡ΞΏΟ… β†’ [Ξ ΟΞ»ΞµΟ‰Ο‚]
       if (answers['godparentCity']) {
-        answers['Πόλεως'] = answers['godparentCity'];
-        answers['ΠόληΑναδόχου'] = answers['godparentCity'];
+        answers['Ξ ΟΞ»ΞµΟ‰Ο‚'] = answers['godparentCity'];
+        answers['Ξ ΟΞ»Ξ·Ξ‘Ξ½Ξ±Ξ΄ΟΟ‡ΞΏΟ…'] = answers['godparentCity'];
       }
 
-      // Conditional second-godparent block: [και Ανάδοχος 2 κάτοικος Πόλεως]
-      const gp2Full = answers['Ανάδοχος_2'] || '';
+      // Conditional second-godparent block: [ΞΊΞ±ΞΉ Ξ‘Ξ½Ξ¬Ξ΄ΞΏΟ‡ΞΏΟ‚ 2 ΞΊΞ¬Ο„ΞΏΞΉΞΊΞΏΟ‚ Ξ ΟΞ»ΞµΟ‰Ο‚]
+      const gp2Full = answers['Ξ‘Ξ½Ξ¬Ξ΄ΞΏΟ‡ΞΏΟ‚_2'] || '';
       if (gp2Full) {
         const gp2City = answers['godparentCity2'] || answers['godparentCity'] || '';
-        answers['και Ανάδοχος 2 κάτοικος Πόλεως'] = `και ${gp2Full} κάτοικος ${gp2City}`.trim();
+        answers['ΞΊΞ±ΞΉ Ξ‘Ξ½Ξ¬Ξ΄ΞΏΟ‡ΞΏΟ‚ 2 ΞΊΞ¬Ο„ΞΏΞΉΞΊΞΏΟ‚ Ξ ΟΞ»ΞµΟ‰Ο‚'] = `ΞΊΞ±ΞΉ ${gp2Full} ΞΊΞ¬Ο„ΞΏΞΉΞΊΞΏΟ‚ ${gp2City}`.trim();
       } else {
-        answers['και Ανάδοχος 2 κάτοικος Πόλεως'] = '';
+        answers['ΞΊΞ±ΞΉ Ξ‘Ξ½Ξ¬Ξ΄ΞΏΟ‡ΞΏΟ‚ 2 ΞΊΞ¬Ο„ΞΏΞΉΞΊΞΏΟ‚ Ξ ΟΞ»ΞµΟ‰Ο‚'] = '';
       }
 
-      // ── Civil registry field mapping ────────────────────────────────
+      // β”€β”€ Civil registry field mapping β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
       if (answers['birthCity']) {
-        answers['Πόλη'] = answers['birthCity'];
-        answers['ΠόληΓέννησης'] = answers['birthCity'];
+        answers['Ξ ΟΞ»Ξ·'] = answers['birthCity'];
+        answers['Ξ ΟΞ»Ξ·Ξ“Ξ­Ξ½Ξ½Ξ·ΟƒΞ·Ο‚'] = answers['birthCity'];
       }
       if (answers['civilRegistry']) {
         answers['civilRegistryName']    = answers['civilRegistry'];
-        answers['ληξιαρχείο']           = answers['civilRegistry'];
-        answers['Ληξιαρχείο']           = answers['civilRegistry'];
+        answers['Ξ»Ξ·ΞΎΞΉΞ±ΟΟ‡ΞµΞ―ΞΏ']           = answers['civilRegistry'];
+        answers['Ξ›Ξ·ΞΎΞΉΞ±ΟΟ‡ΞµΞ―ΞΏ']           = answers['civilRegistry'];
       }
       if (answers['civilRegistryNumber']) {
-        answers['ΑριθμόςΛηξιαρχικής'] = answers['civilRegistryNumber'];
-        answers['ΑριθμόςΠράξης'] = answers['civilRegistryNumber'];
+        answers['Ξ‘ΟΞΉΞΈΞΌΟΟ‚Ξ›Ξ·ΞΎΞΉΞ±ΟΟ‡ΞΉΞΊΞ®Ο‚'] = answers['civilRegistryNumber'];
+        answers['Ξ‘ΟΞΉΞΈΞΌΟΟ‚Ξ ΟΞ¬ΞΎΞ·Ο‚'] = answers['civilRegistryNumber'];
       }
       if (answers['civilRegistryTome']) {
-        answers['ΤόμοςΛηξιαρχείου'] = answers['civilRegistryTome'];
-        answers['Τόμος'] = answers['civilRegistryTome'];
+        answers['Ξ¤ΟΞΌΞΏΟ‚Ξ›Ξ·ΞΎΞΉΞ±ΟΟ‡ΞµΞ―ΞΏΟ…'] = answers['civilRegistryTome'];
+        answers['Ξ¤ΟΞΌΞΏΟ‚'] = answers['civilRegistryTome'];
       }
       if (answers['civilRegistryYear']) {
-        answers['ΈτοςΛηξιαρχικής'] = answers['civilRegistryYear'];
+        answers['ΞΟ„ΞΏΟ‚Ξ›Ξ·ΞΎΞΉΞ±ΟΟ‡ΞΉΞΊΞ®Ο‚'] = answers['civilRegistryYear'];
       }
       if (answers['godparentCity']) {
-        answers['Πόλεως'] = answers['godparentCity'];
-        answers['ΠόληΑναδόχου'] = answers['godparentCity'];
+        answers['Ξ ΟΞ»ΞµΟ‰Ο‚'] = answers['godparentCity'];
+        answers['Ξ ΟΞ»Ξ·Ξ‘Ξ½Ξ±Ξ΄ΟΟ‡ΞΏΟ…'] = answers['godparentCity'];
       }
       if (answers['birthDate']) {
         const bd = new Date(answers['birthDate']);
         const dayNum = bd.getDate();
-        const monthNames = ['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'];
+        const monthNames = ['Ξ™Ξ±Ξ½ΞΏΟ…Ξ±ΟΞ―ΞΏΟ…','Ξ¦ΞµΞ²ΟΞΏΟ…Ξ±ΟΞ―ΞΏΟ…','ΞΞ±ΟΟ„Ξ―ΞΏΟ…','Ξ‘Ο€ΟΞΉΞ»Ξ―ΞΏΟ…','ΞΞ±ΞΞΏΟ…','Ξ™ΞΏΟ…Ξ½Ξ―ΞΏΟ…','Ξ™ΞΏΟ…Ξ»Ξ―ΞΏΟ…','Ξ‘Ο…Ξ³ΞΏΟΟƒΟ„ΞΏΟ…','Ξ£ΞµΟ€Ο„ΞµΞΌΞ²ΟΞ―ΞΏΟ…','ΞΞΊΟ„Ο‰Ξ²ΟΞ―ΞΏΟ…','ΞΞΏΞµΞΌΞ²ΟΞ―ΞΏΟ…','Ξ”ΞµΞΊΞµΞΌΞ²ΟΞ―ΞΏΟ…'];
         const monthName = monthNames[bd.getMonth()];
         const yearNum = bd.getFullYear();
         const dayPadded = String(dayNum).padStart(2, '0');
-        answers['ΗμερομηνίαΓέννησης'] = bd.toLocaleDateString('el-GR');
+        answers['Ξ—ΞΌΞµΟΞΏΞΌΞ·Ξ½Ξ―Ξ±Ξ“Ξ­Ξ½Ξ½Ξ·ΟƒΞ·Ο‚'] = bd.toLocaleDateString('el-GR');
         answers['birthDateFormatted'] = bd.toLocaleDateString('el-GR');
-        answers['00ῇ Μήνος 0000'] = `${dayPadded}ῇ ${monthName} ${yearNum}`;
-        answers['00 Μήνας 0000'] = `${dayPadded} ${monthName} ${yearNum}`;
-        answers['00ην Μηνός'] = `${dayPadded}ην ${monthName}`;
+        answers['00αΏ‡ ΞΞ®Ξ½ΞΏΟ‚ 0000'] = `${dayPadded}αΏ‡ ${monthName} ${yearNum}`;
+        answers['00 ΞΞ®Ξ½Ξ±Ο‚ 0000'] = `${dayPadded} ${monthName} ${yearNum}`;
+        answers['00Ξ·Ξ½ ΞΞ·Ξ½ΟΟ‚'] = `${dayPadded}Ξ·Ξ½ ${monthName}`;
       }
   } else if (serviceTypeLower === 'gamos') {
     const groom = token.persons.find(p => p.role === 'groom');
@@ -350,12 +352,12 @@ export async function POST(req: NextRequest) {
       answers['groomMotherName']        = groom.mothersName || '';
       answers['groomMotherMaiden']      = answers['groomMotherMaiden'] || answers['groomsmothermaidenname'] || '';
 
-      answers['Όνομα_Γαμπρού']          = groom.firstName || '';
-      answers['Επώνυμο_Γαμπρού']        = groom.lastName || '';
-      answers['Πατρώνυμο_Γαμπρού']      = groom.fathersName ? declineGreekName(groom.fathersName, 'genitive', 'male') : '';
-      answers['ΟΝΟΜΑ_ΓΑΜΠΡΟΥ']          = groom.firstName || '';
-      answers['ΕΠΩΝΥΜΟ_ΓΑΜΠΡΟΥ']        = groom.lastName || '';
-      answers['ΠΑΤΡΩΝΥΜΟ_ΓΑΜΠΡΟΥ']      = answers['Πατρώνυμο_Γαμπρού'];
+      answers['ΞΞ½ΞΏΞΌΞ±_Ξ“Ξ±ΞΌΟ€ΟΞΏΟ']          = groom.firstName || '';
+      answers['Ξ•Ο€ΟΞ½Ο…ΞΌΞΏ_Ξ“Ξ±ΞΌΟ€ΟΞΏΟ']        = groom.lastName || '';
+      answers['Ξ Ξ±Ο„ΟΟΞ½Ο…ΞΌΞΏ_Ξ“Ξ±ΞΌΟ€ΟΞΏΟ']      = groom.fathersName ? declineGreekName(groom.fathersName, 'genitive', 'male') : '';
+      answers['ΞΞΞΞΞ‘_Ξ“Ξ‘ΞΞ Ξ΅ΞΞ¥']          = groom.firstName || '';
+      answers['Ξ•Ξ Ξ©ΞΞ¥ΞΞ_Ξ“Ξ‘ΞΞ Ξ΅ΞΞ¥']        = groom.lastName || '';
+      answers['Ξ Ξ‘Ξ¤Ξ΅Ξ©ΞΞ¥ΞΞ_Ξ“Ξ‘ΞΞ Ξ΅ΞΞ¥']      = answers['Ξ Ξ±Ο„ΟΟΞ½Ο…ΞΌΞΏ_Ξ“Ξ±ΞΌΟ€ΟΞΏΟ'];
     }
     if (bride) {
       const brideFull = `${bride.firstName || ''} ${bride.lastName || ''}`.trim();
@@ -366,42 +368,42 @@ export async function POST(req: NextRequest) {
       answers['brideMotherName']        = bride.mothersName || '';
       answers['brideMotherMaiden']      = answers['brideMotherMaiden'] || answers['bridesmothermaidenname'] || '';
 
-      answers['Όνομα_Νύφης']            = bride.firstName || '';
-      answers['Επώνυμο_Νύφης']          = bride.lastName || '';
-      answers['Πατρώνυμο_Νύφης']        = bride.fathersName ? declineGreekName(bride.fathersName, 'genitive', 'male') : '';
-      answers['ΟΝΟΜΑ_ΝΥΦΗΣ']            = bride.firstName || '';
-      answers['ΕΠΩΝΥΜΟ_ΝΥΦΗΣ']          = bride.lastName || '';
-      answers['ΠΑΤΡΩΝΥΜΟ_ΝΥΦΗΣ']        = answers['Πατρώνυμο_Νύφης'];
+      answers['ΞΞ½ΞΏΞΌΞ±_ΞΟΟ†Ξ·Ο‚']            = bride.firstName || '';
+      answers['Ξ•Ο€ΟΞ½Ο…ΞΌΞΏ_ΞΟΟ†Ξ·Ο‚']          = bride.lastName || '';
+      answers['Ξ Ξ±Ο„ΟΟΞ½Ο…ΞΌΞΏ_ΞΟΟ†Ξ·Ο‚']        = bride.fathersName ? declineGreekName(bride.fathersName, 'genitive', 'male') : '';
+      answers['ΞΞΞΞΞ‘_ΞΞ¥Ξ¦Ξ—Ξ£']            = bride.firstName || '';
+      answers['Ξ•Ξ Ξ©ΞΞ¥ΞΞ_ΞΞ¥Ξ¦Ξ—Ξ£']          = bride.lastName || '';
+      answers['Ξ Ξ‘Ξ¤Ξ΅Ξ©ΞΞ¥ΞΞ_ΞΞ¥Ξ¦Ξ—Ξ£']        = answers['Ξ Ξ±Ο„ΟΟΞ½Ο…ΞΌΞΏ_ΞΟΟ†Ξ·Ο‚'];
     }
     if (koumparos) {
       const koumparosFull = `${koumparos.firstName || ''} ${koumparos.lastName || ''}`.trim();
       answers['koumparosName']          = koumparos.firstName || '';
       answers['koumparosFullName']      = koumparosFull;
-      answers['Κουμπάρος']              = koumparosFull;
-      answers['ΚΟΥΜΠΑΡΟΣ']              = koumparosFull;
+      answers['ΞΞΏΟ…ΞΌΟ€Ξ¬ΟΞΏΟ‚']              = koumparosFull;
+      answers['ΞΞΞ¥ΞΞ Ξ‘Ξ΅ΞΞ£']              = koumparosFull;
     }
   }
 
   const grDate = token.ceremonyDate ? new Date(token.ceremonyDate).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
-  answers['ΑΡΙΘΜ_ΠΡΩΤΟΚΟΛΛΟΥ'] = token.protocolNumber || '';
+  answers['Ξ‘Ξ΅Ξ™ΞΞ_Ξ Ξ΅Ξ©Ξ¤ΞΞΞΞ›Ξ›ΞΞ¥'] = token.protocolNumber || '';
   answers['protocolNumber'] = token.protocolNumber || '';
-  answers['ΑΡΙΘΜ_ΒΙΒΛΙΟΥ'] = token.bookNumber || '';
+  answers['Ξ‘Ξ΅Ξ™ΞΞ_Ξ’Ξ™Ξ’Ξ›Ξ™ΞΞ¥'] = token.bookNumber || '';
   answers['bookNumber'] = token.bookNumber || '';
   answers['000'] = token.bookNumber || '';
-  answers['ΗΜΕΡΟΜΗΝΙΑ_ΤΕΛΕΣΗΣ'] = grDate;
+  answers['Ξ—ΞΞ•Ξ΅ΞΞΞ—ΞΞ™Ξ‘_Ξ¤Ξ•Ξ›Ξ•Ξ£Ξ—Ξ£'] = grDate;
   answers['ceremonyDate'] = grDate;
 
   if (token.ceremonyDate) {
     const d = new Date(token.ceremonyDate);
-    const months = ['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'];
-    answers['Ημέρα_Τέλεσης'] = String(d.getDate());
-    answers['Μήνας_Τέλεσης'] = months[d.getMonth()];
-    answers['Έτος_Τέλεσης'] = String(d.getFullYear());
+    const months = ['Ξ™Ξ±Ξ½ΞΏΟ…Ξ±ΟΞ―ΞΏΟ…','Ξ¦ΞµΞ²ΟΞΏΟ…Ξ±ΟΞ―ΞΏΟ…','ΞΞ±ΟΟ„Ξ―ΞΏΟ…','Ξ‘Ο€ΟΞΉΞ»Ξ―ΞΏΟ…','ΞΞ±ΞΞΏΟ…','Ξ™ΞΏΟ…Ξ½Ξ―ΞΏΟ…','Ξ™ΞΏΟ…Ξ»Ξ―ΞΏΟ…','Ξ‘Ο…Ξ³ΞΏΟΟƒΟ„ΞΏΟ…','Ξ£ΞµΟ€Ο„ΞµΞΌΞ²ΟΞ―ΞΏΟ…','ΞΞΊΟ„Ο‰Ξ²ΟΞ―ΞΏΟ…','ΞΞΏΞµΞΌΞ²ΟΞ―ΞΏΟ…','Ξ”ΞµΞΊΞµΞΌΞ²ΟΞ―ΞΏΟ…'];
+    answers['Ξ—ΞΌΞ­ΟΞ±_Ξ¤Ξ­Ξ»ΞµΟƒΞ·Ο‚'] = String(d.getDate());
+    answers['ΞΞ®Ξ½Ξ±Ο‚_Ξ¤Ξ­Ξ»ΞµΟƒΞ·Ο‚'] = months[d.getMonth()];
+    answers['ΞΟ„ΞΏΟ‚_Ξ¤Ξ­Ξ»ΞµΟƒΞ·Ο‚'] = String(d.getFullYear());
     answers['day'] = String(d.getDate());
     answers['month'] = months[d.getMonth()];
     answers['year'] = String(d.getFullYear());
-    answers['00ην Μηνός'] = `${d.getDate()}η ${months[d.getMonth()]}`;
-    answers['00 Μήνας 0000'] = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    answers['00Ξ·Ξ½ ΞΞ·Ξ½ΟΟ‚'] = `${d.getDate()}Ξ· ${months[d.getMonth()]}`;
+    answers['00 ΞΞ®Ξ½Ξ±Ο‚ 0000'] = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
     answers['0000'] = String(d.getFullYear());
     answers['00'] = String(d.getDate()).padStart(2, '0');
     // Standard semantic keys for ceremony day/year (used by synonym groups and
@@ -411,42 +413,42 @@ export async function POST(req: NextRequest) {
     answers['ceremonyYear']  = String(d.getFullYear());
   }
   
-  answers['Εφημέριος'] = token.assignedPriest || '';
-  answers['ΕΦΗΜΕΡΙΟΣ'] = token.assignedPriest || '';
+  answers['Ξ•Ο†Ξ·ΞΌΞ­ΟΞΉΞΏΟ‚'] = token.assignedPriest || '';
+  answers['Ξ•Ξ¦Ξ—ΞΞ•Ξ΅Ξ™ΞΞ£'] = token.assignedPriest || '';
   answers['assignedPriest'] = token.assignedPriest || '';
 
-  // Priest title/rank from temple settings → [Αρχιμανδρίτης του Οικουμενικού θρόνου]
+  // Priest title/rank from temple settings β†’ [Ξ‘ΟΟ‡ΞΉΞΌΞ±Ξ½Ξ΄ΟΞ―Ο„Ξ·Ο‚ Ο„ΞΏΟ… ΞΞΉΞΊΞΏΟ…ΞΌΞµΞ½ΞΉΞΊΞΏΟ ΞΈΟΟΞ½ΞΏΟ…]
   let templeSettingsObj: any = {};
   try { if (token.temple.settings) templeSettingsObj = JSON.parse(token.temple.settings); } catch(e) {}
   const priestTitle = templeSettingsObj.priestTitle || '';
-  answers['Αρχιμανδρίτης του Οικουμενικού θρόνου'] = priestTitle;
+  answers['Ξ‘ΟΟ‡ΞΉΞΌΞ±Ξ½Ξ΄ΟΞ―Ο„Ξ·Ο‚ Ο„ΞΏΟ… ΞΞΉΞΊΞΏΟ…ΞΌΞµΞ½ΞΉΞΊΞΏΟ ΞΈΟΟΞ½ΞΏΟ…'] = priestTitle;
   answers['priestTitle'] = priestTitle;
-  answers['ΤίτλοςΙερέα'] = priestTitle;
-  answers['Τίτλος Ιερέα'] = priestTitle;
+  answers['Ξ¤Ξ―Ο„Ξ»ΞΏΟ‚Ξ™ΞµΟΞ­Ξ±'] = priestTitle;
+  answers['Ξ¤Ξ―Ο„Ξ»ΞΏΟ‚ Ξ™ΞµΟΞ­Ξ±'] = priestTitle;
 
-  answers['ΝΑΟΣ_ΟΝΟΜΑ'] = token.temple.name || '';
+  answers['ΞΞ‘ΞΞ£_ΞΞΞΞΞ‘'] = token.temple.name || '';
   answers['templeName'] = token.temple.name || '';
-  answers['ΝΑΟΣ_ΔΙΕΥΘΥΝΣΗ'] = token.temple.address || '';
-  answers['ΜΗΤΡΟΠΟΛΗ'] = token.temple.metropolis?.name || '';
+  answers['ΞΞ‘ΞΞ£_Ξ”Ξ™Ξ•Ξ¥ΞΞ¥ΞΞ£Ξ—'] = token.temple.address || '';
+  answers['ΞΞ—Ξ¤Ξ΅ΞΞ ΞΞ›Ξ—'] = token.temple.metropolis?.name || '';
   answers['metropolisName'] = token.temple.metropolis?.name || '';
 
-  // Πόλη Ναού — from temple.city field or temple settings JSON
+  // Ξ ΟΞ»Ξ· ΞΞ±ΞΏΟ β€” from temple.city field or temple settings JSON
   const templeCity: string = (token.temple as any).city
     || templeSettingsObj.city
     || templeSettingsObj.templeCity
     || '';
   answers['templeCity']    = templeCity;
-  answers['ΠόληΝαού']      = templeCity;
-  answers['ΠΟΛΗ_ΝΑΟΥ']     = templeCity;
-  answers['ΤόποςΤελετής']  = templeCity;
+  answers['Ξ ΟΞ»Ξ·ΞΞ±ΞΏΟ']      = templeCity;
+  answers['Ξ ΞΞ›Ξ—_ΞΞ‘ΞΞ¥']     = templeCity;
+  answers['Ξ¤ΟΟ€ΞΏΟ‚Ξ¤ΞµΞ»ΞµΟ„Ξ®Ο‚']  = templeCity;
 
-  answers['ΗΜΕΡΟΜΗΝΙΑ'] = new Date().toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' });
-  // ───────────────────────────────────────────────────────────────────────
+  answers['Ξ—ΞΞ•Ξ΅ΞΞΞ—ΞΞ™Ξ‘'] = new Date().toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' });
+  // β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
   const tokenData: TokenData = {
     id: token.id,
     serviceType: token.serviceType,
-    customerName: token.customerName || 'Οικογένεια',
+    customerName: token.customerName || 'ΞΞΉΞΊΞΏΞ³Ξ­Ξ½ΞµΞΉΞ±',
     ceremonyDate: token.ceremonyDate,
     assignedPriest: token.assignedPriest,
     assignedPsaltis: token.assignedPsaltis,
@@ -460,7 +462,7 @@ export async function POST(req: NextRequest) {
 
   let docs: { key: string; label: string; buffer: Buffer; filename: string }[] = [];
 
-  // Any uploaded file templates (DOCX/PDF) for this temple — regardless of docType.
+  // Any uploaded file templates (DOCX/PDF) for this temple β€” regardless of docType.
   // If the temple has uploaded their own files, never fall back to generic hardcoded PDFs.
   const hasAnyUploadedFiles = customTemplates.some(t => t.fileUrl || t.fileData);
 
@@ -488,9 +490,9 @@ export async function POST(req: NextRequest) {
     // Best case: templates with correct ceremony type
     docs = templatesForType.map(tplToEntry);
   } else if (hasAnyUploadedFiles) {
-    // Temple has uploaded files but with wrong/missing docType → use ALL uploaded templates.
-    // Admin should fix categories via the 🏷️ button on /admin/documents.
-    console.warn(`[generate-all] No templates for docType="${serviceTypeLower}" — using ALL uploaded templates as fallback (fix template categories in /admin/documents)`);
+    // Temple has uploaded files but with wrong/missing docType β†’ use ALL uploaded templates.
+    // Admin should fix categories via the π·οΈ button on /admin/documents.
+    console.warn(`[generate-all] No templates for docType="${serviceTypeLower}" β€” using ALL uploaded templates as fallback (fix template categories in /admin/documents)`);
     docs = customTemplates.filter(t => t.fileUrl || t.fileData || t.htmlContent).map(tplToEntry);
   } else if (serviceTypeLower === 'gamos') {
     docs = await generateAllGamosDocs(tokenData);
