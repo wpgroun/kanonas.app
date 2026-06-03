@@ -261,9 +261,9 @@ export async function rescanTemplateVariables(templateId: string): Promise<{
       where: { id: templateId },
       data: {
         context: JSON.stringify({ format: detectedFormat, vars: detectedVars }),
-        variableMap: variableMap as any,
+        variableMap: variableMap,
         needsMapping,
-      }
+      } as any
     })
 
     revalidatePath('/admin/documents')
