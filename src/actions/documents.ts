@@ -261,7 +261,7 @@ export async function rescanTemplateVariables(templateId: string): Promise<{
       where: { id: templateId },
       data: {
         context: JSON.stringify({ format: detectedFormat, vars: detectedVars }),
-        variableMap: Object.keys(variableMap).length > 0 ? variableMap as any : undefined,
+        variableMap: variableMap as any,
         needsMapping,
       }
     })
