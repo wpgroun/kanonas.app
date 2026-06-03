@@ -205,6 +205,7 @@ export function getNormalizedValue(placeholderKey: string, answers: Record<strin
     ['πατρωνυμο', 'patronymo', 'patronym', 'fathersname', 'fathername', 'father', 'ονομαπατερα', 'πατερα', 'onomapatera', 'patera'],
     ['μητρωνυμο', 'mitronymo', 'mitronym', 'mothersname', 'mothername', 'mother', 'ονομαμητερας', 'μητερας', 'μητερα', 'onomamiteras', 'miteras', 'mitera'],
     ['αναδοχος', 'anadochos', 'godparent', 'godparentfullname', 'sponsor', 'nounos', 'νονος', 'νονα', 'nonos', 'nona'],
+    ['πολεωσ', 'πολησαναδοχου', 'godparentcity', 'αναδοχοσπολη', 'πολιαναδοχου', 'κατοικοσ'],
     ['εφημεριος', 'efimerios', 'priest', 'assignedpriest', 'ιερεας', 'ιερεαςονομα', 'iereas', 'iereasonoma'],
     ['ναος', 'naos', 'temple', 'templename', 'ναοσονομα', 'naosonoma'],
     ['μητροπολη', 'metropolis', 'metropolisname', 'μητροποληονομα', 'mitropolionoma', 'mitropoli'],
@@ -381,6 +382,7 @@ export const SYNONYM_GROUPS: [string, ...string[]][] = [
   ['motherFullName',     'ονοματεπωνυμομητερας', 'motherfullname'],
   ['godparentName',      'αναδοχος', 'anadochos', 'godparent', 'sponsor', 'nounos', 'νονος', 'νονα'],
   ['godparentFullName',  'ονοματεπωνυμοαναδοχου', 'godparentfullname'],
+  ['godparentCity',      'πολεωσ', 'πολησαναδοχου', 'godparentcity', 'αναδοχοσπολη', 'πολιαναδοχου', 'κατοικοσ'],
   ['groomName',          'γαμπρος', 'groom', 'groomname', 'νυμφιος', 'nymfios'],
   ['groomFullName',      'ονοματεπωνυμογαμπρου', 'groomfullname'],
   ['brideName',          'νυφη', 'bride', 'bridename', 'νυμφη', 'nymfi'],
@@ -395,7 +397,7 @@ export const SYNONYM_GROUPS: [string, ...string[]][] = [
   ['protocolNumber',     'πρωτοκολλο', 'protokollo', 'protocol', 'protocolnumber', 'αριθμπρωτοκολλου'],
   ['bookNumber',         'βιβλιο', 'vivlio', 'book', 'booknumber', 'αριθμβιβλιου'],
   ['birthDate',          'ημερομηνιαγεννησης', 'birthdate', 'dateofbirth', 'γεννηση'],
-  ['birthPlace',         'τοποσγεννησης', 'birthplace', 'placeofbirth', 'τοποςγεννησης'],
+  ['birthPlace',         'τοποσγεννησης', 'birthplace', 'placeofbirth', 'τοποςγεννησης', 'πολη', 'πολισ', 'city'],
   ['idNumber',           'αδτ', 'adt', 'idnumber', 'identitynumber', 'αριθμοσταυτοτητας'],
   ['afm',                'αφμ', 'afm', 'taxid', 'vat'],
   ['address',            'διευθυνση', 'address', 'diefthynsi'],
@@ -410,6 +412,7 @@ export const SYNONYM_GROUPS: [string, ...string[]][] = [
   ['birthMonth',         'μηνασγεννησησ', 'μηνοσγεννησεωσ', 'birthmonth', 'μηναγεννησησ'],
   ['birthYear',          'εποσγεννησεωσ', 'εποσγεννησησ', 'birthyear', 'yearofbirth'],
   // Ceremony date components
+  ['ceremonyMonth',      'μηνοσ', 'μηνας', 'μηναστελεσησ', 'μηνοστελεσησ', 'ceremonymonth', 'month'],
   ['ceremonyDay',        'ημερατελεσησ', 'ceremonyday', 'daynumber'],
   ['ceremonyYear',       'εποστελεσησ', 'ceremonyyear', 'yearofceremony', 'ετοστελεσησ'],
   ['ceremonyTime',       'ωρα', 'ωρατελεσησ', 'ceremonytime', 'time', 'hour'],
@@ -423,6 +426,9 @@ export const SYNONYM_GROUPS: [string, ...string[]][] = [
 export function autoMapVariable(placeholder: string): string | null {
   const raw = placeholder.trim();
   const pClean = cleanKey(raw);
+
+  // Gender / grammatical tokens — already handled by resolveGenderTokens & enrichAnswers
+  if (/^(ο\/η|ος\/οι|ου\/ης|ον\/ην|ην\/ον|της\/του|του\/της|ους\/ης|ς\/οι)$/i.test(raw)) return '__ignore__';
 
   // Pass 1: exact/synonym match in SYNONYM_GROUPS
   for (const [canonical, ...aliases] of SYNONYM_GROUPS) {
