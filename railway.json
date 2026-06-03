@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npx prisma@6.19.3 migrate resolve --rolled-back 20260528000000_add_variable_map; npx prisma@6.19.3 migrate deploy; node .next/standalone/server.js",
+    "startCommand": "node .next/standalone/server.js",
     "restartPolicyType": "ON_FAILURE"
   },
   "crons": [
