@@ -191,112 +191,69 @@ export function getNormalizedValue(placeholderKey: string, answers: Record<strin
   const pClean = cleanKey(placeholderKey);
   if (!pClean) return '';
 
-  // 1. Direct normalized key comparison
+  // Step 1: Direct normalized key comparison (fastest path)
   for (const [key, val] of Object.entries(answers)) {
     if (cleanKey(key) === pClean) {
       return val !== undefined && val !== null ? String(val) : '';
     }
   }
 
-  // 2. Synonyms mapping helper
-  const synonymGroups = [
-    ['ονομα', 'onoma', 'name', 'firstname', 'childname'],
-    ['επωνυμο', 'eponymo', 'lastname', 'surname', 'childlastname'],
-    ['πατρωνυμο', 'patronymo', 'patronym', 'fathersname', 'fathername', 'father', 'ονομαπατερα', 'πατερα', 'onomapatera', 'patera'],
-    ['μητρωνυμο', 'mitronymo', 'mitronym', 'mothersname', 'mothername', 'mother', 'ονομαμητερας', 'μητερας', 'μητερα', 'onomamiteras', 'miteras', 'mitera'],
-    ['αναδοχος', 'anadochos', 'godparent', 'godparentfullname', 'sponsor', 'nounos', 'νονος', 'νονα', 'nonos', 'nona'],
-    ['πολεωσ', 'πολησαναδοχου', 'godparentcity', 'αναδοχοσπολη', 'πολιαναδοχου', 'κατοικοσ'],
-    ['εφημεριος', 'efimerios', 'priest', 'assignedpriest', 'ιερεας', 'ιερεαςονομα', 'iereas', 'iereasonoma'],
-    ['ναος', 'naos', 'temple', 'templename', 'ναοσονομα', 'naosonoma'],
-    ['μητροπολη', 'metropolis', 'metropolisname', 'μητροποληονομα', 'mitropolionoma', 'mitropoli'],
-    ['ημερομηνια', 'imerominia', 'date', 'currentdate', 'today'],
-    ['ημερομηνιατελεσης', 'imerominiatelesis', 'ceremonydate', 'dateofceremony'],
-    ['πρωτοκολλο', 'protokollo', 'protocol', 'protocolnumber', 'αριθμπρωτοκολλου', 'arithmprotokollou'],
-    ['βιβλιο', 'vivlio', 'book', 'booknumber', 'αριθμβιβλιου', 'βιβλιοαριθμος', 'arithmvivliou', 'vivlioarithmos'],
-    // ceremony month (group 13 — index 12)
-    ['μηναστελεσησ', 'μηνοστελεσησ', 'ceremonymonth', 'μηνασ', 'μηνοσ', 'month', 'μηνας'],
-    // day name (group 14 — index 13) + example day-of-week values
-    ['ημερα', 'ημεραεβδομαδασ', 'dayname', 'weekday', 'ημερατελεσησεβδ',
-     'κυριακη', 'δευτερα', 'τριτη', 'τεταρτη', 'πεμπτη', 'παρασκευη', 'σαββατο'],
-    // child gender + example values
-    ['φυλο', 'φυλοτεκνου', 'childgender', 'gender', 'αρρεν', 'θηλυ', 'θηλυκο', 'αρσεν'],
-    // birth month
-    ['μηνασγεννησησ', 'μηνοσγεννησεωσ', 'birthmonth', 'μηναγεννησησ', 'μηνγεννησησ'],
-    // birth year
-    ['εποσγεννησεωσ', 'εποσγεννησησ', 'birthyear', 'yearofbirth', 'εποσγεν'],
-    // ceremony year
-    ['εποστελεσησ', 'ceremonyyear', 'yearofceremony', 'ετοστελεσησ'],
-    // ceremony time
-    ['ωρα', 'ωρατελεσησ', 'ceremonytime', 'time', 'hour'],
-  ];
-
-  const group = synonymGroups.find(g => g.map(cleanKey).includes(pClean));
-  if (group) {
-    const cleanedGroup = group.map(cleanKey);
-    for (const [key, val] of Object.entries(answers)) {
-      const kClean = cleanKey(key);
-      if (cleanedGroup.includes(kClean)) {
-        return val !== undefined && val !== null ? String(val) : '';
+  // Step 2: SYNONYM_GROUPS — single source of truth
+  for (const group of SYNONYM_GROUPS) {
+    const groupCleaned = group.map(cleanKey);
+    if (groupCleaned.includes(pClean)) {
+      for (const [key, val] of Object.entries(answers)) {
+        if (groupCleaned.includes(cleanKey(key)) && val !== undefined && val !== null && String(val) !== '') {
+          return String(val);
+        }
       }
+      break;
     }
   }
 
-  // 3. Pattern-based recognition for example-value placeholders ────────────────
-  // Handles templates that use concrete example values as placeholder names,
-  // e.g. [Αυγούστου] instead of [Μηνός], or [7ην] instead of [00ην].
-
-  // Greek month name (any month, any grammatical form)
+  // Step 3: Pattern-based recognition for example-value placeholders
   if (GREEK_MONTHS_CLEAN.has(pClean)) {
-    // Birth month first (Βαπτιστικό-style: "γεννηθέν την 7ην Αυγούστου 2020")
     for (const [k, v] of Object.entries(answers)) {
-      if (['birthmonth','μηνασγεννησησ','μηνοσγεννησεωσ'].includes(cleanKey(k)) && v) return String(v);
+      if (['birthmonth','μηνασγεννησης','μηνοςγεννησεως'].includes(cleanKey(k)) && v) return String(v);
     }
-    // Fall back: ceremony month
     for (const [k, v] of Object.entries(answers)) {
-      if (['μηνασ','μηνοσ','month','ceremonymonth','μηνας'].includes(cleanKey(k)) && v !== undefined && v !== null) return String(v);
+      if (['ceremonymonth','μηνος','μηνας','month'].includes(cleanKey(k)) && v != null) return String(v);
     }
   }
 
-  // Ordinal-day pattern: [7ην], [17η], [21ης]
   if (ORDINAL_DAY_RE.test(pClean)) {
-    // Birth day first
     for (const [k, v] of Object.entries(answers)) {
-      if (['birthday','ημεραγεννησεωσ','ημεραγεννησησ'].includes(cleanKey(k)) && v) return String(v);
+      if (['birthday','ημεραγεννησεως','ημεραγεννησης'].includes(cleanKey(k)) && v) return String(v);
     }
-    // Fall back: ceremony day ordinal [00ην]
     for (const [k, v] of Object.entries(answers)) {
-      if (cleanKey(k) === '00ην' && v) return String(v);
+      if (['ceremonyday','ημερατελεσης'].includes(cleanKey(k)) && v) return String(v);
     }
   }
 
-  // 4-digit year as example value: [2020], [1996]
   if (EXAMPLE_YEAR_RE.test(pClean) && +pClean >= 1900 && +pClean <= 2100) {
-    // Birth year first
     for (const [k, v] of Object.entries(answers)) {
-      if (['birthyear','εποσγεννησεωσ','εποσγεννησησ'].includes(cleanKey(k)) && v) return String(v);
+      if (['birthyear','εποςγεννησεως','εποςγεννησης'].includes(cleanKey(k)) && v) return String(v);
     }
-    // Fall back: ceremony year [0000]
     for (const [k, v] of Object.entries(answers)) {
-      if (cleanKey(k) === '0000' && v) return String(v);
+      if (['ceremonyyear','εποςτελεσης','year'].includes(cleanKey(k)) && v) return String(v);
     }
   }
 
-  // Ecclesiastical title prefix → treat as priest full name
   if (PRIEST_TITLE_RE.test(pClean)) {
     for (const [k, v] of Object.entries(answers)) {
-      if (['εφημεριοσ','efimerios','priest','assignedpriest'].includes(cleanKey(k)) && v) return String(v);
+      if (['εφημεριος','efimerios','priest','assignedpriest','priestname'].includes(cleanKey(k)) && v) return String(v);
     }
   }
 
-  // Time as example value: [12:00], [09:30] — test original string (colon lost in pClean)
   if (/^\d{1,2}:\d{2}$/.test(placeholderKey.trim())) {
     for (const [k, v] of Object.entries(answers)) {
-      if (['ωρα','ωρατελεσησ','ceremonytime','time','hour'].includes(cleanKey(k)) && v !== undefined && v !== null) return String(v);
+      if (['ωρα','ωρατελεσης','ceremonytime','time','hour'].includes(cleanKey(k)) && v != null) return String(v);
     }
   }
 
   return '';
 }
+
 
 export function mergeSplitRuns(xml: string): string {
   // Replace content of each paragraph
@@ -371,7 +328,171 @@ export function mergeSplitRuns(xml: string): string {
  * Each entry: [canonicalKey, ...aliases]
  */
 export const SYNONYM_GROUPS: [string, ...string[]][] = [
-  ['childName',          'ονομα', 'onoma', 'name', 'firstname', 'childname', 'παιδι', 'τεκνο'],
+  // ─── CHILD / BAPTIZED PERSON ───────────────────────────────────────────
+  ['childName',
+    'ονομα', 'onoma', 'name', 'firstname', 'childname', 'παιδι', 'τεκνο',
+    'βαπτιζομενος', 'νεοφωτιστος', 'childfirstname', 'child_firstname', 'child_name'],
+  ['childLastName',
+    'επωνυμο', 'eponymo', 'lastname', 'surname', 'childlastname',
+    'childsurname', 'child_lastname'],
+  ['childFullName',
+    'ονοματεπωνυμο', 'fullname', 'childfullname', 'ονοματεπωνυμοτεκνου', 'child_fullname'],
+  ['childGender',
+    'φυλο', 'childgender', 'gender', 'αρρεν', 'θηλυ', 'θηλυκο', 'αρσεν', 'φυλοτεκνου'],
+
+  // ─── FATHER ────────────────────────────────────────────────────
+  ['fatherName',
+    'πατρωνυμο', 'patronymo', 'patronym', 'fathersname', 'fathername', 'father',
+    'ονομαπατερα', 'πατερας', 'onomapatera', 'ονομαπατρος',
+    'fatherfirstname', 'father_firstname', 'father_name'],
+  ['fatherLastName',
+    'επωνυμοπατερα', 'fatherlastname', 'fathersurname', 'επωνυμοπατρος', 'father_lastname'],
+  ['fatherFullName',
+    'ονοματεπωνυμοπατερα', 'fatherfullname', 'ονοματεπωνυμοπατρος', 'father_fullname'],
+
+  // ─── MOTHER ────────────────────────────────────────────────────
+  ['motherName',
+    'μητρωνυμο', 'mitronymo', 'mitronym', 'mothersname', 'mothername', 'mother',
+    'ονομαμητερας', 'μητερας', 'μητερα', 'onomamiteras', 'ονομαμητρος',
+    'motherfirstname', 'mother_firstname', 'mother_name'],
+  ['motherLastName',
+    'επωνυμομητερας', 'motherlastname', 'mothersurname', 'επωνυμομητρος', 'mother_lastname'],
+  ['motherFullName',
+    'ονοματεπωνυμομητερας', 'motherfullname', 'ονοματεπωνυμομητρος', 'mother_fullname'],
+  ['motherMaidenName',
+    'πατρικοεπωνυμομητερας', 'maidenname', 'mothermaidenname', 'γενοςμητερας',
+    'πατρικο', 'mother_maiden', 'mothermaiden', 'mothersurnamebirth'],
+
+  // ─── GODPARENT (ΒΑΠΤΙΣΗ) ───────────────────────────────────────────
+  ['godparentName',
+    'αναδοχος', 'αναδοχη', 'anadochos', 'godparent', 'sponsor', 'nounos',
+    'νονος', 'νονα', 'ονομααναδοχου', 'godparentfirstname', 'godparent_firstname', 'godparent_name'],
+  ['godparentLastName',
+    'επωνυμοαναδοχου', 'godparentlastname', 'godparent_lastname'],
+  ['godparentFullName',
+    'ονοματεπωνυμοαναδοχου', 'godparentfullname', 'αναδοχος1', 'αναδοχη1',
+    'godparent_fullname', 'αναδοχοςονοματεπωνυμο'],
+  ['godparentCity',
+    'πολεως', 'ποληςαναδοχου', 'godparentcity', 'αναδοχοςπολη', 'πολιαναδοχου',
+    'κατοικος', 'κατοικιααναδοχου', 'godparent_city'],
+
+  // ─── GROOM (ΓΑΜΟΣ) ───────────────────────────────────────────────
+  ['groomName',
+    'γαμπρος', 'groom', 'groomname', 'νυμφιος', 'nymfios',
+    'ονομαγαμπρου', 'ονομανυμφιου', 'groomfirstname', 'groom_firstname', 'groom_name'],
+  ['groomLastName',
+    'επωνυμογαμπρου', 'groomlastname', 'επωνυμονυμφιου', 'groom_lastname'],
+  ['groomFullName',
+    'ονοματεπωνυμογαμπρου', 'groomfullname', 'ονοματεπωνυμονυμφιου', 'groom_fullname'],
+  ['groomFatherName',
+    'πατρωνυμογαμπρου', 'groomfathername', 'πατρωνυμονυμφιου',
+    'ονομαπατερα1', 'ονομαπατροςγαμπρου', 'groom_fathername', 'groomfathersname'],
+  ['groomMotherName',
+    'ονομαμητεραςγαμπρου', 'groommothername', 'μητρωνυμογαμπρου', 'groom_mothername'],
+  ['groomMotherMaiden',
+    'πατρικοεπωνυμομητεραςγαμπρου', 'groommothermaidenname',
+    'πατρικομητεραςγαμπρου', 'groom_mothermaidenname'],
+
+  // ─── BRIDE (ΓΑΜΟΣ) ───────────────────────────────────────────────
+  ['brideName',
+    'νυφη', 'bride', 'bridename', 'νυμφη', 'nymfi',
+    'ονομανυφης', 'bridefirstname', 'bride_firstname', 'bride_name'],
+  ['brideLastName',
+    'επωνυμονυφης', 'bridelastname', 'bride_lastname'],
+  ['brideFullName',
+    'ονοματεπωνυμονυφης', 'bridefullname', 'bride_fullname'],
+  ['brideFatherName',
+    'πατρωνυμονυφης', 'bridefathername', 'ονομαπατερα2',
+    'ονομαπατροςνυφης', 'bride_fathername', 'bridesfathername'],
+  ['brideMotherName',
+    'ονομαμητεραςνυφης', 'bridemothername', 'μητρωνυμονυφης', 'bride_mothername'],
+  ['brideMotherMaiden',
+    'πατρικοεπωνυμομητεραςνυφης', 'bridemothermaidenname',
+    'πατρικομητεραςνυφης', 'bride_mothermaidenname'],
+
+  // ─── KOUMPAROS (ΓΑΜΟΣ) ───────────────────────────────────────────
+  ['koumparosName',
+    'κουμπαρος', 'κουμπαρα', 'koumparos', 'bestman', 'paranymfos',
+    'παρανυμφος', 'ονομακουμπαρου', 'koumparosfirstname', 'koumparos_firstname'],
+  ['koumparosFullName',
+    'ονοματεπωνυμοκουμπαρου', 'koumparosfullname', 'koumparos_fullname'],
+
+  // ─── PRIEST ──────────────────────────────────────────────────────
+  ['priestName',
+    'εφημεριος', 'efimerios', 'priest', 'assignedpriest', 'ιερεας',
+    'ιερουργων', 'ιερουργησας', 'assignedpriestname', 'priest_name'],
+  ['priestTitle',
+    'τιτλοςιερεα', 'priesttitle', 'αιδεσιμολογιωτατος',
+    'πανοσιολογιωτατος', 'αιδεσιμωτατος', 'priest_title'],
+
+  // ─── TEMPLE / CHURCH ───────────────────────────────────────────
+  ['templeName',
+    'ναος', 'naos', 'temple', 'templename', 'ναοςονομα', 'ονομαναου', 'ιεροςναος'],
+  ['templeAddress',
+    'διευθυνσηναου', 'templeaddress', 'ναοςδιευθυνση', 'temple_address'],
+  ['templeCity',
+    'ποληςναου', 'templecity', 'τοποςτελετης', 'τοποςναου',
+    'πολιτελετης', 'temple_city', 'τοποςτελεσης'],
+  ['metropolisName',
+    'μητροπολη', 'metropolis', 'metropolisname', 'ιερακαιρα', 'μητροπολις'],
+
+  // ─── CEREMONY DATE & TIME ─────────────────────────────────────────
+  ['ceremonyDate',
+    'ημερομηνιατελεσης', 'ceremonydate', 'dateofceremony',
+    'ημερομηνιατελετης', 'ημερομηνιαιερολογησεως'],
+  ['ceremonyDay',
+    'ημερατελεσης', 'ceremonyday', 'daynumber', 'ημερατελετης'],
+  ['ceremonyMonth',
+    'μηνος', 'μηνας', 'μηναςτελεσης', 'μηνοςτελεσης', 'ceremonymonth', 'month', 'μηναςτελετης'],
+  ['ceremonyYear',
+    'εποςτελεσης', 'ceremonyyear', 'yearofceremony', 'ετοςτελεσης', 'year'],
+  ['ceremonyTime',
+    'ωρα', 'ωρατελεσης', 'ceremonytime', 'time', 'hour', 'ωρατελετης'],
+  ['dayName',
+    'ημερα', 'dayname', 'weekday', 'ημερεβδομαδας',
+    'κυριακη', 'δευτερα', 'τριτη', 'τεταρτη', 'πεμπτη', 'παρασκευη', 'σαββατο'],
+  ['currentDate',
+    'ημερομηνια', 'imerominia', 'currentdate', 'today', 'σημερα', 'date'],
+
+  // ─── BIRTH DATE ───────────────────────────────────────────────────
+  ['birthDate',
+    'ημερομηνιαγεννησης', 'birthdate', 'dateofbirth', 'γεννηση', 'ημερομηνιαγεννησεως'],
+  ['birthDay',
+    'ημεραγεννησεως', 'ημεραγεννησης', 'birthday', 'birthdaynumber'],
+  ['birthMonth',
+    'μηναςγεννησης', 'μηνοςγεννησεως', 'birthmonth', 'μηναγεννησης', 'μηνγεννησης'],
+  ['birthYear',
+    'εποςγεννησεως', 'εποςγεννησης', 'birthyear', 'yearofbirth', 'εποςγεν'],
+
+  // ─── CIVIL REGISTRY (ΛΗΞΙΑΡΧΕΙΟ) ────────────────────────────────────
+  ['civilRegistryName',
+    'ληξιαρχειο', 'civilregistry', 'civilregistryname', 'ονομαληξιαρχειου', 'registryname'],
+  ['civilRegistryNumber',
+    'αριθμοςληξιαρχικης', 'civilregistrynumber', 'αριθμοςπραξης',
+    'αριθμληξιαρχικης', 'αριθμοςβαπτισης', 'αριθμλ'],
+  ['civilRegistryTome',
+    'τομοςληξιαρχειου', 'civilregistrytome', 'τομος', 'tome', 'τομοςλ'],
+  ['civilRegistryYear',
+    'εποςληξιαρχικης', 'civilregistryyear', 'ετοςληξιαρχικης', 'εποςλ'],
+
+  // ─── LOCATION ─────────────────────────────────────────────────────
+  ['birthPlace',
+    'τοποςγεννησης', 'birthplace', 'placeofbirth', 'πολη', 'πολις', 'city',
+    'τοποςγεννησεως', 'πολιγεννησης', 'birthcity'],
+
+  // ─── REGISTRY NUMBERS ───────────────────────────────────────────
+  ['protocolNumber',
+    'πρωτοκολλο', 'protokollo', 'protocol', 'protocolnumber', 'αριθμπρωτοκολλου', 'αριθμοςπρωτοκολλου'],
+  ['bookNumber',
+    'βιβλιο', 'vivlio', 'book', 'booknumber', 'αριθμβιβλιου', 'αριθμοςβιβλιου'],
+
+  // ─── PERSONAL INFO ────────────────────────────────────────────────
+  ['idNumber',
+    'αδτ', 'adt', 'idnumber', 'identitynumber', 'αριθμοςταυτοτητας', 'αριθμοςδελτιουταυτοτητας'],
+  ['afm',   'αφμ', 'afm', 'taxid', 'vat'],
+  ['address', 'διευθυνση', 'address', 'diefthynsi', 'κατοικια'],
+  ['phone',   'τηλεφωνο', 'phone', 'telephone', 'tilefono'],
+];
   ['childLastName',      'επωνυμο', 'eponymo', 'lastname', 'surname', 'childlastname'],
   ['childFullName',      'ονοματεπωνυμο', 'fullname', 'childfullname'],
   ['fatherName',         'πατρωνυμο', 'patronymo', 'patronym', 'fathersname', 'fathername', 'father', 'ονομαπατερα', 'πατερας', 'onomapatera'],
@@ -427,8 +548,8 @@ export function autoMapVariable(placeholder: string): string | null {
   const raw = placeholder.trim();
   const pClean = cleanKey(raw);
 
-  // Gender / grammatical tokens — already handled by resolveGenderTokens & enrichAnswers
-  if (/^(ο\/η|ος\/οι|ου\/ης|ον\/ην|ην\/ον|της\/του|του\/της|ους\/ης|ς\/οι)$/i.test(raw)) return '__ignore__';
+  // Gender / grammatical tokens — already resolved automatically by resolveGenderTokens & enrichAnswers
+  if (/^[a-zα-ωά-ώΑ-ΩΆ-Ώ]+\/[a-zα-ωά-ώΑ-ΩΆ-Ώ]+$/i.test(raw)) return '__ignore__';
 
   // Pass 1: exact/synonym match in SYNONYM_GROUPS
   for (const [canonical, ...aliases] of SYNONYM_GROUPS) {

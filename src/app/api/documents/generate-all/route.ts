@@ -304,8 +304,9 @@ export async function POST(req: NextRequest) {
         answers['ΠόληΓέννησης'] = answers['birthCity'];
       }
       if (answers['civilRegistry']) {
-        answers['ληξιαρχείο'] = answers['civilRegistry'];
-        answers['Ληξιαρχείο'] = answers['civilRegistry'];
+        answers['civilRegistryName']    = answers['civilRegistry'];
+        answers['ληξιαρχείο']           = answers['civilRegistry'];
+        answers['Ληξιαρχείο']           = answers['civilRegistry'];
       }
       if (answers['civilRegistryNumber']) {
         answers['ΑριθμόςΛηξιαρχικής'] = answers['civilRegistryNumber'];
@@ -335,47 +336,49 @@ export async function POST(req: NextRequest) {
         answers['00 Μήνας 0000'] = `${dayPadded} ${monthName} ${yearNum}`;
         answers['00ην Μηνός'] = `${dayPadded}ην ${monthName}`;
       }
-      // Book number and year from token
-      if (token.bookNumber) answers['000'] = token.bookNumber;
-      const ceremonyYear = token.ceremonyDate ? new Date(token.ceremonyDate).getFullYear().toString() : new Date().getFullYear().toString();
-      answers['0000'] = ceremonyYear;
-      // Ceremony day (padded)
-      if (token.ceremonyDate) {
-        const cd = new Date(token.ceremonyDate);
-        answers['00'] = String(cd.getDate()).padStart(2, '0');
-        const dayNames = ['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
-        answers['Ημέρα'] = dayNames[cd.getDay()];
-      }
-      // Conditional second godparent phrase
-      const godparent2 = answers['godparent2Name'] || answers['anadochos2'] || '';
-      answers['και Ανάδοχος 2 κάτοικος Πόλεως'] = godparent2
-        ? `και ${godparent2} κάτοικος ${answers['Πόλεως'] || ''}`
-        : answers['και Ανάδοχος 2 κάτοικος Πόλεως'] || '';
-      // Priest title from temple settings if available
-      if (!answers['Εφημέριος'] && token.assignedPriest) {
-        answers['Εφημέριος'] = token.assignedPriest;
-      }
   } else if (serviceTypeLower === 'gamos') {
     const groom = token.persons.find(p => p.role === 'groom');
     const bride = token.persons.find(p => p.role === 'bride');
-    
+    const koumparos = token.persons.find(p => p.role === 'koumbaros' || p.role === 'koumparos');
+
     if (groom) {
-      answers['Όνομα_Γαμπρού'] = groom.firstName || '';
-      answers['Επώνυμο_Γαμπρού'] = groom.lastName || '';
-      answers['Πατρώνυμο_Γαμπρού'] = groom.fathersName || '';
-      
-      answers['ΟΝΟΜΑ_ΓΑΜΠΡΟΥ'] = groom.firstName || '';
-      answers['ΕΠΩΝΥΜΟ_ΓΑΜΠΡΟΥ'] = groom.lastName || '';
-      answers['ΠΑΤΡΩΝΥΜΟ_ΓΑΜΠΡΟΥ'] = groom.fathersName || '';
+      const groomFull = `${groom.firstName || ''} ${groom.lastName || ''}`.trim();
+      answers['groomName']              = groom.firstName || '';
+      answers['groomLastName']          = groom.lastName || '';
+      answers['groomFullName']          = groomFull;
+      answers['groomFatherName']        = groom.fathersName || '';
+      answers['groomMotherName']        = groom.mothersName || '';
+      answers['groomMotherMaiden']      = answers['groomMotherMaiden'] || answers['groomsmothermaidenname'] || '';
+
+      answers['Όνομα_Γαμπρού']          = groom.firstName || '';
+      answers['Επώνυμο_Γαμπρού']        = groom.lastName || '';
+      answers['Πατρώνυμο_Γαμπρού']      = groom.fathersName ? declineGreekName(groom.fathersName, 'genitive', 'male') : '';
+      answers['ΟΝΟΜΑ_ΓΑΜΠΡΟΥ']          = groom.firstName || '';
+      answers['ΕΠΩΝΥΜΟ_ΓΑΜΠΡΟΥ']        = groom.lastName || '';
+      answers['ΠΑΤΡΩΝΥΜΟ_ΓΑΜΠΡΟΥ']      = answers['Πατρώνυμο_Γαμπρού'];
     }
     if (bride) {
-      answers['Όνομα_Νύφης'] = bride.firstName || '';
-      answers['Επώνυμο_Νύφης'] = bride.lastName || '';
-      answers['Πατρώνυμο_Νύφης'] = bride.fathersName || '';
-      
-      answers['ΟΝΟΜΑ_ΝΥΦΗΣ'] = bride.firstName || '';
-      answers['ΕΠΩΝΥΜΟ_ΝΥΦΗΣ'] = bride.lastName || '';
-      answers['ΠΑΤΡΩΝΥΜΟ_ΝΥΦΗΣ'] = bride.fathersName || '';
+      const brideFull = `${bride.firstName || ''} ${bride.lastName || ''}`.trim();
+      answers['brideName']              = bride.firstName || '';
+      answers['brideLastName']          = bride.lastName || '';
+      answers['brideFullName']          = brideFull;
+      answers['brideFatherName']        = bride.fathersName || '';
+      answers['brideMotherName']        = bride.mothersName || '';
+      answers['brideMotherMaiden']      = answers['brideMotherMaiden'] || answers['bridesmothermaidenname'] || '';
+
+      answers['Όνομα_Νύφης']            = bride.firstName || '';
+      answers['Επώνυμο_Νύφης']          = bride.lastName || '';
+      answers['Πατρώνυμο_Νύφης']        = bride.fathersName ? declineGreekName(bride.fathersName, 'genitive', 'male') : '';
+      answers['ΟΝΟΜΑ_ΝΥΦΗΣ']            = bride.firstName || '';
+      answers['ΕΠΩΝΥΜΟ_ΝΥΦΗΣ']          = bride.lastName || '';
+      answers['ΠΑΤΡΩΝΥΜΟ_ΝΥΦΗΣ']        = answers['Πατρώνυμο_Νύφης'];
+    }
+    if (koumparos) {
+      const koumparosFull = `${koumparos.firstName || ''} ${koumparos.lastName || ''}`.trim();
+      answers['koumparosName']          = koumparos.firstName || '';
+      answers['koumparosFullName']      = koumparosFull;
+      answers['Κουμπάρος']              = koumparosFull;
+      answers['ΚΟΥΜΠΑΡΟΣ']              = koumparosFull;
     }
   }
 

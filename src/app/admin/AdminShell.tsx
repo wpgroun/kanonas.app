@@ -117,10 +117,9 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  const secondaryItems = [
  { href: '/admin/modules', icon: Info, label: 'Λειτουργικότητες', requiredPerm: null },
  { href: '/admin/exports', icon: Download, label: 'Εξαγωγή Δεδομένων', requiredPerm: 'isHeadPriest' },
- { href: '/admin/audit', icon: ShieldCheck, label: 'Ιστορικό Ενεργειών', requiredPerm: 'isHeadPriest' },
- { href: '/admin/subscription', icon: CreditCard, label: 'Διαχείριση Συνδρομής', requiredPerm: 'isHeadPriest' },
- { href: '/admin/documents', icon: FileText, label: 'Πρότυπα Εγγράφων', requiredPerm: 'isHeadPriest' },
- { href: '/admin/settings/schedule', icon: Calendar, label: 'Ωράριο Κρατήσεων', requiredPerm: 'isHeadPriest' },
+ { href: '/admin/requests', icon: BookOpen, label: 'Αιτήσεις', requiredPerm: 'isHeadPriest' },
+ { href: '/admin/requests/new', icon: PlusCircle, label: 'Νέα Αίτηση', requiredPerm: 'isHeadPriest' },
+ { href: '/admin/documents/generate', icon: Zap, label: 'Παραγωγή Εγγράφων', requiredPerm: 'isHeadPriest' },
  { href: '/admin/settings', icon: Settings, label: 'Ρυθμίσεις', requiredPerm: 'isHeadPriest' },
  { href: '/admin/users', icon: Users, label: 'Προσωπικό & Ρόλοι', requiredPerm: 'isHeadPriest' },
  { href: '/admin/super/announcements', icon: Megaphone, label: 'Ανακοινώσεις', requiredPerm: 'isSuperAdmin' },
