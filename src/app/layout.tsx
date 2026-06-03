@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ReactNode, Suspense } from 'react';
 import { Metadata } from 'next';
 import { Toaster } from 'sonner';
