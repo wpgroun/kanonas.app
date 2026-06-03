@@ -6,7 +6,7 @@ import { getCurrentTempleId } from './core'
 import { requireAuth } from '@/lib/requireAuth'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
-import { mergeSplitRuns } from '@/lib/greekDeclension'
+import { mergeSplitRuns, autoMapVariable } from '@/lib/greekDeclension'
 
 export async function getDocTemplates(docType?: string) {
   const templeId = await getCurrentTempleId()
@@ -180,6 +180,99 @@ export async function deleteDocTemplate(id: string) {
   await prisma.docTemplate.delete({ where: { id } })
   revalidatePath('/admin/documents')
   return { success: true }
+}
+
+/**
+ * Re-scan a previously uploaded DOCX/PDF template for variables.
+ * Useful when the template was uploaded with an older version of the code
+ * that didn't detect bracket-format variables ([Όνομα], [Εφημέριος] etc.).
+ */
+export async function rescanTemplateVariables(templateId: string): Promise<{
+  success: boolean; count: number; error?: string
+}> {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+
+  const template = await prisma.docTemplate.findFirst({ where: { id: templateId, templeId } })
+  if (!template) return { success: false, count: 0, error: 'Template not found' }
+  if (!template.fileData && !template.fileUrl)
+    return { success: false, count: 0, error: 'Δεν υπάρχει αρχείο για σάρωση.' }
+
+  try {
+    const PizZip = (await import('pizzip')).default
+
+    // Load the file from fileData (base64) or from disk
+    let buffer: Buffer
+    if (template.fileData) {
+      buffer = Buffer.from(template.fileData as string, 'base64')
+    } else {
+      const { readFile } = await import('fs/promises')
+      const pathMod = await import('path')
+      buffer = await readFile(pathMod.join(process.cwd(), 'public', template.fileUrl!))
+    }
+
+    const zip = new PizZip(buffer)
+    let mainXml = ''
+    for (const fileName of Object.keys(zip.files)) {
+      if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
+        const xmlFile = zip.file(fileName)
+        if (xmlFile) {
+          let xml = xmlFile.asText()
+          xml = mergeSplitRuns(xml)
+          if (fileName === 'word/document.xml') mainXml = xml
+        }
+      }
+    }
+
+    const plainText = mainXml.replace(/<[^>]+>/g, ' ')
+    const mustacheVars  = Array.from(plainText.matchAll(/\{\{([^}]+)\}\}/g)).map(m => m[1].trim())
+    const singleVars    = Array.from(plainText.matchAll(/(?<!\{)\{([^}]+)\}(?!\})/g)).map(m => m[1].trim())
+    const bracketVars   = Array.from(plainText.matchAll(/\[([^\]]+)\]/g)).map(m => m[1].trim())
+
+    const counts = [
+      { format: 'mustache',     count: mustacheVars.length,  vars: mustacheVars },
+      { format: 'single_curly', count: singleVars.length,    vars: singleVars },
+      { format: 'brackets',     count: bracketVars.length,   vars: bracketVars },
+    ].sort((a, b) => b.count - a.count)
+
+    let detectedVars: string[] = []
+    let detectedFormat = 'brackets'
+    if (counts[0].count > 0) {
+      detectedFormat = counts[0].format
+      detectedVars = Array.from(new Set(counts[0].vars))
+    }
+
+    // Build variable map using autoMapVariable
+    const variableMap: Record<string, string> = {}
+    let needsMapping = false
+    for (const v of detectedVars) {
+      const mapped = autoMapVariable(v)
+      if (mapped && mapped !== '__ignore__') {
+        variableMap[v] = mapped
+      } else if (mapped === '__ignore__') {
+        variableMap[v] = '__ignore__'
+      } else {
+        variableMap[v] = '__unknown__'
+        needsMapping = true
+      }
+    }
+
+    await prisma.docTemplate.update({
+      where: { id: templateId },
+      data: {
+        context: JSON.stringify({ format: detectedFormat, vars: detectedVars }),
+        variableMap: Object.keys(variableMap).length > 0 ? variableMap as any : undefined,
+        needsMapping,
+      }
+    })
+
+    revalidatePath('/admin/documents')
+    revalidatePath(`/admin/documents/${templateId}/variables`)
+    return { success: true, count: detectedVars.length }
+  } catch (e: any) {
+    console.error('[rescan]', e)
+    return { success: false, count: 0, error: e.message }
+  }
 }
 
 /**

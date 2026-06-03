@@ -2,239 +2,331 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { ArrowLeft, Save, CheckCircle2, AlertTriangle, Loader2, EyeOff, Wand2, RefreshCw, Map } from 'lucide-react'
 import Link from 'next/link'
-import { ArrowLeft, Map, CheckCircle2, Loader2, Sparkles, HelpCircle, AlertCircle } from 'lucide-react'
-import { saveVariableMap } from '@/actions/documents'
+import { saveVariableMap, rescanTemplateVariables } from '@/actions/documents'
 import { autoMapVariable, SYNONYM_GROUPS } from '@/lib/greekDeclension'
 
+interface TemplateRecord {
+  id: string
+  nameEl: string
+  docType: string
+  context: string | null
+  variableMap: any
+  needsMapping: boolean
+  fileUrl?: string | null
+  fileData?: string | null
+}
+
 interface Props {
-  template: {
-    id: string
-    nameEl: string
-    docType: string
-    context: string | null
-    variableMap: any
-    needsMapping: boolean
-  }
+  template: TemplateRecord
 }
 
-// All known canonical data keys with their labels
-const DATA_KEY_OPTIONS = SYNONYM_GROUPS.map(([canonical]) => canonical)
-
-const DATA_KEY_LABELS: Record<string, string> = {
-  childName: 'Όνομα Παιδιού / Κύριου Προσώπου',
-  childLastName: 'Επώνυμο Παιδιού',
-  childFullName: 'Ονοματεπώνυμο Παιδιού',
-  fatherName: 'Όνομα Πατέρα (Πατρώνυμο)',
-  fatherLastName: 'Επώνυμο Πατέρα',
-  fatherFullName: 'Ονοματεπώνυμο Πατέρα',
-  motherName: 'Όνομα Μητέρας (Μητρώνυμο)',
-  motherLastName: 'Επώνυμο Μητέρας',
-  motherFullName: 'Ονοματεπώνυμο Μητέρας',
-  godparentName: 'Όνομα Αναδόχου / Νονού',
-  godparentFullName: 'Ονοματεπώνυμο Αναδόχου',
-  groomName: 'Όνομα Γαμπρού',
-  groomFullName: 'Ονοματεπώνυμο Γαμπρού',
-  brideName: 'Όνομα Νύφης',
-  brideFullName: 'Ονοματεπώνυμο Νύφης',
-  koumparosName: 'Όνομα Κουμπάρου',
-  koumparosFullName: 'Ονοματεπώνυμο Κουμπάρου',
-  priestName: 'Ονοματεπώνυμο Εφημερίου',
-  templeName: 'Ονομασία Ναού',
-  metropolisName: 'Ονομασία Μητρόπολης',
-  ceremonyDate: 'Ημερομηνία Τελετής',
-  currentDate: 'Σημερινή Ημερομηνία',
-  protocolNumber: 'Αριθμός Πρωτοκόλλου',
-  bookNumber: 'Αριθμός Βιβλίου',
-  birthDate: 'Ημερομηνία Γέννησης',
-  birthPlace: 'Τόπος Γέννησης',
-  idNumber: 'Αριθμός Ταυτότητας (ΑΔΤ)',
-  afm: 'ΑΦΜ',
-  address: 'Διεύθυνση Κατοικίας',
-  phone: 'Τηλέφωνο',
+const DELIMITER_DISPLAY: Record<string, (v: string) => string> = {
+  brackets:     (v) => `[${v}]`,
+  single_curly: (v) => `{${v}}`,
+  mustache:     (v) => `{{${v}}}`,
 }
+
+// Build standardFields list from SYNONYM_GROUPS canonical keys
+const STANDARD_FIELD_LABELS: Record<string, string> = {
+  childName:        'Όνομα Παιδιού / Κύριου Προσώπου',
+  childLastName:    'Επώνυμο Παιδιού',
+  childFullName:    'Ονοματεπώνυμο Παιδιού',
+  fatherName:       'Όνομα Πατέρα (Πατρώνυμο)',
+  fatherLastName:   'Επώνυμο Πατέρα',
+  fatherFullName:   'Ονοματεπώνυμο Πατέρα',
+  motherName:       'Όνομα Μητέρας (Μητρώνυμο)',
+  motherLastName:   'Επώνυμο Μητέρας',
+  motherFullName:   'Ονοματεπώνυμο Μητέρας',
+  godparentName:    'Όνομα Αναδόχου / Νονού',
+  godparentFullName:'Ονοματεπώνυμο Αναδόχου',
+  groomName:        'Όνομα Γαμπρού',
+  groomFullName:    'Ονοματεπώνυμο Γαμπρού',
+  brideName:        'Όνομα Νύφης',
+  brideFullName:    'Ονοματεπώνυμο Νύφης',
+  koumparosName:    'Όνομα Κουμπάρου',
+  koumparosFullName:'Ονοματεπώνυμο Κουμπάρου',
+  priestName:       'Ονοματεπώνυμο Εφημερίου',
+  templeName:       'Ονομασία Ναού',
+  metropolisName:   'Ονομασία Μητρόπολης',
+  ceremonyDate:     'Ημερομηνία Τελετής',
+  currentDate:      'Σημερινή Ημερομηνία',
+  protocolNumber:   'Αριθμός Πρωτοκόλλου',
+  bookNumber:       'Αριθμός Βιβλίου',
+  birthDate:        'Ημερομηνία Γέννησης',
+  birthPlace:       'Τόπος Γέννησης',
+  idNumber:         'Αριθμός Ταυτότητας (ΑΔΤ)',
+  afm:              'ΑΦΜ',
+  address:          'Διεύθυνση Κατοικίας',
+  phone:            'Τηλέφωνο',
+  dayName:          'Ημέρα Εβδομάδας',
+  childGender:      'Φύλο Παιδιού',
+  birthDay:         'Ημέρα Γέννησης (αριθμός)',
+  birthMonth:       'Μήνας Γέννησης',
+  birthYear:        'Έτος Γέννησης',
+  ceremonyDay:      'Ημέρα Τελετής (αριθμός)',
+  ceremonyYear:     'Έτος Τελετής',
+  ceremonyTime:     'Ώρα Τελετής',
+  templeCity:       'Πόλη Ναού (τόπος τελετής)',
+}
+
+const standardFields = SYNONYM_GROUPS.map(([canonical]) => ({
+  key: canonical,
+  label: STANDARD_FIELD_LABELS[canonical] || canonical,
+}))
 
 export default function VariablesClient({ template }: Props) {
   const router = useRouter()
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
 
-  // Parse variables from context
-  const vars = useMemo((): string[] => {
+  // Parse vars + format from context
+  const { detectedVars, detectedFormat } = useMemo(() => {
     try {
-      if (!template.context) return []
+      if (!template.context) return { detectedVars: [] as string[], detectedFormat: 'brackets' }
       const parsed = JSON.parse(template.context)
-      if (Array.isArray(parsed)) return parsed
-      return parsed.vars || []
-    } catch { return [] }
+      if (Array.isArray(parsed)) return { detectedVars: parsed as string[], detectedFormat: 'brackets' }
+      return {
+        detectedVars: (parsed.vars || []) as string[],
+        detectedFormat: (parsed.format || 'brackets') as string,
+      }
+    } catch {
+      return { detectedVars: [] as string[], detectedFormat: 'brackets' }
+    }
   }, [template.context])
 
-  // Initialize mapping from saved variableMap, with auto-suggestions for unmapped vars
+  // Initialize mapping: saved variableMap + auto-suggest for unmapped
   const initialMap = useMemo(() => {
-    const saved: Record<string, string> = {}
+    const init: Record<string, string> = {}
     try {
       const existing = template.variableMap as Record<string, string> | null
-      if (existing && typeof existing === 'object') {
-        Object.assign(saved, existing)
-      }
+      if (existing && typeof existing === 'object') Object.assign(init, existing)
     } catch {}
-    // Auto-suggest for any var not yet in the saved map
-    for (const v of vars) {
-      if (!saved[v]) {
+    for (const v of detectedVars) {
+      if (!init[v]) {
         const suggested = autoMapVariable(v)
-        if (suggested) saved[v] = suggested
+        init[v] = suggested ?? '__unknown__'
       }
     }
-    return saved
-  }, [template.variableMap, vars])
+    return init
+  }, [template.variableMap, detectedVars])
 
-  const [mapping, setMapping] = useState<Record<string, string>>(initialMap)
+  const [map, setMap] = useState<Record<string, string>>(initialMap)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [rescanning, setRescanning] = useState(false)
 
-  const handleChange = (varName: string, dataKey: string) => {
-    setMapping(prev => ({ ...prev, [varName]: dataKey }))
+  const handleRescan = async () => {
+    setRescanning(true)
+    const res = await rescanTemplateVariables(template.id)
+    setRescanning(false)
+    if (res.success) {
+      router.refresh()
+    } else {
+      alert(res.error || 'Σφάλμα επανα-σάρωσης')
+    }
   }
 
   const handleSave = async () => {
     setSaving(true)
-    // Only include non-empty mappings
     const cleaned: Record<string, string> = {}
-    for (const [k, v] of Object.entries(mapping)) {
+    for (const [k, v] of Object.entries(map)) {
       if (v) cleaned[k] = v
     }
-    await saveVariableMap(template.id, cleaned)
+    const res = await saveVariableMap(template.id, cleaned)
     setSaving(false)
-    setSaved(true)
-    setTimeout(() => {
-      router.push('/admin/documents')
+    if (res.success) {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
       router.refresh()
-    }, 800)
+    }
   }
 
-  const mappedCount = Object.values(mapping).filter(Boolean).length
-  const totalVars = vars.length
+  const formatVar = DELIMITER_DISPLAY[detectedFormat] || DELIMITER_DISPLAY.brackets
+
+  const unknownCount  = Object.values(map).filter(v => v === '__unknown__').length
+  const mappedCount   = Object.values(map).filter(v => v !== '__unknown__' && v !== '__ignore__').length
+  const ignoredCount  = Object.values(map).filter(v => v === '__ignore__').length
+  const totalVars     = detectedVars.length
 
   return (
-    <div className="container max-w-3xl mt-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="container-fluid mt-6 space-y-6 animate-in fade-in zoom-in-95 duration-500">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Link href="/admin/documents" className="p-2 rounded-lg hover:bg-[var(--surface)] text-[var(--text-muted)] hover:text-foreground transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Map className="w-6 h-6 text-yellow-600" />
-            Αντιστοίχιση Μεταβλητών
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-0.5">
-            <span className="font-semibold text-foreground">{template.nameEl}</span>
-          </p>
-        </div>
-      </div>
-
-      {/* Info box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3 items-start">
-        <HelpCircle className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
-        <div className="text-sm text-blue-800">
-          <p className="font-bold mb-1">Τι κάνω εδώ;</p>
-          <p>Αντιστοιχίστε κάθε μεταβλητή του προτύπου σας (π.χ. <code className="bg-blue-100 px-1 rounded">{'{{Πατρώνυμο}}'}</code>) με το πεδίο δεδομένων που πρέπει να γεμίσει αυτόματα κατά την παραγωγή εγγράφου.
-          Το σύστημα έχει ήδη κάνει αυτόματες προτάσεις — ελέγξτε τες και διορθώστε αν χρειάζεται.</p>
-        </div>
-      </div>
-
-      {/* Progress */}
-      {totalVars > 0 && (
-        <div className="flex items-center gap-3">
-          <div className="flex-1 bg-[var(--border)] rounded-full h-2">
-            <div
-              className="bg-emerald-500 h-2 rounded-full transition-all"
-              style={{ width: `${(mappedCount / totalVars) * 100}%` }}
-            />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+            <Link href="/admin/documents" className="hover:text-foreground flex items-center gap-1">
+              <ArrowLeft className="w-3.5 h-3.5" /> Πρότυπα
+            </Link>
+            <span>/</span>
+            <span className="font-medium text-foreground">{template.nameEl}</span>
+            <span>/</span>
+            <span>Αντιστοίχηση Μεταβλητών</span>
           </div>
-          <span className="text-sm font-bold text-[var(--text-muted)]">
-            {mappedCount}/{totalVars} αντιστοιχισμένες
-          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <Wand2 className="w-6 h-6 text-violet-500" />
+            Αντιστοίχηση Μεταβλητών
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm max-w-2xl">
+            Πείτε στο Kanonas τι αντιπροσωπεύει κάθε μεταβλητή του προτύπου σας.
+            Έτσι θα συμπληρώνεται αυτόματα από τα δεδομένα της τελετής.
+          </p>
+          {totalVars > 0 && mappedCount > 0 && unknownCount === 0 && (
+            <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 mt-2 inline-flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Όλες οι μεταβλητές αναγνωρίστηκαν αυτόματα — δεν απαιτείται καμία ενέργεια.
+            </p>
+          )}
         </div>
-      )}
-
-      {/* All mapped — success banner */}
-      {totalVars > 0 && mappedCount === totalVars && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm text-emerald-800">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-          <span><strong>Όλες οι μεταβλητές αναγνωρίστηκαν αυτόματα</strong> — δεν απαιτείται καμία ενέργεια. Μπορείτε να αποθηκεύσετε αμέσως.</span>
-        </div>
-      )}
-
-      {/* Variable Mapping Table */}
-      {vars.length === 0 ? (
-        <div className="card p-8 text-center space-y-3">
-          <AlertCircle className="w-12 h-12 text-slate-300 mx-auto" />
-          <p className="text-[var(--text-muted)] font-medium">Δεν βρέθηκαν μεταβλητές στο πρότυπο.</p>
-          <p className="text-sm text-[var(--text-muted)]">Επεξεργαστείτε το πρότυπο για να προσθέσετε μεταβλητές (π.χ. <code>{'{{Όνομα}}'}</code>).</p>
-          <Link href="/admin/documents" className="btn btn-secondary mt-2 inline-flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" /> Επιστροφή
-          </Link>
-        </div>
-      ) : (
-        <div className="card divide-y divide-[var(--border)]">
-          {vars.map((varName) => {
-            const selectedKey = mapping[varName] || ''
-            const isAutoMapped = !!autoMapVariable(varName)
-            return (
-              <div key={varName} className="px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="flex-1">
-                  <code className="text-sm font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">
-                    {`{{${varName}}}`}
-                  </code>
-                  {isAutoMapped && !template.variableMap?.[varName] && (
-                    <span className="ml-2 text-[10px] font-bold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200 uppercase tracking-wide">
-                      <Sparkles className="w-2.5 h-2.5 inline mr-0.5" />
-                      Αυτόματο
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 sm:w-72">
-                  <span className="text-[var(--text-muted)] text-lg">→</span>
-                  <select
-                    value={selectedKey}
-                    onChange={e => handleChange(varName, e.target.value)}
-                    className="flex-1 bg-[var(--background)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-brand"
-                  >
-                    <option value="">— Αγνοήστε —</option>
-                    {DATA_KEY_OPTIONS.map(key => (
-                      <option key={key} value={key}>
-                        {DATA_KEY_LABELS[key] || key}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Save Footer */}
-      {vars.length > 0 && (
-        <div className="flex justify-between items-center pt-2 pb-8">
-          <Link href="/admin/documents" className="btn btn-secondary flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" /> Ακύρωση
-          </Link>
+        <div className="flex gap-2 self-start md:self-auto">
+          <button
+            onClick={handleRescan}
+            disabled={rescanning}
+            title="Επανα-σαρώνει το αρχείο για μεταβλητές (χρήσιμο αν ανέβηκε με παλαιό κώδικα)"
+            className="btn btn-secondary flex items-center gap-2 border-violet-200 text-violet-700 hover:bg-violet-50"
+          >
+            {rescanning ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            Επανα-σάρωση
+          </button>
           <button
             onClick={handleSave}
-            disabled={saving || saved}
-            className="btn btn-primary flex items-center gap-2 shadow-lg shadow-brand/30 min-w-[160px] justify-center"
+            disabled={saving}
+            className="btn btn-primary flex items-center gap-2 shadow-lg shadow-brand/30"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : saved ? (
               <CheckCircle2 className="w-4 h-4" />
             ) : (
-              <Map className="w-4 h-4" />
+              <Save className="w-4 h-4" />
             )}
-            {saved ? 'Αποθηκεύτηκε!' : 'Αποθήκευση Αντιστοίχισης'}
+            {saved ? 'Αποθηκεύτηκε!' : 'Αποθήκευση'}
           </button>
         </div>
+      </div>
+
+      {/* Stats bar */}
+      {totalVars > 0 && (
+        <div className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-sm font-bold text-emerald-700">
+            <CheckCircle2 className="w-4 h-4" /> {mappedCount} αντιστοιχισμένες
+          </div>
+          {unknownCount > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-sm font-bold text-amber-700">
+              <AlertTriangle className="w-4 h-4" /> {unknownCount} χωρίς αντιστοίχηση
+            </div>
+          )}
+          {ignoredCount > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 text-sm font-bold text-slate-600">
+              <EyeOff className="w-4 h-4" /> {ignoredCount} αγνοούνται
+            </div>
+          )}
+        </div>
       )}
+
+      {unknownCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start">
+          <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-amber-800">
+            <p className="font-bold mb-0.5">Υπάρχουν μεταβλητές χωρίς αντιστοίχηση</p>
+            <p>Επιλέξτε τι αντιπροσωπεύει η κάθε μεταβλητή από το αναπτυσσόμενο μενού.
+            Αν κάποια μεταβλητή δεν χρειάζεται αντιστοίχηση, επιλέξτε «Αγνόηση».</p>
+          </div>
+        </div>
+      )}
+
+      {/* Variable mapping table */}
+      <div className="card p-0 overflow-hidden shadow-sm">
+        <div className="px-5 py-3 border-b border-[var(--border)] bg-[var(--background)] flex items-center gap-2">
+          <Map className="w-4 h-4 text-violet-500" />
+          <span className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">
+            {totalVars} μεταβλητές στο πρότυπο
+          </span>
+        </div>
+        <div className="divide-y divide-[var(--border)]">
+          {totalVars === 0 && (
+            <div className="p-8 text-center text-sm text-[var(--text-muted)] space-y-3">
+              <p className="font-bold text-base">Δεν βρέθηκαν μεταβλητές στο πρότυπο.</p>
+              <p className="text-xs">
+                Το σύστημα αναγνωρίζει μεταβλητές σε 3 formats:<br />
+                <code className="bg-slate-100 px-1 rounded">{'{{Όνομα}}'}</code>&nbsp;
+                <code className="bg-slate-100 px-1 rounded">{'[Όνομα]'}</code>&nbsp;
+                <code className="bg-slate-100 px-1 rounded">{'{Όνομα}'}</code>
+              </p>
+              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                Αν το αρχείο σας χρησιμοποιεί κάποιο από αυτά τα formats, πατήστε
+                <b> Επανα-σάρωση</b> (πάνω δεξιά) για να εντοπιστούν αυτόματα.
+                <br /><br />
+                <b>Σημείωση:</b> Η παραγωγή εγγράφων λειτουργεί <b>κανονικά</b> ακόμα και χωρίς αντιστοίχηση —
+                οι μεταβλητές αντικαθίστανται αυτόματα κατά τη γέννηση.
+              </p>
+            </div>
+          )}
+          {detectedVars.map((v) => {
+            const current = map[v] || '__unknown__'
+            const isMapped  = current !== '__unknown__' && current !== '__ignore__'
+            const isIgnored = current === '__ignore__'
+            const isUnknown = current === '__unknown__'
+
+            return (
+              <div
+                key={v}
+                className={`flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 transition-colors ${
+                  isUnknown ? 'bg-amber-50/40' : isIgnored ? 'bg-slate-50/60 opacity-70' : 'hover:bg-[var(--background)]'
+                }`}
+              >
+                <div className="flex-1 min-w-0">
+                  <code className="text-sm font-bold font-mono text-violet-700 bg-violet-50 border border-violet-200 px-2.5 py-1 rounded-lg break-all">
+                    {formatVar(v)}
+                  </code>
+                </div>
+                <div className="hidden sm:block text-[var(--text-muted)]">→</div>
+                <div className="flex-1 sm:max-w-xs">
+                  <select
+                    value={current}
+                    onChange={(e) => setMap({ ...map, [v]: e.target.value })}
+                    className={`w-full bg-[var(--background)] border rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-violet-400 transition-colors ${
+                      isUnknown
+                        ? 'border-amber-300 text-amber-700'
+                        : isIgnored
+                        ? 'border-slate-300 text-slate-500'
+                        : 'border-emerald-300 text-emerald-700'
+                    }`}
+                  >
+                    <option value="__unknown__">— Δεν έχει οριστεί —</option>
+                    <option value="__ignore__">🚫 Αγνόηση (σταθερό κείμενο)</option>
+                    <optgroup label="─────────────────">
+                      {standardFields.map((f) => (
+                        <option key={f.key} value={f.key}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
+                </div>
+                <div className="w-6 hidden sm:flex items-center justify-center">
+                  {isMapped  && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
+                  {isIgnored && <EyeOff className="w-5 h-5 text-slate-400" />}
+                  {isUnknown && <AlertTriangle className="w-5 h-5 text-amber-400" />}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Save footer */}
+      <div className="flex justify-end gap-3 pb-6">
+        <Link href="/admin/documents" className="btn btn-secondary">
+          Πίσω
+        </Link>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="btn btn-primary flex items-center gap-2"
+        >
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          Αποθήκευση αντιστοιχίσεων
+        </button>
+      </div>
     </div>
   )
 }
