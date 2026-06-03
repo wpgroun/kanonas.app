@@ -253,30 +253,38 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
       // Skip Mustache section / comment markers: {{#name}}, {{/name}}, {{^name}}, {{!...}}, {{>partial}}
       if (isMustache && /^[#^/!>]/.test(trimmedKey)) return null;
 
+      const debugKey = ['Εφημέριος','Ανάδοχος1','Όνομα','Ονοματεπώνυμο Πατρός'].includes(trimmedKey);
+
       // 1. Check per-template variableMap first
       if (variableMap) {
         const mappedField = variableMap[trimmedKey];
+        if (debugKey) logger.info(`[lookupKey] "${trimmedKey}": variableMap has ${Object.keys(variableMap).length} entries, mappedField=${JSON.stringify(mappedField)}`);
         if (mappedField === '__ignore__') {
           const autoVal = getNormalizedValue(trimmedKey, answers);
           return autoVal !== '' ? autoVal : '';
         }
         if (mappedField && mappedField !== '__unknown__') {
-          // variableMap had an explicit mapping — honour it even if value is empty
-          return getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
+          const result = getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
+          if (debugKey) logger.info(`[lookupKey] "${trimmedKey}" via variableMap[${mappedField}] = "${result}"`);
+          return result;
         }
+      } else {
+        if (debugKey) logger.info(`[lookupKey] "${trimmedKey}": variableMap is NULL`);
       }
 
-      // 2. Direct hasOwnProperty check — honours keys explicitly set to '' (empty string)
-      //    This clears placeholders like [και Ανάδοχος 2...] when no second godparent exists
+      // 2. Direct hasOwnProperty check
       if (Object.prototype.hasOwnProperty.call(answers, trimmedKey)) {
-        return answers[trimmedKey] ?? '';
+        const result = answers[trimmedKey] ?? '';
+        if (debugKey) logger.info(`[lookupKey] "${trimmedKey}" direct = "${result}"`);
+        return result;
       }
 
       // 3. Synonym-group / normalized key lookup
       const val = getNormalizedValue(trimmedKey, answers);
-      if (val !== '') return val; // found a real value via synonym
+      if (val !== '') return val;
 
-      return undefined; // genuinely not found — keep placeholder visible
+      if (debugKey) logger.info(`[lookupKey] "${trimmedKey}": NOT FOUND`);
+      return undefined;
     }
 
     // Apply replacement for a single regex pattern
