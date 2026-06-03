@@ -38,8 +38,8 @@ export async function getSmartTemplatesForBooking(templeId: string, serviceType:
     } catch {}
 
     // Extract condition variable (e.g. {{OIKOG_STATUS}} == 'ΧΗΡΕΙΑ' -> OIKOG_STATUS)
-    let conditionVariable = null;
-    let conditionTargetValue = null;
+    let conditionVariable: string | null = null;
+    let conditionTargetValue: string | null = null;
     if (t.conditionRules) {
       const condMatch = t.conditionRules.match(/\{\{([^}]+)\}\}\s*==\s*['"]([^'"]+)['"]/);
       if (condMatch) {
