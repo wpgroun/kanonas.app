@@ -97,6 +97,9 @@ export async function POST(req: NextRequest) {
       answers['γεννηθεις/σα'] = childGender === 'male' ? 'γεννηθείς' : 'γεννηθείσα';
       answers['ο/η'] = childGender === 'male' ? 'ο' : 'η';
       answers['του/της'] = childGender === 'male' ? 'του' : 'της';
+      // Greek grammatical agreement variables (gender/number inflections for baptism certificates)
+      answers['ον/ην'] = childGender === 'male' ? 'ον' : 'ην';   // Στον/Στην νεοφώτιστο/η
+      answers['ού/ής'] = childGender === 'male' ? 'ού' : 'ής';   // αυτού/αυτής
 
       if (father) {
         const fatherFirstGenitive = declineGreekName(father.firstName || '', 'genitive', 'male');
@@ -138,9 +141,17 @@ export async function POST(req: NextRequest) {
         const gp2Full = `${godparent2.firstName || ''} ${godparent2.lastName || ''}`.trim();
         answers['Ανάδοχος_2'] = gp2Full;
         answers['Ανάδοχος2'] = gp2Full;
+        // Detect godparent2 gender from first name ending
+        const gp2NameLower = (godparent2.firstName || '').toLowerCase();
+        const gp2Article = (gp2NameLower.endsWith('α') || gp2NameLower.endsWith('η') || gp2NameLower.endsWith('ω')) ? 'η' : 'ο';
+        const gp2City = (godparent2 as any).city || answers['godparent2City'] || '';
+        answers['και ο/η Ανάδοχος2 κάτοικος Πόλεως'] = `και ${gp2Article} ${gp2Full} κάτοικος ${gp2City}`.trim();
+        answers['ος/οι'] = 'οι'; // two godparents
       } else {
         answers['Ανάδοχος_2'] = '';
         answers['Ανάδοχος2'] = '';
+        answers['και ο/η Ανάδοχος2 κάτοικος Πόλεως'] = '';
+        answers['ος/οι'] = 'ος'; // one godparent
       }
 
       // Gender indicator as used in Greek documents: άρρεν / θήλυ
