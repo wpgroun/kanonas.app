@@ -1,4 +1,5 @@
 ﻿'use server';
+import { logger } from '@/lib/logger';
 
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/requireAuth';
