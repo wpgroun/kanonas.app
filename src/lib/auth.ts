@@ -28,7 +28,11 @@ export interface SessionPayload {
 
 // In production, JWT_SECRET MUST be set in environment variables.
 // A missing secret would allow anyone to forge admin sessions.
-if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+if (
+  process.env.NODE_ENV === 'production' &&
+  process.env.NEXT_PHASE !== 'phase-production-build' &&
+  !process.env.JWT_SECRET
+) {
  throw new Error('[Kanonas] FATAL: JWT_SECRET environment variable is not set. Aborting startup.');
 }
 const secretKey = process.env.JWT_SECRET ?? 'kanonas_dev_only_fallback_do_not_use_in_prod';
