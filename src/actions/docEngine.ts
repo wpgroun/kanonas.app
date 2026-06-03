@@ -406,7 +406,8 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
 
     // --- Global XML Normalization, Gender Tokens & Placeholder Replacement ---
     for (const fileName of Object.keys(zip.files)) {
-      if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
+      const normalizedFileName = fileName.replace(/\\/g, '/')
+      if (normalizedFileName.startsWith('word/') && normalizedFileName.endsWith('.xml')) {
         const xmlFile = zip.file(fileName);
         if (xmlFile) {
           let xml = xmlFile.asText();
