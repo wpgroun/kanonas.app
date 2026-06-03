@@ -1,0 +1,46 @@
+﻿'use server'
+
+import { logger } from '@/lib/logger';
+
+import { prisma } from '@/lib/prisma'
+import { getSession } from '@/lib/auth'
+
+/**
+ * Returns the templeId for the currently authenticated user.
+ * Falls back to null if there is no session (should not happen in guarded actions).
+ */
+export async function getCurrentTempleId(): Promise<string> {
+ const session = await getSession()
+ if (session?.templeId) return session.templeId as string
+ throw new Error('UNAUTHORIZED: No active session / templeId not found.')
+}
+
+/**
+ * Seed a real temple during development/demo (kept for onboarding use only).
+ * Do NOT call this from any action — use only in seed scripts.
+ * @deprecated Use proper onboarding flow instead.
+ */
+export async function seedDummyTemple() {
+ // This function is intentionally a no-op in production.
+ // For local dev seed, run: node seed.mjs
+ if (process.env.NODE_ENV === 'production') return;
+
+  const { requireAuth } = await import('@/lib/requireAuth');
+  const session = await requireAuth();
+  const templeId = session.templeId;
+  
+  try {
+  const existing = await prisma.temple.findUnique({ where: { id: templeId } })
+  if (!existing) {
+  await prisma.temple.create({
+  data: {
+  id: templeId,
+  name:"Ιερός Ναός Αγίου Δημητρίου (Δοκιμαστικός)",
+  city:"Αθήνα", metropolisId:"cm0testmetropolis"
+  }
+  })
+  }
+ } catch (e) {
+ logger.error("Η βάση δεν έχει συγχρονιστεί ακόμα.", e)
+ }
+}
