@@ -59,7 +59,7 @@ export default function RequestsKanban({ tokens }: { tokens: any[] }) {
  </div>
 )}
   {colItems.map(token => {
-    let marriageClass = null;
+    let marriageClass: string | null = null;
     if (token.serviceType === 'GAMOS' && token.ceremonyMeta?.dataJson) {
       try {
         const meta = JSON.parse(token.ceremonyMeta.dataJson);

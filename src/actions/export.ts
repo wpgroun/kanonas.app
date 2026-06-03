@@ -7,7 +7,7 @@ function toCSV(data: any[]): string {
  if (data.length === 0) return ''
  const keys = Object.keys(data[0])
  
- const csvRows = []
+ const csvRows: string[] = []
  // Header
  csvRows.push(keys.join(','))
  

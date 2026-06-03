@@ -59,8 +59,8 @@ export async function addProtocolEntry(formData: FormData) {
  const nextNumber = highestRecord ? highestRecord.number + 1 : 1;
 
  // Handle Scanner file attachment
- let fileUrl = null;
- let fileName = null;
+ let fileUrl: string | null = null;
+ let fileName: string | null = null;
  const docFile = formData.get('document') as File | null;
  if (docFile && docFile.name && docFile.size > 0) {
  const arrayBuffer = await docFile.arrayBuffer();

@@ -94,7 +94,7 @@ export async function getFinancialSummary(year: number) {
   const netResult = totalIncome - totalExpenses;
 
   // Monthly cash flow
-  const months = [];
+  const months: { month: number; income: number; expense: number; net: number }[] = [];
   for (let m = 1; m <= 12; m++) {
     const mStart = new Date(`${year}-${String(m).padStart(2, '0')}-01`);
     const mEnd = new Date(m === 12 ? `${year + 1}-01-01` : `${year}-${String(m + 1).padStart(2, '0')}-01`);

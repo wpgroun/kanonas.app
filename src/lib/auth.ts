@@ -47,7 +47,7 @@ export async function decrypt(input: string): Promise<SessionPayload | null> {
  const { payload } = await jwtVerify(input, key, {
  algorithms: ['HS256'],
  });
- return payload as SessionPayload;
+ return payload as unknown as SessionPayload;
  } catch(e) {
  return null;
  }

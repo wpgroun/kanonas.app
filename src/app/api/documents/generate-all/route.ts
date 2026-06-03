@@ -497,7 +497,7 @@ export async function POST(req: NextRequest) {
 
     const { generateFromTemplate } = await import('@/actions/docEngine');
 
-    const result = [];
+    const result: any[] = [];
 
     for (const doc of docs) {
       let fileBuffer: Buffer = doc.buffer;

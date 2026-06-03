@@ -24,7 +24,7 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
 
   const isGamos = token.serviceType === 'GAMOS';
 
-  let marriageClass = null;
+  let marriageClass: string | null = null;
   if (isGamos && token.ceremonyMeta?.dataJson) {
     try {
       const meta = JSON.parse(token.ceremonyMeta.dataJson);

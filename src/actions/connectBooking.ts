@@ -181,7 +181,7 @@ export async function generateBookingSlotsForTemple(templeId: string, schedule: 
     }
   });
 
-  const slotsToCreate = [];
+  const slotsToCreate: { templeId: string; serviceType: string; startTime: Date; endTime: Date; isBooked: boolean }[] = [];
 
   for (let i = 1; i <= 60; i++) {
     const candidateDate = new Date(today);

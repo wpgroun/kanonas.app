@@ -159,7 +159,7 @@ export async function importParishioners(rows: any[]) {
     existing.map(p => `${p.firstName?.trim().toLowerCase()}|${p.lastName?.trim().toLowerCase()}|${p.phone?.trim() || ''}`)
   );
 
-  const toCreate = [];
+  const toCreate: any[] = [];
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
