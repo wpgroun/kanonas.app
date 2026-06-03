@@ -305,6 +305,7 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
     }
 
     // --- Global XML Normalization, Gender Tokens & Placeholder Replacement ---
+    logger.info(`[docEngine] generateDOCXDoc: processing template "${template.nameEl}", answers keys: ${Object.keys(answers).slice(0,15).join(',')}, targetGender=${targetGender}`);
     for (const fileName of Object.keys(zip.files)) {
       if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
         const xmlFile = zip.file(fileName);

@@ -516,7 +516,9 @@ export async function POST(req: NextRequest) {
 
       // If buffer is empty, this is a custom template placeholder → generate it now
       if (fileBuffer.length === 0) {
+        logger.info(`[generate-all] Calling generateFromTemplate for "${doc.label}" (ID: ${doc.key}). answers keys: ${Object.keys(answers).slice(0,15).join(',')}`);
         const genRes: any = await generateFromTemplate(doc.key, answers);
+        logger.info(`[generate-all] Result for "${doc.label}": success=${genRes.success}, type=${genRes.type}, error=${genRes.error}`);
         if (genRes.success) {
           if (genRes.type === 'pdf' || genRes.type === 'docx') {
             fileBuffer = Buffer.from(genRes.base64, 'base64');
