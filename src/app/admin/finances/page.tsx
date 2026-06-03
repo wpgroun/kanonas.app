@@ -9,6 +9,8 @@ import QuarterlyWidget from './QuarterlyWidget'
 import PrintReceiptBtn from './PrintReceiptBtn'
 import DeleteTransactionBtn from './DeleteTransactionBtn'
 
+export const dynamic = 'force-dynamic';
+
 export default async function FinancesPage() {
  const ledger = await getLedgerTransactions();
  const categories = await getFinancialCategories();

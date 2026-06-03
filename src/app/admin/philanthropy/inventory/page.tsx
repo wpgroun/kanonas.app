@@ -1,6 +1,8 @@
 import { getInventory } from '@/actions/inventory';
 import InventoryClient from './InventoryClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Αποθήκη & Logistics | Kanonas',
 };

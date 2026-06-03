@@ -2,6 +2,8 @@ import { getServiceSchedules } from '@/actions/schedule'
 import { getDocTemplates } from '@/actions/documents'
 import { getTempleSettings } from '@/actions/settings'
 
+export const dynamic = 'force-dynamic';
+
 export default async function SchedulePrintPage() {
  const schedules = await getServiceSchedules();
  

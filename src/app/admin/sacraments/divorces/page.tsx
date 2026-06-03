@@ -2,6 +2,8 @@ import { getDivorces } from '@/actions/divorces'
 import { getParishioners } from '@/actions/parishioners'
 import DivorcesClient from './DivorcesClient'
 
+export const dynamic = 'force-dynamic';
+
 export default async function DivorcesPage() {
  const [divorces, parishionersRes] = await Promise.all([
  getDivorces(),

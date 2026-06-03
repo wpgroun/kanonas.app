@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { getTemplateById } from '@/actions/documents'
 import VariablesClient from './VariablesClient'
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ id: string }>
 }

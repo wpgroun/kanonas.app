@@ -1,6 +1,8 @@
 import { getServiceSchedules } from '@/actions/schedule'
 import { getTempleSettings } from '@/actions/settings'
 
+export const dynamic = 'force-dynamic';
+
 export default async function PublicSchedulePage() {
  const schedules = await getServiceSchedules();
  const settings = await getTempleSettings();

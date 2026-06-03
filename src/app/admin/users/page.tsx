@@ -2,6 +2,8 @@ import { getTempleUsers } from '@/actions/users'
 import { getTempleRoles } from '@/actions/roles'
 import UsersClient from './UsersClient'
 
+export const dynamic = 'force-dynamic';
+
 export default async function UsersPage() {
  const staff = await getTempleUsers();
  const roles = await getTempleRoles();

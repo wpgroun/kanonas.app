@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import LedgerClient from './LedgerClient';
 import { requireAuth } from '@/lib/requireAuth';
 
+export const dynamic = 'force-dynamic';
+
 export default async function LedgerPage() {
  const session = await requireAuth();
  const templeId = (session as any).templeId;

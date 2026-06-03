@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { generateBookingSlotsForTemple } from '@/actions/connectBooking';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Κράτηση Μυστηρίου | Kanonas Connect' };
 
 export default async function BookingPage({ params }: { params: { slug: string } }) {

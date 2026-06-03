@@ -3,6 +3,8 @@ import { getParishionerBeneficiary } from '@/actions/philanthropy'
 import ParishionerProfileClient from './ParishionerProfileClient'
 import { getParishionerRelationships } from '@/actions/relationships'
 
+export const dynamic = 'force-dynamic';
+
 export default async function ParishionerProfile({ params }: { params: { id: string } }) {
  // Wait to resolve params dynamically in app router
  const { id } = await params;

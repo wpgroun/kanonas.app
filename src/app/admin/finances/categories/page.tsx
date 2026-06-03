@@ -1,6 +1,8 @@
 import { getFinancialCategories } from '@/actions/finances'
 import CategoriesClient from './CategoriesClient'
 
+export const dynamic = 'force-dynamic';
+
 export default async function FinancialCategoriesPage() {
  const categories = await getFinancialCategories();
  

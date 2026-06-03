@@ -1,6 +1,8 @@
 import { getMinistries, getVolunteers, getRecentShifts } from '@/actions/ministries'
 import MinistriesClient from './MinistriesClient'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Διακονίες & Εθελοντές - Kanonas'
 }

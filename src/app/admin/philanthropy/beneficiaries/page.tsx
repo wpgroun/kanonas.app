@@ -1,6 +1,8 @@
 import { getBeneficiaries } from '@/actions/philanthropy';
 import BeneficiariesClient from './BeneficiariesClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Μητρώο Ωφελουμένων | Kanonas',
 };

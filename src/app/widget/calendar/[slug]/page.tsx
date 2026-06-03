@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { Calendar, Clock, MapPin } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 // NextJS 15 params API change
 export default async function CalendarWidgetPage({ params }: { params: Promise<{ slug: string }> }) {
  const { slug } = await params;

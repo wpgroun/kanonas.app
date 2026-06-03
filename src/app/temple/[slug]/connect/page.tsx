@@ -3,6 +3,8 @@ import ConnectTabs from './ConnectTabs';
 import { Church } from 'lucide-react';
 import { getTempleDocTypes } from '@/actions/connect';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: { params: { slug: string } }) {
  const temple = await prisma.temple.findUnique({ where: { slug: params.slug } });
  return { title: temple ? `Kanonas Connect | ${temple.name}` : 'Ο Ναός δεν βρέθηκε' };

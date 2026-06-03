@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { Package, ShieldCheck, Settings, Globe, HeartHandshake, Banknote, Calendar, ClipboardList, BookOpen, Users, Tent, Info } from 'lucide-react';
 import ModulesClient from './ModulesClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Λειτουργικότητες & Ενότητες | Kanonas',
 };

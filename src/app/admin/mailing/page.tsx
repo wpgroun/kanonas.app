@@ -1,6 +1,8 @@
 import { getMailingLists } from '@/actions/mailing';
 import MailingClient from './MailingClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Αλληλογραφία & Email | Kanonas',
 };

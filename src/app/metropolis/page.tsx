@@ -3,6 +3,8 @@ import HawkClient from './HawkClient';
 import { ShieldCheck, Eye } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Metropolis Hawk\'s Eye | Kanonas SaaS',
 };

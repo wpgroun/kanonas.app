@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import SignForm from './SignForm'
 
+export const dynamic = 'force-dynamic';
+
 export default async function SignPage({ params }: { params: Promise<{ token: string }> }) {
   const resolvedParams = await params
   const token = resolvedParams.token

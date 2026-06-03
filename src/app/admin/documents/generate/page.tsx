@@ -1,6 +1,8 @@
 import { getDocTemplates } from '@/actions/documents'
 import GenerateClient from './GenerateClient'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Συμπλήρωση Εγγράφου' }
 
 export default async function GeneratePage({ searchParams }: { searchParams: any }) {

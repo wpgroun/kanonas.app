@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { getSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
+export const dynamic = 'force-dynamic';
+
 export default async function UsersPage() {
  const session = await getSession();
  if (!session || !session.templeId) redirect('/login');

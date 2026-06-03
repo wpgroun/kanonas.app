@@ -6,6 +6,8 @@ import { getTempleFeatures } from '@/lib/planFeatures'
 import { getSession } from '@/lib/auth'
 import UpgradeGate from '@/components/UpgradeGate'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Νεολαία & Κατασκηνώσεις - Kanonas'
 }

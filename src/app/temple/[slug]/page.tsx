@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { MapPin, Phone, Mail, Clock, Calendar, ShieldCheck, Heart } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function TemplePublicPage({ params }: { params: Promise<{ slug: string }> }) {
  const { slug } = await params;
 

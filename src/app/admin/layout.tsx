@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { getSubscriptionExpiryWarning } from '@/actions/subscriptions'
 import AdminShell from './AdminShell'
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Admin Layout — Server Component
  *

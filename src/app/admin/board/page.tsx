@@ -3,6 +3,8 @@ import KanbanClient from './KanbanClient';
 import PageHeader from '@/components/PageHeader';
 import { ClipboardList } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Δεξαμενή Εργασιών | Kanonas SaaS',
 };

@@ -2,6 +2,8 @@ import { getAggregatedCalendarEvents } from '@/actions/calendar';
 import CalendarClient from './CalendarClient';
 import PageHeader from '@/components/PageHeader';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CalendarPage() {
   const now = new Date();
   const year = now.getFullYear();

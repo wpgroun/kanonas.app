@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import PageHeader from '@/components/PageHeader';
 import RegistryClient from './RegistryClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Μητρώα Τελετών | Kanonas',
 };

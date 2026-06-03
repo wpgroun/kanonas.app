@@ -1,6 +1,8 @@
 import { getTempleRoles } from '@/actions/roles'
 import RolesClient from './RolesClient'
 
+export const dynamic = 'force-dynamic';
+
 export default async function RolesPage() {
  const roles = await getTempleRoles();
  

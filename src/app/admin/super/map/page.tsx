@@ -3,6 +3,8 @@ import MapClient from './MapClient';
 import PageHeader from '@/components/PageHeader';
 import { requireSuperAdmin } from '@/lib/requireAuth';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SuperMapPage() {
   await requireSuperAdmin();
   const stats = await getSuperAdminStats();

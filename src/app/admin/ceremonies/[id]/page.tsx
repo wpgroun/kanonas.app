@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import CeremonyDetailsClient from './CeremonyDetailsClient';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }

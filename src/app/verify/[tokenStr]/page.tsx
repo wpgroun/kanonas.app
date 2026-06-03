@@ -1,6 +1,8 @@
 import { verifyTokenByHash } from '@/actions/sacraments'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic';
+
 export default async function PublicVerifyPage({ params }: { params: { tokenStr: string } }) {
  const { tokenStr } = await params;
  const token = await verifyTokenByHash(tokenStr);

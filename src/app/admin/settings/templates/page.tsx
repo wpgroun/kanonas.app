@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import TemplateClient from './TemplateClient';
 
+export const dynamic = 'force-dynamic';
+
 export default async function TemplatesPage() {
  const templates = await prisma.docTemplate.findMany({
  orderBy: { createdAt: 'desc' }

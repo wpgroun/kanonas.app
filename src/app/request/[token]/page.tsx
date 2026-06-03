@@ -2,6 +2,8 @@ import { verifyTokenByHash } from '@/actions/sacraments'
 import FormClient from './FormClient'
 import { redirect } from 'next/navigation'
 
+export const dynamic = 'force-dynamic';
+
 export default async function PublicRequestPage({ params }: { params: { token: string } }) {
  const { token: tokenStr } = await params;
  

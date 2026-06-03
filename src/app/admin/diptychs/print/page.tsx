@@ -1,6 +1,8 @@
 import { getDiptychs } from '@/actions/diptychs'
 import { getTempleSettings } from '@/actions/settings'
 
+export const dynamic = 'force-dynamic';
+
 export default async function DiptychPrintPage() {
  const diptychs = await getDiptychs();
  const settings = await getTempleSettings();

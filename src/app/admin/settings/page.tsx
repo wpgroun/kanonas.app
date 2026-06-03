@@ -1,6 +1,8 @@
 import { getTempleSettings } from '@/actions/settings';
 import SettingsClient from './SettingsClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Κεντρικές Ρυθμίσεις Ναού | Kanonas SaaS',
 };

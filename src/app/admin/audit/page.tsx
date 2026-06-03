@@ -3,6 +3,8 @@ import { Download, ShieldCheck, Search, Filter, ChevronLeft, ChevronRight } from
 import Link from 'next/link'
 import AuditExportButton from './AuditExportButton'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Ιστορικό Ενεργειών — Κανόνας' }
 
 // ─── Color coding by action prefix ──────────────────────────────────────────────

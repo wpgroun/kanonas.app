@@ -1,6 +1,8 @@
 import { getSchedule } from '@/actions/schedule';
 import ScheduleClient from './ScheduleClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Πρόγραμμα & Παρουσιολόγιο | Kanonas',
 };

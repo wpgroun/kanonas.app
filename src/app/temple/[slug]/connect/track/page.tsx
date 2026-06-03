@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import TrackClient from './TrackClient';
 import { Church } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Αναζήτηση Αιτήματος - Kanonas' }
 
 export default async function TrackPage({ params }: { params: { slug: string } }) {

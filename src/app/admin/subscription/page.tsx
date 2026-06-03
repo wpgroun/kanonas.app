@@ -2,6 +2,8 @@ import { getMySubscription, getSubscriptionPlans, getStripeInvoices } from '@/ac
 import SubscriptionClient from './SubscriptionClient'
 import { getCurrentTempleId } from '@/actions/core'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Διαχείριση Συνδρομής — Κανόνας',
 }

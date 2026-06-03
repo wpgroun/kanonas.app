@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import PageHeader from '@/components/PageHeader';
 import CeremoniesClient from './CeremoniesClient';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CeremoniesPage() {
   await requireAuth();
   const templeId = await getCurrentTempleId();

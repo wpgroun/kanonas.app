@@ -5,6 +5,8 @@ import { getSession } from '@/lib/auth'
 import UpgradeGate from '@/components/UpgradeGate'
 import { Droplet } from 'lucide-react'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Αιμοδοσία — Κανόνας',
 }

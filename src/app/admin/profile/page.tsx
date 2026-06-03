@@ -4,6 +4,8 @@ import { requireAuth } from '@/lib/requireAuth'
 import ProfileClient from './ProfileClient'
 import { UserCircle } from 'lucide-react'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Ο Λογαριασμός Μου - Kanonas'
 }

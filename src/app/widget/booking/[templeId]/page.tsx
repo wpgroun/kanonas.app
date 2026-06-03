@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import BookingWidgetClient from './BookingWidgetClient';
 
+export const dynamic = 'force-dynamic';
+
 // Get booked tokens to disable slots
 async function getBookedSlots(templeId: string) {
  const tokens = await prisma.token.findMany({

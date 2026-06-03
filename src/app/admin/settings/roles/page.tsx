@@ -3,6 +3,8 @@ import RolesClient from './RolesClient';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function RolesPage() {
  const session = await getSession();
  if (!session || !session.templeId) redirect('/login');

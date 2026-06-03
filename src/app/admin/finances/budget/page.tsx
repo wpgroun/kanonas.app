@@ -1,6 +1,8 @@
 import { getBudgets, getFinancialCategories } from '@/actions/finances'
 import BudgetClient from './BudgetClient'
 
+export const dynamic = 'force-dynamic';
+
 export default async function BudgetPage({ searchParams }: { searchParams: Promise<{ year?: string }> }) {
  const params = await searchParams;
  const currentYear = params?.year ? parseInt(params.year) : new Date().getFullYear();

@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft, Clock, CalendarIcon, Users, UserX, Printer, FileIcon, Download } from 'lucide-react'
 import RemovePersonButton from './RemovePersonButton'
 
+export const dynamic = 'force-dynamic';
+
 export default async function RequestDetailsPage({ params }: { params: { id: string } }) {
  const { id } = await params;
  const token = await getRequestDetails(id);

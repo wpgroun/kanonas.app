@@ -6,6 +6,8 @@ import { Lock } from 'lucide-react'
 import PhilanthropyTabs from './PhilanthropyTabs'
 import { Suspense } from 'react'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Φιλόπτωχο — Κανόνας',
 }

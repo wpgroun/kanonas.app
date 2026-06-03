@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import PageHeader from '@/components/PageHeader';
 import CeremonyCreateClient from './CeremonyCreateClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Καταγραφή Τελετής | Kanonas',
 };

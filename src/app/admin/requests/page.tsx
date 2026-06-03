@@ -2,6 +2,8 @@ import { getTokens } from '@/actions/sacraments'
 import NewRequestButtons from './NewRequestButtons'
 import RequestsKanban from './RequestsKanban'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Μυστήρια & Αιτήματα - Kanonas' }
 
 export default async function RequestsPage() {

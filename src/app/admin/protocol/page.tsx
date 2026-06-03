@@ -2,6 +2,8 @@ import { getProtocols } from '@/actions/protocol';
 import ProtocolClient from './ProtocolClient';
 import PageHeader from '@/components/PageHeader';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Γενικό Πρωτόκολλο | Kanonas',
 };

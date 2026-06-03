@@ -4,6 +4,8 @@ import { getDocTemplates } from '@/actions/documents';
 import { prisma } from '@/lib/prisma';
 import SacramentClient from './SacramentClient';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SacramentPage({ params }: { params: { type: string } }) {
   await requireAuth();
   const templeId = await getCurrentTempleId();

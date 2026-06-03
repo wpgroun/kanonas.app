@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import DashboardClient from './DashboardClient';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function MetropolisPage() {
  
  // Φέρνουμε όλους τους ναούς για τον super-admin

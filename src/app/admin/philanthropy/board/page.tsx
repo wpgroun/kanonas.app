@@ -2,6 +2,8 @@ import { requireAuth } from '@/lib/requireAuth'
 import { getPhiloptochosMembers } from '@/actions/philanthropyBoard'
 import BoardClient from './BoardClient'
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
  title: 'Συμβούλιο Φιλοπτώχου | Kanonas',
 }
