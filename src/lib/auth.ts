@@ -27,6 +27,7 @@ export interface SessionPayload {
   // 2FA temp token fields
   otp?: string;
   expires?: number;
+  resolvedTempleId?: string;
 }
 
 // In production, JWT_SECRET MUST be set in environment variables.

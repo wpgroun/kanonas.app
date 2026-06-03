@@ -196,7 +196,7 @@ export async function verify2FAAction(otp: string) {
 
  const { decrypt } = await import('@/lib/auth');
  const payload = await decrypt(tempCookie);
- if (!payload || Date.now() > payload.expires) return { success: false, error: 'Ο κωδικός έληξε.' };
+ if (!payload || !payload.expires || Date.now() > payload.expires) return { success: false, error: 'Ο κωδικός έληξε.' };
  
  if (payload.otp !== otp) return { success: false, error: 'Λανθασμένος κωδικός.' };
 
