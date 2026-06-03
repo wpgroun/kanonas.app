@@ -305,15 +305,20 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
     }
 
     // --- Global XML Normalization, Gender Tokens & Placeholder Replacement ---
-    logger.info(`[docEngine] generateDOCXDoc: processing template "${template.nameEl}", answers keys: ${Object.keys(answers).slice(0,15).join(',')}, targetGender=${targetGender}`);
+    logger.info(`[docEngine] generateDOCXDoc: processing template "${template.nameEl}", answers keys: ${Object.keys(answers).length} total, targetGender=${targetGender}, Εφημέριος=${answers['Εφημέριος']}, Ανάδοχος1=${answers['Ανάδοχος1']}, Όνομα=${answers['Όνομα']}`);
     for (const fileName of Object.keys(zip.files)) {
       if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
         const xmlFile = zip.file(fileName);
         if (xmlFile) {
           let xml = xmlFile.asText();
+          const xmlBefore = xml;
           xml = mergeSplitRuns(xml);          // fix split runs before replacement
           xml = resolveGenderTokens(xml, targetGender);
           xml = replacePlaceholders(xml);     // replace ALL formats here
+          if (fileName === 'word/document.xml') {
+            const changed = xml !== xmlBefore;
+            logger.info(`[docEngine] document.xml: changed=${changed}, size_before=${xmlBefore.length}, size_after=${xml.length}, contains_Εφημέριος_after=${xml.includes('[Εφημέριος]')}, contains_Βασίλειος=${xml.includes('Βασίλειος')}`);
+          }
           zip.file(fileName, xml);
         }
       }
