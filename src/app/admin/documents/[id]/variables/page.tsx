@@ -12,7 +12,8 @@ export default async function VariablesPage({ params }: { params: { id: string }
   })
 
   if (!template) notFound()
-  if (!template.fileUrl) redirect('/admin/documents')
+  // Allow templates with fileData (stored in DB) even if fileUrl is absent
+  if (!template.fileUrl && !(template as any).fileData) redirect('/admin/documents')
 
   // Parse the context to get detected vars + format
   let detectedVars: string[] = []

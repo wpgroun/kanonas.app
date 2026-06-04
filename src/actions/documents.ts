@@ -82,22 +82,23 @@ export async function uploadDocTemplate(formData: FormData) {
     if (ext === '.docx' || ext === '.doc') {
       const PizZip = (await import('pizzip')).default
       const zip = new PizZip(buffer)
-      
+
       let mainXml = ''
       for (const fileName of Object.keys(zip.files)) {
-        if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
+        const normalizedName = fileName.replace(/\\/g, '/')
+        if (normalizedName.startsWith('word/') && normalizedName.endsWith('.xml')) {
           const xmlFile = zip.file(fileName)
           if (xmlFile) {
             let xml = xmlFile.asText()
             xml = mergeSplitRuns(xml)
             zip.file(fileName, xml)
-            if (fileName === 'word/document.xml') {
+            if (normalizedName === 'word/document.xml') {
               mainXml = xml
             }
           }
         }
       }
-      
+
       buffer = zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' })
       const plainText = mainXml.replace(/<[^>]+>/g, ' ')
 
@@ -230,12 +231,13 @@ export async function rescanTemplateVariables(templateId: string): Promise<{
     const zip = new PizZip(buffer)
     let mainXml = ''
     for (const fileName of Object.keys(zip.files)) {
-      if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
+      const normalizedName = fileName.replace(/\\/g, '/')
+      if (normalizedName.startsWith('word/') && normalizedName.endsWith('.xml')) {
         const xmlFile = zip.file(fileName)
         if (xmlFile) {
           let xml = xmlFile.asText()
           xml = mergeSplitRuns(xml)
-          if (fileName === 'word/document.xml') mainXml = xml
+          if (normalizedName === 'word/document.xml') mainXml = xml
         }
       }
     }
