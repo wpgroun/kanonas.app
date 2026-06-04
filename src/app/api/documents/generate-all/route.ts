@@ -237,11 +237,13 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Πόλη αναδόχου → [Πόλεως] (γενική — "κάτοικος Θεσσαλονίκης")
+      // Πόλη αναδόχου — γενική για "κάτοικος Θεσσαλονίκης", ονομαστική διαθέσιμη αν χρειαστεί
       if (answers['godparentCity']) {
-        const gpCityGen = declineGreekName(answers['godparentCity'], 'genitive', 'unknown');
-        answers['Πόλεως'] = gpCityGen;
-        answers['ΠόληΑναδόχου'] = answers['godparentCity'];
+        const gpCityOrig = answers['godparentCity'];
+        const gpCityGen  = declineGreekName(gpCityOrig, 'genitive', 'unknown');
+        answers['godparentCity'] = gpCityGen;    // γενική — variableMap [Πόλεως]→godparentCity δουλεύει
+        answers['Πόλεως']        = gpCityGen;    // γενική — για direct lookup
+        answers['ΠόληΑναδόχου']  = gpCityOrig;   // ονομαστική — αν κάποιο template τη χρειαστεί
       }
 
       // Conditional second-godparent block: [και Ανάδοχος 2 κάτοικος Πόλεως]
