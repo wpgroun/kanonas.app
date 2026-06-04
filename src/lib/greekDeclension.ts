@@ -240,11 +240,11 @@ export const SYNONYM_GROUPS: string[][] = [
   // 5 — motherFullName  [Ονοματεπώνυμο Μητρός] / [Ονοματεπώνυμο Μητέρας]
   ['ονοματεπωνυμομητροσ', 'ονοματεπωνυμομητερασ', 'motherfullname', 'ονοματεπωνυμο2'],
   // 6 — godparent  [Ανάδοχος], [Ανάδοχος 1]
-  ['αναδοχοσ', 'αναδοχοσ1', 'αναδοχου', 'anadochos', 'anadochos1', 'godparent', 'godparentfullname', 'sponsor', 'nounos', 'νονος', 'νονα', 'nonos', 'nona'],
+  ['αναδοχοσ', 'αναδοχοσ1', 'αναδοχου', 'anadochos', 'anadochos1', 'godparent', 'godparent1', 'godparentname', 'godparent1name', 'godparentfullname', 'sponsor', 'nounos', 'νονος', 'νονα', 'nonos', 'nona'],
   // 7 — godparent2
-  ['αναδοχοσ2', 'secondgodparent', 'anadochos2', 'godparent2'],
+  ['αναδοχοσ2', 'secondgodparent', 'anadochos2', 'godparent2', 'godparent2name', 'godparent2fullname'],
   // 8 — priest
-  ['εφημεριοσ', 'efimerios', 'priest', 'assignedpriest', 'ιερεας', 'ιερεαςονομα', 'iereas', 'iereasonoma',
+  ['εφημεριοσ', 'efimerios', 'priest', 'priestname', 'priestfullname', 'assignedpriest', 'ιερεας', 'ιερεαςονομα', 'iereas', 'iereasonoma',
    'ονοματεπωνυμοεφημεριου', 'ονοματεπωνυμοιερεωσ'],
   // 9 — templeNameEl
   ['ναος', 'naos', 'temple', 'templename', 'ναοσονομα', 'naosonoma', 'ιερουναου', 'ιεροσναοσ'],
