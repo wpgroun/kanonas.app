@@ -314,8 +314,8 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
         if (xmlFile) {
           let xml = xmlFile.asText();
           xml = mergeSplitRuns(xml);
-          xml = resolveGenderTokens(xml, targetGender);
-          xml = replacePlaceholders(xml);
+          xml = replacePlaceholders(xml);    // data first — clears composite placeholders like [και ο/η Ανάδοχος2...]
+          xml = resolveGenderTokens(xml, targetGender); // gender tokens on whatever remains
           zip.file(fileName, xml);
         }
       }

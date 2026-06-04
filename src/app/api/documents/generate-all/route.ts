@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateAllGamosDocs, generateAllBaptisiDocs, TokenData } from '@/lib/pdfEngine';
 import { getSession } from '@/lib/auth';
-import { declineGreekName } from '@/lib/greekDeclension';
+import { declineGreekName, declineFullName } from '@/lib/greekDeclension';
 import fs from 'fs';
 import path from 'path';
 
@@ -158,20 +158,22 @@ export async function POST(req: NextRequest) {
       const genderGr = childGender === 'male' ? 'άρρεν' : 'θήλυ';
       answers['φύλο'] = genderGr;
       answers['φύλο τέκνου'] = genderGr;  // [φύλο τέκνου] variant
-      answers['childGender'] = childGender; // keep English value for internal gender detection
+      answers['childGender'] = genderGr; // Greek display value (άρρεν/θήλυ)
 
-      // Father full name in genitive-title form [Ονοματεπώνυμο Πατρός]
+      // Father full name — genitive for body text, nominative for signature line
       if (father) {
         const fFull = `${father.firstName || ''} ${father.lastName || ''}`.trim();
-        answers['Ονοματεπώνυμο_Πατρός'] = fFull;    // Πατρός = genitive of Πατέρας
-        answers['Ονοματεπώνυμο_Πατέρα'] = fFull;   // [Ονοματεπώνυμο Πατέρα] signature line
+        const fFullGen = declineFullName(fFull, 'genitive', 'male');
+        answers['Ονοματεπώνυμο_Πατρός'] = fFullGen;   // [Ονοματεπώνυμο Πατρός] — genitive (τέκνο του X)
+        answers['Ονοματεπώνυμο_Πατέρα'] = fFull;      // [Ονοματεπώνυμο Πατέρα] — nominative (signature)
         answers['fatherFullName'] = fFull;
       }
-      // Mother full name in genitive-title form [Ονοματεπώνυμο Μητρός]
+      // Mother full name — genitive for body text, nominative for signature line
       if (mother) {
         const mFull = `${mother.firstName || ''} ${mother.lastName || ''}`.trim();
-        answers['Ονοματεπώνυμο_Μητρός'] = mFull;    // Μητρός = genitive of Μητέρα
-        answers['Ονοματεπώνυμο_Μητέρας'] = mFull;  // [Ονοματεπώνυμο Μητέρας] signature line
+        const mFullGen = declineFullName(mFull, 'genitive', 'female');
+        answers['Ονοματεπώνυμο_Μητρός'] = mFullGen;   // [Ονοματεπώνυμο Μητρός] — genitive (και της X)
+        answers['Ονοματεπώνυμο_Μητέρας'] = mFull;     // [Ονοματεπώνυμο Μητέρας] — nominative (signature)
         answers['motherFullName'] = mFull;
       }
 
@@ -229,9 +231,10 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Πόλη αναδόχου → [Πόλεως]
+      // Πόλη αναδόχου → [Πόλεως] (γενική — "κάτοικος Θεσσαλονίκης")
       if (answers['godparentCity']) {
-        answers['Πόλεως'] = answers['godparentCity'];
+        const gpCityGen = declineGreekName(answers['godparentCity'], 'genitive', 'unknown');
+        answers['Πόλεως'] = gpCityGen;
         answers['ΠόληΑναδόχου'] = answers['godparentCity'];
       }
 
