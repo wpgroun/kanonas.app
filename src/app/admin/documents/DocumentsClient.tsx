@@ -72,10 +72,10 @@ export default function DocumentsClient({ initialTemplates }: any) {
  fd.append('visibility', uploadVisibility);
  const res = await uploadDocTemplate(fd);
  setUploading(false);
+ alert(`DEBUG upload result:\nsuccess=${res.success}\ntemplatId=${res.templateId}\nerror=${res.error}`);
  if (res.success) {
    resetWizard();
    if (res.templateId) {
-     // Navigate directly — the variables page fetches fresh data server-side
      router.push(`/admin/documents/${res.templateId}/variables`);
    } else {
      router.refresh();
