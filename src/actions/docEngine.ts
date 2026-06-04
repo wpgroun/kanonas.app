@@ -307,18 +307,15 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
       return xml;
     }
 
-    const zipFileKeys = Object.keys(zip.files);
-    logger.info(`[docEngine] zip files (${zipFileKeys.length}): ${zipFileKeys.join(', ')}`);
-    for (const fileName of zipFileKeys) {
-      if (fileName.startsWith('word/') && fileName.endsWith('.xml')) {
+    for (const fileName of Object.keys(zip.files)) {
+      const normalizedName = fileName.replace(/\\/g, '/');
+      if (normalizedName.startsWith('word/') && normalizedName.endsWith('.xml')) {
         const xmlFile = zip.file(fileName);
         if (xmlFile) {
           let xml = xmlFile.asText();
-          const before = xml.length;
           xml = mergeSplitRuns(xml);
           xml = resolveGenderTokens(xml, targetGender);
           xml = replacePlaceholders(xml);
-          logger.info(`[docEngine] ${fileName}: ${before} → ${xml.length} chars`);
           zip.file(fileName, xml);
         }
       }
