@@ -104,7 +104,10 @@ export async function POST(req: NextRequest) {
       if (father) {
         const fatherFirstGenitive = declineGreekName(father.firstName || '', 'genitive', 'male');
         answers['Πατρώνυμο'] = fatherFirstGenitive;
-        answers['Όνομα_Πατέρα'] = father.firstName || '';
+        // fatherName = genitive (patronymic context always needs genitive in Greek)
+        // enrichAnswers sees it pre-set and won't overwrite with nominative
+        answers['fatherName']      = fatherFirstGenitive;
+        answers['Όνομα_Πατέρα']    = father.firstName || '';  // nominative — for signature lines
         answers['Όνομα_Πατέρα_Γενική'] = fatherFirstGenitive;
         answers['Επώνυμο_Πατέρα'] = father.lastName || '';
         answers['Επώνυμο_Πατέρα_Γενική'] = declineGreekName(father.lastName || '', 'genitive', 'male');
@@ -115,7 +118,9 @@ export async function POST(req: NextRequest) {
       if (mother) {
         const motherFirstGenitive = declineGreekName(mother.firstName || '', 'genitive', 'female');
         answers['Μητρώνυμο'] = motherFirstGenitive;
-        answers['Όνομα_Μητέρας'] = mother.firstName || '';
+        // motherName = genitive (matronymic context)
+        answers['motherName']      = motherFirstGenitive;
+        answers['Όνομα_Μητέρας']   = mother.firstName || '';  // nominative
         answers['Όνομα_Μητέρας_Γενική'] = motherFirstGenitive;
         answers['Επώνυμο_Μητέρας'] = mother.lastName || '';
         answers['Επώνυμο_Μητέρας_Γενική'] = declineGreekName(mother.lastName || '', 'genitive', 'female');

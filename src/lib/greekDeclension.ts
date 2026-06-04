@@ -500,9 +500,10 @@ export function autoMapVariable(placeholder: string): string | null {
   if (/^και\s/u.test(raw)) return '__ignore__';
 
   // ── Date-like compound patterns ─────────────────────────────────────────────
-  // [00ην Μηνός 0000], [30 Μαΐου 2026], etc. → ceremonyDate
-  // Note: \S used instead of \w since \w does not match Greek Unicode
-  if (/^\d+\s*(ην|ης|η)?\s+\S/iu.test(raw)) return 'ceremonyDate';
+  // [30 Μαΐου 2026], [7ην Ιανουαρίου] → ceremonyDate (real example values)
+  // Skip zero-padded format hints like [00ην Μηνός], [00 Μήνας 0000] — those are
+  // literal keys in answers and must be found via direct hasOwnProperty lookup.
+  if (!/^0+\D/.test(raw) && /^\d+\s*(ην|ης|η)?\s+\S/iu.test(raw)) return 'ceremonyDate';
 
   // ── Gender / number token patterns ──────────────────────────────────────────
   // These are handled by resolveGenderTokens at generation time, not as data fields.
@@ -520,6 +521,12 @@ export function autoMapVariable(placeholder: string): string | null {
   if (groupIdx >= 0 && groupIdx < GROUP_TO_FIELD.length) {
     return GROUP_TO_FIELD[groupIdx];
   }
+
+  // ── Numeric-prefixed compound format keys ────────────────────────────────────
+  // e.g. [00ῇ Μήνος 0000] → pClean "00ημηνοσ0000", [00ην Μηνός] → "00ημηνοσ"
+  // These are literal answer keys (set in generate-all with the same name).
+  // Return null so lookupKey uses direct hasOwnProperty and finds the correct value.
+  if (/^\d/u.test(pClean) && pClean.length > 4 && /[α-ω]/u.test(pClean)) return null;
 
   // ── Pass 2: Substring / contains matching (longest synonym first) ────────────
   // Catches non-standard names like "[Πλήρες Ονοματεπώνυμο Πατέρα]",
