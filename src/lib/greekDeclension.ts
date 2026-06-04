@@ -247,7 +247,7 @@ export const SYNONYM_GROUPS: string[][] = [
   ['εφημεριοσ', 'efimerios', 'priest', 'priestname', 'priestfullname', 'assignedpriest', 'ιερεας', 'ιερεαςονομα', 'iereas', 'iereasonoma',
    'ονοματεπωνυμοεφημεριου', 'ονοματεπωνυμοιερεωσ'],
   // 9 — templeNameEl
-  ['ναος', 'naos', 'temple', 'templename', 'ναοσονομα', 'naosonoma', 'ιερουναου', 'ιεροσναοσ'],
+  ['ναος', 'naos', 'temple', 'templename', 'templenamel', 'ναοσονομα', 'naosonoma', 'ιερουναου', 'ιεροσναοσ'],
   // 10 — metropolisName
   ['μητροπολη', 'metropolis', 'metropolisname', 'μητροποληονομα', 'mitropolionoma', 'mitropoli'],
   // 11 — currentDate

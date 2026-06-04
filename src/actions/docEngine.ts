@@ -264,7 +264,9 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
           return autoVal !== '' ? autoVal : '';
         }
         if (mappedField && mappedField !== '__unknown__') {
-          return getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
+          const mapped = getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
+          if (mapped !== '') return mapped;
+          // Mapped field didn't resolve — fall through to try the original placeholder key
         }
       }
 
