@@ -74,12 +74,11 @@ export default function DocumentsClient({ initialTemplates }: any) {
  setUploading(false);
  if (res.success) {
    resetWizard();
-   router.refresh();
-   // Redirect to variable mapping page if variables were found or mapping is needed
    if (res.templateId) {
-     setTimeout(() => {
-       router.push(`/admin/documents/${res.templateId}/variables`);
-     }, 400);
+     // Navigate directly — the variables page fetches fresh data server-side
+     router.push(`/admin/documents/${res.templateId}/variables`);
+   } else {
+     router.refresh();
    }
  } else {
    alert(res.error || 'Αποτυχία ανεβάσματος');
