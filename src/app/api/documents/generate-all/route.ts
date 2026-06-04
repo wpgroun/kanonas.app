@@ -408,7 +408,8 @@ export async function POST(req: NextRequest) {
     // Admin can set this in temple settings JSON as "priestTitle"
     let templeSettingsObj: any = {};
     try { if (token.temple.settings) templeSettingsObj = JSON.parse(token.temple.settings); } catch(e) {}
-    const priestTitle = templeSettingsObj.priestTitle || '';
+    // Priest title defaults to "Εφημέριος" if not customised in temple settings
+    const priestTitle = templeSettingsObj.priestTitle || 'Εφημέριος';
     answers['Αρχιμανδρίτης του Οικουμενικού θρόνου'] = priestTitle;
     answers['priestTitle'] = priestTitle;
     answers['ΤίτλοςΙερέα'] = priestTitle;
