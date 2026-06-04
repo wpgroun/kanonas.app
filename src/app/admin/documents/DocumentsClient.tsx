@@ -72,7 +72,6 @@ export default function DocumentsClient({ initialTemplates }: any) {
  fd.append('visibility', uploadVisibility);
  const res = await uploadDocTemplate(fd);
  setUploading(false);
- alert(`DEBUG upload result:\nsuccess=${res.success}\ntemplatId=${res.templateId}\nerror=${res.error}`);
  if (res.success) {
    resetWizard();
    if (res.templateId) {
