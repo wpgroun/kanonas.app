@@ -256,8 +256,16 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
       // Remove GUID-shaped placeholders (Word internal IDs) — return '' to erase them
       if (/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i.test(trimmedKey)) return '';
 
-      // 1. Check per-template variableMap first
-      if (variableMap) {
+      // Numeric-prefix compound format keys (e.g. [00ῇ Μήνος 0000], [00ην Μηνός]):
+      // These are literal answer keys — bypass variableMap entirely and use direct lookup.
+      // Any variableMap mapping for them (e.g. "month", "ceremonyDate") would be wrong.
+      const isCompoundFormatKey =
+        trimmedKey.length > 4 &&
+        /^\d/u.test(trimmedKey) &&
+        /[Ͱ-Ͽἀ-῿]/u.test(trimmedKey); // contains Greek chars
+
+      // 1. Check per-template variableMap first (skip for compound format keys)
+      if (variableMap && !isCompoundFormatKey) {
         const mappedField = variableMap[trimmedKey];
         if (mappedField === '__ignore__') {
           const autoVal = getNormalizedValue(trimmedKey, answers);
