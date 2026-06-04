@@ -235,67 +235,71 @@ export const SYNONYM_GROUPS: string[][] = [
   ['πατρωνυμο', 'patronymo', 'patronym', 'fathersname', 'fathername', 'father', 'ονομαπατερα', 'πατερα', 'onomapatera', 'patera'],
   // 3 — motherName
   ['μητρωνυμο', 'mitronymo', 'mitronym', 'mothersname', 'mothername', 'mother', 'ονομαμητερας', 'μητερας', 'μητερα', 'onomamiteras', 'miteras', 'mitera'],
-  // 4 — fatherFullName  [Ονοματεπώνυμο Πατρός] / [Ονοματεπώνυμο Πατέρα]
-  ['ονοματεπωνυμοπατροσ', 'ονοματεπωνυμοπατερα', 'fatherfullname', 'ονοματεπωνυμο1'],
-  // 5 — motherFullName  [Ονοματεπώνυμο Μητρός] / [Ονοματεπώνυμο Μητέρας]
-  ['ονοματεπωνυμομητροσ', 'ονοματεπωνυμομητερασ', 'motherfullname', 'ονοματεπωνυμο2'],
-  // 6 — godparent  [Ανάδοχος], [Ανάδοχος 1]
+  // 4 — fatherFullName  [Ονοματεπώνυμο Πατέρα] — nominative
+  ['ονοματεπωνυμοπατερα', 'fatherfullname', 'ονοματεπωνυμο1'],
+  // 5 — motherFullName  [Ονοματεπώνυμο Μητέρας] — nominative
+  ['ονοματεπωνυμομητερασ', 'motherfullname', 'ονοματεπωνυμο2'],
+  // 6 — fatherFullNameGen  [Ονοματεπώνυμο Πατρός] — genitive
+  ['ονοματεπωνυμοπατροσ', 'fatherfullnamegen'],
+  // 7 — motherFullNameGen  [Ονοματεπώνυμο Μητρός] — genitive
+  ['ονοματεπωνυμομητροσ', 'motherfullnamegen'],
+  // 8 — godparent  [Ανάδοχος], [Ανάδοχος 1]
   ['αναδοχοσ', 'αναδοχοσ1', 'αναδοχου', 'anadochos', 'anadochos1', 'godparent', 'godparent1', 'godparentname', 'godparent1name', 'godparentfullname', 'sponsor', 'nounos', 'νονος', 'νονα', 'nonos', 'nona'],
-  // 7 — godparent2
+  // 9 — godparent2
   ['αναδοχοσ2', 'secondgodparent', 'anadochos2', 'godparent2', 'godparent2name', 'godparent2fullname'],
-  // 8 — priest
+  // 10 — priest
   ['εφημεριοσ', 'efimerios', 'priest', 'priestname', 'priestfullname', 'assignedpriest', 'ιερεας', 'ιερεαςονομα', 'iereas', 'iereasonoma',
    'ονοματεπωνυμοεφημεριου', 'ονοματεπωνυμοιερεωσ'],
-  // 9 — templeNameEl
+  // 11 — templeNameEl
   ['ναος', 'naos', 'temple', 'templename', 'templenamel', 'ναοσονομα', 'naosonoma', 'ιερουναου', 'ιεροσναοσ'],
-  // 10 — metropolisName
+  // 12 — metropolisName
   ['μητροπολη', 'metropolis', 'metropolisname', 'μητροποληονομα', 'mitropolionoma', 'mitropoli'],
-  // 11 — currentDate
+  // 13 — currentDate
   ['ημερομηνια', 'imerominia', 'date', 'currentdate', 'today'],
-  // 12 — ceremonyDate
+  // 14 — ceremonyDate
   ['ημερομηνιατελεσης', 'imerominiatelesis', 'ceremonydate', 'dateofceremony'],
-  // 13 — month  [Μήνας] / [Μηνός]
+  // 15 — month  [Μήνας] / [Μηνός]
   ['μηνασ', 'μηνοσ', 'μηναστελεσησ', 'μηνοστελεσησ', 'month'],
-  // 14 — dayName  [Ημέρα] + any standalone Greek day-of-week name as example value
+  // 16 — dayName  [Ημέρα] + any standalone Greek day-of-week name as example value
   ['ημερα', 'ημεραεβδομαδασ', 'dayname', 'weekday', 'ημερατελεσησεβδ',
    'κυριακη', 'δευτερα', 'τριτη', 'τεταρτη', 'πεμπτη', 'παρασκευη', 'σαββατο'],
-  // 15 — childGender  [φύλο] + gender example-values [άρρεν], [θήλυ]
+  // 17 — childGender  [φύλο] + gender example-values [άρρεν], [θήλυ]
   ['φυλο', 'φυλοτεκνου', 'childgender', 'gender', 'αρρεν', 'θηλυ', 'θηλυκο', 'αρσεν'],
-  // 16 — protocolNumber
+  // 18 — protocolNumber
   ['πρωτοκολλο', 'protokollo', 'protocol', 'protocolnumber', 'αριθμπρωτοκολλου', 'arithmprotokollou'],
-  // 17 — bookNumber
+  // 19 — bookNumber
   ['βιβλιο', 'βιβλιου', 'βιβλιων', 'vivlio', 'book', 'booknumber', 'αριθμβιβλιου', 'βιβλιοαριθμοσ', 'arithmvivliou', 'vivlioarithmos'],
-  // 18 — birthCity  (πολησ = genitive [Πόλης], πολεωσ = gen. [Πόλεως] as birthcity fallback)
+  // 20 — birthCity  (πολησ = genitive [Πόλης], πολεωσ = gen. [Πόλεως] as birthcity fallback)
   ['πολη', 'πολησ', 'πολιτεκνου', 'birthcity', 'πολιγεννησησ', 'πολιγεννησεωσ', 'ποληγεννησησ', 'ποληγεννησεωσ', 'πολιγεννησεωσ'],
-  // 19 — civilRegistry
+  // 21 — civilRegistry
   ['ληξιαρχειο', 'civilregistry', 'registryoffice'],
-  // 20 — civilRegistryNumber
+  // 22 — civilRegistryNumber
   ['αριθμοσληξιαρχικησ', 'αριθμοσπραξησ', 'ληξιαρχικη', 'civilregistrynumber', 'registrynumber'],
-  // 21 — civilRegistryTome
+  // 23 — civilRegistryTome
   // "τομοστουληξιαρχ" (15 chars) covers "[Τόμος του Ληξιαρχείου]" and beats
-  // "ληξιαρχειο" (10 chars, group 19) in longest-first substring matching.
+  // "ληξιαρχειο" (10 chars, group 21) in longest-first substring matching.
   ['τομοσληξιαρχειου', 'τομοστουληξιαρχ', 'τομοσ', 'civilregistrytome', 'registrytome'],
-  // 22 — civilRegistryYear
+  // 24 — civilRegistryYear
   ['ετοσληξιαρχικησ', 'civilregistryyear'],
-  // 23 — birthDate
+  // 25 — birthDate
   ['ημερομηνιαγεννησησ', 'birthdate', 'birthdateformatted', 'birthformatted'],
-  // 24 — godparentCity
+  // 26 — godparentCity
   ['πολεωσ', 'πολιαναδοχου', 'godparentcity', 'anadoxoscity'],
-  // 25 — address (Οδός, street)
+  // 27 — address (Οδός, street)
   ['οδοσ', 'οδοστεκνου', 'address', 'street', 'streetname', 'οδοσκατοικιασ'],
-  // 26 — ceremonyTime (Ώρα τελετής)
+  // 28 — ceremonyTime (Ώρα τελετής)
   ['ωρα', 'ωρατελεσησ', 'ceremonytime', 'timeoceremony', 'time', 'hour'],
-  // 27 — birthDay  descriptive names like [ημέρα γέννησης]
+  // 29 — birthDay  descriptive names like [ημέρα γέννησης]
   ['ημεραγεννησεωσ', 'ημεραγεννησησ', 'birthday', 'birthdaynumber', 'ημεραγεν'],
-  // 28 — birthMonth  descriptive names like [μήνας γέννησης]
+  // 30 — birthMonth  descriptive names like [μήνας γέννησης]
   ['μηνασγεννησησ', 'μηνοσγεννησεωσ', 'birthmonth', 'μηναγεννησησ', 'μηνγεννησησ'],
-  // 29 — birthYear  descriptive names like [έτος γέννησης]
+  // 31 — birthYear  descriptive names like [έτος γέννησης]
   ['εποσγεννησεωσ', 'εποσγεννησησ', 'birthyear', 'yearofbirth', 'εποσγεν'],
-  // 30 — ceremonyDay  descriptive names like [ημέρα τελετής]
+  // 32 — ceremonyDay  descriptive names like [ημέρα τελετής]
   ['ημερατελεσησ', 'ceremonyday', 'daynumber', 'αριθμοσημερασ'],
-  // 31 — ceremonyYear  descriptive names like [έτος τελετής]
+  // 33 — ceremonyYear  descriptive names like [έτος τελετής]
   ['εποστελεσησ', 'ceremonyyear', 'yearofceremony', 'ετοστελεσησ'],
-  // 32 — templeCity  Πόλη του Ναού (fixed per temple, used in formal headers "εν [Πόλει]")
+  // 34 — templeCity  Πόλη του Ναού (fixed per temple, used in formal headers "εν [Πόλει]")
   ['πολιναου', 'πολητελεσησ', 'πολητελετησ', 'templecity', 'ceremonycity', 'naoscity',
    'πολιναοσ', 'εδρα', 'τοποστελεσησ'],
 ];
@@ -396,8 +400,10 @@ export const STANDARD_FIELDS: { key: string; label: string }[] = [
   { key: 'childLastName',       label: 'Επώνυμο τέκνου' },
   { key: 'fatherName',          label: 'Πατρώνυμο (όνομα πατέρα)' },
   { key: 'motherName',          label: 'Μητρώνυμο (όνομα μητέρας)' },
-  { key: 'fatherFullName',      label: 'Ονοματεπώνυμο Πατέρα' },
-  { key: 'motherFullName',      label: 'Ονοματεπώνυμο Μητέρας' },
+  { key: 'fatherFullName',      label: 'Ονοματεπώνυμο Πατέρα (ονομαστική)' },
+  { key: 'fatherFullNameGen',   label: 'Ονοματεπώνυμο Πατέρα (γενική)' },
+  { key: 'motherFullName',      label: 'Ονοματεπώνυμο Μητέρας (ονομαστική)' },
+  { key: 'motherFullNameGen',   label: 'Ονοματεπώνυμο Μητέρας (γενική)' },
   { key: 'godparent',           label: 'Ανάδοχος (κύριος)' },
   { key: 'godparent2',          label: 'Δεύτερος Ανάδοχος' },
   { key: 'priest',              label: 'Εφημέριος' },
@@ -433,35 +439,37 @@ export const GROUP_TO_FIELD: string[] = [
   'childLastName',       // 1
   'fatherName',          // 2
   'motherName',          // 3
-  'fatherFullName',      // 4
-  'motherFullName',      // 5
-  'godparent',           // 6
-  'godparent2',          // 7
-  'priest',              // 8
-  'templeNameEl',        // 9
-  'metropolisName',      // 10
-  'currentDate',         // 11
-  'ceremonyDate',        // 12
-  'month',               // 13
-  'dayName',             // 14
-  'childGender',         // 15
-  'protocolNumber',      // 16
-  'bookNumber',          // 17
-  'birthCity',           // 18
-  'civilRegistry',       // 19
-  'civilRegistryNumber', // 20
-  'civilRegistryTome',   // 21
-  'civilRegistryYear',   // 22
-  'birthDate',           // 23
-  'godparentCity',       // 24
-  'address',             // 25
-  'ceremonyTime',        // 26
-  'birthDay',            // 27
-  'birthMonth',          // 28
-  'birthYear',           // 29
-  'ceremonyDay',         // 30
-  'ceremonyYear',        // 31
-  'templeCity',          // 32
+  'fatherFullName',      // 4  — nominative
+  'motherFullName',      // 5  — nominative
+  'fatherFullNameGen',   // 6  — genitive
+  'motherFullNameGen',   // 7  — genitive
+  'godparent',           // 8
+  'godparent2',          // 9
+  'priest',              // 10
+  'templeNameEl',        // 11
+  'metropolisName',      // 12
+  'currentDate',         // 13
+  'ceremonyDate',        // 14
+  'month',               // 15
+  'dayName',             // 16
+  'childGender',         // 17
+  'protocolNumber',      // 18
+  'bookNumber',          // 19
+  'birthCity',           // 20
+  'civilRegistry',       // 21
+  'civilRegistryNumber', // 22
+  'civilRegistryTome',   // 23
+  'civilRegistryYear',   // 24
+  'birthDate',           // 25
+  'godparentCity',       // 26
+  'address',             // 27
+  'ceremonyTime',        // 28
+  'birthDay',            // 29
+  'birthMonth',          // 30
+  'birthYear',           // 31
+  'ceremonyDay',         // 32
+  'ceremonyYear',        // 33
+  'templeCity',          // 34
 ];
 
 /**

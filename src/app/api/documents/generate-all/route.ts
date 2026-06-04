@@ -160,21 +160,27 @@ export async function POST(req: NextRequest) {
       answers['φύλο τέκνου'] = genderGr;  // [φύλο τέκνου] variant
       answers['childGender'] = genderGr; // Greek display value (άρρεν/θήλυ)
 
-      // Father full name — genitive for body text, nominative for signature line
+      // Father full name — both cases available for different template contexts
       if (father) {
         const fFull = `${father.firstName || ''} ${father.lastName || ''}`.trim();
         const fFullGen = declineFullName(fFull, 'genitive', 'male');
-        answers['Ονοματεπώνυμο_Πατρός'] = fFullGen;   // [Ονοματεπώνυμο Πατρός] — genitive (τέκνο του X)
-        answers['Ονοματεπώνυμο_Πατέρα'] = fFull;      // [Ονοματεπώνυμο Πατέρα] — nominative (signature)
-        answers['fatherFullName'] = fFull;
+        // Genitive keys (τέκνο του X, Πατρός = genitive)
+        answers['Ονοματεπώνυμο_Πατρός'] = fFullGen;
+        answers['fatherFullNameGen']     = fFullGen;
+        // Nominative keys (signature lines, labels)
+        answers['Ονοματεπώνυμο_Πατέρα'] = fFull;
+        answers['fatherFullName']        = fFull;
       }
-      // Mother full name — genitive for body text, nominative for signature line
+      // Mother full name — both cases available for different template contexts
       if (mother) {
         const mFull = `${mother.firstName || ''} ${mother.lastName || ''}`.trim();
         const mFullGen = declineFullName(mFull, 'genitive', 'female');
-        answers['Ονοματεπώνυμο_Μητρός'] = mFullGen;   // [Ονοματεπώνυμο Μητρός] — genitive (και της X)
-        answers['Ονοματεπώνυμο_Μητέρας'] = mFull;     // [Ονοματεπώνυμο Μητέρας] — nominative (signature)
-        answers['motherFullName'] = mFull;
+        // Genitive keys (και της X, Μητρός = genitive)
+        answers['Ονοματεπώνυμο_Μητρός'] = mFullGen;
+        answers['motherFullNameGen']     = mFullGen;
+        // Nominative keys (signature lines, labels)
+        answers['Ονοματεπώνυμο_Μητέρας'] = mFull;
+        answers['motherFullName']         = mFull;
       }
 
       // ── Νέα πεδία από το ερωτηματολόγιο ──────────────────────────────────
