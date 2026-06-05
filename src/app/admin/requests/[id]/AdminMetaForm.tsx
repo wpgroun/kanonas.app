@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { addProtocolEntry } from '@/actions/protocol'
-import { markTokenAsDocsGenerated } from '@/actions/sacraments'
+import { markTokenAsDocsGenerated, updateCeremonyMetaByAdmin } from '@/actions/sacraments'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { FileSignature, Printer, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { FileSignature, Printer, AlertTriangle, CheckCircle2, ScrollText } from 'lucide-react'
 
 export default function AdminMetaForm({ token }: { token: any }) {
   const router = useRouter();
@@ -17,6 +17,32 @@ export default function AdminMetaForm({ token }: { token: any }) {
   const [book, setBook] = useState(token.bookNumber || '');
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
+
+  // Parse existing meta for admin-only fields
+  const existingMeta: Record<string, string> = (() => {
+    try { return JSON.parse(token.ceremonyMeta?.dataJson || '{}'); } catch { return {}; }
+  })();
+
+  const [orderNumber, setOrderNumber] = useState(existingMeta.orderNumber || '');
+  const [orderDate, setOrderDate] = useState(existingMeta.orderDate || '');
+  const [previousReligion, setPreviousReligion] = useState(existingMeta.previousReligion || '');
+  const [residenceAddress, setResidenceAddress] = useState(existingMeta.residenceAddress || '');
+  const [residenceCity, setResidenceCity] = useState(existingMeta.residenceCity || '');
+  const [savingMeta, setSavingMeta] = useState(false);
+  const [metaSaved, setMetaSaved] = useState(false);
+
+  const isVaptisi = token.serviceType?.toLowerCase() === 'vaptisi';
+
+  async function handleSaveMeta() {
+    setSavingMeta(true);
+    setMetaSaved(false);
+    await updateCeremonyMetaByAdmin(token.id, {
+      orderNumber, orderDate, previousReligion, residenceAddress, residenceCity,
+    });
+    setMetaSaved(true);
+    setSavingMeta(false);
+    setTimeout(() => setMetaSaved(false), 3000);
+  }
 
   const hasDocsGenerated = token.status === 'docs_generated' || token.protocolNumber;
   const isMissing = !priest || !book;
@@ -102,6 +128,50 @@ export default function AdminMetaForm({ token }: { token: any }) {
 
   return (
     <div className="space-y-4 mt-6">
+
+      {/* ── Στοιχεία Επισκοπικής Εντολής (Βάπτιση) ──────────────────────── */}
+      {isVaptisi && (
+        <Card className="border-l-4 border-l-violet-500 shadow-sm bg-card">
+          <CardHeader className="pb-3 border-b border-border/50">
+            <CardTitle className="text-lg flex items-center gap-2 text-violet-700">
+              <ScrollText className="w-4 h-4"/> Στοιχεία Επισκοπικής Εντολής
+            </CardTitle>
+            <CardDescription>Συμπληρώνονται από τον ιερέα — δεν ζητούνται από τον πολίτη.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-5 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Αρ. Επισκοπικής Εντολής</Label>
+                <Input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} placeholder="π.χ. 517" />
+              </div>
+              <div className="space-y-2">
+                <Label>Ημ/νία Εντολής</Label>
+                <Input value={orderDate} onChange={e => setOrderDate(e.target.value)} placeholder="π.χ. 10.08.2024" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Θρήσκευμα (προ Βαπτίσεως) <span className="text-muted-foreground text-xs">(μόνο για ενήλικες/αβάπτιστους)</span></Label>
+              <Input value={previousReligion} onChange={e => setPreviousReligion(e.target.value)} placeholder="π.χ. Αβάπτιστος, Καθολικός..." />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Διεύθυνση Διαμονής <span className="text-muted-foreground text-xs">(για ενήλικες)</span></Label>
+                <Input value={residenceAddress} onChange={e => setResidenceAddress(e.target.value)} placeholder="π.χ. Εγνατίας 12" />
+              </div>
+              <div className="space-y-2">
+                <Label>Πόλη Διαμονής <span className="text-muted-foreground text-xs">(για ενήλικες)</span></Label>
+                <Input value={residenceCity} onChange={e => setResidenceCity(e.target.value)} placeholder="π.χ. Θεσσαλονίκη" />
+              </div>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button onClick={handleSaveMeta} disabled={savingMeta} variant="outline" size="sm">
+                {savingMeta ? 'Αποθήκευση...' : metaSaved ? '✓ Αποθηκεύτηκε' : 'Αποθήκευση'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* ── Επίσημη Έκδοση & Πρωτόκολλο ─────────────────────────────────── */}
       <Card className="border-l-4 border-l-primary shadow-sm bg-card">
         <CardHeader className="pb-3 border-b border-border/50">
