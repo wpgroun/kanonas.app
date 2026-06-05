@@ -370,34 +370,268 @@ export async function POST(req: NextRequest) {
     } else if (serviceTypeLower === 'gamos') {
       const groom = token.persons.find(p => p.role === 'groom');
       const bride = token.persons.find(p => p.role === 'bride');
+      const koumparos = token.persons.find(p => p.role === 'koumparos');
+      const koumparos2 = token.persons.find(p => p.role === 'koumparos2');
 
+      // ── Groom ───────────────────────────────────────────────────────────
       if (groom) {
-        answers['Όνομα_Γαμπρού'] = groom.firstName || '';
-        answers['Επώνυμο_Γαμπρού'] = groom.lastName || '';
+        const gFull = `${groom.firstName || ''} ${groom.lastName || ''}`.trim();
+        const gFullGen = declineFullName(gFull, 'genitive', 'male');
+        const gFirstGen = declineGreekName(groom.firstName || '', 'genitive', 'male');
+        const gLastGen = declineGreekName(groom.lastName || '', 'genitive', 'male');
+        const gFatherGen = declineGreekName(groom.fathersName || '', 'genitive', 'male');
+
+        answers['groomFirstName']     = groom.firstName || '';
+        answers['groomLastName']      = groom.lastName || '';
+        answers['groomFullName']      = gFull;
+        answers['groomFullNameGen']   = gFullGen;
+        answers['groomFirstNameGen']  = gFirstGen;
+        answers['groomLastNameGen']   = gLastGen;
+        answers['groomFatherName']    = gFatherGen;
+
+        // Greek-keyed aliases for template direct lookup
+        answers['Όνομα Γαμπρού']                   = groom.firstName || '';
+        answers['Επώνυμο Γαμπρού']                 = groom.lastName || '';
+        answers['Ονοματεπώνυμο Γαμπρού']           = gFull;
+        answers['Ονοματεπώνυμο Γαμπρού (γενική)']  = gFullGen;
+        answers['Όνομα Γαμπρού (γενική)']          = gFirstGen;
+        answers['Επώνυμο Γαμπρού (γενική)']        = gLastGen;
+        answers['Πατρώνυμο Γαμπρού']               = gFatherGen;
+        answers['Γαμπρός']                         = gFull;
+
+        // Existing aliases kept for backward compat
+        answers['Όνομα_Γαμπρού']     = groom.firstName || '';
+        answers['Επώνυμο_Γαμπρού']   = groom.lastName || '';
         answers['Πατρώνυμο_Γαμπρού'] = groom.fathersName || '';
-        answers['ΟΝΟΜΑ_ΓΑΜΠΡΟΥ'] = groom.firstName || '';
-        answers['ΕΠΩΝΥΜΟ_ΓΑΜΠΡΟΥ'] = groom.lastName || '';
+        answers['ΟΝΟΜΑ_ΓΑΜΠΡΟΥ']     = groom.firstName || '';
+        answers['ΕΠΩΝΥΜΟ_ΓΑΜΠΡΟΥ']   = groom.lastName || '';
         answers['ΠΑΤΡΩΝΥΜΟ_ΓΑΜΠΡΟΥ'] = groom.fathersName || '';
-      }
-      if (bride) {
-        answers['Όνομα_Νύφης'] = bride.firstName || '';
-        answers['Επώνυμο_Νύφης'] = bride.lastName || '';
-        answers['Πατρώνυμο_Νύφης'] = bride.fathersName || '';
-        answers['ΟΝΟΜΑ_ΝΥΦΗΣ'] = bride.firstName || '';
-        answers['ΕΠΩΝΥΜΟ_ΝΥΦΗΣ'] = bride.lastName || '';
-        answers['ΠΑΤΡΩΝΥΜΟ_ΝΥΦΗΣ'] = bride.fathersName || '';
+        answers['Όν. Γαμπρού']       = groom.firstName || '';
+        answers['Επ. Γαμπρού']       = groom.lastName || '';
       }
 
-      // Abbreviated name forms & children's surname (ChildrenLastName.docx)
-      if (groom) {
-        answers['Όν. Γαμπρού'] = groom.firstName || '';
-        answers['Επ. Γαμπρού'] = groom.lastName  || '';
+      // Mother of groom (from meta)
+      if (answers['groomMotherFirst']) {
+        const gmFull = `${answers['groomMotherFirst']} ${answers['groomMotherMaiden'] || groom?.lastName || ''}`.trim();
+        const gmGen  = declineFullName(gmFull, 'genitive', 'female');
+        answers['groomMotherName']     = declineGreekName(answers['groomMotherFirst'], 'genitive', 'female');
+        answers['groomMotherFullName'] = gmFull;
+        answers['Μητρώνυμο Γαμπρού']  = gmGen;
+        answers['Ονοματεπώνυμο Μητρός Γαμπρού'] = gmFull;
       }
+      // Father of groom: built from fathersName + groom lastName
+      if (groom?.fathersName) {
+        const gfFull = `${groom.fathersName} ${groom.lastName || ''}`.trim();
+        answers['groomFatherFullName']           = gfFull;
+        answers['Ονοματεπώνυμο Πατρός Γαμπρού'] = gfFull;
+      }
+
+      // dataJson passthrough fields for groom
+      const gFields = ['groomBirthDate','groomBirthCity','groomProfession','groomReligion',
+        'groomNationality','groomCity','groomAddress','groomAddressNumber','groomPostalCode',
+        'groomTaxId','groomAmka','groomIdNumber','groomIdDate','groomIdAuthority',
+        'groomMarriageRank','groomPrefecture','groomMunicipality','groomMunicipalRegNumber'];
+      for (const f of gFields) {
+        if (answers[f]) {
+          const label = f.replace('groom', '');
+          answers['Γαμπρός_' + label] = answers[f];
+        }
+      }
+      // Greek display aliases for key groom fields
+      if (answers['groomCity'])     { answers['Πόλεως Γαμπρού'] = declineGreekName(answers['groomCity'], 'genitive', 'unknown'); answers['Πόλη Γαμπρού'] = answers['groomCity']; }
+      if (answers['groomAddress'])  answers['Οδός Γαμπρού']     = answers['groomAddress'];
+      if (answers['groomAddressNumber']) answers['Αριθμός Γαμπρού'] = answers['groomAddressNumber'];
+      if (answers['groomPostalCode']) answers['ΤΚ Γαμπρού']     = answers['groomPostalCode'];
+      if (answers['groomTaxId'])    answers['ΑΦΜ Γαμπρού']      = answers['groomTaxId'];
+      if (answers['groomAmka'])     answers['ΑΜΚΑ Γαμπρού']     = answers['groomAmka'];
+      if (answers['groomIdNumber']) answers['ΑΔΤ Γαμπρού']      = answers['groomIdNumber'];
+      if (answers['groomIdDate'])   answers['Ημ. ΑΔΤ Γαμπρού'] = answers['groomIdDate'];
+      if (answers['groomIdAuthority']) answers['Αρχή ΑΔΤ Γαμπρού'] = answers['groomIdAuthority'];
+      if (answers['groomBirthCity']) answers['Τόπος Γέννησης Γαμπρού'] = answers['groomBirthCity'];
+      if (answers['groomProfession']) answers['Επάγγελμα Γαμπρού'] = answers['groomProfession'];
+      if (answers['groomReligion']) answers['Θρήσκευμα Γαμπρού'] = answers['groomReligion'];
+      if (answers['groomNationality']) answers['Υπηκοότητα Γαμπρού'] = answers['groomNationality'];
+      if (answers['groomMarriageRank']) answers['Βαθμός Γάμου Γαμπρού'] = answers['groomMarriageRank'];
+
+      // ── Bride ────────────────────────────────────────────────────────────
       if (bride) {
-        answers['Όν. Νύφης']   = bride.firstName || '';
-        answers['Επ. Νύφης']   = bride.lastName  || '';
+        const bFull = `${bride.firstName || ''} ${bride.lastName || ''}`.trim();
+        const bFullGen = declineFullName(bFull, 'genitive', 'female');
+        const bFirstGen = declineGreekName(bride.firstName || '', 'genitive', 'female');
+        const bLastGen = declineGreekName(bride.lastName || '', 'genitive', 'female');
+        const bFatherGen = declineGreekName(bride.fathersName || '', 'genitive', 'male');
+
+        answers['brideFirstName']    = bride.firstName || '';
+        answers['brideLastName']     = bride.lastName || '';
+        answers['brideFullName']     = bFull;
+        answers['brideFullNameGen']  = bFullGen;
+        answers['brideFirstNameGen'] = bFirstGen;
+        answers['brideLastNameGen']  = bLastGen;
+        answers['brideFatherName']   = bFatherGen;
+
+        answers['Όνομα Νύφης']                   = bride.firstName || '';
+        answers['Επώνυμο Νύφης']                 = bride.lastName || '';
+        answers['Ονοματεπώνυμο Νύφης']           = bFull;
+        answers['Ονοματεπώνυμο Νύφης (γενική)']  = bFullGen;
+        answers['Όνομα Νύφης (γενική)']          = bFirstGen;
+        answers['Επώνυμο Νύφης (γενική)']        = bLastGen;
+        answers['Πατρώνυμο Νύφης']               = bFatherGen;
+        answers['Νύφη']                          = bFull;
+
+        answers['Όνομα_Νύφης']     = bride.firstName || '';
+        answers['Επώνυμο_Νύφης']   = bride.lastName || '';
+        answers['Πατρώνυμο_Νύφης'] = bride.fathersName || '';
+        answers['ΟΝΟΜΑ_ΝΥΦΗΣ']     = bride.firstName || '';
+        answers['ΕΠΩΝΥΜΟ_ΝΥΦΗΣ']   = bride.lastName || '';
+        answers['ΠΑΤΡΩΝΥΜΟ_ΝΥΦΗΣ'] = bride.fathersName || '';
+        answers['Όν. Νύφης']       = bride.firstName || '';
+        answers['Επ. Νύφης']       = bride.lastName || '';
       }
-      // Children's surname (Greek Civil Code Art. 1505 — default = groom's surname)
+
+      if (answers['brideMotherFirst']) {
+        const bmFull = `${answers['brideMotherFirst']} ${answers['brideMotherMaiden'] || bride?.lastName || ''}`.trim();
+        const bmGen  = declineFullName(bmFull, 'genitive', 'female');
+        answers['brideMotherName']     = declineGreekName(answers['brideMotherFirst'], 'genitive', 'female');
+        answers['brideMotherFullName'] = bmFull;
+        answers['Μητρώνυμο Νύφης']    = bmGen;
+        answers['Ονοματεπώνυμο Μητρός Νύφης'] = bmFull;
+      }
+      if (bride?.fathersName) {
+        const bfFull = `${bride.fathersName} ${bride.lastName || ''}`.trim();
+        answers['brideFatherFullName']          = bfFull;
+        answers['Ονοματεπώνυμο Πατρός Νύφης']  = bfFull;
+      }
+
+      const bFields = ['brideBirthDate','brideBirthCity','brideProfession','brideReligion',
+        'brideNationality','brideCity','brideAddress','brideAddressNumber','bridePostalCode',
+        'brideTaxId','brideAmka','brideIdNumber','brideIdDate','brideIdAuthority',
+        'brideMarriageRank','bridePrefecture','brideMunicipality','brideMunicipalRegNumber'];
+      for (const f of bFields) {
+        if (answers[f]) {
+          const label = f.replace('bride', '');
+          answers['Νύφη_' + label] = answers[f];
+        }
+      }
+      if (answers['brideCity'])     { answers['Πόλεως Νύφης'] = declineGreekName(answers['brideCity'], 'genitive', 'unknown'); answers['Πόλη Νύφης'] = answers['brideCity']; }
+      if (answers['brideAddress'])  answers['Οδός Νύφης']     = answers['brideAddress'];
+      if (answers['brideAddressNumber']) answers['Αριθμός Νύφης'] = answers['brideAddressNumber'];
+      if (answers['bridePostalCode']) answers['ΤΚ Νύφης']     = answers['bridePostalCode'];
+      if (answers['brideTaxId'])    answers['ΑΦΜ Νύφης']      = answers['brideTaxId'];
+      if (answers['brideAmka'])     answers['ΑΜΚΑ Νύφης']     = answers['brideAmka'];
+      if (answers['brideIdNumber']) answers['ΑΔΤ Νύφης']      = answers['brideIdNumber'];
+      if (answers['brideIdDate'])   answers['Ημ. ΑΔΤ Νύφης'] = answers['brideIdDate'];
+      if (answers['brideIdAuthority']) answers['Αρχή ΑΔΤ Νύφης'] = answers['brideIdAuthority'];
+      if (answers['brideBirthCity']) answers['Τόπος Γέννησης Νύφης'] = answers['brideBirthCity'];
+      if (answers['brideProfession']) answers['Επάγγελμα Νύφης'] = answers['brideProfession'];
+      if (answers['brideReligion']) answers['Θρήσκευμα Νύφης'] = answers['brideReligion'];
+      if (answers['brideNationality']) answers['Υπηκοότητα Νύφης'] = answers['brideNationality'];
+      if (answers['brideMarriageRank']) answers['Βαθμός Γάμου Νύφης'] = answers['brideMarriageRank'];
+
+      // ── Witness / Koumparos ──────────────────────────────────────────────
+      const witnessCount = [koumparos, koumparos2].filter(Boolean).length;
+
+      if (koumparos) {
+        const wFull = `${koumparos.firstName || ''} ${koumparos.lastName || ''}`.trim();
+        answers['witness']           = wFull;
+        answers['witnessFirstName']  = koumparos.firstName || '';
+        answers['witnessLastName']   = koumparos.lastName || '';
+        answers['Παράνυμφος 1']         = wFull;
+        answers['Όνομα Παράνυμφου 1']   = koumparos.firstName || '';
+        answers['Επώνυμο Παράνυμφου 1'] = koumparos.lastName || '';
+      }
+      if (answers['witnessCity']) {
+        const wcGen = declineGreekName(answers['witnessCity'], 'genitive', 'unknown');
+        answers['Πόλη Παράνυμφου']   = answers['witnessCity'];
+        answers['Πόλεως Παράνυμφου'] = wcGen;
+        answers['κάτοικος Πόλης']    = `κάτοικος ${wcGen}`;
+      }
+      if (koumparos2) {
+        const w2Full = `${koumparos2.firstName || ''} ${koumparos2.lastName || ''}`.trim();
+        const k2FemaleGuess = /[αη]$/i.test(koumparos2.firstName?.trim() || '');
+        answers['witness2']              = w2Full;
+        answers['Παράνυμφος 2']          = w2Full;
+        answers['και ο/η Παράνυμφος 2']  = `και ${k2FemaleGuess ? 'η' : 'ο'} ${w2Full}`;
+        answers['και Παράνυμφος 2']      = `και ${w2Full}`;
+        if (answers['witness2City']) {
+          const wc2Gen = declineGreekName(answers['witness2City'], 'genitive', 'unknown');
+          answers['Πόλη Παράνυμφου 2']   = answers['witness2City'];
+          answers['Πόλεως Παράνυμφου 2'] = wc2Gen;
+        }
+      } else {
+        answers['witness2']              = '';
+        answers['Παράνυμφος 2']          = '';
+        answers['και ο/η Παράνυμφος 2']  = '';
+        answers['και Παράνυμφος 2']      = '';
+        answers['Πόλεως Παράνυμφου 2']   = '';
+      }
+
+      // GamilionGramma: witness count agreement tokens
+      answers['ος/οι'] = witnessCount > 1 ? 'οι' : 'ος';
+      answers['ς/ρες'] = witnessCount > 1 ? 'ρες' : 'ς';
+      answers['η/σαν'] = witnessCount > 1 ? 'σαν' : 'η';
+      answers['ήταν οι'] = witnessCount > 1 ? 'ήταν οι' : 'ήταν';
+      // First witness gender (infer from name ending)
+      const k1Female = /[αη]$/i.test(koumparos?.firstName?.trim() || '');
+      answers['ο/η'] = k1Female ? 'η' : 'ο';
+      answers['και ο/η'] = koumparos2
+        ? `και ${/[αη]$/i.test(koumparos2.firstName?.trim() || '') ? 'η' : 'ο'}`
+        : '';
+      answers['κάτοικος'] = koumparos2 ? 'κάτοικος' : '';
+
+      // BebaiosiGamou: [ἀμφότεροι κάτοικοι Θεσσαλονίκης] — witness cities
+      if (witnessCount > 1 && answers['witnessCity'] && answers['witness2City']) {
+        const c1g = declineGreekName(answers['witnessCity'], 'genitive', 'unknown');
+        const c2g = declineGreekName(answers['witness2City'], 'genitive', 'unknown');
+        answers['ἀμφότεροι κάτοικοι Θεσσαλονίκης'] =
+          answers['witnessCity'] === answers['witness2City']
+            ? `αμφότεροι κάτοικοι ${c1g}`
+            : `κάτοικοι ${c1g} και ${c2g} αντίστοιχα`;
+      } else if (witnessCount === 1 && answers['witnessCity']) {
+        answers['ἀμφότεροι κάτοικοι Θεσσαλονίκης'] = '';
+      }
+
+      // ── Couple joint address (post-marriage) ─────────────────────────────
+      if (answers['coupleAddress']) {
+        answers['Οδός Ζεύγους']                    = answers['coupleAddress'];
+        answers['Ονομασία οδού κατοικίας ζεύγους'] = answers['coupleAddress'];
+      }
+      if (answers['coupleAddressNumber']) answers['Αριθμός Ζεύγους']   = answers['coupleAddressNumber'];
+      if (answers['couplePostalCode'])    answers['ΤΚ Ζεύγους']        = answers['couplePostalCode'];
+      if (answers['coupleCity'])          answers['Πόλη Ζεύγους']      = answers['coupleCity'];
+      if (answers['couplePrefecture'])    answers['Νομός Ζεύγους']     = answers['couplePrefecture'];
+      if (answers['coupleMunicipality'])  answers['Δήμος Ζεύγους']     = answers['coupleMunicipality'];
+
+      // ── Marriage license ─────────────────────────────────────────────────
+      if (answers['marriageLicenseNumber'])  answers['Αρ. Άδειας Γάμου']    = answers['marriageLicenseNumber'];
+      if (answers['marriageParaboloNumber']) answers['Αρ. Παραβόλου Γάμου'] = answers['marriageParaboloNumber'];
+
+      // ── Age fields (Aitisi) ───────────────────────────────────────────────
+      if (answers['groomAge']) answers['Ηλικία Γαμπρού'] = answers['groomAge'];
+      if (answers['brideAge']) answers['Ηλικία Νύφης']   = answers['brideAge'];
+
+      // ── Birth date decomposition (DilosiGamou day/year fields) ───────────
+      const parseBirthDate = (dateStr: string) => {
+        if (!dateStr) return null;
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return null;
+        return { day: String(d.getDate()), month: String(d.getMonth() + 1).padStart(2,'0'), year: String(d.getFullYear()) };
+      };
+      const gbd = parseBirthDate(answers['groomBirthDate']);
+      if (gbd) {
+        answers['groomBirthDay']  = gbd.day;
+        answers['groomBirthYear'] = gbd.year;
+        answers['Ημέρα Γέννησης Γαμπρού'] = gbd.day;
+        answers['Έτος Γέννησης Γαμπρού']  = gbd.year;
+      }
+      const bbd = parseBirthDate(answers['brideBirthDate']);
+      if (bbd) {
+        answers['brideBirthDay']  = bbd.day;
+        answers['brideBirthYear'] = bbd.year;
+        answers['Ημέρα Γέννησης Νύφης'] = bbd.day;
+        answers['Έτος Γέννησης Νύφης']  = bbd.year;
+      }
+
+      // Children's surname
       answers['Επώνυμο Τέκνων']  = groom?.lastName || bride?.lastName || '';
       answers['Επώνυμο_Τέκνων'] = answers['Επώνυμο Τέκνων'];
     }
@@ -413,8 +647,8 @@ export async function POST(req: NextRequest) {
     answers['protocolNumber'] = token.protocolNumber || '';
     answers['ΑΡΙΘΜ_ΒΙΒΛΙΟΥ'] = token.bookNumber || '';
     answers['bookNumber'] = token.bookNumber || '';
-    // Literal digit-only key for [000] placeholder (αύξων αριθμός / book entry number)
-    answers['000'] = token.bookNumber || '';
+    // [000] → protocol number for Aitisi/BebaiosiGamou; book number as fallback
+    answers['000'] = token.protocolNumber || token.bookNumber || '';
     answers['ΗΜΕΡΟΜΗΝΙΑ_ΤΕΛΕΣΗΣ'] = grDate;
     answers['ceremonyDate'] = grDate;
 
@@ -441,7 +675,11 @@ export async function POST(req: NextRequest) {
       // [00 Μήνας 0000] → "30 Μαΐου 2026" (cleanKey: 00μηνασ0000) — used in headers
       answers['00ην Μηνός'] = `${d.getDate()}η ${months[d.getMonth()]}`;
       answers['ceremonyDayMonth'] = `${d.getDate()}η ${months[d.getMonth()]}`;
+      // Full date: nominative month [00 Μήνας 0000] and genitive month [00 Μηνός 0000]
       answers['00 Μήνας 0000'] = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+      answers['00 Μηνός 0000'] = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+      // Ordinal + genitive month + year: [00ην Μηνός 0000] for BebaiosiGamou ceremony date
+      answers['00ην Μηνός 0000'] = `${d.getDate()}ην ${months[d.getMonth()]} ${d.getFullYear()}`;
       // Literal digit-only placeholder keys used verbatim in older templates:
       // [0000] = ceremony year, [00] = ceremony day
       answers['0000'] = String(d.getFullYear());
@@ -480,8 +718,11 @@ export async function POST(req: NextRequest) {
     answers['priestTitle'] = priestTitle;
     answers['ΤίτλοςΙερέα'] = priestTitle;
     answers['Τίτλος Ιερέα']          = priestTitle;
-    answers['Όνομα Ιερέως']          = priestName;   // [Όνομα Ιερέως] in ChildrenLastName
+    answers['Τίτλος Ιερέως']         = priestTitle;   // [Τίτλος Ιερέως] in Aitisi
+    answers['Τίτλος']                = priestTitle;   // [Τίτλος] in BebaiosiGamou
+    answers['Όνομα Ιερέως']          = priestName;   // [Όνομα Ιερέως] in ChildrenLastName/Aitisi
     answers['Ονοματεπώνυμο Ιερέα']   = priestName;   // alternative spelling
+    answers['Ονοματεπώνυμο Ιερέως']  = priestName;   // [Ονοματεπώνυμο Ιερέως] in DilosiGamou
     answers['ΝΑΟΣ_ΟΝΟΜΑ'] = token.temple.name || '';
     answers['templeName'] = token.temple.name || '';
     answers['ΝΑΟΣ_ΔΙΕΥΘΥΝΣΗ'] = token.temple.address || '';

@@ -339,6 +339,178 @@ export const SYNONYM_GROUPS: string[][] = [
    'πολοιδιαμονησ', 'πολιβαπτιζομενου'],
   // 47 — ceremonyDayMonth  "6η Ιουνίου" — day+month without year (Απαντητικόν pattern)
   ['ceremonydaymonth', 'ημερατελεσησμηνοσ', 'ημερακαιμηναστελεσησ', 'daymonthceremony'],
+  // 48 — groomFirstName
+  ['ονομαγαμπρου', 'γαμπροσονομα', 'groomfirstname', 'groomname', 'νυμφιοσονομα', 'ονομανυμφιου'],
+  // 49 — groomLastName
+  ['επωνυμογαμπρου', 'γαμπροσεπωνυμο', 'groomlastname', 'groomsurname', 'επωνυμονυμφιου'],
+  // 50 — groomFullName  [Ονοματεπώνυμο Γαμπρού] nominative
+  ['ονοματεπωνυμογαμπρου', 'groomfullname', 'γαμπροσ', 'νυμφιοσ'],
+  // 51 — groomFullNameGen  genitive
+  ['ονοματεπωνυμογαμπρουγεν', 'groomfullnamegen', 'γαμπρουπληρεσ'],
+  // 52 — groomFirstNameGen  [Όνομα Γαμπρού (γενική)]
+  ['ονομαγαμπρουγεν', 'groomfirstnamegen', 'ονομαγαμπρουγενικη'],
+  // 53 — groomLastNameGen  [Επώνυμο Γαμπρού (γενική)]
+  ['επωνυμογαμπρουγεν', 'groomlastnamegen', 'επωνυμογαμπρουγενικη'],
+  // 54 — groomFatherName  [Πατρώνυμο Γαμπρού]
+  ['πατρωνυμογαμπρου', 'groomfathername', 'γαμπρουπατρωνυμο', 'πατρωνυμονυμφιου'],
+  // 55 — groomMotherName  [Μητρώνυμο Γαμπρού]
+  ['μητρωνυμογαμπρου', 'groommother', 'γαμπρουμητρωνυμο', 'μητρωνυμονυμφιου'],
+  // 56 — groomFatherFullName  [Ονοματεπώνυμο Πατρός Γαμπρού]
+  ['ονοματεπωνυμοπατροσγαμπρου', 'groomfatherfullname', 'ονοματεπωνυμοπατερα γαμπρου'],
+  // 57 — groomMotherFullName  [Ονοματεπώνυμο Μητρός Γαμπρού]
+  ['ονοματεπωνυμομητροσγαμπρου', 'groommotherfullname'],
+  // 58 — groomAge  [Ηλικία Γαμπρού]
+  ['ηλικιαγαμπρου', 'groomage', 'ετηγαμπρου', 'γαμπρουηλικια'],
+  // 59 — groomBirthDate  [Ημ. Γέννησης Γαμπρού]
+  ['ημερομηνιαγεννησεωσγαμπρου', 'groombirthdate', 'γεννησηγαμπρου', 'γαμπρουγεννηση'],
+  // 60 — groomBirthCity  [Τόπος Γέννησης Γαμπρού]
+  ['τοποσγεννησεωσγαμπρου', 'groombirthcity', 'γαμπρουτοποσγεν', 'τοποσγεννησηστγαμπρου'],
+  // 61 — groomProfession  [Επάγγελμα Γαμπρού]
+  ['επαγγελμαγαμπρου', 'groomprofession', 'γαμπρουεπαγγελμα'],
+  // 62 — groomReligion  [Θρήσκευμα Γαμπρού]
+  ['θρησκευμαγαμπρου', 'groomreligion', 'γαμπρουθρησκευμα'],
+  // 63 — groomNationality  [Υπηκοότητα Γαμπρού]
+  ['υπηκοοτηταγαμπρου', 'groomnationality', 'γαμπρουεθνικοτητα', 'υπηκοοτηταγαμπ'],
+  // 64 — groomCity  [Πόλη Γαμπρού] / [Πόλεως Γαμπρού]
+  ['ποληγαμπρου', 'πολεωσγαμπρου', 'groomcity', 'γαμπρουπολη', 'κατοικοσγαμπρου'],
+  // 65 — groomAddress  [Οδός Γαμπρού]
+  ['οδοσγαμπρου', 'groomaddress', 'γαμπρουοδοσ'],
+  // 66 — groomAddressNumber  [Αριθμός Γαμπρού]
+  ['αριθμοσγαμπρου', 'αριθμοσοδουγαμπρου', 'groomaddressnumber'],
+  // 67 — groomPostalCode  [ΤΚ Γαμπρού]
+  ['τκγαμπρου', 'groompostalcode', 'γαμπρουτκ', 'ταχκωδικαστγαμπρου'],
+  // 68 — groomTaxId  [ΑΦΜ Γαμπρού]
+  ['αφμγαμπρου', 'groomtaxid', 'φορολογικομητρωογαμπρου'],
+  // 69 — groomAmka  [ΑΜΚΑ Γαμπρού]
+  ['αμκαγαμπρου', 'groomamka', 'γαμπρουαμκα'],
+  // 70 — groomIdNumber  [ΑΔΤ Γαμπρού]
+  ['αδτγαμπρου', 'groomidnumber', 'ταυτοτηταγαμπρου', 'αδτγαμπ'],
+  // 71 — groomIdDate  [Ημ. ΑΔΤ Γαμπρού]
+  ['ημαδτγαμπρου', 'groomiddate', 'ημερομηνιααδτγαμπρου'],
+  // 72 — groomIdAuthority  [Αρχή ΑΔΤ Γαμπρού]
+  ['αρχηαδτγαμπρου', 'groomidauthority', 'εκδουσααρχηγαμπρου'],
+  // 73 — groomMarriageRank  [Βαθμός Γάμου Γαμπρού]
+  ['βαθμοσγαμουγαμπρου', 'groommarriagerank', 'αβγγαμπρου', 'γαμοσβαθμοσγαμπρου'],
+  // 74 — groomPrefecture  [Νομός Γαμπρού]
+  ['νομοσγαμπρου', 'groomprefecture', 'γαμπρουνομοσ'],
+  // 75 — groomMunicipality  [Δήμος Γαμπρού]
+  ['δημοσγαμπρου', 'groommunicipality', 'γαμπρουδημοσ'],
+  // 76 — groomMunicipalRegNumber  [Αρ. Δημοτολογίου Γαμπρού]
+  ['αριθμοσδημοτολογιουγαμπρου', 'groommuniregnum', 'δημοτολογιογαμπρου'],
+  // 77 — brideFirstName  [Όνομα Νύφης]
+  ['ονομανυφησ', 'νυφηονομα', 'bridefirstname', 'bridename'],
+  // 78 — brideLastName  [Επώνυμο Νύφης]
+  ['επωνυμονυφησ', 'νυφηεπωνυμο', 'bridelastname', 'bridesurname'],
+  // 79 — brideFullName  [Ονοματεπώνυμο Νύφης] nominative
+  ['ονοματεπωνυμονυφησ', 'bridefullname', 'νυφη'],
+  // 80 — brideFullNameGen  genitive
+  ['ονοματεπωνυμονυφησγεν', 'bridefullnamegen', 'νυφησπληρεσ'],
+  // 81 — brideFirstNameGen  [Όνομα Νύφης (γενική)]
+  ['ονομανυφησγεν', 'bridefirstnamegen', 'ονομανυφησγενικη'],
+  // 82 — brideLastNameGen  [Επώνυμο Νύφης (γενική)]
+  ['επωνυμονυφησγεν', 'bridelastnamegen', 'επωνυμονυφησγενικη'],
+  // 83 — brideFatherName  [Πατρώνυμο Νύφης]
+  ['πατρωνυμονυφησ', 'bridefathername', 'νυφησπατρωνυμο'],
+  // 84 — brideMotherName  [Μητρώνυμο Νύφης]
+  ['μητρωνυμονυφησ', 'bridemother', 'νυφησμητρωνυμο'],
+  // 85 — brideFatherFullName  [Ονοματεπώνυμο Πατρός Νύφης]
+  ['ονοματεπωνυμοπατροσνυφησ', 'bridefatherfullname'],
+  // 86 — brideMotherFullName  [Ονοματεπώνυμο Μητρός Νύφης]
+  ['ονοματεπωνυμομητροσνυφησ', 'bridemotherfullname'],
+  // 87 — brideAge  [Ηλικία Νύφης]
+  ['ηλικιανυφησ', 'brideage', 'ετηνυφησ', 'νυφησηλικια'],
+  // 88 — brideBirthDate  [Ημ. Γέννησης Νύφης]
+  ['ημερομηνιαγεννησεωσνυφησ', 'bridebirthdate', 'γεννησηνυφησ'],
+  // 89 — brideBirthCity  [Τόπος Γέννησης Νύφης]
+  ['τοποσγεννησεωσνυφησ', 'bridebirthcity', 'νυφηστοποσγεν'],
+  // 90 — brideProfession  [Επάγγελμα Νύφης]
+  ['επαγγελμανυφησ', 'brideprofession', 'νυφησεπαγγελμα'],
+  // 91 — brideReligion  [Θρήσκευμα Νύφης]
+  ['θρησκευμανυφησ', 'bridereligion', 'νυφησθρησκευμα'],
+  // 92 — brideNationality  [Υπηκοότητα Νύφης]
+  ['υπηκοοτητανυφησ', 'bridenationality', 'νυφησεθνικοτητα'],
+  // 93 — brideCity  [Πόλη Νύφης] / [Πόλεως Νύφης]
+  ['ποληνυφησ', 'πολεωσνυφησ', 'bridecity', 'νυφησπολη'],
+  // 94 — brideAddress  [Οδός Νύφης]
+  ['οδοσνυφησ', 'brideaddress', 'νυφησοδοσ'],
+  // 95 — brideAddressNumber  [Αριθμός Νύφης]
+  ['αριθμοσνυφησ', 'αριθμοσοδουνυφησ', 'brideaddressnumber'],
+  // 96 — bridePostalCode  [ΤΚ Νύφης]
+  ['τκνυφησ', 'bridepostalcode', 'νυφηστκ'],
+  // 97 — brideTaxId  [ΑΦΜ Νύφης]
+  ['αφμνυφησ', 'bridetaxid', 'φορολογικομητρωονυφησ'],
+  // 98 — brideAmka  [ΑΜΚΑ Νύφης]
+  ['αμκανυφησ', 'brideamka', 'νυφησαμκα'],
+  // 99 — brideIdNumber  [ΑΔΤ Νύφης]
+  ['αδτνυφησ', 'brideidnumber', 'ταυτοτητανυφησ'],
+  // 100 — brideIdDate  [Ημ. ΑΔΤ Νύφης]
+  ['ημαδτνυφησ', 'brideiddate', 'ημερομηνιααδτνυφησ'],
+  // 101 — brideIdAuthority  [Αρχή ΑΔΤ Νύφης]
+  ['αρχηαδτνυφησ', 'brideidauthority', 'εκδουσααρχηνυφησ'],
+  // 102 — brideMarriageRank  [Βαθμός Γάμου Νύφης]
+  ['βαθμοσγαμουνυφησ', 'bridemarriagerank', 'αβγνυφησ'],
+  // 103 — bridePrefecture  [Νομός Νύφης]
+  ['νομοσνυφησ', 'brideprefecture', 'νυφησνομοσ'],
+  // 104 — brideMunicipality  [Δήμος Νύφης]
+  ['δημοσνυφησ', 'bridemunicipality', 'νυφησδημοσ'],
+  // 105 — brideMunicipalRegNumber  [Αρ. Δημοτολογίου Νύφης]
+  ['αριθμοσδημοτολογιουνυφησ', 'bridemuniregnum', 'δημοτολογιονυφησ'],
+  // 106 — witness  [Παράνυμφος 1] full name
+  ['παρανυμφοσ', 'παρανυμφοσ1', 'witness', 'κουμπαροσ', 'μαρτυσ', 'παρανυμφοσπληρεσ'],
+  // 107 — witnessFirstName  [Όνομα Παράνυμφου 1]
+  ['ονομαπαρανυμφου', 'witnessfirstname', 'κουμπαροσονομα', 'παρανυμφουονομα'],
+  // 108 — witnessLastName  [Επώνυμο Παράνυμφου 1]
+  ['επωνυμοπαρανυμφου', 'witnesslastname', 'κουμπαροσεπωνυμο', 'παρανυμφουεπωνυμο'],
+  // 109 — witnessCity  [Πόλη Παράνυμφου] / [Πόλεως Παράνυμφου]
+  ['ποληπαρανυμφου', 'πολεωσπαρανυμφου', 'witnesscity', 'κουμπαρουπολη', 'κατοικοσπαρανυμφου'],
+  // 110 — witness2  [Παράνυμφος 2] full name (conditional)
+  ['παρανυμφοσ2', 'witness2', 'κουμπαροσ2', 'δευτεροσπαρανυμφοσ'],
+  // 111 — witness2City  [Πόλη Παράνυμφου 2]
+  ['ποληπαρανυμφου2', 'witness2city', 'κουμπαροσ2πολη', 'παρανυμφου2πολη'],
+  // 112 — coupleAddress  [Οδός Ζεύγους]
+  ['οδοσζευγουσ', 'coupleaddress', 'κοινηοδοσ', 'οδοσκατοικιαστζευγουσ'],
+  // 113 — coupleAddressNumber  [Αριθμός Ζεύγους]
+  ['αριθμοσζευγουσ', 'coupleaddressnumber', 'αριθμοσκατοικιαστζευγουσ'],
+  // 114 — couplePostalCode  [ΤΚ Ζεύγους]
+  ['τκζευγουσ', 'couplepostalcode', 'ταχκωδικαστζευγουσ'],
+  // 115 — coupleCity  [Πόλη Ζεύγους]
+  ['ποληζευγουσ', 'couplecity', 'κοινηπολη', 'κατοικιαζευγουσ'],
+  // 116 — couplePrefecture  [Νομός Ζεύγους]
+  ['νομοσζευγουσ', 'coupleprefecture', 'νομοσκοινοσ'],
+  // 117 — coupleMunicipality  [Δήμος Ζεύγους]
+  ['δημοσζευγουσ', 'couplemunicipality', 'δημοσκοινοσ'],
+  // 118 — marriageLicenseNumber  [Αρ. Άδειας Γάμου]
+  ['αδειαγαμου', 'marriagelicensenumber', 'αριθμοσαδειαστγαμου', 'αδειαστγαμου'],
+  // 119 — marriageParaboloNumber  [Αρ. Παραβόλου Γάμου]
+  ['παραβολογαμου', 'marriageparabolonumber', 'αριθμοσπαραβολουγαμου'],
+  // 120 — witnessCity  [Πόλεως Παράνυμφου] / [Πόλη Παράνυμφου]
+  ['πολεωσπαρανυμφου', 'πολησπαρανυμφου', 'witnesscity', 'κατοικοσπαρανυμφου'],
+  // 121 — witness2City  [Πόλεως Παράνυμφου 2]
+  ['πολεωσπαρανυμφου2', 'witness2city', 'πολησπαρανυμφου2'],
+  // 122 — priest title  [Τίτλος] / [Τίτλος Ιερέως] / [Τίτλος Ιερέα]
+  ['τιτλοσιερεωσ', 'τιτλοσιερεα', 'τιτλοσ', 'priesttitle'],
+  // 123 — [Ονοματεπώνυμο Ιερέως]  priest full name (DilosiGamou)
+  ['ονοματεπωνυμοιερεωσ', 'ονοματεπωνυμοιερεα', 'ονοματεπωνυμοεφημεριου', 'priestname'],
+  // 124 — [Ονομασία οδού κατοικίας ζεύγους]  (DilosiGamou couple address long form)
+  ['ονομασιαοδουκατοικιαστζευγουσ', 'coupleaddress'],
+  // 125 — [Αρ. Κατοικίας Ζεύγους]  couple address number in DilosiGamou
+  ['αρκατοικιαστζευγουσ', 'coupleaddressnumber'],
+  // 126 — [πρώτος/δεύτερος/τρίτος]  marriage rank alias
+  ['πρωτοσδευτεροστριτοσ', 'groommarriagerank'],
+  // 127 — [Κοινότητα Γαμπρού] / [Κοινότητα Νύφης] / [Κοινότητα Ζεύγους]
+  ['κοινοτηταγαμπρου', 'groomcommunity'],
+  ['κοινοτητανυφησ', 'bridecommunity'],
+  ['κοινοτηταζευγουσ', 'couplecommunity'],
+  // 130 — [Χώρα Γαμπρού] / [Χώρα Νύφης] / [Χώρα Ζεύγους]
+  ['χωραγαμπρου', 'groomcountry'],
+  ['χωρανυφησ', 'bridecountry'],
+  ['χωραζευγουσ', 'couplecountry'],
+  // 133 — [Ημέρα Γέννησης Γαμπρού] / [Ημέρα Γέννησης Νύφης]
+  ['ημεραγεννησηστγαμπρου', 'groombirthday'],
+  ['ημεραγεννησηστνυφησ', 'bridebirthday'],
+  // 135 — [Έτος Γέννησης Γαμπρού] / [Έτος Γέννησης Νύφης]
+  ['ετοσγεννησηστγαμπρου', 'groombirthyear'],
+  ['ετοσγεννησηστνυφησ', 'bridebirthyear'],
 ];
 
 export function getNormalizedValue(placeholderKey: string, answers: Record<string, any>): string {
@@ -481,6 +653,78 @@ export const STANDARD_FIELDS: { key: string; label: string }[] = [
   { key: 'residenceAddress',     label: 'Διεύθυνση Διαμονής' },
   { key: 'residenceCity',        label: 'Πόλη Διαμονής' },
   { key: 'ceremonyDayMonth',     label: 'Ημέρα & Μήνας Τελετής (χωρίς χρονιά)' },
+  { key: 'groomFirstName',          label: 'Όνομα Γαμπρού' },
+  { key: 'groomLastName',           label: 'Επώνυμο Γαμπρού' },
+  { key: 'groomFullName',           label: 'Ονοματεπώνυμο Γαμπρού (ονομαστική)' },
+  { key: 'groomFullNameGen',        label: 'Ονοματεπώνυμο Γαμπρού (γενική)' },
+  { key: 'groomFirstNameGen',       label: 'Όνομα Γαμπρού (γενική)' },
+  { key: 'groomLastNameGen',        label: 'Επώνυμο Γαμπρού (γενική)' },
+  { key: 'groomFatherName',         label: 'Πατρώνυμο Γαμπρού' },
+  { key: 'groomMotherName',         label: 'Μητρώνυμο Γαμπρού' },
+  { key: 'groomFatherFullName',     label: 'Ονοματεπώνυμο Πατρός Γαμπρού' },
+  { key: 'groomMotherFullName',     label: 'Ονοματεπώνυμο Μητρός Γαμπρού' },
+  { key: 'groomAge',                label: 'Ηλικία Γαμπρού' },
+  { key: 'groomBirthDate',          label: 'Ημ/νία Γέννησης Γαμπρού' },
+  { key: 'groomBirthCity',          label: 'Τόπος Γέννησης Γαμπρού' },
+  { key: 'groomProfession',         label: 'Επάγγελμα Γαμπρού' },
+  { key: 'groomReligion',           label: 'Θρήσκευμα Γαμπρού' },
+  { key: 'groomNationality',        label: 'Υπηκοότητα Γαμπρού' },
+  { key: 'groomCity',               label: 'Πόλη Κατοικίας Γαμπρού' },
+  { key: 'groomAddress',            label: 'Οδός Γαμπρού' },
+  { key: 'groomAddressNumber',      label: 'Αριθμός Οδού Γαμπρού' },
+  { key: 'groomPostalCode',         label: 'ΤΚ Γαμπρού' },
+  { key: 'groomTaxId',              label: 'ΑΦΜ Γαμπρού' },
+  { key: 'groomAmka',               label: 'ΑΜΚΑ Γαμπρού' },
+  { key: 'groomIdNumber',           label: 'ΑΔΤ Γαμπρού' },
+  { key: 'groomIdDate',             label: 'Ημ. Έκδοσης ΑΔΤ Γαμπρού' },
+  { key: 'groomIdAuthority',        label: 'Εκδούσα Αρχή ΑΔΤ Γαμπρού' },
+  { key: 'groomMarriageRank',       label: 'Βαθμός Γάμου Γαμπρού (Α/Β/Γ)' },
+  { key: 'groomPrefecture',         label: 'Νομός Γαμπρού' },
+  { key: 'groomMunicipality',       label: 'Δήμος Γαμπρού' },
+  { key: 'groomMunicipalRegNumber', label: 'Αρ. Δημοτολογίου Γαμπρού' },
+  { key: 'brideFirstName',          label: 'Όνομα Νύφης' },
+  { key: 'brideLastName',           label: 'Επώνυμο Νύφης' },
+  { key: 'brideFullName',           label: 'Ονοματεπώνυμο Νύφης (ονομαστική)' },
+  { key: 'brideFullNameGen',        label: 'Ονοματεπώνυμο Νύφης (γενική)' },
+  { key: 'brideFirstNameGen',       label: 'Όνομα Νύφης (γενική)' },
+  { key: 'brideLastNameGen',        label: 'Επώνυμο Νύφης (γενική)' },
+  { key: 'brideFatherName',         label: 'Πατρώνυμο Νύφης' },
+  { key: 'brideMotherName',         label: 'Μητρώνυμο Νύφης' },
+  { key: 'brideFatherFullName',     label: 'Ονοματεπώνυμο Πατρός Νύφης' },
+  { key: 'brideMotherFullName',     label: 'Ονοματεπώνυμο Μητρός Νύφης' },
+  { key: 'brideAge',                label: 'Ηλικία Νύφης' },
+  { key: 'brideBirthDate',          label: 'Ημ/νία Γέννησης Νύφης' },
+  { key: 'brideBirthCity',          label: 'Τόπος Γέννησης Νύφης' },
+  { key: 'brideProfession',         label: 'Επάγγελμα Νύφης' },
+  { key: 'brideReligion',           label: 'Θρήσκευμα Νύφης' },
+  { key: 'brideNationality',        label: 'Υπηκοότητα Νύφης' },
+  { key: 'brideCity',               label: 'Πόλη Κατοικίας Νύφης' },
+  { key: 'brideAddress',            label: 'Οδός Νύφης' },
+  { key: 'brideAddressNumber',      label: 'Αριθμός Οδού Νύφης' },
+  { key: 'bridePostalCode',         label: 'ΤΚ Νύφης' },
+  { key: 'brideTaxId',              label: 'ΑΦΜ Νύφης' },
+  { key: 'brideAmka',               label: 'ΑΜΚΑ Νύφης' },
+  { key: 'brideIdNumber',           label: 'ΑΔΤ Νύφης' },
+  { key: 'brideIdDate',             label: 'Ημ. Έκδοσης ΑΔΤ Νύφης' },
+  { key: 'brideIdAuthority',        label: 'Εκδούσα Αρχή ΑΔΤ Νύφης' },
+  { key: 'brideMarriageRank',       label: 'Βαθμός Γάμου Νύφης (Α/Β/Γ)' },
+  { key: 'bridePrefecture',         label: 'Νομός Νύφης' },
+  { key: 'brideMunicipality',       label: 'Δήμος Νύφης' },
+  { key: 'brideMunicipalRegNumber', label: 'Αρ. Δημοτολογίου Νύφης' },
+  { key: 'witness',                 label: 'Παράνυμφος 1 (ονοματεπώνυμο)' },
+  { key: 'witnessFirstName',        label: 'Όνομα Παράνυμφου 1' },
+  { key: 'witnessLastName',         label: 'Επώνυμο Παράνυμφου 1' },
+  { key: 'witnessCity',             label: 'Πόλη Παράνυμφου 1' },
+  { key: 'witness2',                label: 'Παράνυμφος 2 (ονοματεπώνυμο)' },
+  { key: 'witness2City',            label: 'Πόλη Παράνυμφου 2' },
+  { key: 'coupleAddress',           label: 'Κοινή Οδός Ζεύγους' },
+  { key: 'coupleAddressNumber',     label: 'Αριθμός Κοινής Οδού Ζεύγους' },
+  { key: 'couplePostalCode',        label: 'ΤΚ Ζεύγους' },
+  { key: 'coupleCity',              label: 'Πόλη Ζεύγους' },
+  { key: 'couplePrefecture',        label: 'Νομός Ζεύγους' },
+  { key: 'coupleMunicipality',      label: 'Δήμος Ζεύγους' },
+  { key: 'marriageLicenseNumber',   label: 'Αρ. Άδειας Γάμου' },
+  { key: 'marriageParaboloNumber',  label: 'Αρ. Παραβόλου Γάμου' },
 ];
 
 // Maps synonym group index → standard field key (must stay in sync with SYNONYM_GROUPS)
@@ -532,7 +776,79 @@ export const GROUP_TO_FIELD: string[] = [
   'previousReligion',    // 44
   'residenceAddress',    // 45
   'residenceCity',       // 46
-  'ceremonyDayMonth',   // 47
+  'ceremonyDayMonth',        // 47
+  'groomFirstName',          // 48
+  'groomLastName',           // 49
+  'groomFullName',           // 50
+  'groomFullNameGen',        // 51
+  'groomFirstNameGen',       // 52
+  'groomLastNameGen',        // 53
+  'groomFatherName',         // 54
+  'groomMotherName',         // 55
+  'groomFatherFullName',     // 56
+  'groomMotherFullName',     // 57
+  'groomAge',                // 58
+  'groomBirthDate',          // 59
+  'groomBirthCity',          // 60
+  'groomProfession',         // 61
+  'groomReligion',           // 62
+  'groomNationality',        // 63
+  'groomCity',               // 64
+  'groomAddress',            // 65
+  'groomAddressNumber',      // 66
+  'groomPostalCode',         // 67
+  'groomTaxId',              // 68
+  'groomAmka',               // 69
+  'groomIdNumber',           // 70
+  'groomIdDate',             // 71
+  'groomIdAuthority',        // 72
+  'groomMarriageRank',       // 73
+  'groomPrefecture',         // 74
+  'groomMunicipality',       // 75
+  'groomMunicipalRegNumber', // 76
+  'brideFirstName',          // 77
+  'brideLastName',           // 78
+  'brideFullName',           // 79
+  'brideFullNameGen',        // 80
+  'brideFirstNameGen',       // 81
+  'brideLastNameGen',        // 82
+  'brideFatherName',         // 83
+  'brideMotherName',         // 84
+  'brideFatherFullName',     // 85
+  'brideMotherFullName',     // 86
+  'brideAge',                // 87
+  'brideBirthDate',          // 88
+  'brideBirthCity',          // 89
+  'brideProfession',         // 90
+  'brideReligion',           // 91
+  'brideNationality',        // 92
+  'brideCity',               // 93
+  'brideAddress',            // 94
+  'brideAddressNumber',      // 95
+  'bridePostalCode',         // 96
+  'brideTaxId',              // 97
+  'brideAmka',               // 98
+  'brideIdNumber',           // 99
+  'brideIdDate',             // 100
+  'brideIdAuthority',        // 101
+  'brideMarriageRank',       // 102
+  'bridePrefecture',         // 103
+  'brideMunicipality',       // 104
+  'brideMunicipalRegNumber', // 105
+  'witness',                 // 106
+  'witnessFirstName',        // 107
+  'witnessLastName',         // 108
+  'witnessCity',             // 109
+  'witness2',                // 110
+  'witness2City',            // 111
+  'coupleAddress',           // 112
+  'coupleAddressNumber',     // 113
+  'couplePostalCode',        // 114
+  'coupleCity',              // 115
+  'couplePrefecture',        // 116
+  'coupleMunicipality',      // 117
+  'marriageLicenseNumber',   // 118
+  'marriageParaboloNumber',  // 119
 ];
 
 /**

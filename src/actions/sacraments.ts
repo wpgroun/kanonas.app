@@ -263,6 +263,17 @@ export async function updateCeremonyMetaByAdmin(
     previousReligion?: string;
     residenceAddress?: string;
     residenceCity?: string;
+    // Gamos admin fields
+    coupleAddress?: string;
+    coupleAddressNumber?: string;
+    couplePostalCode?: string;
+    coupleCity?: string;
+    couplePrefecture?: string;
+    coupleMunicipality?: string;
+    marriageLicenseNumber?: string;
+    marriageParaboloNumber?: string;
+    witnessCity?: string;
+    witness2City?: string;
   }
 ) {
   await requireAuth();

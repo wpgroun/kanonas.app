@@ -98,6 +98,41 @@ export default function FormClient({ token }: { token: any }) {
   const [brideFatherDocType, setBrideFatherDocType] = useState(existingMeta.brideFatherDocType || 'identity');
   const [brideMotherDocType, setBrideMotherDocType] = useState(existingMeta.brideMotherDocType || 'identity');
 
+  // Extended groom fields
+  const [groomBirthDate, setGroomBirthDate] = useState(existingMeta.groomBirthDate || '');
+  const [groomBirthCity, setGroomBirthCity] = useState(existingMeta.groomBirthCity || '');
+  const [groomProfession, setGroomProfession] = useState(existingMeta.groomProfession || '');
+  const [groomReligion, setGroomReligion] = useState(existingMeta.groomReligion || 'Ορθόδοξος Χριστιανός');
+  const [groomNationality, setGroomNationality] = useState(existingMeta.groomNationality || 'Ελληνική');
+  const [groomCity, setGroomCity] = useState(existingMeta.groomCity || '');
+  const [groomAddress, setGroomAddress] = useState(existingMeta.groomAddress || '');
+  const [groomAddressNumber, setGroomAddressNumber] = useState(existingMeta.groomAddressNumber || '');
+  const [groomPostalCode, setGroomPostalCode] = useState(existingMeta.groomPostalCode || '');
+  const [groomTaxId, setGroomTaxId] = useState(existingMeta.groomTaxId || '');
+  const [groomAmka, setGroomAmka] = useState(existingMeta.groomAmka || '');
+  const [groomIdNumber, setGroomIdNumber] = useState(existingMeta.groomIdNumber || '');
+  const [groomIdDate, setGroomIdDate] = useState(existingMeta.groomIdDate || '');
+  const [groomIdAuthority, setGroomIdAuthority] = useState(existingMeta.groomIdAuthority || '');
+  const [groomMarriageRank, setGroomMarriageRank] = useState(existingMeta.groomMarriageRank || 'Α');
+  // Extended bride fields (mirror)
+  const [brideBirthDate, setBrideBirthDate] = useState(existingMeta.brideBirthDate || '');
+  const [brideBirthCity, setBrideBirthCity] = useState(existingMeta.brideBirthCity || '');
+  const [brideProfession, setBrideProfession] = useState(existingMeta.brideProfession || '');
+  const [brideReligion, setBrideReligion] = useState(existingMeta.brideReligion || 'Ορθόδοξη Χριστιανή');
+  const [brideNationality, setBrideNationality] = useState(existingMeta.brideNationality || 'Ελληνική');
+  const [brideCity, setBrideCity] = useState(existingMeta.brideCity || '');
+  const [brideAddress, setBrideAddress] = useState(existingMeta.brideAddress || '');
+  const [brideAddressNumber, setBrideAddressNumber] = useState(existingMeta.brideAddressNumber || '');
+  const [bridePostalCode, setBridePostalCode] = useState(existingMeta.bridePostalCode || '');
+  const [brideTaxId, setBrideTaxId] = useState(existingMeta.brideTaxId || '');
+  const [brideAmka, setBrideAmka] = useState(existingMeta.brideAmka || '');
+  const [brideIdNumber, setBrideIdNumber] = useState(existingMeta.brideIdNumber || '');
+  const [brideIdDate, setBrideIdDate] = useState(existingMeta.brideIdDate || '');
+  const [brideIdAuthority, setBrideIdAuthority] = useState(existingMeta.brideIdAuthority || '');
+  const [brideMarriageRank, setBrideMarriageRank] = useState(existingMeta.brideMarriageRank || 'Α');
+  // Witness/Koumparos city
+  const [witnessCity, setWitnessCity] = useState(existingMeta.witnessCity || '');
+
   // KOUMPAROS
   const [koumparosFirst, setKoumparosFirst] = useState(p('koumparos').firstName || '');
   const [koumparosLast, setKoumparosLast] = useState(p('koumparos').lastName || '');
@@ -195,12 +230,12 @@ export default function FormClient({ token }: { token: any }) {
     let personsArr: any[] = [];
 
     if (isGamos) {
-      payload = { 
-        groomStatus, 
-        groomDivorceRef: groomStatus === 'diazevmenos' ? groomDivorceRef : undefined, 
+      payload = {
+        groomStatus,
+        groomDivorceRef: groomStatus === 'diazevmenos' ? groomDivorceRef : undefined,
         groomSymfonoRef: groomStatus === 'symfono' ? groomSymfonoRef : undefined,
-        brideStatus, 
-        brideDivorceRef: brideStatus === 'diazevmeni' ? brideDivorceRef : undefined, 
+        brideStatus,
+        brideDivorceRef: brideStatus === 'diazevmeni' ? brideDivorceRef : undefined,
         brideSymfonoRef: brideStatus === 'symfono' ? brideSymfonoRef : undefined,
         koumparosIsOrthodox,
         groomMotherFirst,
@@ -213,7 +248,17 @@ export default function FormClient({ token }: { token: any }) {
         groomFatherDocType,
         groomMotherDocType,
         brideFatherDocType,
-        brideMotherDocType
+        brideMotherDocType,
+        // Extended groom fields
+        groomBirthDate, groomBirthCity, groomProfession, groomReligion, groomNationality,
+        groomCity, groomAddress, groomAddressNumber, groomPostalCode,
+        groomTaxId, groomAmka, groomIdNumber, groomIdDate, groomIdAuthority, groomMarriageRank,
+        // Extended bride fields
+        brideBirthDate, brideBirthCity, brideProfession, brideReligion, brideNationality,
+        brideCity, brideAddress, brideAddressNumber, bridePostalCode,
+        brideTaxId, brideAmka, brideIdNumber, brideIdDate, brideIdAuthority, brideMarriageRank,
+        // Witness city
+        witnessCity,
       };
       personsArr.push({ role: 'groom', firstName: groomFirst, lastName: groomLast, fathersName: groomFather });
       personsArr.push({ role: 'bride', firstName: brideFirst, lastName: brideLast, fathersName: brideFather });
@@ -333,6 +378,42 @@ export default function FormClient({ token }: { token: any }) {
  {groomStatus === 'xiros' && <FileUploader templeId={token.templeId} tokenId={token.id} docType="ALLO"label="Ληξιαρχική Πράξη Θανάτου"/>}
  </div>
  
+ {/* Extended groom fields */}
+ <div className="mt-4 pt-4 border-t border-dashed border-border space-y-4">
+   <h4 className="font-medium text-xs uppercase text-muted-foreground tracking-wider">Επιπλέον Στοιχεία Νυμφίου</h4>
+   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+     <div className="space-y-2"><Label>Ημ. Γέννησης</Label><Input type="date" value={groomBirthDate} onChange={e=>setGroomBirthDate(e.target.value)} /></div>
+     <div className="space-y-2"><Label>Τόπος Γέννησης</Label><Input value={groomBirthCity} onChange={e=>setGroomBirthCity(e.target.value)} placeholder="π.χ. Αθήνα" /></div>
+     <div className="space-y-2">
+       <Label>Βαθμός Γάμου</Label>
+       <Select value={groomMarriageRank} onValueChange={setGroomMarriageRank}>
+         <SelectTrigger><SelectValue /></SelectTrigger>
+         <SelectContent><SelectItem value="Α">Α&apos; (Πρώτος)</SelectItem><SelectItem value="Β">Β&apos; (Δεύτερος)</SelectItem><SelectItem value="Γ">Γ&apos; (Τρίτος)</SelectItem></SelectContent>
+       </Select>
+     </div>
+   </div>
+   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+     <div className="space-y-2"><Label>Επάγγελμα</Label><Input value={groomProfession} onChange={e=>setGroomProfession(e.target.value)} /></div>
+     <div className="space-y-2"><Label>Θρήσκευμα</Label><Input value={groomReligion} onChange={e=>setGroomReligion(e.target.value)} /></div>
+     <div className="space-y-2"><Label>Υπηκοότητα</Label><Input value={groomNationality} onChange={e=>setGroomNationality(e.target.value)} /></div>
+   </div>
+   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+     <div className="space-y-2 md:col-span-2"><Label>Πόλη Κατοικίας</Label><Input value={groomCity} onChange={e=>setGroomCity(e.target.value)} placeholder="π.χ. Θεσσαλονίκη" /></div>
+     <div className="space-y-2"><Label>ΤΚ</Label><Input value={groomPostalCode} onChange={e=>setGroomPostalCode(e.target.value)} placeholder="π.χ. 54638" /></div>
+     <div className="space-y-2"><Label>Οδός</Label><Input value={groomAddress} onChange={e=>setGroomAddress(e.target.value)} /></div>
+   </div>
+   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+     <div className="space-y-2"><Label>Αριθμός</Label><Input value={groomAddressNumber} onChange={e=>setGroomAddressNumber(e.target.value)} /></div>
+     <div className="space-y-2"><Label>ΑΔΤ</Label><Input value={groomIdNumber} onChange={e=>setGroomIdNumber(e.target.value)} /></div>
+     <div className="space-y-2"><Label>Ημ. Έκδοσης ΑΔΤ</Label><Input value={groomIdDate} onChange={e=>setGroomIdDate(e.target.value)} placeholder="π.χ. 15/03/2020" /></div>
+     <div className="space-y-2"><Label>Εκδούσα Αρχή ΑΔΤ</Label><Input value={groomIdAuthority} onChange={e=>setGroomIdAuthority(e.target.value)} /></div>
+   </div>
+   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+     <div className="space-y-2"><Label>ΑΦΜ</Label><Input value={groomTaxId} onChange={e=>setGroomTaxId(e.target.value)} /></div>
+     <div className="space-y-2"><Label>ΑΜΚΑ</Label><Input value={groomAmka} onChange={e=>setGroomAmka(e.target.value)} /></div>
+   </div>
+ </div>
+
  {/* Έγγραφα Ταυτοποίησης (Νυμφίου & Γονέων) */}
  <div className="space-y-4 mt-4 pt-4 border-t border-dashed border-border">
  <h4 className="font-medium text-xs uppercase text-muted-foreground tracking-wider mb-2">Υποχρεωτικά Έγγραφα Ταυτοποίησης</h4>
@@ -412,6 +493,42 @@ export default function FormClient({ token }: { token: any }) {
  {brideStatus === 'xira' && <FileUploader templeId={token.templeId} tokenId={token.id} docType="ALLO"label="Ληξιαρχική Πράξη Θανάτου"/>}
  </div>
 
+  {/* Extended bride fields */}
+  <div className="mt-4 pt-4 border-t border-dashed border-border space-y-4">
+    <h4 className="font-medium text-xs uppercase text-muted-foreground tracking-wider">Επιπλέον Στοιχεία Νύμφης</h4>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="space-y-2"><Label>Ημ. Γέννησης</Label><Input type="date" value={brideBirthDate} onChange={e=>setBrideBirthDate(e.target.value)} /></div>
+      <div className="space-y-2"><Label>Τόπος Γέννησης</Label><Input value={brideBirthCity} onChange={e=>setBrideBirthCity(e.target.value)} placeholder="π.χ. Αθήνα" /></div>
+      <div className="space-y-2">
+        <Label>Βαθμός Γάμου</Label>
+        <Select value={brideMarriageRank} onValueChange={setBrideMarriageRank}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="Α">Α&apos; (Πρώτος)</SelectItem><SelectItem value="Β">Β&apos; (Δεύτερος)</SelectItem><SelectItem value="Γ">Γ&apos; (Τρίτος)</SelectItem></SelectContent>
+        </Select>
+      </div>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="space-y-2"><Label>Επάγγελμα</Label><Input value={brideProfession} onChange={e=>setBrideProfession(e.target.value)} /></div>
+      <div className="space-y-2"><Label>Θρήσκευμα</Label><Input value={brideReligion} onChange={e=>setBrideReligion(e.target.value)} /></div>
+      <div className="space-y-2"><Label>Υπηκοότητα</Label><Input value={brideNationality} onChange={e=>setBrideNationality(e.target.value)} /></div>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="space-y-2 md:col-span-2"><Label>Πόλη Κατοικίας</Label><Input value={brideCity} onChange={e=>setBrideCity(e.target.value)} placeholder="π.χ. Θεσσαλονίκη" /></div>
+      <div className="space-y-2"><Label>ΤΚ</Label><Input value={bridePostalCode} onChange={e=>setBridePostalCode(e.target.value)} placeholder="π.χ. 54638" /></div>
+      <div className="space-y-2"><Label>Οδός</Label><Input value={brideAddress} onChange={e=>setBrideAddress(e.target.value)} /></div>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="space-y-2"><Label>Αριθμός</Label><Input value={brideAddressNumber} onChange={e=>setBrideAddressNumber(e.target.value)} /></div>
+      <div className="space-y-2"><Label>ΑΔΤ</Label><Input value={brideIdNumber} onChange={e=>setBrideIdNumber(e.target.value)} /></div>
+      <div className="space-y-2"><Label>Ημ. Έκδοσης ΑΔΤ</Label><Input value={brideIdDate} onChange={e=>setBrideIdDate(e.target.value)} placeholder="π.χ. 15/03/2020" /></div>
+      <div className="space-y-2"><Label>Εκδούσα Αρχή ΑΔΤ</Label><Input value={brideIdAuthority} onChange={e=>setBrideIdAuthority(e.target.value)} /></div>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-2"><Label>ΑΦΜ</Label><Input value={brideTaxId} onChange={e=>setBrideTaxId(e.target.value)} /></div>
+      <div className="space-y-2"><Label>ΑΜΚΑ</Label><Input value={brideAmka} onChange={e=>setBrideAmka(e.target.value)} /></div>
+    </div>
+  </div>
+
   {/* Έγγραφα Ταυτοποίησης (Νύμφης & Γονέων) */}
   <div className="space-y-4 mt-4 pt-4 border-t border-dashed border-border">
   <h4 className="font-medium text-xs uppercase text-muted-foreground tracking-wider mb-2">Υποχρεωτικά Έγγραφα Ταυτοποίησης</h4>
@@ -457,9 +574,10 @@ export default function FormClient({ token }: { token: any }) {
  {/* KOUMPAROS */}
  <div className="bg-muted/30 p-5 rounded-xl border border-border">
  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 bg-amber-500 rounded-full"></div> Κουμπάρος / Παράνυμφος</h3>
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
  <div className="space-y-2"><Label>Όνομα</Label><Input value={koumparosFirst} onChange={e=>setKoumparosFirst(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={koumparosLast} onChange={e=>setKoumparosLast(e.target.value)} required /></div>
+ <div className="space-y-2"><Label>Πόλη Κατοικίας</Label><Input value={witnessCity} onChange={e=>setWitnessCity(e.target.value)} placeholder="π.χ. Θεσσαλονίκη" /></div>
  </div>
  <div className="space-y-2 max-w-md">
  <Label>Είναι Ορθόδοξος Χριστιανός;</Label>
