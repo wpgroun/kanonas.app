@@ -4,15 +4,15 @@ import { notFound, redirect } from 'next/navigation'
 import VariablesClient from './VariablesClient'
 import { STANDARD_FIELDS } from '@/lib/greekDeclension'
 
-export default async function VariablesPage({ params }: { params: { id: string } }) {
+export default async function VariablesPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const templeId = await getCurrentTempleId()
 
   const template = await prisma.docTemplate.findFirst({
-    where: { id: params.id, templeId }
+    where: { id, templeId }
   })
 
   if (!template) notFound()
-  // Allow templates with fileData (stored in DB) even if fileUrl is absent
   if (!template.fileUrl && !(template as any).fileData) redirect('/admin/documents')
 
   // Parse the context to get detected vars + format
