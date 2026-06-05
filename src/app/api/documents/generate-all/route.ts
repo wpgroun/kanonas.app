@@ -228,6 +228,7 @@ export async function POST(req: NextRequest) {
           const bdFormatted = `${bd.getDate()} ${bdMonths[bd.getMonth()]} ${bd.getFullYear()}`;
           answers['ΗμερομηνίαΓέννησης'] = bdFormatted;
           answers['birthDateFormatted'] = bdFormatted;
+          answers['birthDate']          = bdFormatted; // overwrite raw ISO so synonym lookup returns formatted
           // Literal key for template placeholder [00ῇ Μήνος 0000]
           answers['00ῇ Μήνος 0000'] = bdFormatted;
           // Birth date breakdown for Baptistiko-style templates ([17ην] [Σεπτεμβρίου] [2020])

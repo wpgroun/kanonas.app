@@ -66,9 +66,7 @@ export function declineGreekName(
 
  if (caseType === 'accusative') {
  if (isMale || gender === 'unknown') {
- if (lower === 'ιωάννης' || lower === 'γιάννης') return replaceEnd(2, '');
-
- // -ης → στον → -η (accusative same as genitive for -ης words)
+ // -ης → -η (τον Ιωάννη, τον Ηλία)
  if (endsWith('ης')) return replaceEnd(1, '');
 
  // -ος → -ο (τον Γεώργιο)
@@ -251,7 +249,8 @@ export const SYNONYM_GROUPS: string[][] = [
   ['εφημεριοσ', 'efimerios', 'priest', 'priestname', 'priestfullname', 'assignedpriest', 'ιερεας', 'ιερεαςονομα', 'iereas', 'iereasonoma',
    'ονοματεπωνυμοεφημεριου', 'ονοματεπωνυμοιερεωσ'],
   // 11 — templeNameEl
-  ['ναος', 'naos', 'temple', 'templename', 'templenamel', 'ναοσονομα', 'naosonoma', 'ιερουναου', 'ιεροσναοσ'],
+  ['ναος', 'naos', 'temple', 'templename', 'templenamel', 'ναοσονομα', 'naosonoma', 'ιερουναου', 'ιεροσναοσ',
+   'ονομασιαναου', 'ονομασιαιερουναου', 'ονομαναου'],
   // 12 — metropolisName
   ['μητροπολη', 'metropolis', 'metropolisname', 'μητροποληονομα', 'mitropolionoma', 'mitropoli'],
   // 13 — currentDate

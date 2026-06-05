@@ -259,9 +259,12 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
       // Numeric-prefix compound format keys (e.g. [00ῇ Μήνος 0000], [00ην Μηνός]):
       // These are literal answer keys — bypass variableMap entirely and use direct lookup.
       // Any variableMap mapping for them (e.g. "month", "ceremonyDate") would be wrong.
+      // Only treat as compound format key if it starts with ZERO (e.g. [00ην Μηνός], [00ῇ Μήνος 0000]).
+      // Real example-value dates like [4ην Σεπτεμβρίου] or [7 Ιουνίου 2022] must NOT be bypassed
+      // so the variableMap can resolve them to ceremonyDate.
       const isCompoundFormatKey =
         trimmedKey.length > 4 &&
-        /^\d/u.test(trimmedKey) &&
+        /^0/u.test(trimmedKey) &&
         /[Ͱ-Ͽἀ-῿]/u.test(trimmedKey); // contains Greek chars
 
       // 1. Check per-template variableMap first (skip for compound format keys)
