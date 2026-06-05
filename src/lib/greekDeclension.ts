@@ -337,6 +337,8 @@ export const SYNONYM_GROUPS: string[][] = [
   // 46 — residenceCity  πόλη διαμονής βαπτιζόμενου
   ['πολιδιαμονησ', 'πολοικατοικιασ', 'residencecity', 'τοποσκατοικιασ', 'cityofresidence',
    'πολοιδιαμονησ', 'πολιβαπτιζομενου'],
+  // 47 — ceremonyDayMonth  "6η Ιουνίου" — day+month without year (Απαντητικόν pattern)
+  ['ceremonydaymonth', 'ημερατελεσησμηνοσ', 'ημερακαιμηναστελεσησ', 'daymonthceremony'],
 ];
 
 export function getNormalizedValue(placeholderKey: string, answers: Record<string, any>): string {
@@ -478,6 +480,7 @@ export const STANDARD_FIELDS: { key: string; label: string }[] = [
   { key: 'previousReligion',     label: 'Θρήσκευμα (προ Βαπτίσεως)' },
   { key: 'residenceAddress',     label: 'Διεύθυνση Διαμονής' },
   { key: 'residenceCity',        label: 'Πόλη Διαμονής' },
+  { key: 'ceremonyDayMonth',     label: 'Ημέρα & Μήνας Τελετής (χωρίς χρονιά)' },
 ];
 
 // Maps synonym group index → standard field key (must stay in sync with SYNONYM_GROUPS)
@@ -529,6 +532,7 @@ export const GROUP_TO_FIELD: string[] = [
   'previousReligion',    // 44
   'residenceAddress',    // 45
   'residenceCity',       // 46
+  'ceremonyDayMonth',   // 47
 ];
 
 /**
@@ -559,10 +563,12 @@ export function autoMapVariable(placeholder: string): string | null {
   if (/^και\s/u.test(raw)) return '__ignore__';
 
   // ── Date-like compound patterns ─────────────────────────────────────────────
-  // [30 Μαΐου 2026], [7ην Ιανουαρίου] → ceremonyDate (real example values)
-  // Skip zero-padded format hints like [00ην Μηνός], [00 Μήνας 0000] — those are
-  // literal keys in answers and must be found via direct hasOwnProperty lookup.
-  if (!/^0+\D/.test(raw) && /^\d+\s*(ην|ης|η)?\s+\S/iu.test(raw)) return 'ceremonyDate';
+  // [30 Μαΐου 2026]      → has year  → ceremonyDate (full date)
+  // [4ην Σεπτεμβρίου]    → no year   → ceremonyDayMonth ("6η Ιουνίου" format)
+  // Skip zero-padded format hints like [00ην Μηνός] — literal answer keys.
+  if (!/^0+\D/.test(raw) && /^\d+\s*(ην|ης|η)?\s+\S/iu.test(raw)) {
+    return /\d{4}/.test(raw) ? 'ceremonyDate' : 'ceremonyDayMonth';
+  }
 
   // ── Gender / number token patterns ──────────────────────────────────────────
   // These are handled by resolveGenderTokens at generation time, not as data fields.

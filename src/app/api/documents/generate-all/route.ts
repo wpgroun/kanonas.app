@@ -440,6 +440,7 @@ export async function POST(req: NextRequest) {
       // [00ην Μηνός]  → "30η Μαΐου"  (cleanKey: 00ηνμηνοσ)
       // [00 Μήνας 0000] → "30 Μαΐου 2026" (cleanKey: 00μηνασ0000) — used in headers
       answers['00ην Μηνός'] = `${d.getDate()}η ${months[d.getMonth()]}`;
+      answers['ceremonyDayMonth'] = `${d.getDate()}η ${months[d.getMonth()]}`;
       answers['00 Μήνας 0000'] = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
       // Literal digit-only placeholder keys used verbatim in older templates:
       // [0000] = ceremony year, [00] = ceremony day
