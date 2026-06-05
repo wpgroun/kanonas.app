@@ -214,7 +214,7 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
 )}
 
                 {/* ── Ληξιαρχικά Στοιχεία (Βάπτιση) — από Πολίτη ─────────── */}
-                {(meta.birthDate || meta.birthCity || meta.civilRegistry || meta.civilRegistryNumber || meta.civilRegistryTome || meta.civilRegistryYear || meta.godparentCity) && (
+                {(meta.birthDate || meta.birthCity || meta.civilRegistry || meta.civilRegistryNumber || meta.civilRegistryTome || meta.civilRegistryYear || meta.godparentCity || meta.fatherCity || meta.fatherAddress || meta.godparentAddress || meta.orderNumber || meta.previousReligion || meta.residenceCity) && (
                   <div className="mt-2 pt-3 border-t border-border/50">
                     <div className="text-xs font-bold uppercase tracking-wide text-blue-600 mb-2">📜 Ληξιαρχικά Στοιχεία (από Πολίτη)</div>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
@@ -224,7 +224,14 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
                       {meta.civilRegistryNumber && (<><span className="text-muted-foreground">Αρ. Ληξιαρχικής:</span><span className="font-semibold">{meta.civilRegistryNumber}</span></>)}
                       {meta.civilRegistryTome && (<><span className="text-muted-foreground">Τόμος:</span><span className="font-semibold">{meta.civilRegistryTome}</span></>)}
                       {meta.civilRegistryYear && (<><span className="text-muted-foreground">Έτος:</span><span className="font-semibold">{meta.civilRegistryYear}</span></>)}
+                      {meta.fatherCity && (<><span className="text-muted-foreground">Πόλη Πατέρα:</span><span className="font-semibold">{meta.fatherCity}</span></>)}
+                      {(meta.fatherAddress || meta.fatherAddressNumber) && (<><span className="text-muted-foreground">Διεύθυνση Πατέρα:</span><span className="font-semibold">{[meta.fatherAddress, meta.fatherAddressNumber].filter(Boolean).join(' ')}</span></>)}
                       {meta.godparentCity && (<><span className="text-muted-foreground">Πόλη Αναδόχου:</span><span className="font-semibold">{meta.godparentCity}</span></>)}
+                      {(meta.godparentAddress || meta.godparentAddressNumber) && (<><span className="text-muted-foreground">Διεύθυνση Αναδόχου:</span><span className="font-semibold">{[meta.godparentAddress, meta.godparentAddressNumber].filter(Boolean).join(' ')}</span></>)}
+                      {meta.orderNumber && (<><span className="text-muted-foreground">Αρ. Εντολής:</span><span className="font-semibold">{meta.orderNumber}{meta.orderDate ? ` / ${meta.orderDate}` : ''}</span></>)}
+                      {meta.previousReligion && (<><span className="text-muted-foreground">Θρήσκευμα (προ):</span><span className="font-semibold">{meta.previousReligion}</span></>)}
+                      {meta.residenceCity && (<><span className="text-muted-foreground">Πόλη Διαμονής:</span><span className="font-semibold">{meta.residenceCity}</span></>)}
+                      {meta.residenceAddress && (<><span className="text-muted-foreground">Δ/νση Διαμονής:</span><span className="font-semibold">{meta.residenceAddress}</span></>)}
                     </div>
                   </div>
                 )}

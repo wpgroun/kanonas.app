@@ -242,6 +242,62 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      // Αιτιατική ονόματος/επωνύμου τέκνου (για Απαντητικόν: [Αλέξανδρον], [Συνοδινόν])
+      const cFirst = answers['childName'] || '';
+      const cLast  = answers['childLastName'] || (father ? father.lastName || '' : '');
+      if (cFirst) {
+        answers['childNameAcc'] = declineGreekName(cFirst, 'accusative', childGender);
+      }
+      if (cLast) {
+        answers['childLastNameAcc'] = declineGreekName(cLast, 'accusative', childGender);
+      }
+
+      // Πόλη κατοικίας πατέρα — γενική για "[Πόλης]"
+      if (answers['fatherCity']) {
+        const fcOrig = answers['fatherCity'];
+        const fcGen  = declineGreekName(fcOrig, 'genitive', 'unknown');
+        answers['fatherCity'] = fcGen;
+        answers['Πόλης']      = fcGen;    // direct lookup [Πόλης]
+        answers['ΠόληΓονέα']  = fcOrig;   // ονομαστική για άλλα templates
+      }
+
+      // Οδός & αριθμός πατέρα — alias για templates με συγκεκριμένα ονόματα
+      if (answers['fatherAddress']) {
+        answers['Οδός Πατέρα'] = answers['fatherAddress'];
+      }
+      if (answers['fatherAddressNumber']) {
+        answers['Αριθμός Πατέρα'] = answers['fatherAddressNumber'];
+      }
+
+      // Οδός & αριθμός αναδόχου
+      if (answers['godparentAddress']) {
+        answers['Οδός Αναδόχου'] = answers['godparentAddress'];
+      }
+      if (answers['godparentAddressNumber']) {
+        answers['Αριθμός Αναδόχου'] = answers['godparentAddressNumber'];
+      }
+
+      // Επισκοπική εντολή (Απαντητικόν — admin-only fields)
+      if (answers['orderNumber']) {
+        answers['ΑριθμόςΕντολής'] = answers['orderNumber'];
+      }
+      if (answers['orderDate']) {
+        answers['ΗμερομηνίαΕντολής'] = answers['orderDate'];
+      }
+
+      // Θρήσκευμα πριν βάπτιση
+      if (answers['previousReligion']) {
+        answers['Θρήσκευμα'] = answers['previousReligion'];
+      }
+
+      // Διεύθυνση/πόλη διαμονής βαπτιζόμενου
+      if (answers['residenceAddress']) {
+        answers['ΔιεύθυνσηΔιαμονής'] = answers['residenceAddress'];
+      }
+      if (answers['residenceCity']) {
+        answers['ΠόληΔιαμονής'] = answers['residenceCity'];
+      }
+
       // Πόλη αναδόχου — γενική για "κάτοικος Θεσσαλονίκης", ονομαστική διαθέσιμη αν χρειαστεί
       if (answers['godparentCity']) {
         const gpCityOrig = answers['godparentCity'];

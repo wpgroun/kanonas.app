@@ -222,7 +222,7 @@ export const EXAMPLE_YEAR_RE = /^\d{4}$/;
 
 // Ecclesiastical title prefix → the placeholder is a priest full name
 export const PRIEST_TITLE_RE =
-  /^(αρχιμανδριτ|πρεσβυτερο|ιερε|πρωτοπρεσβυτερ|επισκοπ|μητροπολιτ|διακον|αρχιεπισκοπ)/;
+  /^(αρχιμανδριτ|πρεσβυτερο|ιερε|πρωτοπρεσβυτερ|πρωτοσυγκελ|επισκοπ|μητροπολιτ|διακον|αρχιεπισκοπ)/;
 
 // ─── Synonym groups (shared between getNormalizedValue and autoMapVariable) ──
 // Each group maps to the STANDARD_FIELDS key at the same index via GROUP_TO_FIELD.
@@ -269,8 +269,8 @@ export const SYNONYM_GROUPS: string[][] = [
   ['πρωτοκολλο', 'protokollo', 'protocol', 'protocolnumber', 'αριθμπρωτοκολλου', 'arithmprotokollou'],
   // 19 — bookNumber
   ['βιβλιο', 'βιβλιου', 'βιβλιων', 'vivlio', 'book', 'booknumber', 'αριθμβιβλιου', 'βιβλιοαριθμοσ', 'arithmvivliou', 'vivlioarithmos'],
-  // 20 — birthCity  (πολησ = genitive [Πόλης], πολεωσ = gen. [Πόλεως] as birthcity fallback)
-  ['πολη', 'πολησ', 'πολιτεκνου', 'birthcity', 'πολιγεννησησ', 'πολιγεννησεωσ', 'ποληγεννησησ', 'ποληγεννησεωσ', 'πολιγεννησεωσ'],
+  // 20 — birthCity  [Πόλη] (nominative — child's birth city; [Πόλης] genitive is fatherCity, group 35)
+  ['πολη', 'πολιτεκνου', 'birthcity', 'πολιγεννησησ', 'πολιγεννησεωσ', 'ποληγεννησησ', 'ποληγεννησεωσ', 'πολιγεννησεωσ'],
   // 21 — civilRegistry
   ['ληξιαρχειο', 'civilregistry', 'registryoffice'],
   // 22 — civilRegistryNumber
@@ -302,6 +302,42 @@ export const SYNONYM_GROUPS: string[][] = [
   // 34 — templeCity  Πόλη του Ναού (fixed per temple, used in formal headers "εν [Πόλει]")
   ['πολιναου', 'πολητελεσησ', 'πολητελετησ', 'templecity', 'ceremonycity', 'naoscity',
    'πολιναοσ', 'εδρα', 'τοποστελεσησ'],
+  // 35 — fatherCity  [Πόλης] (genitive — father's/parents' residence city)
+  ['πολησπατερα', 'πολιγονεα', 'πολιπατερα', 'fathercity', 'parentcity', 'πολησ',
+   'πολοικατοικιασγονεα', 'πολικατοικιασγονεα'],
+  // 36 — fatherAddress  [Οδός Πατέρα]
+  ['οδοσπατερα', 'οδοσγονεα', 'fatheraddress', 'parentaddress', 'οδοσκατοικιασπατερα',
+   'οδοιπατερα', 'streetpatera'],
+  // 37 — fatherAddressNumber  [Αριθμός Πατέρα]
+  ['αριθμοσπατερα', 'αριθμοσγονεα', 'fatheraddressnumber', 'parentaddressnumber',
+   'αριθμοσοδουπατερα', 'αριθμοσοδογονεα', 'αριθμοσοδοστεκνου'],
+  // 38 — godparentAddress  [Οδός Αναδόχου]
+  ['οδοσαναδοχου', 'οδοσκατοικιασαναδοχου', 'godparentaddress', 'anadoxosaddress',
+   'οδοιαναδοχου', 'streetanadoxou'],
+  // 39 — godparentAddressNumber  [Αριθμός Αναδόχου]
+  ['αριθμοσαναδοχου', 'αριθμοσοδουαναδοχου', 'godparentaddressnumber', 'anadoxosaddressnumber',
+   'αριθμοσοδοιαναδοχου'],
+  // 40 — orderNumber  αρ. επισκοπικής εντολής
+  ['αριθμοσεντολησ', 'εντολη', 'ordernumber', 'αριθμεντολησ', 'εντολησαριθμοσ',
+   'αριθμοσεντολεωσ', 'εντολεωσαριθμοσ'],
+  // 41 — orderDate  ημ. επισκοπικής εντολής
+  ['ημερομηνιαεντολησ', 'orderdate', 'εντολησημερομηνια', 'ημερεντολησ',
+   'ημερομηνιαεντολεωσ', 'εντολεωσημερομηνια'],
+  // 42 — childNameAcc  [Αλέξανδρον] (όνομα τέκνου αιτιατική)
+  ['ονομααιτιατικη', 'childnameacc', 'ονοματεκνουαιτιατικη', 'childnameaccusative',
+   'ονομαβαπτιζομενου', 'ονομαβαπτιζομενης'],
+  // 43 — childLastNameAcc  (επώνυμο τέκνου αιτιατική)
+  ['επωνυμοαιτιατικη', 'childlastnameacc', 'επωνυμοτεκνουαιτιατικη', 'childlastnameaccusative',
+   'επωνυμοβαπτιζομενου'],
+  // 44 — previousReligion  [Αβάπτιστος] (θρήσκευμα πριν τη βάπτιση)
+  ['θρησκευμα', 'θρησκεια', 'previousreligion', 'θρησκευματελεσησ', 'θρησκευμαπρο',
+   'θρησκευμαπροτελεσησ', 'provreligion'],
+  // 45 — residenceAddress  διεύθυνση διαμονής βαπτιζόμενου (για ενήλικες / Απαντητικόν)
+  ['διευθυνσηδιαμονησ', 'διευθυνσηκατοικιασ', 'residenceaddress', 'τοποσδιαμονησ',
+   'residencestreet', 'διευθυνσηβαπτιζομενου'],
+  // 46 — residenceCity  πόλη διαμονής βαπτιζόμενου
+  ['πολιδιαμονησ', 'πολοικατοικιασ', 'residencecity', 'τοποσκατοικιασ', 'cityofresidence',
+   'πολοιδιαμονησ', 'πολιβαπτιζομενου'],
 ];
 
 export function getNormalizedValue(placeholderKey: string, answers: Record<string, any>): string {
@@ -430,7 +466,19 @@ export const STANDARD_FIELDS: { key: string; label: string }[] = [
   { key: 'birthYear',           label: 'Έτος Γέννησης' },
   { key: 'ceremonyDay',         label: 'Ημέρα Τελετής (αριθμός)' },
   { key: 'ceremonyYear',        label: 'Έτος Τελετής' },
-  { key: 'templeCity',          label: 'Πόλη Ναού (τόπος τελετής)' },
+  { key: 'templeCity',           label: 'Πόλη Ναού (τόπος τελετής)' },
+  { key: 'fatherCity',           label: 'Πόλη Κατοικίας Πατέρα' },
+  { key: 'fatherAddress',        label: 'Οδός Πατέρα' },
+  { key: 'fatherAddressNumber',  label: 'Αριθμός Οδού Πατέρα' },
+  { key: 'godparentAddress',     label: 'Οδός Αναδόχου' },
+  { key: 'godparentAddressNumber', label: 'Αριθμός Οδού Αναδόχου' },
+  { key: 'orderNumber',          label: 'Αρ. Επισκοπικής Εντολής' },
+  { key: 'orderDate',            label: 'Ημ/νία Επισκοπικής Εντολής' },
+  { key: 'childNameAcc',         label: 'Όνομα Τέκνου (αιτιατική)' },
+  { key: 'childLastNameAcc',     label: 'Επώνυμο Τέκνου (αιτιατική)' },
+  { key: 'previousReligion',     label: 'Θρήσκευμα (προ Βαπτίσεως)' },
+  { key: 'residenceAddress',     label: 'Διεύθυνση Διαμονής' },
+  { key: 'residenceCity',        label: 'Πόλη Διαμονής' },
 ];
 
 // Maps synonym group index → standard field key (must stay in sync with SYNONYM_GROUPS)
@@ -470,6 +518,18 @@ export const GROUP_TO_FIELD: string[] = [
   'ceremonyDay',         // 32
   'ceremonyYear',        // 33
   'templeCity',          // 34
+  'fatherCity',          // 35
+  'fatherAddress',       // 36
+  'fatherAddressNumber', // 37
+  'godparentAddress',    // 38
+  'godparentAddressNumber', // 39
+  'orderNumber',         // 40
+  'orderDate',           // 41
+  'childNameAcc',        // 42
+  'childLastNameAcc',    // 43
+  'previousReligion',    // 44
+  'residenceAddress',    // 45
+  'residenceCity',       // 46
 ];
 
 /**

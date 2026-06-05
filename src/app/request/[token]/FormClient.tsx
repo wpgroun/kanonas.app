@@ -131,6 +131,11 @@ export default function FormClient({ token }: { token: any }) {
   const [civilRegistryTome, setCivilRegistryTome] = useState(existingMeta.civilRegistryTome || '');
   const [civilRegistryYear, setCivilRegistryYear] = useState(existingMeta.civilRegistryYear || '');
   const [godparentCity, setGodparentCity] = useState(existingMeta.godparentCity || '');
+  const [fatherCity, setFatherCity] = useState(existingMeta.fatherCity || '');
+  const [fatherAddress, setFatherAddress] = useState(existingMeta.fatherAddress || '');
+  const [fatherAddressNumber, setFatherAddressNumber] = useState(existingMeta.fatherAddressNumber || '');
+  const [godparentAddress, setGodparentAddress] = useState(existingMeta.godparentAddress || '');
+  const [godparentAddressNumber, setGodparentAddressNumber] = useState(existingMeta.godparentAddressNumber || '');
   // ────────────────────────────────────────────────────────────────────────
 
   // Uploaded docs tracking
@@ -231,6 +236,11 @@ export default function FormClient({ token }: { token: any }) {
         civilRegistryTome,
         civilRegistryYear,
         godparentCity,
+        fatherCity,
+        fatherAddress,
+        fatherAddressNumber,
+        godparentAddress,
+        godparentAddressNumber,
       };
       personsArr.push({ role: 'child', firstName: childFirst, lastName: childLast });
       personsArr.push({ role: 'father', firstName: fatherFirst, lastName: fatherLast, fathersName: fatherFather });
@@ -550,6 +560,11 @@ export default function FormClient({ token }: { token: any }) {
   <div className="space-y-2"><Label>Επώνυμο</Label><Input value={fatherLast} onChange={e=>setFatherLast(e.target.value)} required /></div>
   <div className="space-y-2"><Label>Πατρώνυμο</Label><Input value={fatherFather} onChange={e=>setFatherFather(e.target.value)} required /></div>
   </div>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+  <div className="space-y-2"><Label>Πόλη Κατοικίας <span className="text-red-500">*</span></Label><Input value={fatherCity} onChange={e=>setFatherCity(e.target.value)} placeholder="π.χ. Θεσσαλονίκη" required /></div>
+  <div className="space-y-2"><Label>Οδός <span className="text-red-500">*</span></Label><Input value={fatherAddress} onChange={e=>setFatherAddress(e.target.value)} placeholder="π.χ. Εγνατίας" required /></div>
+  <div className="space-y-2"><Label>Αριθμός <span className="text-red-500">*</span></Label><Input value={fatherAddressNumber} onChange={e=>setFatherAddressNumber(e.target.value)} placeholder="π.χ. 12" required /></div>
+  </div>
   <div className="space-y-2 max-w-md">
   <Label>Είδος Γάμου Γονέων</Label>
   <Select value={parentsMarriage} onValueChange={setParentsMarriage} required>
@@ -602,6 +617,8 @@ export default function FormClient({ token }: { token: any }) {
  <div className="space-y-2"><Label>Όνομα</Label><Input value={godparentFirst} onChange={e=>setGodparentFirst(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={godparentLast} onChange={e=>setGodparentLast(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Πόλη Κατοικίας <span className="text-red-500">*</span></Label><Input value={godparentCity} onChange={e=>setGodparentCity(e.target.value)} placeholder="π.χ. Αθήνα" required /></div>
+ <div className="space-y-2"><Label>Οδός <span className="text-red-500">*</span></Label><Input value={godparentAddress} onChange={e=>setGodparentAddress(e.target.value)} placeholder="π.χ. Σταδίου" required /></div>
+ <div className="space-y-2"><Label>Αριθμός <span className="text-red-500">*</span></Label><Input value={godparentAddressNumber} onChange={e=>setGodparentAddressNumber(e.target.value)} placeholder="π.χ. 5" required /></div>
  </div>
  <div className="space-y-2 max-w-md mb-4">
  <Label>Είναι Ορθόδοξος Χριστιανός;</Label>

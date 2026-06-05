@@ -253,6 +253,16 @@ export async function updateCeremonyMetaByAdmin(
     civilRegistryTome?: string;
     civilRegistryYear?: string;
     godparentCity?: string;
+    fatherCity?: string;
+    fatherAddress?: string;
+    fatherAddressNumber?: string;
+    godparentAddress?: string;
+    godparentAddressNumber?: string;
+    orderNumber?: string;
+    orderDate?: string;
+    previousReligion?: string;
+    residenceAddress?: string;
+    residenceCity?: string;
   }
 ) {
   await requireAuth();
