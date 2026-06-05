@@ -146,6 +146,8 @@ export async function POST(req: NextRequest) {
         const gp2Full = `${godparent2.firstName || ''} ${godparent2.lastName || ''}`.trim();
         answers['Ανάδοχος_2'] = gp2Full;
         answers['Ανάδοχος2'] = gp2Full;
+        // Second godparent signature line — includes underscores so the line vanishes when empty
+        answers['Γραμμή Υπογραφής Β Αναδόχου'] = `_________________________  ${gp2Full}`;
         // Detect godparent2 gender from first name ending
         const gp2NameLower = (godparent2.firstName || '').toLowerCase();
         const gp2Article = (gp2NameLower.endsWith('α') || gp2NameLower.endsWith('η') || gp2NameLower.endsWith('ω')) ? 'η' : 'ο';
@@ -155,6 +157,7 @@ export async function POST(req: NextRequest) {
       } else {
         answers['Ανάδοχος_2'] = '';
         answers['Ανάδοχος2'] = '';
+        answers['Γραμμή Υπογραφής Β Αναδόχου'] = ''; // no 2nd godparent → empty line (no underscores)
         answers['και ο/η Ανάδοχος2 κάτοικος Πόλεως'] = '';
         answers['ος/οι'] = 'ος'; // one godparent
       }
@@ -337,7 +340,7 @@ export async function POST(req: NextRequest) {
       );
       const godparentCount = allGodparents.length;
       answers['ος/οι'] = godparentCount > 1 ? 'οι' : 'ος';   // ανάδοχ[ος/οι]
-      answers['η/σαν'] = godparentCount > 1 ? 'σαν' : '';     // παρέστ[η/σαν]
+      answers['η/σαν'] = godparentCount > 1 ? 'ησαν' : 'η';   // παρέστ[η/σαν] → παρέστη / παρέστησαν
 
       // Godparent gender-based articles and noun forms (DilosiBaptiseos, ApantitikonBaptiseos)
       const gpFirstName = godparent?.firstName || '';
