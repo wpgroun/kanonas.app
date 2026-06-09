@@ -680,6 +680,8 @@ export async function POST(req: NextRequest) {
       answers['00 Μηνός 0000'] = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
       // Ordinal + genitive month + year: [00ην Μηνός 0000] for BebaiosiGamou ceremony date
       answers['00ην Μηνός 0000'] = `${d.getDate()}ην ${months[d.getMonth()]} ${d.getFullYear()}`;
+      // Variant without ν: [00η Μηνός 000] (3 zeros) used in some templates
+      answers['00η Μηνός 000']   = `${d.getDate()}η ${months[d.getMonth()]} ${d.getFullYear()}`;
       // Literal digit-only placeholder keys used verbatim in older templates:
       // [0000] = ceremony year, [00] = ceremony day
       answers['0000'] = String(d.getFullYear());
@@ -708,12 +710,10 @@ export async function POST(req: NextRequest) {
     answers['ΕΦΗΜΕΡΙΟΣ'] = token.assignedPriest || '';
     answers['assignedPriest'] = token.assignedPriest || '';
 
-    // Priest title/rank from temple settings → [Αρχιμανδρίτης του Οικουμενικού θρόνου]
-    // Admin can set this in temple settings JSON as "priestTitle"
+    // Priest title/rank — priority: per-ceremony (admin sets in AdminMetaForm) → temple settings → default
     let templeSettingsObj: any = {};
     try { if (token.temple.settings) templeSettingsObj = JSON.parse(token.temple.settings); } catch(e) {}
-    // Priest title defaults to "Εφημέριος" if not customised in temple settings
-    const priestTitle = templeSettingsObj.priestTitle || 'Εφημέριος';
+    const priestTitle = answers['assignedPriestTitle'] || templeSettingsObj.priestTitle || 'Εφημέριος';
     answers['Αρχιμανδρίτης του Οικουμενικού θρόνου'] = priestTitle;
     answers['priestTitle'] = priestTitle;
     answers['ΤίτλοςΙερέα'] = priestTitle;
@@ -721,6 +721,7 @@ export async function POST(req: NextRequest) {
     answers['Τίτλος Ιερέως']         = priestTitle;   // [Τίτλος Ιερέως] in Aitisi
     answers['Τίτλος']                = priestTitle;   // [Τίτλος] in BebaiosiGamou
     answers['Όνομα Ιερέως']          = priestName;   // [Όνομα Ιερέως] in ChildrenLastName/Aitisi
+    answers['Όνομα Ιερέα']           = priestName;   // [Όνομα Ιερέα] in GamilionGramma
     answers['Ονοματεπώνυμο Ιερέα']   = priestName;   // alternative spelling
     answers['Ονοματεπώνυμο Ιερέως']  = priestName;   // [Ονοματεπώνυμο Ιερέως] in DilosiGamou
     answers['ΝΑΟΣ_ΟΝΟΜΑ'] = token.temple.name || '';

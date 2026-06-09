@@ -28,6 +28,7 @@ export default function AdminMetaForm({ token }: { token: any }) {
   const [previousReligion, setPreviousReligion] = useState(existingMeta.previousReligion || '');
   const [residenceAddress, setResidenceAddress] = useState(existingMeta.residenceAddress || '');
   const [residenceCity, setResidenceCity] = useState(existingMeta.residenceCity || '');
+  const [priestTitle, setPriestTitle] = useState(existingMeta.assignedPriestTitle || '');
   const [savingMeta, setSavingMeta] = useState(false);
   const [metaSaved, setMetaSaved] = useState(false);
 
@@ -60,6 +61,10 @@ export default function AdminMetaForm({ token }: { token: any }) {
 
     if (res.success && res.protocolNumber) {
       const protoStr = res.protocolNumber;
+      // Save priest title to ceremonyMeta before issuing
+      if (priestTitle) {
+        await updateCeremonyMetaByAdmin(token.id, { assignedPriestTitle: priestTitle });
+      }
       await markTokenAsDocsGenerated(token.id, priest, book, protoStr);
       alert(`Το πιστοποιητικό εκδόθηκε με επιτυχία! Αριθμός Πρωτοκόλλου: ${res.protocolNumber}`);
       router.push(`/admin/requests/${token.id}`);
@@ -196,7 +201,17 @@ export default function AdminMetaForm({ token }: { token: any }) {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label>Τίτλος Ιερέα</Label>
+              <Input
+                disabled={hasDocsGenerated}
+                value={priestTitle}
+                onChange={e => setPriestTitle(e.target.value)}
+                placeholder="π.χ. Αρχιμανδρίτης, Πρεσβύτερος"
+                className={hasDocsGenerated ? 'opacity-70 bg-muted' : ''}
+              />
+            </div>
             <div className="space-y-2">
               <Label>Ιερέας (Εφημέριος)</Label>
               <Input

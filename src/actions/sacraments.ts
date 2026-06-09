@@ -274,6 +274,7 @@ export async function updateCeremonyMetaByAdmin(
     marriageParaboloNumber?: string;
     witnessCity?: string;
     witness2City?: string;
+    assignedPriestTitle?: string;
   }
 ) {
   await requireAuth();

@@ -272,7 +272,8 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
         const mappedField = variableMap[trimmedKey];
         if (mappedField === '__ignore__') {
           const autoVal = getNormalizedValue(trimmedKey, answers);
-          return autoVal !== '' ? autoVal : '';
+          if (autoVal !== '') return autoVal;
+          // fall through to direct hasOwnProperty and synonym lookup
         }
         if (mappedField && mappedField !== '__unknown__') {
           const mapped = getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
