@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
       ? 'application/pdf'
       : 'application/octet-stream';
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       status: 200,
       headers: {
         'Content-Type': mime,
