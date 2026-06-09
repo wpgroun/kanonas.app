@@ -6,6 +6,7 @@ import { getSession } from '@/lib/auth';
 import { declineGreekName, declineFullName } from '@/lib/greekDeclension';
 import fs from 'fs';
 import path from 'path';
+import JSZip from 'jszip';
 
 export async function POST(req: NextRequest) {
   try {
@@ -892,7 +893,22 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return NextResponse.json({ success: true, docs: result, count: result.length });
+    // Bundle all generated docs into a single ZIP for easy download
+    let zipBase64: string | null = null;
+    const docsForZip = result.filter(d => d.base64 && d.filename);
+    if (docsForZip.length > 0) {
+      const zip = new JSZip();
+      for (const doc of docsForZip) {
+        zip.file(doc.filename, Buffer.from(doc.base64, 'base64'));
+      }
+      const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+      zipBase64 = zipBuffer.toString('base64');
+    }
+
+    const safeName = (token.customerName || 'Εκκλησία').replace(/[^α-ωΑ-Ωa-zA-Z0-9_\- ]/g, '').trim().replace(/\s+/g, '_');
+    const zipFilename = `${safeName}_${serviceTypeLower}.zip`;
+
+    return NextResponse.json({ success: true, docs: result, count: result.length, zip: zipBase64 ? { base64: zipBase64, filename: zipFilename } : null });
   } catch (error: any) {
     logger.error('[generate-all] Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

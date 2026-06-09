@@ -99,31 +99,20 @@ export default function AdminMetaForm({ token }: { token: any }) {
         return;
       }
 
-      // Download every generated file
-      let downloaded = 0;
-      for (const doc of data.docs) {
-        if (!doc.base64 || !doc.filename) continue;
-        const ext = (doc.filename.split('.').pop() || '').toLowerCase();
-        const mime =
-          ext === 'docx'
-            ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            : ext === 'pdf'
-            ? 'application/pdf'
-            : 'application/octet-stream';
-        const bytes = Uint8Array.from(atob(doc.base64), c => c.charCodeAt(0));
-        const blob = new Blob([bytes], { type: mime });
+      // Download as single ZIP if available, otherwise fall back to individual files
+      if (data.zip?.base64 && data.zip?.filename) {
+        const bytes = Uint8Array.from(atob(data.zip.base64), c => c.charCodeAt(0));
+        const blob = new Blob([bytes], { type: 'application/zip' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = doc.filename;
+        a.download = data.zip.filename;
         document.body.appendChild(a);
         a.click();
         a.remove();
-        downloaded++;
-      }
-
-      if (downloaded === 0) {
-        alert(`Παράχθηκαν ${data.docs.length} έγγραφα. Τα έγγραφα HTML/PDF είναι αποθηκευμένα στο Vault του Ναού.`);
+        window.URL.revokeObjectURL(url);
+      } else if (data.docs?.length) {
+        alert(`Παράχθηκαν ${data.docs.length} έγγραφα. Τα έγγραφα είναι αποθηκευμένα στο Vault του Ναού.`);
       }
     } catch (e) {
       alert('Αποτυχία παραγωγής εγγράφων.');
