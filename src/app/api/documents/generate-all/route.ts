@@ -448,6 +448,7 @@ export async function POST(req: NextRequest) {
       if (answers['groomIdNumber']) answers['ΑΔΤ Γαμπρού']      = answers['groomIdNumber'];
       if (answers['groomIdDate'])   answers['Ημ. ΑΔΤ Γαμπρού'] = answers['groomIdDate'];
       if (answers['groomIdAuthority']) answers['Αρχή ΑΔΤ Γαμπρού'] = answers['groomIdAuthority'];
+      if (answers['groomInsurance']) answers['Φορέας Ασφαλίσεως Γαμπρού'] = answers['groomInsurance'];
       if (answers['groomBirthCity']) answers['Τόπος Γέννησης Γαμπρού'] = answers['groomBirthCity'];
       if (answers['groomProfession']) answers['Επάγγελμα Γαμπρού'] = answers['groomProfession'];
       if (answers['groomReligion']) answers['Θρήσκευμα Γαμπρού'] = answers['groomReligion'];
@@ -522,6 +523,7 @@ export async function POST(req: NextRequest) {
       if (answers['brideIdNumber']) answers['ΑΔΤ Νύφης']      = answers['brideIdNumber'];
       if (answers['brideIdDate'])   answers['Ημ. ΑΔΤ Νύφης'] = answers['brideIdDate'];
       if (answers['brideIdAuthority']) answers['Αρχή ΑΔΤ Νύφης'] = answers['brideIdAuthority'];
+      if (answers['brideInsurance']) answers['Φορέας Ασφαλίσεως Νύφης'] = answers['brideInsurance'];
       if (answers['brideBirthCity']) answers['Τόπος Γέννησης Νύφης'] = answers['brideBirthCity'];
       if (answers['brideProfession']) answers['Επάγγελμα Νύφης'] = answers['brideProfession'];
       if (answers['brideReligion']) answers['Θρήσκευμα Νύφης'] = answers['brideReligion'];
@@ -551,6 +553,8 @@ export async function POST(req: NextRequest) {
         const k2FemaleGuess = /[αη]$/i.test(koumparos2.firstName?.trim() || '');
         answers['witness2']              = w2Full;
         answers['Παράνυμφος 2']          = w2Full;
+        answers['Όνομα Παράνυμφου 2']    = koumparos2.firstName || '';
+        answers['Επώνυμο Παράνυμφου 2']  = koumparos2.lastName || '';
         answers['και ο/η Παράνυμφος 2']  = `και ${k2FemaleGuess ? 'η' : 'ο'} ${w2Full}`;
         answers['και Παράνυμφος 2']      = `και ${w2Full}`;
         if (answers['witness2City']) {
@@ -561,6 +565,8 @@ export async function POST(req: NextRequest) {
       } else {
         answers['witness2']              = '';
         answers['Παράνυμφος 2']          = '';
+        answers['Όνομα Παράνυμφου 2']    = '';
+        answers['Επώνυμο Παράνυμφου 2']  = '';
         answers['και ο/η Παράνυμφος 2']  = '';
         answers['και Παράνυμφος 2']      = '';
         answers['Πόλεως Παράνυμφου 2']   = '';
