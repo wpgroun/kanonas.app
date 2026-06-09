@@ -454,6 +454,9 @@ export async function POST(req: NextRequest) {
       if (answers['groomReligion']) answers['Θρήσκευμα Γαμπρού'] = answers['groomReligion'];
       if (answers['groomNationality']) answers['Υπηκοότητα Γαμπρού'] = answers['groomNationality'];
       if (answers['groomMarriageRank']) answers['Βαθμός Γάμου Γαμπρού'] = answers['groomMarriageRank'];
+      if (answers['groomPrefecture']) answers['Νομός Γαμπρού'] = answers['groomPrefecture'];
+      if (answers['groomMunicipality']) answers['Δήμος Γαμπρού'] = answers['groomMunicipality'];
+      if (answers['groomMunicipalRegNumber']) answers['Αρ. Δημοτολογίου Γαμπρού'] = answers['groomMunicipalRegNumber'];
 
       // ── Bride ────────────────────────────────────────────────────────────
       if (bride) {
@@ -529,6 +532,9 @@ export async function POST(req: NextRequest) {
       if (answers['brideReligion']) answers['Θρήσκευμα Νύφης'] = answers['brideReligion'];
       if (answers['brideNationality']) answers['Υπηκοότητα Νύφης'] = answers['brideNationality'];
       if (answers['brideMarriageRank']) answers['Βαθμός Γάμου Νύφης'] = answers['brideMarriageRank'];
+      if (answers['bridePrefecture']) answers['Νομός Νύφης'] = answers['bridePrefecture'];
+      if (answers['brideMunicipality']) answers['Δήμος Νύφης'] = answers['brideMunicipality'];
+      if (answers['brideMunicipalRegNumber']) answers['Αρ. Δημοτολογίου Νύφης'] = answers['brideMunicipalRegNumber'];
 
       // ── Witness / Koumparos ──────────────────────────────────────────────
       const witnessCount = [koumparos, koumparos2].filter(Boolean).length;
@@ -627,14 +633,18 @@ export async function POST(req: NextRequest) {
       if (gbd) {
         answers['groomBirthDay']  = gbd.day;
         answers['groomBirthYear'] = gbd.year;
+        answers['groomBirthMonth'] = gbd.month;
         answers['Ημέρα Γέννησης Γαμπρού'] = gbd.day;
+        answers['Μήνας Γέννησης Γαμπρού'] = gbd.month;
         answers['Έτος Γέννησης Γαμπρού']  = gbd.year;
       }
       const bbd = parseBirthDate(answers['brideBirthDate']);
       if (bbd) {
         answers['brideBirthDay']  = bbd.day;
         answers['brideBirthYear'] = bbd.year;
+        answers['brideBirthMonth'] = bbd.month;
         answers['Ημέρα Γέννησης Νύφης'] = bbd.day;
+        answers['Μήνας Γέννησης Νύφης'] = bbd.month;
         answers['Έτος Γέννησης Νύφης']  = bbd.year;
       }
 
