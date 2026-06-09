@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Upload, FileText, CalendarDays } from 'lucide-react';
+import { Upload, FileText, CalendarDays, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function TemplateClient({ initialTemplates }: { initialTemplates: any[] }) {
@@ -14,7 +14,33 @@ export default function TemplateClient({ initialTemplates }: { initialTemplates:
  const [docType, setDocType] = useState('GAMOS');
  const [nameEl, setNameEl] = useState('');
  const [loading, setLoading] = useState(false);
+ const [downloading, setDownloading] = useState<string | null>(null);
  const router = useRouter();
+
+ const handleDownload = async (tpl: any) => {
+   setDownloading(tpl.id);
+   try {
+     const res = await fetch(`/api/documents/template-download?id=${tpl.id}`);
+     if (!res.ok) {
+       const err = await res.json();
+       toast.error(err.error || 'Αποτυχία λήψης');
+       return;
+     }
+     const blob = await res.blob();
+     const url = window.URL.createObjectURL(blob);
+     const a = document.createElement('a');
+     a.href = url;
+     a.download = tpl.fileUrl || `${tpl.nameEl}.docx`;
+     document.body.appendChild(a);
+     a.click();
+     a.remove();
+     window.URL.revokeObjectURL(url);
+   } catch {
+     toast.error('Αποτυχία λήψης αρχείου');
+   } finally {
+     setDownloading(null);
+   }
+ };
 
  const handleUpload = async (e: React.FormEvent) => {
  e.preventDefault();
@@ -118,8 +144,16 @@ export default function TemplateClient({ initialTemplates }: { initialTemplates:
  </p>
  </div>
  </div>
- <div className="mt-4 sm:mt-0 flex flex-col items-end text-xs text-muted-foreground">
- <span className="flex items-center gap-1 mb-1"><CalendarDays className="w-3 h-3"/> {new Date(tpl.createdAt).toLocaleDateString()}</span>
+ <div className="mt-4 sm:mt-0 flex flex-col items-end gap-2 text-xs text-muted-foreground">
+ <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3"/> {new Date(tpl.createdAt).toLocaleDateString()}</span>
+ <Button
+   variant="outline" size="sm"
+   disabled={downloading === tpl.id}
+   onClick={() => handleDownload(tpl)}
+ >
+   <Download className="w-3 h-3 mr-1"/>
+   {downloading === tpl.id ? 'Λήψη...' : 'Λήψη'}
+ </Button>
  </div>
  </div>
 ))}

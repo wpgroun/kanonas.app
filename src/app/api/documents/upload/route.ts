@@ -23,41 +23,44 @@ export async function POST(req: NextRequest) {
    return NextResponse.json({ error: 'Μη εξουσιοδοτημένη πρόσβαση' }, { status: 401 });
  }
 
- // Read file as text if it's HTML, otherwise read the raw content
+ // Read file content
  const isHtml = file.name.endsWith('.html') || file.type === 'text/html';
  let htmlContent: string | null = null;
  let fileUrl: string | null = null;
+ let fileData: string | null = null;
 
  if (isHtml) {
- // Store HTML directly in DB — survives Railway deploys!
- htmlContent = await file.text();
+   // Store HTML directly in DB
+   htmlContent = await file.text();
  } else {
- // For .docx — store filename reference (legacy support)
- fileUrl = `template_${docType.toLowerCase()}_${Date.now()}.docx`;
- // Note: .docx on Railway filesystem is ephemeral — HTML templates are preferred
+   // Store DOCX as base64 in DB — survives Railway deploys (no ephemeral filesystem)
+   const arrayBuffer = await file.arrayBuffer();
+   fileData = Buffer.from(arrayBuffer).toString('base64');
+   fileUrl = file.name; // keep original filename for display/extension detection
  }
 
  // Check if a template of this docType already exists for this temple, update if so
  const existing = await prisma.docTemplate.findFirst({
- where: { templeId, docType }
+   where: { templeId, docType }
  });
 
  let template;
  if (existing) {
- template = await prisma.docTemplate.update({
- where: { id: existing.id },
- data: { nameEl, htmlContent, fileUrl }
- });
+   template = await prisma.docTemplate.update({
+     where: { id: existing.id },
+     data: { nameEl, htmlContent, fileUrl, ...(fileData ? { fileData } : {}) }
+   });
  } else {
- template = await prisma.docTemplate.create({
- data: {
- templeId,
- docType,
- nameEl,
- htmlContent,
- fileUrl,
- }
- });
+   template = await prisma.docTemplate.create({
+     data: {
+       templeId,
+       docType,
+       nameEl,
+       htmlContent,
+       fileUrl,
+       ...(fileData ? { fileData } : {})
+     }
+   });
  }
 
  return NextResponse.json({ success: true, template });
