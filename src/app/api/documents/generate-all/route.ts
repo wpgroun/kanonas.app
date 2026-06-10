@@ -433,8 +433,9 @@ export async function POST(req: NextRequest) {
         'groomTaxId','groomAmka','groomIdNumber','groomIdDate','groomIdAuthority',
         'groomMarriageRank','groomPrefecture','groomMunicipality','groomKoinotita',
         'groomInsurance','groomMunicipalRegNumber',
-        'groomBirthNomos','groomBirthDimos','groomBirthKoinotita',
-        'groomMunicipalNomos','groomMunicipalDimos'];
+        'groomBirthNomos','groomBirthDimos','groomBirthKoinotita','groomBirthCountry',
+        'groomMunicipalNomos','groomMunicipalDimos','groomMunicipalRegNumber',
+        'groomCountry'];
       for (const f of gFields) {
         if (answers[f]) {
           const label = f.replace('groom', '');
@@ -470,6 +471,7 @@ export async function POST(req: NextRequest) {
       if (answers['groomMunicipalNomos'])  answers['Νομός Μητρώου Γαμπρού']         = answers['groomMunicipalNomos'];
       if (answers['groomMunicipalDimos'])  answers['Δήμος Μητρώου Γαμπρού']         = answers['groomMunicipalDimos'];
       if (answers['groomMunicipalRegNumber']) answers['Αρ. Δημοτολογίου Γαμπρού'] = answers['groomMunicipalRegNumber'];
+      if (answers['groomCountry'])         answers['Χώρα Γαμπρού']                  = answers['groomCountry'];
 
       // ── Bride ────────────────────────────────────────────────────────────
       if (bride) {
@@ -525,8 +527,9 @@ export async function POST(req: NextRequest) {
         'brideTaxId','brideAmka','brideIdNumber','brideIdDate','brideIdAuthority',
         'brideMarriageRank','bridePrefecture','brideMunicipality','brideKoinotita',
         'brideInsurance','brideMunicipalRegNumber',
-        'brideBirthNomos','brideBirthDimos','brideBirthKoinotita',
-        'brideMunicipalNomos','brideMunicipalDimos'];
+        'brideBirthNomos','brideBirthDimos','brideBirthKoinotita','brideBirthCountry',
+        'brideMunicipalNomos','brideMunicipalDimos','brideMunicipalRegNumber',
+        'brideCountry'];
       for (const f of bFields) {
         if (answers[f]) {
           const label = f.replace('bride', '');
@@ -561,6 +564,7 @@ export async function POST(req: NextRequest) {
       if (answers['brideMunicipalNomos'])  answers['Νομός Μητρώου Νύφης']         = answers['brideMunicipalNomos'];
       if (answers['brideMunicipalDimos'])  answers['Δήμος Μητρώου Νύφης']         = answers['brideMunicipalDimos'];
       if (answers['brideMunicipalRegNumber']) answers['Αρ. Δημοτολογίου Νύφης'] = answers['brideMunicipalRegNumber'];
+      if (answers['brideCountry'])         answers['Χώρα Νύφης']                  = answers['brideCountry'];
 
       // ── Witness / Koumparos ──────────────────────────────────────────────
       const witnessCount = [koumparos, koumparos2].filter(Boolean).length;
@@ -639,6 +643,8 @@ export async function POST(req: NextRequest) {
       if (answers['coupleCity'])          answers['Πόλη Ζεύγους']      = answers['coupleCity'];
       if (answers['couplePrefecture'])    answers['Νομός Ζεύγους']     = answers['couplePrefecture'];
       if (answers['coupleMunicipality'])  answers['Δήμος Ζεύγους']     = answers['coupleMunicipality'];
+      if (answers['coupleKoinotita'])     answers['Κοινότητα Ζεύγους'] = answers['coupleKoinotita'];
+      if (answers['coupleCountry'])       answers['Χώρα Ζεύγους']      = answers['coupleCountry'];
 
       // ── Marriage license ─────────────────────────────────────────────────
       if (answers['marriageLicenseNumber'])  answers['Αρ. Άδειας Γάμου']    = answers['marriageLicenseNumber'];
