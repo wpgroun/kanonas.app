@@ -432,7 +432,9 @@ export async function POST(req: NextRequest) {
         'groomNationality','groomCity','groomAddress','groomAddressNumber','groomPostalCode',
         'groomTaxId','groomAmka','groomIdNumber','groomIdDate','groomIdAuthority',
         'groomMarriageRank','groomPrefecture','groomMunicipality','groomKoinotita',
-        'groomInsurance','groomMunicipalRegNumber'];
+        'groomInsurance','groomMunicipalRegNumber',
+        'groomBirthNomos','groomBirthDimos','groomBirthKoinotita',
+        'groomMunicipalNomos','groomMunicipalDimos'];
       for (const f of gFields) {
         if (answers[f]) {
           const label = f.replace('groom', '');
@@ -452,12 +454,21 @@ export async function POST(req: NextRequest) {
       if (answers['groomInsurance'])  answers['Φορέας Ασφαλίσεως Γαμπρού'] = answers['groomInsurance'];
       if (answers['groomKoinotita']) answers['Κοινότητα Γαμπρού'] = answers['groomKoinotita'];
       if (answers['groomBirthCity']) answers['Τόπος Γέννησης Γαμπρού'] = answers['groomBirthCity'];
+      // Birth place (sec 9): Γέννησης variants
+      if (answers['groomBirthNomos'])    answers['Νομός Γέννησης Γαμπρού']    = answers['groomBirthNomos'];
+      if (answers['groomBirthDimos'])    answers['Δήμος Γέννησης Γαμπρού']    = answers['groomBirthDimos'];
+      if (answers['groomBirthKoinotita']) answers['Κοινότητα Γέννησης Γαμπρού'] = answers['groomBirthKoinotita'];
+      if (answers['groomBirthCountry'])  answers['Χώρα Γέννησης Γαμπρού']     = answers['groomBirthCountry'];
       if (answers['groomProfession']) answers['Επάγγελμα Γαμπρού'] = answers['groomProfession'];
       if (answers['groomReligion']) answers['Θρήσκευμα Γαμπρού'] = answers['groomReligion'];
       if (answers['groomNationality']) answers['Υπηκοότητα Γαμπρού'] = answers['groomNationality'];
       if (answers['groomMarriageRank']) answers['Βαθμός Γάμου Γαμπρού'] = answers['groomMarriageRank'];
+      // Residence (sec 11)
       if (answers['groomPrefecture']) answers['Νομός Γαμπρού'] = answers['groomPrefecture'];
       if (answers['groomMunicipality']) answers['Δήμος Γαμπρού'] = answers['groomMunicipality'];
+      // Registered / domicile (sec 12): Μητρώου variants
+      if (answers['groomMunicipalNomos'])  answers['Νομός Μητρώου Γαμπρού']         = answers['groomMunicipalNomos'];
+      if (answers['groomMunicipalDimos'])  answers['Δήμος Μητρώου Γαμπρού']         = answers['groomMunicipalDimos'];
       if (answers['groomMunicipalRegNumber']) answers['Αρ. Δημοτολογίου Γαμπρού'] = answers['groomMunicipalRegNumber'];
 
       // ── Bride ────────────────────────────────────────────────────────────
@@ -513,7 +524,9 @@ export async function POST(req: NextRequest) {
         'brideNationality','brideCity','brideAddress','brideAddressNumber','bridePostalCode',
         'brideTaxId','brideAmka','brideIdNumber','brideIdDate','brideIdAuthority',
         'brideMarriageRank','bridePrefecture','brideMunicipality','brideKoinotita',
-        'brideInsurance','brideMunicipalRegNumber'];
+        'brideInsurance','brideMunicipalRegNumber',
+        'brideBirthNomos','brideBirthDimos','brideBirthKoinotita',
+        'brideMunicipalNomos','brideMunicipalDimos'];
       for (const f of bFields) {
         if (answers[f]) {
           const label = f.replace('bride', '');
@@ -532,12 +545,21 @@ export async function POST(req: NextRequest) {
       if (answers['brideInsurance'])  answers['Φορέας Ασφαλίσεως Νύφης'] = answers['brideInsurance'];
       if (answers['brideKoinotita']) answers['Κοινότητα Νύφης'] = answers['brideKoinotita'];
       if (answers['brideBirthCity']) answers['Τόπος Γέννησης Νύφης'] = answers['brideBirthCity'];
+      // Birth place (sec 9): Γέννησης variants
+      if (answers['brideBirthNomos'])    answers['Νομός Γέννησης Νύφης']    = answers['brideBirthNomos'];
+      if (answers['brideBirthDimos'])    answers['Δήμος Γέννησης Νύφης']    = answers['brideBirthDimos'];
+      if (answers['brideBirthKoinotita']) answers['Κοινότητα Γέννησης Νύφης'] = answers['brideBirthKoinotita'];
+      if (answers['brideBirthCountry'])  answers['Χώρα Γέννησης Νύφης']     = answers['brideBirthCountry'];
       if (answers['brideProfession']) answers['Επάγγελμα Νύφης'] = answers['brideProfession'];
       if (answers['brideReligion']) answers['Θρήσκευμα Νύφης'] = answers['brideReligion'];
       if (answers['brideNationality']) answers['Υπηκοότητα Νύφης'] = answers['brideNationality'];
       if (answers['brideMarriageRank']) answers['Βαθμός Γάμου Νύφης'] = answers['brideMarriageRank'];
+      // Residence (sec 11)
       if (answers['bridePrefecture']) answers['Νομός Νύφης'] = answers['bridePrefecture'];
       if (answers['brideMunicipality']) answers['Δήμος Νύφης'] = answers['brideMunicipality'];
+      // Registered / domicile (sec 12): Μητρώου variants
+      if (answers['brideMunicipalNomos'])  answers['Νομός Μητρώου Νύφης']         = answers['brideMunicipalNomos'];
+      if (answers['brideMunicipalDimos'])  answers['Δήμος Μητρώου Νύφης']         = answers['brideMunicipalDimos'];
       if (answers['brideMunicipalRegNumber']) answers['Αρ. Δημοτολογίου Νύφης'] = answers['brideMunicipalRegNumber'];
 
       // ── Witness / Koumparos ──────────────────────────────────────────────

@@ -118,6 +118,13 @@ export default function FormClient({ token }: { token: any }) {
   const [groomMunicipality, setGroomMunicipality] = useState(existingMeta.groomMunicipality || '');
   const [groomKoinotita, setGroomKoinotita] = useState(existingMeta.groomKoinotita || '');
   const [groomInsurance, setGroomInsurance] = useState(existingMeta.groomInsurance || '');
+  // Birth place fields (section 9 of DilosiGamou)
+  const [groomBirthNomos, setGroomBirthNomos] = useState(existingMeta.groomBirthNomos || '');
+  const [groomBirthDimos, setGroomBirthDimos] = useState(existingMeta.groomBirthDimos || '');
+  const [groomBirthKoinotita, setGroomBirthKoinotita] = useState(existingMeta.groomBirthKoinotita || '');
+  // Registered / domicile fields (section 12)
+  const [groomMunicipalNomos, setGroomMunicipalNomos] = useState(existingMeta.groomMunicipalNomos || '');
+  const [groomMunicipalDimos, setGroomMunicipalDimos] = useState(existingMeta.groomMunicipalDimos || '');
   // Extended bride fields (mirror)
   const [brideBirthDate, setBrideBirthDate] = useState(existingMeta.brideBirthDate || '');
   const [brideBirthCity, setBrideBirthCity] = useState(existingMeta.brideBirthCity || '');
@@ -138,8 +145,16 @@ export default function FormClient({ token }: { token: any }) {
   const [brideMunicipality, setBrideMunicipality] = useState(existingMeta.brideMunicipality || '');
   const [brideKoinotita, setBrideKoinotita] = useState(existingMeta.brideKoinotita || '');
   const [brideInsurance, setBrideInsurance] = useState(existingMeta.brideInsurance || '');
+  // Bride birth place fields (section 9)
+  const [brideBirthNomos, setBrideBirthNomos] = useState(existingMeta.brideBirthNomos || '');
+  const [brideBirthDimos, setBrideBirthDimos] = useState(existingMeta.brideBirthDimos || '');
+  const [brideBirthKoinotita, setBrideBirthKoinotita] = useState(existingMeta.brideBirthKoinotita || '');
+  // Bride registered / domicile fields (section 12)
+  const [brideMunicipalNomos, setBrideMunicipalNomos] = useState(existingMeta.brideMunicipalNomos || '');
+  const [brideMunicipalDimos, setBrideMunicipalDimos] = useState(existingMeta.brideMunicipalDimos || '');
   // Witness/Koumparos city
   const [witnessCity, setWitnessCity] = useState(existingMeta.witnessCity || '');
+  const [witness2City, setWitness2City] = useState(existingMeta.witness2City || '');
 
   // KOUMPAROS
   const [koumparosFirst, setKoumparosFirst] = useState(p('koumparos').firstName || '');
@@ -262,13 +277,17 @@ export default function FormClient({ token }: { token: any }) {
         groomCity, groomAddress, groomAddressNumber, groomPostalCode,
         groomTaxId, groomAmka, groomIdNumber, groomIdDate, groomIdAuthority, groomMarriageRank,
         groomPrefecture, groomMunicipality, groomKoinotita, groomInsurance,
+        groomBirthNomos, groomBirthDimos, groomBirthKoinotita,
+        groomMunicipalNomos, groomMunicipalDimos,
         // Extended bride fields
         brideBirthDate, brideBirthCity, brideProfession, brideReligion, brideNationality,
         brideCity, brideAddress, brideAddressNumber, bridePostalCode,
         brideTaxId, brideAmka, brideIdNumber, brideIdDate, brideIdAuthority, brideMarriageRank,
         bridePrefecture, brideMunicipality, brideKoinotita, brideInsurance,
-        // Witness city
-        witnessCity,
+        brideBirthNomos, brideBirthDimos, brideBirthKoinotita,
+        brideMunicipalNomos, brideMunicipalDimos,
+        // Witness cities
+        witnessCity, witness2City,
       };
       personsArr.push({ role: 'groom', firstName: groomFirst, lastName: groomLast, fathersName: groomFather });
       personsArr.push({ role: 'bride', firstName: brideFirst, lastName: brideLast, fathersName: brideFather });
@@ -428,6 +447,15 @@ export default function FormClient({ token }: { token: any }) {
      <div className="space-y-2"><Label>Κοινότητα</Label><Input value={groomKoinotita} onChange={e=>setGroomKoinotita(e.target.value)} /></div>
      <div className="space-y-2"><Label>Φορέας Ασφαλίσεως</Label><Input value={groomInsurance} onChange={e=>setGroomInsurance(e.target.value)} placeholder="π.χ. ΕΦΚΑ" /></div>
    </div>
+   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+     <div className="space-y-2"><Label>Νομός Γέννησης</Label><Input value={groomBirthNomos} onChange={e=>setGroomBirthNomos(e.target.value)} /></div>
+     <div className="space-y-2"><Label>Δήμος Γέννησης</Label><Input value={groomBirthDimos} onChange={e=>setGroomBirthDimos(e.target.value)} /></div>
+     <div className="space-y-2"><Label>Κοινότητα Γέννησης</Label><Input value={groomBirthKoinotita} onChange={e=>setGroomBirthKoinotita(e.target.value)} /></div>
+   </div>
+   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+     <div className="space-y-2"><Label>Νομός Μητρώου</Label><Input value={groomMunicipalNomos} onChange={e=>setGroomMunicipalNomos(e.target.value)} /></div>
+     <div className="space-y-2"><Label>Δήμος Μητρώου</Label><Input value={groomMunicipalDimos} onChange={e=>setGroomMunicipalDimos(e.target.value)} /></div>
+   </div>
  </div>
 
  {/* Έγγραφα Ταυτοποίησης (Νυμφίου & Γονέων) */}
@@ -549,6 +577,15 @@ export default function FormClient({ token }: { token: any }) {
       <div className="space-y-2"><Label>Κοινότητα</Label><Input value={brideKoinotita} onChange={e=>setBrideKoinotita(e.target.value)} /></div>
       <div className="space-y-2"><Label>Φορέας Ασφαλίσεως</Label><Input value={brideInsurance} onChange={e=>setBrideInsurance(e.target.value)} placeholder="π.χ. ΕΦΚΑ" /></div>
     </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="space-y-2"><Label>Νομός Γέννησης</Label><Input value={brideBirthNomos} onChange={e=>setBrideBirthNomos(e.target.value)} /></div>
+      <div className="space-y-2"><Label>Δήμος Γέννησης</Label><Input value={brideBirthDimos} onChange={e=>setBrideBirthDimos(e.target.value)} /></div>
+      <div className="space-y-2"><Label>Κοινότητα Γέννησης</Label><Input value={brideBirthKoinotita} onChange={e=>setBrideBirthKoinotita(e.target.value)} /></div>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-2"><Label>Νομός Μητρώου</Label><Input value={brideMunicipalNomos} onChange={e=>setBrideMunicipalNomos(e.target.value)} /></div>
+      <div className="space-y-2"><Label>Δήμος Μητρώου</Label><Input value={brideMunicipalDimos} onChange={e=>setBrideMunicipalDimos(e.target.value)} /></div>
+    </div>
   </div>
 
   {/* Έγγραφα Ταυτοποίησης (Νύμφης & Γονέων) */}
@@ -600,6 +637,9 @@ export default function FormClient({ token }: { token: any }) {
  <div className="space-y-2"><Label>Όνομα</Label><Input value={koumparosFirst} onChange={e=>setKoumparosFirst(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Επώνυμο</Label><Input value={koumparosLast} onChange={e=>setKoumparosLast(e.target.value)} required /></div>
  <div className="space-y-2"><Label>Πόλη Κατοικίας</Label><Input value={witnessCity} onChange={e=>setWitnessCity(e.target.value)} placeholder="π.χ. Θεσσαλονίκη" /></div>
+ </div>
+ <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-2">
+   <div className="space-y-2"><Label>Πόλη Κατοικίας Παράνυμφου 2</Label><Input value={witness2City} onChange={e=>setWitness2City(e.target.value)} placeholder="π.χ. Θεσσαλονίκη" /></div>
  </div>
  <div className="space-y-2 max-w-md">
  <Label>Είναι Ορθόδοξος Χριστιανός;</Label>
