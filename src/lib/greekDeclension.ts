@@ -916,6 +916,14 @@ export function autoMapVariable(placeholder: string): string | null {
   // while excluding single/two-letter tokens that cause false positives.
   // Sorted longest-first so that e.g. "ονοματεπωνυμοπατερα" (19) is tested before
   // "ονομαπατερα" (11) or "ονομα" (5), preventing premature short-circuit.
+  //
+  // IMPORTANT: If pClean ends with a digit (e.g. "ονομαπαρανυμφου2"), only match
+  // synonyms that also end with that SAME digit.  This prevents "[Όνομα Παράνυμφου 2]"
+  // from matching the group for "[Όνομα Παράνυμφου 1]" via the suffix-less synonym
+  // "ονομαπαρανυμφου", which would map witness-2 placeholders to witness-1 fields.
+  const trailingDigitMatch = pClean.match(/(\d+)$/);
+  const trailingDigit = trailingDigitMatch ? trailingDigitMatch[1] : null;
+
   const synonymList: { term: string; groupIdx: number }[] = [];
   for (let i = 0; i < SYNONYM_GROUPS.length; i++) {
     for (const s of SYNONYM_GROUPS[i]) {
@@ -929,6 +937,10 @@ export function autoMapVariable(placeholder: string): string | null {
 
   for (const { term, groupIdx: gIdx } of synonymList) {
     if (pClean.includes(term)) {
+      // If the placeholder key ends with a digit, the matching synonym must ALSO
+      // end with that same digit — prevents cross-contamination between numbered
+      // entity variants (e.g. witness-1 vs witness-2).
+      if (trailingDigit && !term.endsWith(trailingDigit)) continue;
       return GROUP_TO_FIELD[gIdx];
     }
   }

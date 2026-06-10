@@ -619,8 +619,21 @@ export async function POST(req: NextRequest) {
       if (answers['marriageParaboloNumber']) answers['Αρ. Παραβόλου Γάμου'] = answers['marriageParaboloNumber'];
 
       // ── Age fields (Aitisi) ───────────────────────────────────────────────
-      if (answers['groomAge']) answers['Ηλικία Γαμπρού'] = answers['groomAge'];
-      if (answers['brideAge']) answers['Ηλικία Νύφης']   = answers['brideAge'];
+      // Compute age from birth date if explicit groomAge/brideAge are absent.
+      const computeAge = (birthDateStr: string): string => {
+        if (!birthDateStr) return '';
+        const bd = new Date(birthDateStr);
+        if (isNaN(bd.getTime())) return '';
+        const today = new Date();
+        let age = today.getFullYear() - bd.getFullYear();
+        const m = today.getMonth() - bd.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) age--;
+        return age > 0 ? String(age) : '';
+      };
+      const groomAgeVal = answers['groomAge'] || computeAge(answers['groomBirthDate']);
+      const brideAgeVal = answers['brideAge'] || computeAge(answers['brideBirthDate']);
+      if (groomAgeVal) answers['Ηλικία Γαμπρού'] = groomAgeVal;
+      if (brideAgeVal) answers['Ηλικία Νύφης']   = brideAgeVal;
 
       // ── Birth date decomposition (DilosiGamou day/year fields) ───────────
       const parseBirthDate = (dateStr: string) => {

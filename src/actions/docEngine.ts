@@ -267,24 +267,30 @@ async function generateDOCXDoc(template: any, answers: Record<string, string>, t
         /^0/u.test(trimmedKey) &&
         /[Ͱ-Ͽἀ-῿]/u.test(trimmedKey); // contains Greek chars
 
-      // 1. Check per-template variableMap first (skip for compound format keys)
+      // 1. Direct hasOwnProperty check — highest priority.
+      // If generate-all (or any caller) explicitly set this exact key in answers,
+      // honour that value even if variableMap would remap it to a different field.
+      // This ensures deliberate empty strings (e.g. answers['Όνομα Παράνυμφου 2'] = '')
+      // are not overridden by a variableMap that maps to the first witness's name.
+      if (Object.prototype.hasOwnProperty.call(answers, trimmedKey)) {
+        return answers[trimmedKey] ?? '';
+      }
+
+      // 2. Check per-template variableMap (skip for compound format keys and when the key
+      //    is already resolved above).  variableMap purpose: remap non-standard placeholder
+      //    names (e.g. template uses [Πατρώνυμο] but answers key is 'fatherName').
       if (variableMap && !isCompoundFormatKey) {
         const mappedField = variableMap[trimmedKey];
         if (mappedField === '__ignore__') {
           const autoVal = getNormalizedValue(trimmedKey, answers);
           if (autoVal !== '') return autoVal;
-          // fall through to direct hasOwnProperty and synonym lookup
+          // fall through to synonym lookup
         }
         if (mappedField && mappedField !== '__unknown__') {
           const mapped = getNormalizedValue(mappedField, answers) || answers[mappedField] || '';
           if (mapped !== '') return mapped;
-          // Mapped field didn't resolve — fall through to try the original placeholder key
+          // Mapped field didn't resolve — fall through to synonym lookup
         }
-      }
-
-      // 2. Direct hasOwnProperty check
-      if (Object.prototype.hasOwnProperty.call(answers, trimmedKey)) {
-        return answers[trimmedKey] ?? '';
       }
 
       // 3. Synonym-group / normalized key lookup
