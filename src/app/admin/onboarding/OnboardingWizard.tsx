@@ -443,9 +443,15 @@ export default function OnboardingWizard() {
           {/* Navigation */}
           {step < 4 && (
             <div className="flex justify-between items-center mt-8 pt-6 border-t border-[#e5dfd9]">
-              <button onClick={() => step > 1 ? setStep(s => s - 1) : router.push('/admin')}
+              <button
+                onClick={async () => {
+                  if (step > 1) { setStep(s => s - 1); return }
+                  // Exiting at step 1 = mark completed so wizard never re-appears
+                  await completeOnboarding()
+                  router.push('/admin')
+                }}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#e5dfd9] text-[#736760] font-bold text-sm hover:border-[#c3a165] hover:text-[#59161a] transition-all">
-                <ArrowLeft className="w-4 h-4"/> {step > 1 ? 'Πίσω' : 'Dashboard'}
+                <ArrowLeft className="w-4 h-4"/> {step > 1 ? 'Πίσω' : 'Παράλειψη Wizard'}
               </button>
 
               <div className="flex items-center gap-2">
