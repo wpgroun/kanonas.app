@@ -28,16 +28,17 @@ const DOCX_PREVIEW_CSS = `
   }
 `
 
+type Mode = 'loading' | 'pdf' | 'docx' | 'error'
+
 export default function DocPreviewModal({ open, onClose, base64, filename, label }: Props) {
-  const [pdfBase64, setPdfBase64] = useState<string | null>(null)
+  const [mode, setMode] = useState<Mode>('loading')
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null)
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
-  const [rendering, setRendering] = useState(false)
   const [error, setError] = useState('')
 
   const containerRef = useCallback((node: HTMLDivElement | null) => setContainer(node), [])
 
-  // Inject docx-preview styles once (for fallback mode)
+  // Inject docx-preview styles once
   useEffect(() => {
     const id = 'docx-preview-global-styles'
     if (!document.getElementById(id)) {
@@ -48,24 +49,28 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
     }
   }, [])
 
-  // Revoke blob URL on close to avoid memory leaks
+  // Cleanup blob URL when modal closes
   useEffect(() => {
     if (!open && pdfBlobUrl) {
       URL.revokeObjectURL(pdfBlobUrl)
       setPdfBlobUrl(null)
     }
+    if (!open) {
+      setMode('loading')
+      setError('')
+    }
   }, [open])
 
+  // Step 1: try LibreOffice PDF conversion
   useEffect(() => {
     if (!open || !base64) return
     let cancelled = false
-    setPdfBase64(null)
+
+    setMode('loading')
     setPdfBlobUrl(null)
-    setRendering(true)
     setError('')
 
-    async function load() {
-      // Step 1: try server-side LibreOffice PDF conversion
+    async function tryPdf() {
       try {
         const res = await fetch('/api/documents/preview-pdf', {
           method: 'POST',
@@ -75,41 +80,37 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
         if (res.ok) {
           const data = await res.json()
           if (!cancelled && data.pdf) {
-            setPdfBase64(data.pdf)
-            // Convert to blob URL — browsers block data: URIs in iframes
             const bytes = Uint8Array.from(atob(data.pdf), c => c.charCodeAt(0))
             const blob = new Blob([bytes], { type: 'application/pdf' })
             setPdfBlobUrl(URL.createObjectURL(blob))
-            setRendering(false)
+            setMode('pdf')
             return
           }
         }
       } catch {}
 
-      // Step 2: fallback to client-side docx-preview
-      if (cancelled) return
-      // container might not be mounted yet; it'll trigger separately via the container effect
+      // PDF failed — signal docx-preview to start
+      if (!cancelled) setMode('docx')
     }
 
-    load()
+    tryPdf()
     return () => { cancelled = true }
   }, [open, base64])
 
-  // Fallback: render via docx-preview when PDF is not available and container is ready
+  // Step 2 (fallback): render via docx-preview only after PDF has definitively failed
   useEffect(() => {
-    if (!open || !container || !base64 || pdfBase64 !== null) return
+    if (mode !== 'docx' || !container || !base64) return
 
     let cancelled = false
 
-    async function renderFallback() {
+    async function renderDocx() {
       try {
         const { renderAsync } = await import('docx-preview')
         const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0))
         const blob = new Blob([bytes], {
           type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         })
-        if (cancelled) return
-        if (!container) return
+        if (cancelled || !container) return
         container.innerHTML = ''
         await renderAsync(blob, container as HTMLElement, undefined, {
           className: 'docx-preview-body',
@@ -125,18 +126,17 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
           renderFootnotes: true,
           renderEndnotes: true,
         })
-        if (!cancelled) setRendering(false)
-      } catch (e: any) {
+      } catch {
         if (!cancelled) {
           setError('Δεν ήταν δυνατή η προεπισκόπηση.')
-          setRendering(false)
+          setMode('error')
         }
       }
     }
 
-    renderFallback()
+    renderDocx()
     return () => { cancelled = true }
-  }, [open, container, base64, pdfBase64])
+  }, [mode, container, base64])
 
   const modalStyle = {
     width: '90vw',
@@ -157,20 +157,23 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden relative" style={{ background: '#525659' }}>
-          {rendering && (
+          {/* Loading spinner */}
+          {mode === 'loading' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10" style={{ background: '#525659' }}>
               <Loader2 className="w-8 h-8 animate-spin text-white opacity-80" />
               <p className="text-sm text-white opacity-60">Φόρτωση προεπισκόπησης...</p>
             </div>
           )}
-          {error && !rendering && (
+
+          {/* Error */}
+          {mode === 'error' && (
             <div className="absolute inset-0 flex items-center justify-center text-sm text-white opacity-70 p-8 text-center">
               {error}
             </div>
           )}
 
-          {/* PDF mode — pixel-perfect via LibreOffice, uses blob URL (data: URIs blocked by browsers) */}
-          {pdfBlobUrl && !rendering && (
+          {/* PDF mode — pixel-perfect via LibreOffice */}
+          {mode === 'pdf' && pdfBlobUrl && (
             <iframe
               src={pdfBlobUrl}
               className="w-full h-full border-0"
@@ -178,8 +181,8 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
             />
           )}
 
-          {/* Fallback mode — docx-preview */}
-          {!pdfBlobUrl && (
+          {/* Fallback: docx-preview (shown when LibreOffice not available) */}
+          {(mode === 'docx' || mode === 'error') && (
             <div className="w-full h-full overflow-y-auto">
               <div ref={containerRef} style={{ minHeight: '100%' }} />
             </div>
