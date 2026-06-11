@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/button';
 import { updateTempleSettings, testSmtpConnection, testSmsConnection } from '@/actions/settings';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Save, Globe, KeyRound, Mail, MessageSquare, FileText, Hash, HelpCircle, CheckCircle2, Calendar, FlaskConical, Phone } from 'lucide-react';
+import { Building2, Save, Globe, KeyRound, Mail, MessageSquare, FileText, Hash, HelpCircle, CheckCircle2, Calendar, FlaskConical, Phone, Code, Copy } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SettingsClient({ initialData, isSuperAdmin }: { initialData: any; isSuperAdmin: boolean }) {
  const [isSaving, setIsSaving] = useState(false);
+ const [embedCopied, setEmbedCopied] = useState(false);
  const [smtpTest, setSmtpTest] = useState<{ loading: boolean; result?: { success: boolean; message: string } }>({ loading: false });
  const [smsTest, setSmsTest] = useState<{ loading: boolean; result?: { success: boolean; message: string } }>({ loading: false });
  const [testPhone, setTestPhone] = useState('');
@@ -294,6 +295,40 @@ export default function SettingsClient({ initialData, isSuperAdmin }: { initialD
  </div>
  <p className="text-xs text-[var(--text-muted)] mt-2">Μόνο μικρά γράμματα και παύλες (-). Δίνεται στους πιστούς.</p>
  </div>
+ </Card>
+
+ <Card className="p-6 border-border rounded-xl shadow-sm border-l-4 border-l-indigo-500">
+ <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Code className="text-indigo-500"/> Ενσωμάτωση στο Site του Ναού</h3>
+ <p className="text-sm text-[var(--text-secondary)] mb-4">Αντιγράψτε τον κώδικα και επικολλήστε τον στο site του ναού. Ο πολίτης θα μεταφέρεται απευθείας στο ημερολόγιο κρατήσεών σας.</p>
+ {(() => {
+   const templeSlug = initialData.slug || initialData.id || '';
+   const bookingUrl = `https://kanonas.app/temple/${templeSlug}/connect/book`;
+   const embedCode = `<a href="${bookingUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#4F46E5;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-size:16px;font-weight:600;">📅 Κράτηση Μυστηρίου</a>`;
+   return (
+     <div>
+       <div className="mb-3 p-3 bg-muted/40 rounded-lg border border-border flex items-center gap-4">
+         <span className="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider shrink-0">Προεπισκόπηση:</span>
+         <a href={bookingUrl} target="_blank" rel="noopener noreferrer" style={{ display:'inline-block', background:'#4F46E5', color:'#fff', padding:'8px 20px', borderRadius:'8px', textDecoration:'none', fontFamily:'sans-serif', fontSize:'14px', fontWeight:600 }}>
+           📅 Κράτηση Μυστηρίου
+         </a>
+       </div>
+       <div className="relative">
+         <pre className="bg-background border border-border rounded-lg p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all leading-relaxed pr-28">
+           {embedCode}
+         </pre>
+         <button
+           onClick={() => { navigator.clipboard.writeText(embedCode); setEmbedCopied(true); setTimeout(() => setEmbedCopied(false), 2500); }}
+           className="absolute top-2 right-2 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+         >
+           <Copy size={12} /> {embedCopied ? 'Αντιγράφηκε!' : 'Αντιγραφή'}
+         </button>
+       </div>
+       <p className="text-xs text-[var(--text-muted)] mt-2">
+         Σύνδεσμος: <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline font-mono">{bookingUrl}</a>
+       </p>
+     </div>
+   );
+ })()}
  </Card>
 
  <Card className="p-6 border-border rounded-xl shadow-sm border-l-4 border-l-purple-500">
