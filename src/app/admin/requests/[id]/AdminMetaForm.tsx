@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { FileSignature, Printer, AlertTriangle, CheckCircle2, ScrollText } from 'lucide-react'
 
 export default function AdminMetaForm({ token }: { token: any }) {
@@ -193,13 +194,20 @@ export default function AdminMetaForm({ token }: { token: any }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Τίτλος Ιερέα</Label>
-              <Input
+              <Select
                 disabled={hasDocsGenerated}
                 value={priestTitle}
-                onChange={e => setPriestTitle(e.target.value)}
-                placeholder="π.χ. Αρχιμανδρίτης, Πρεσβύτερος"
-                className={hasDocsGenerated ? 'opacity-70 bg-muted' : ''}
-              />
+                onValueChange={setPriestTitle}
+              >
+                <SelectTrigger className={hasDocsGenerated ? 'opacity-70 bg-muted' : ''}>
+                  <SelectValue placeholder="Επιλογή τίτλου..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Αρχιμανδρίτης">Αρχιμανδρίτης</SelectItem>
+                  <SelectItem value="Πρωτοπρεσβύτερος">Πρωτοπρεσβύτερος</SelectItem>
+                  <SelectItem value="Εφημέριος">Εφημέριος</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Ιερέας (Εφημέριος)</Label>
