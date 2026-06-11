@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { FileText, Download, Loader2, CheckCircle2, AlertCircle, FolderOpen, Mail, Sparkles } from 'lucide-react'
+import { FileText, Download, Loader2, CheckCircle2, AlertCircle, FolderOpen, Mail, Sparkles, Eye, Printer } from 'lucide-react'
 import { sendRoutingEmail, shareWithMetropolisSystem } from '@/actions/connect'
 import { toast } from 'sonner'
 
@@ -139,6 +139,20 @@ export default function GenerateAllDocsButton({
       console.error(err);
       toast.error('Σφάλμα κατά τη δημιουργία του ZIP.');
     }
+  };
+
+  const openDocInTab = (doc: GeneratedDoc) => {
+    const bytes = Uint8Array.from(atob(doc.base64), c => c.charCodeAt(0));
+    const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  };
+
+  const openAllDocsInTabs = () => {
+    if (docs.length === 0) return;
+    docs.forEach((doc, i) => {
+      setTimeout(() => openDocInTab(doc), i * 150);
+    });
   };
 
   const handleSendToCouple = async () => {
@@ -318,9 +332,17 @@ export default function GenerateAllDocsButton({
                         key={doc.key}
                         className="grid grid-cols-12 items-center p-2.5 bg-muted/40 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors gap-2"
                       >
-                        <div className="col-span-5 flex items-center gap-2 min-w-0">
+                        <div className="col-span-5 flex items-center gap-1.5 min-w-0">
                           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0"/>
                           <span className="text-xs font-bold text-foreground truncate" title={doc.label}>{doc.label}</span>
+                          <button
+                            type="button"
+                            onClick={() => openDocInTab(doc)}
+                            title="Άνοιγμα εγγράφου"
+                            className="ml-auto shrink-0 p-1 rounded hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors"
+                          >
+                            <Eye className="w-3.5 h-3.5"/>
+                          </button>
                         </div>
                         <div className="col-span-7 flex justify-center gap-1">
                           <button
@@ -354,7 +376,27 @@ export default function GenerateAllDocsButton({
           </div>
 
           {docs.length > 0 && (
-            <DialogFooter className="flex flex-col sm:flex-row gap-2 border-t pt-4">
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 border-t pt-4 flex-wrap">
+              <Button
+                variant="outline"
+                onClick={openAllDocsInTabs}
+                className="gap-1.5 text-xs font-bold text-slate-700"
+                title="Ανοίγει κάθε έγγραφο σε νέο tab — εκτύπωση από το Word/LibreOffice"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                Προβολή Εγγράφων
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={openAllDocsInTabs}
+                className="gap-1.5 text-xs font-bold text-slate-700"
+                title="Ανοίγει τα έγγραφα για εκτύπωση μέσω Word/LibreOffice"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                Εκτύπωση Εγγράφων
+              </Button>
+
               <Button
                 variant="outline"
                 onClick={() => downloadTargetZip('temple', 'Ναός')}
