@@ -135,14 +135,14 @@ export default function PricingPage() {
 
       {/* ─── PRICING PLANS ─── */}
       <section className="px-6 pb-12">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {PLANS.map((plan) => (
             <div
               key={plan.slug}
               className={`card flex flex-col transition-all relative ${
                 plan.featured
-                  ? 'border-2 border-[var(--brand)] shadow-2xl md:-translate-y-4 p-8'
-                  : 'p-8 hover:border-[var(--brand)]/30'
+                  ? 'border-2 border-[var(--brand)] shadow-2xl p-8'
+                  : 'p-8 md:mt-6 hover:border-[var(--brand)]/30'
               }`}
             >
               {plan.badge && (
