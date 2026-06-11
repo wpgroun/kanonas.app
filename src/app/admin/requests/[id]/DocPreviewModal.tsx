@@ -30,6 +30,7 @@ const DOCX_PREVIEW_CSS = `
 
 export default function DocPreviewModal({ open, onClose, base64, filename, label }: Props) {
   const [pdfBase64, setPdfBase64] = useState<string | null>(null)
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null)
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
   const [rendering, setRendering] = useState(false)
   const [error, setError] = useState('')
@@ -47,10 +48,19 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
     }
   }, [])
 
+  // Revoke blob URL on close to avoid memory leaks
+  useEffect(() => {
+    if (!open && pdfBlobUrl) {
+      URL.revokeObjectURL(pdfBlobUrl)
+      setPdfBlobUrl(null)
+    }
+  }, [open])
+
   useEffect(() => {
     if (!open || !base64) return
     let cancelled = false
     setPdfBase64(null)
+    setPdfBlobUrl(null)
     setRendering(true)
     setError('')
 
@@ -66,6 +76,10 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
           const data = await res.json()
           if (!cancelled && data.pdf) {
             setPdfBase64(data.pdf)
+            // Convert to blob URL — browsers block data: URIs in iframes
+            const bytes = Uint8Array.from(atob(data.pdf), c => c.charCodeAt(0))
+            const blob = new Blob([bytes], { type: 'application/pdf' })
+            setPdfBlobUrl(URL.createObjectURL(blob))
             setRendering(false)
             return
           }
@@ -155,17 +169,17 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
             </div>
           )}
 
-          {/* PDF mode — pixel-perfect via LibreOffice */}
-          {pdfBase64 && !rendering && (
+          {/* PDF mode — pixel-perfect via LibreOffice, uses blob URL (data: URIs blocked by browsers) */}
+          {pdfBlobUrl && !rendering && (
             <iframe
-              src={`data:application/pdf;base64,${pdfBase64}`}
+              src={pdfBlobUrl}
               className="w-full h-full border-0"
               title={label}
             />
           )}
 
           {/* Fallback mode — docx-preview */}
-          {!pdfBase64 && (
+          {!pdfBlobUrl && (
             <div className="w-full h-full overflow-y-auto">
               <div ref={containerRef} style={{ minHeight: '100%' }} />
             </div>
