@@ -75,7 +75,7 @@ export default function RequestsKanban({ tokens }: { tokens: any[] }) {
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-slate-100 text-[var(--text-secondary)]">
-              {token.serviceType === 'GAMOS' ? '💍 Γάμος' : '🕊️ Βάπτιση'}
+              {token.serviceType === 'GAMOS' ? 'Γάμος' : 'Βάπτιση'}
             </span>
             {marriageClass && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] uppercase font-black bg-indigo-50 border border-indigo-200 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300">

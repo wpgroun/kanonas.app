@@ -78,7 +78,6 @@ export default async function RequestDetailsPage({ params }: { params: { id: str
  <Card className="shadow-sm border-border/50">
  <CardHeader className="flex flex-row items-start md:items-center justify-between pb-4 border-b border-border/50">
  <div className="flex items-center gap-3">
- <div className="text-3xl bg-secondary p-3 rounded-xl">{isGamos ? '💍' : '🕊️'}</div>
  <div>
  <div className="flex items-center gap-2">
  <CardTitle className="text-xl">{isGamos ? 'Γάμος' : 'Βάπτιση'}</CardTitle>

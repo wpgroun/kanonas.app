@@ -300,8 +300,8 @@ export default function BookingWizard({ templeId, availableSlots }: { templeId: 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="GAMOS">💍 Ιερό Μυστήριο Γάμου</SelectItem>
-                  <SelectItem value="VAPTISI">🕊️ Ιερό Μυστήριο Βαπτίσεως</SelectItem>
+                  <SelectItem value="GAMOS">Ιερό Μυστήριο Γάμου</SelectItem>
+                  <SelectItem value="VAPTISI">Ιερό Μυστήριο Βαπτίσεως</SelectItem>
                 </SelectContent>
               </Select>
             </div>

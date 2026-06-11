@@ -23,7 +23,6 @@ function NewRequestModal({ open, onClose, serviceType }: { open: boolean, onClos
  const [date, setDate] = useState('')
 
  const label = serviceType === 'GAMOS' ? 'Γάμου' : 'Βάπτισης'
- const icon = serviceType === 'GAMOS' ? '💍' : '🕊️'
 
  async function handleSubmit(e: React.FormEvent) {
  e.preventDefault()
@@ -61,7 +60,7 @@ function NewRequestModal({ open, onClose, serviceType }: { open: boolean, onClos
  {step === 'form' ? (
  <>
  <DialogHeader>
- <DialogTitle className="flex items-center gap-2 text-xl">{icon} Νέα Αίτηση {label}</DialogTitle>
+ <DialogTitle className="text-xl">Νέα Αίτηση {label}</DialogTitle>
  <DialogDescription>
  Συμπληρώστε τα βασικά στοιχεία. Θα δημιουργηθεί ένα μοναδικό link για την οικογένεια.
  </DialogDescription>
@@ -146,7 +145,7 @@ export default function NewRequestButtons() {
  onClick={() => openFor('GAMOS')}
  className="h-auto py-4 flex flex-col items-start gap-1 justify-center bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md border-0"
  >
- <span className="text-lg font-bold flex items-center gap-2">💍 Νέα Αίτηση Γάμου</span>
+ <span className="text-lg font-bold">Νέα Αίτηση Γάμου</span>
  <span className="text-xs font-normal opacity-80">Δημιουργία token & αποστολή link</span>
  </Button>
  <Button
@@ -154,7 +153,7 @@ export default function NewRequestButtons() {
  onClick={() => openFor('VAPTISI')}
  className="h-auto py-4 flex flex-col items-start gap-1 justify-center bg-blue-100/50 hover:bg-blue-100 text-blue-900 border border-blue-200"
  >
- <span className="text-lg font-bold flex items-center gap-2">🕊️ Νέα Αίτηση Βάπτισης</span>
+ <span className="text-lg font-bold">Νέα Αίτηση Βάπτισης</span>
  <span className="text-xs font-normal opacity-80">Δημιουργία token & αποστολή link</span>
  </Button>
  <Button size="lg"variant="outline"className="h-auto py-4 flex flex-col items-start gap-1 justify-center"disabled>

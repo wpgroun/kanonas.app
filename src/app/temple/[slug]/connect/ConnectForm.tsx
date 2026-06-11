@@ -8,11 +8,11 @@ import { humanizeVarName } from '@/lib/greeklishMap';
 const SYSTEM_VARS = ['ΝΑΟΣ_ΟΝΟΜΑ', 'ΝΑΟΣ_ΔΙΕΥΘΥΝΣΗ', 'ΜΗΤΡΟΠΟΛΗ', 'ΗΜΕΡΟΜΗΝΙΑ', 'ΗΜΕΡΟΜΗΝΙΑ_ΤΕΛΕΤΗΣ']; // System or standard overridden vars.
 
 const DOC_TYPES_EXT = [
-  { id: 'vaptisi', label: 'Βαπτίσεις', emoji: '💧' },
-  { id: 'gamos', label: 'Γάμοι', emoji: '💍' },
-  { id: 'divorce', label: 'Διαζύγια', emoji: '📋' },
-  { id: 'funeral', label: 'Κηδείες', emoji: '🕯️' },
-  { id: 'other', label: 'Λοιπά Πιστοποιητικά & Δράσεις', emoji: '📄' }
+  { id: 'vaptisi', label: 'Βαπτίσεις' },
+  { id: 'gamos', label: 'Γάμοι' },
+  { id: 'divorce', label: 'Διαζύγια' },
+  { id: 'funeral', label: 'Κηδείες' },
+  { id: 'other', label: 'Λοιπά Πιστοποιητικά & Δράσεις' }
 ];
 
 export default function ConnectForm({ slug, docTypes }: { slug: string, docTypes: any[] }) {
@@ -110,8 +110,8 @@ export default function ConnectForm({ slug, docTypes }: { slug: string, docTypes
                 
                 return (
                   <div key={group.id}>
-                    <h4 className="text-sm font-black uppercase text-slate-400 tracking-wider mb-3 flex items-center gap-2">
-                       {group.emoji} {group.label}
+                    <h4 className="text-sm font-black uppercase text-slate-400 tracking-wider mb-3">
+                      {group.label}
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {groupDocs.map(doc => (

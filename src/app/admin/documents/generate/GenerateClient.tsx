@@ -8,8 +8,8 @@ import Link from 'next/link';
 import { humanizeVarName } from '@/lib/greeklishMap';
 
 const DOC_TYPE_LABELS: Record<string, string> = {
-  vaptisi: '💧 Βαπτίσεως', gamos: '💍 Γάμου', divorce: '📋 Διαζυγίου',
-  funeral: '🕯️ Κηδείας', other: '📄 Λοιπά'
+  vaptisi: 'Βαπτίσεως', gamos: 'Γάμου', divorce: 'Διαζυγίου',
+  funeral: 'Κηδείας', other: 'Λοιπά'
 };
 
 export default function GenerateClient({ templates, selectedTemplateId }: { templates: any[], selectedTemplateId?: string }) {

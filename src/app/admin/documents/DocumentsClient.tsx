@@ -11,11 +11,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const DOC_TYPES = [
- { id: 'vaptisi', label: 'Βαπτίσεως', emoji: '💧' },
- { id: 'gamos', label: 'Γάμου', emoji: '💍' },
- { id: 'divorce', label: 'Διαζυγίου', emoji: '📋' },
- { id: 'funeral', label: 'Κηδείας', emoji: '🕯️' },
- { id: 'other', label: 'Λοιπά', emoji: '📄' },
+ { id: 'vaptisi', label: 'Βαπτίσεως' },
+ { id: 'gamos', label: 'Γάμου' },
+ { id: 'divorce', label: 'Διαζυγίου' },
+ { id: 'funeral', label: 'Κηδείας' },
+ { id: 'other', label: 'Λοιπά' },
 ];
 
 export default function DocumentsClient({ initialTemplates }: any) {
@@ -176,7 +176,7 @@ export default function DocumentsClient({ initialTemplates }: any) {
  </div>
  <h3 className="font-bold text-foreground text-lg">{tpl.nameEl}</h3>
  <p className="text-sm font-medium text-[var(--text-muted)] mt-1 flex items-center gap-1.5 flex-wrap">
- <span className="flex items-center gap-1">{DOC_TYPES.find(d => d.id === tpl.docType)?.emoji || '📄'} {DOC_TYPES.find(d => d.id === tpl.docType)?.label || tpl.docType}</span>
+ <span>{DOC_TYPES.find(d => d.id === tpl.docType)?.label || tpl.docType}</span>
  {tpl.visibility === 'citizen' && <span className="ml-1 text-[10px] uppercase font-bold badge badge-info px-2 py-0.5 rounded-md">👤 Προς Ενορίτη</span>}
  {tpl.visibility === 'metropolis' && <span className="ml-1 text-[10px] uppercase font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-md">⛪ Προς Μητρόπολη</span>}
  {(!tpl.visibility || tpl.visibility === 'internal') && <span className="ml-1 text-[10px] uppercase font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">🏠 Εσωτερικό</span>}
@@ -300,7 +300,6 @@ export default function DocumentsClient({ initialTemplates }: any) {
  {DOC_TYPES.map(t => (
  <button key={t.id} onClick={() => setUploadType(t.id)}
  className={`py-3 rounded-xl text-center transition-all border-2 ${uploadType === t.id ? 'border-amber-500 bg-amber-50 shadow-sm' : !uploadType ? 'border-amber-200 hover:border-amber-400 animate-pulse' : 'border-[var(--border)] hover:border-amber-300'}`}>
- <span className="text-xl block mb-0.5">{t.emoji}</span>
  <span className="text-[11px] font-bold block">{t.label}</span>
  </button>
  ))}
