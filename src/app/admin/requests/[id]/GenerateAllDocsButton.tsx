@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { FileText, Download, Loader2, CheckCircle2, AlertCircle, FolderOpen, Mail, Sparkles, Eye, Printer } from 'lucide-react'
 import { sendRoutingEmail, shareWithMetropolisSystem } from '@/actions/connect'
 import { toast } from 'sonner'
+import DocPreviewModal from './DocPreviewModal'
 
 interface GeneratedDoc {
   key: string;
@@ -53,7 +54,8 @@ export default function GenerateAllDocsButton({
   const [docs, setDocs] = useState<GeneratedDoc[]>([]);
   const [destinations, setDestinations] = useState<Record<string, DestinationState>>({});
   const [error, setError] = useState('');
-  
+  const [previewDoc, setPreviewDoc] = useState<GeneratedDoc | null>(null);
+
   const [sendingCouple, setSendingCouple] = useState(false);
   const [sendingMetro, setSendingMetro] = useState(false);
 
@@ -141,18 +143,23 @@ export default function GenerateAllDocsButton({
     }
   };
 
-  const openDocInTab = (doc: GeneratedDoc) => {
-    const bytes = Uint8Array.from(atob(doc.base64), c => c.charCodeAt(0));
-    const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-  };
-
-  const openAllDocsInTabs = () => {
+  const printAllDocs = () => {
     if (docs.length === 0) return;
     docs.forEach((doc, i) => {
-      setTimeout(() => openDocInTab(doc), i * 150);
+      setTimeout(() => {
+        const bytes = Uint8Array.from(atob(doc.base64), c => c.charCodeAt(0));
+        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, i * 200);
     });
+    toast.info(`Ληφθήκαν ${docs.length} αρχεία. Ανοίξτε τα στο Word/LibreOffice για εκτύπωση.`);
   };
 
   const handleSendToCouple = async () => {
@@ -337,8 +344,8 @@ export default function GenerateAllDocsButton({
                           <span className="text-xs font-bold text-foreground truncate" title={doc.label}>{doc.label}</span>
                           <button
                             type="button"
-                            onClick={() => openDocInTab(doc)}
-                            title="Άνοιγμα εγγράφου"
+                            onClick={() => setPreviewDoc(doc)}
+                            title="Προεπισκόπηση εγγράφου"
                             className="ml-auto shrink-0 p-1 rounded hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors"
                           >
                             <Eye className="w-3.5 h-3.5"/>
@@ -379,9 +386,9 @@ export default function GenerateAllDocsButton({
             <DialogFooter className="flex flex-col sm:flex-row gap-2 border-t pt-4 flex-wrap">
               <Button
                 variant="outline"
-                onClick={openAllDocsInTabs}
+                onClick={() => docs.length > 0 && setPreviewDoc(docs[0])}
                 className="gap-1.5 text-xs font-bold text-slate-700"
-                title="Ανοίγει κάθε έγγραφο σε νέο tab — εκτύπωση από το Word/LibreOffice"
+                title="Προεπισκόπηση εγγράφων στο browser"
               >
                 <Eye className="w-3.5 h-3.5" />
                 Προβολή Εγγράφων
@@ -389,9 +396,9 @@ export default function GenerateAllDocsButton({
 
               <Button
                 variant="outline"
-                onClick={openAllDocsInTabs}
+                onClick={printAllDocs}
                 className="gap-1.5 text-xs font-bold text-slate-700"
-                title="Ανοίγει τα έγγραφα για εκτύπωση μέσω Word/LibreOffice"
+                title="Λήψη όλων για εκτύπωση μέσω Word/LibreOffice"
               >
                 <Printer className="w-3.5 h-3.5" />
                 Εκτύπωση Εγγράφων
@@ -428,6 +435,16 @@ export default function GenerateAllDocsButton({
           )}
         </DialogContent>
       </Dialog>
+
+      {previewDoc && (
+        <DocPreviewModal
+          open={!!previewDoc}
+          onClose={() => setPreviewDoc(null)}
+          base64={previewDoc.base64}
+          filename={previewDoc.filename}
+          label={previewDoc.label}
+        />
+      )}
     </>
   );
 }
