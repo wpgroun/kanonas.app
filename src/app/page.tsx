@@ -1,8 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { getPublicTemples } from '@/actions/connect';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import {
@@ -76,34 +73,6 @@ const features = [
 ];
 
 export default function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [temples, setTemples] = useState<any[]>([]);
-  const [loadingTemples, setLoadingTemples] = useState(false);
-  const [selectedTempleSlug, setSelectedTempleSlug] = useState('');
-  const router = useRouter();
-
-  const openBookingModal = async () => {
-    setIsModalOpen(true);
-    if (temples.length === 0) {
-      setLoadingTemples(true);
-      try {
-        const list = await getPublicTemples();
-        setTemples(list);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoadingTemples(false);
-      }
-    }
-  };
-
-  const handleGoToBooking = () => {
-    if (selectedTempleSlug) {
-      router.push(`/temple/${selectedTempleSlug}/connect/book`);
-      setIsModalOpen(false);
-    }
-  };
-
   return (
   <div className="min-h-screen bg-white">
 
@@ -130,12 +99,6 @@ export default function Home() {
  </div>
 
   <div className="flex items-center gap-3">
-  <button
-    onClick={openBookingModal}
-    className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors mr-2 px-3 py-1.5 rounded-lg hover:bg-indigo-50/50"
-  >
-    📅 Κλείσιμο Ραντεβού
-  </button>
   <Link href="/login"className="text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors hidden sm:block">
   Είσοδος
   </Link>
@@ -188,12 +151,6 @@ export default function Home() {
   Εγγραφή Ναού <ArrowRight className="w-4 h-4 ml-2"/>
   </button>
   </Link>
-  <button
-    onClick={openBookingModal}
-    className="btn btn-outline btn-lg w-full sm:w-auto border-indigo-600 text-indigo-600 hover:bg-indigo-50/50 font-bold"
-  >
-    📅 Κλείσιμο Ραντεβού
-  </button>
   <Link href="#features">
   <button className="btn btn-outline btn-lg w-full sm:w-auto">
   Μάθετε περισσότερα
@@ -580,61 +537,6 @@ export default function Home() {
  </div>
  </footer>
 
-  {/* BOOKING MODAL */}
-  {isModalOpen && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
-        <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-          ⛪ Επιλογή Ιερού Ναού
-        </h3>
-        <p className="text-sm text-gray-500 mb-6">
-          Παρακαλούμε επιλέξτε την Ενορία/Ναό στον οποίο επιθυμείτε να κλείσετε ραντεβού για το μυστήριο.
-        </p>
-
-        {loadingTemples ? (
-          <div className="flex justify-center py-6">
-            <span className="animate-pulse text-sm text-gray-500 font-semibold">Φόρτωση ναών...</span>
-          </div>
-        ) : temples.length === 0 ? (
-          <p className="text-sm text-red-500 text-center py-4">Δεν βρέθηκαν εγγεγραμμένοι ναοί στο σύστημα.</p>
-        ) : (
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ενορία / Ναός</label>
-              <select
-                value={selectedTempleSlug}
-                onChange={(e) => setSelectedTempleSlug(e.target.value)}
-                className="w-full p-3 border border-gray-200 rounded-xl bg-slate-50 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="">Επιλέξτε Ναό...</option>
-                {temples.map((t: any) => (
-                  <option key={t.slug || t.id} value={t.slug || t.id}>
-                    {t.name} ({t.city || '—'})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-100 rounded-xl transition"
-              >
-                Ακύρωση
-              </button>
-              <button
-                onClick={handleGoToBooking}
-                disabled={!selectedTempleSlug}
-                className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-xl transition flex items-center gap-1"
-              >
-                Συνέχεια <ArrowRight className="w-4 h-4"/>
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )}
   </div>
  );
 }
