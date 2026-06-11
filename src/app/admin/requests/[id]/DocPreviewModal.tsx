@@ -12,14 +12,42 @@ interface Props {
   label: string
 }
 
+const DOCX_PREVIEW_CSS = `
+  .docx-wrapper {
+    background: #525659 !important;
+    padding: 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    min-height: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .docx-wrapper > section.docx {
+    background: white !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+    margin-bottom: 24px !important;
+    flex-shrink: 0 !important;
+  }
+`
+
 export default function DocPreviewModal({ open, onClose, base64, filename, label }: Props) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
   const [rendering, setRendering] = useState(false)
   const [error, setError] = useState('')
 
-  // Callback ref — fires as soon as the div mounts in the portal
   const containerRef = useCallback((node: HTMLDivElement | null) => {
     setContainer(node)
+  }, [])
+
+  useEffect(() => {
+    // Inject docx-preview page styles once
+    const styleId = 'docx-preview-global-styles'
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style')
+      style.id = styleId
+      style.textContent = DOCX_PREVIEW_CSS
+      document.head.appendChild(style)
+    }
   }, [])
 
   useEffect(() => {
@@ -68,28 +96,36 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
-      <DialogContent className="max-w-4xl w-full max-h-[90vh] flex flex-col p-0 gap-0">
+      <DialogContent
+        className="flex flex-col p-0 gap-0"
+        style={{
+          width: '90vw',
+          maxWidth: '1100px',
+          height: '92vh',
+          maxHeight: '92vh',
+        }}
+      >
         <DialogHeader className="px-5 py-3 border-b flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-base">
             <FileText className="w-4 h-4 text-[var(--brand)]" />
             {label}
-            <span className="text-xs font-normal text-[var(--text-muted)] ml-1">{filename}</span>
+            <span className="text-xs font-normal text-[var(--text-muted)] ml-2">{filename}</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto bg-slate-100 relative min-h-[500px]">
+        <div className="flex-1 overflow-y-auto relative" style={{ background: '#525659' }}>
           {rendering && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-100 z-10">
-              <Loader2 className="w-8 h-8 animate-spin text-[var(--brand)]" />
-              <p className="text-sm text-[var(--text-muted)]">Φόρτωση προεπισκόπησης...</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10" style={{ background: '#525659' }}>
+              <Loader2 className="w-8 h-8 animate-spin text-white opacity-80" />
+              <p className="text-sm text-white opacity-60">Φόρτωση προεπισκόπησης...</p>
             </div>
           )}
           {error && !rendering && (
-            <div className="absolute inset-0 flex items-center justify-center text-sm text-destructive p-8 text-center">
+            <div className="absolute inset-0 flex items-center justify-center text-sm text-white opacity-70 p-8 text-center">
               {error}
             </div>
           )}
-          <div ref={containerRef} className="p-2" style={{ minHeight: '500px' }} />
+          <div ref={containerRef} style={{ minHeight: '100%' }} />
         </div>
       </DialogContent>
     </Dialog>
