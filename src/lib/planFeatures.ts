@@ -45,91 +45,108 @@ export interface TempleFeatures {
 // ─── Tier Definitions ──────────────────────────────────────────────────────────
 
 const FREE_FEATURES: TempleFeatures = {
- parishioners: true,
- sacraments: true,
- diptychs: true,
- schedule: true,
- protocol: true,
- basicFinances: true,
- advancedFinances: false,
- philanthropy: false,
- bloodbank: false,
- youth: false,
- assignments: false,
- ministries: false,
- kanban: true,
- assets: false,
- vault: false,
- documentGeneration: false,
- bulkEmail: false,
- mailing: true,
- exportData: true,
- importData: false,
+  parishioners: true,
+  sacraments: true,
+  diptychs: true,
+  schedule: true,
+  protocol: true,
+  basicFinances: true,
+  advancedFinances: false,
+  philanthropy: false,
+  bloodbank: false,
+  youth: false,
+  assignments: false,
+  ministries: false,
+  kanban: true,
+  assets: false,
+  vault: false,
+  documentGeneration: false,
+  bulkEmail: false,
+  mailing: true,
+  exportData: true,
+  importData: false,
 }
 
+// Basic: Μυστήρια (Γάμος/Βάπτιση) + Οικονομικά + Μητρώο Ενοριτών + Παραγωγή Εγγράφων
+const BASIC_FEATURES: TempleFeatures = {
+  parishioners: true,
+  sacraments: true,
+  diptychs: true,
+  schedule: true,
+  protocol: true,
+  basicFinances: true,
+  advancedFinances: false,
+  philanthropy: false,
+  bloodbank: false,
+  youth: false,
+  assignments: false,
+  ministries: false,
+  kanban: true,
+  assets: false,
+  vault: false,
+  documentGeneration: true,
+  bulkEmail: false,
+  mailing: true,
+  exportData: true,
+  importData: false,
+}
+
+// Standard: Basic + Φιλόπτωχο + Περιουσιολόγιο
+const STANDARD_FEATURES: TempleFeatures = {
+  ...BASIC_FEATURES,
+  advancedFinances: true,
+  philanthropy: true,
+  ministries: true,
+  assets: true,
+  importData: true,
+}
+
+// Premium: Standard + Κατασκηνώσεις + Τράπεζα Αίματος
 const PREMIUM_FEATURES: TempleFeatures = {
- parishioners: true,
- sacraments: true,
- diptychs: true,
- schedule: true,
- protocol: true,
- basicFinances: true,
- advancedFinances: true,
- philanthropy: true,
- bloodbank: true,
- youth: true,
- assignments: true,
- ministries: true,
- kanban: true,
- assets: true,
- vault: true,
- documentGeneration: true,
- bulkEmail: true,
- mailing: true,
- exportData: true,
- importData: true,
+  ...STANDARD_FEATURES,
+  bloodbank: true,
+  youth: true,
+  assignments: true,
+  vault: true,
+  bulkEmail: true,
 }
 
 const METROPOLIS_FEATURES: TempleFeatures = {
- ...PREMIUM_FEATURES,
+  ...PREMIUM_FEATURES,
 }
 
 // ─── Server-Side Helper ─────────────────────────────────────────────────────────
 
 /**
  * Returns the feature flags for a given temple based on its active subscription.
+ * Maps plan slug ("basic"/"standard"/"premium") to the corresponding feature tier.
  * Falls back to FREE_FEATURES if no active subscription is found.
  */
 export async function getTempleFeatures(templeId: string): Promise<TempleFeatures> {
- if (!templeId) return FREE_FEATURES
+  if (!templeId) return FREE_FEATURES
 
- const sub = await prisma.subscription.findFirst({
- where: {
- templeId,
- status: 'active',
- },
- include: { plan: true },
- })
+  const sub = await prisma.subscription.findFirst({
+    where: { templeId, status: 'active' },
+    include: { plan: true },
+  })
 
- // No subscription → free tier
- if (!sub || !sub.plan) return FREE_FEATURES
+  if (!sub || !sub.plan) return FREE_FEATURES
+  if (sub.expiresAt && sub.expiresAt < new Date()) return FREE_FEATURES
 
- // Subscription is expired
- if (sub.expiresAt && sub.expiresAt < new Date()) return FREE_FEATURES
+  if (sub.plan.isMetropolis) return METROPOLIS_FEATURES
 
- // Metropolis plan → all features
- if (sub.plan.isMetropolis) return METROPOLIS_FEATURES
-
- // Any other active paid plan → premium
- return PREMIUM_FEATURES
+  const slug = sub.plan.slug?.toLowerCase()
+  if (slug === 'basic') return BASIC_FEATURES
+  if (slug === 'standard') return STANDARD_FEATURES
+  return PREMIUM_FEATURES
 }
 
 /**
  * Human-readable plan name for display in UpgradeGate.
  */
 export function getTierName(features: TempleFeatures): string {
- if (features.philanthropy && features.advancedFinances) {
- return 'Premium'
- }
- return 'Δωρεάν'
+  if (features.youth || features.bloodbank) return 'Premium'
+  if (features.philanthropy) return 'Standard'
+  if (features.documentGeneration) return 'Basic'
+  return 'Δωρεάν'
 }

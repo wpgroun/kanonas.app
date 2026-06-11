@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'motion/react';
-import { CheckCircle2, Server, Cloud, Shield, RefreshCw, Zap, ArrowRight, ChevronRight, HelpCircle } from 'lucide-react';
+import { CheckCircle2, Server, Cloud, Shield, RefreshCw, Zap, ArrowRight, HelpCircle, Headphones, Star } from 'lucide-react';
 
 const FAQS = [
   {
@@ -22,9 +21,66 @@ const FAQS = [
     a: "Απόλυτα. Χρησιμοποιούμε κρυπτογράφηση τραπεζικού επιπέδου (SSL/TLS), τακτικά αυτόματα Backups και πλήρη απομόνωση δεδομένων ανάμεσα στις Ενορίες. Η πλατφόρμα είναι σχεδιασμένη με βάση τις οδηγίες του GDPR."
   },
   {
+    q: "Τι περιλαμβάνει η Υπηρεσία Support;",
+    a: "Η Υπηρεσία Support (€50 εφάπαξ) περιλαμβάνει την πλήρη αρχική παραμετροποίηση του λογαριασμού σας από την ομάδα του Κανόνας: εισαγωγή στοιχείων ναού, ρύθμιση προσωπικού, φόρτωση εγγράφων-προτύπων και εκπαίδευση χρηστών. Ιδανικό για ναούς που δεν θέλουν να ασχοληθούν με την τεχνική εγκατάσταση."
+  },
+  {
     q: "Η πλατφόρμα είναι κατάλληλη για Ναούς εκτός Ελλάδος;",
     a: "Ναι, αν και οι πρότυπες φόρμες (πχ Βεβαιώσεις Γάμου) είναι εναρμονισμένες με την Εκκλησία της Ελλάδος. Μπορείτε ωστόσο να ανεβάσετε τα δικά σας πρότυπα έγγραφα στο σύστημα εάν ανήκετε στο Οικουμενικό Πατριαρχείο, την Εκκλησία της Κύπρου ή την Ομογένεια."
   }
+];
+
+const PLANS = [
+  {
+    slug: 'basic',
+    name: 'BASIC',
+    price: '29,99',
+    yearly: '290',
+    tagline: 'Για τις βασικές ανάγκες της ενορίας',
+    featured: false,
+    features: [
+      'Μητρώο Ενοριτών (απεριόριστο)',
+      'Μυστήρια — Γάμος & Βάπτιση',
+      'Παραγωγή Εγγράφων (PDF/DOCX)',
+      'Οικονομικά & Ταμείο',
+      'Πρωτόκολλο Αλληλογραφίας',
+      'Πρόγραμμα & Ακολουθίες',
+      'Εξαγωγή Δεδομένων (Excel)',
+    ],
+  },
+  {
+    slug: 'standard',
+    name: 'STANDARD',
+    price: '49,99',
+    yearly: '490',
+    tagline: 'Η πλήρης λύση για κάθε ενορία',
+    featured: true,
+    badge: 'ΠΡΟΤΕΙΝΟΜΕΝΟ',
+    features: [
+      'Όλα του Basic +',
+      'Φιλόπτωχο & Συσσίτιο',
+      'Περιουσιολόγιο Ναού',
+      'Προχωρημένα Οικονομικά & BI',
+      'Διαχείριση Εθελοντών',
+      'Εισαγωγή Δεδομένων (Import)',
+    ],
+  },
+  {
+    slug: 'premium',
+    name: 'PREMIUM',
+    price: '69,99',
+    yearly: '690',
+    tagline: 'Για μεγάλες ενορίες & προσκυνήματα',
+    featured: false,
+    features: [
+      'Όλα του Standard +',
+      'Κατασκηνώσεις & Νεολαία',
+      'Τράπεζα Αίματος',
+      'Ψηφιακό Θησαυροφυλάκιο',
+      'Μαζική Αποστολή Email',
+      'Ρυθμίσεις Κληρικών',
+    ],
+  },
 ];
 
 export default function PricingPage() {
@@ -60,132 +116,110 @@ export default function PricingPage() {
       </nav>
 
       {/* ─── HEADER ─── */}
-      <header className="pt-40 pb-20 px-6 text-center">
+      <header className="pt-40 pb-16 px-6 text-center">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[var(--foreground)] mb-6">
           Απλή, Διαφανής Επιλογή
         </h1>
-        <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto mb-4">
+        <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto mb-6">
           Ξεκινήστε τώρα τον ψηφιακό μετασχηματισμό της Ενορίας σας, χωρίς πολύπλοκες χρεώσεις.
         </p>
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--brand-light)]/50 text-[var(--brand)] rounded-full text-sm font-bold shadow-sm">
-          <Shield className="w-4 h-4"/> Σχεδιασμένο για Ελληνικές Ορθόδοξες Ενορίες
+        <div className="flex flex-wrap justify-center gap-3">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--brand-light)]/50 text-[var(--brand)] rounded-full text-sm font-bold shadow-sm">
+            <Shield className="w-4 h-4"/> Σχεδιασμένο για Ελληνικές Ορθόδοξες Ενορίες
+          </div>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm font-bold shadow-sm">
+            <CheckCircle2 className="w-4 h-4"/> 14 ημέρες δωρεάν δοκιμή, χωρίς κάρτα
+          </div>
         </div>
       </header>
 
       {/* ─── PRICING PLANS ─── */}
+      <section className="px-6 pb-12">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          {PLANS.map((plan) => (
+            <div
+              key={plan.slug}
+              className={`card flex flex-col transition-all relative ${
+                plan.featured
+                  ? 'border-2 border-[var(--brand)] shadow-2xl md:-translate-y-4 p-8'
+                  : 'p-8 hover:border-[var(--brand)]/30'
+              }`}
+            >
+              {plan.badge && (
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-md whitespace-nowrap">
+                  {plan.badge}
+                </div>
+              )}
+
+              <div className="mb-4 mt-2">
+                <h2 className="text-2xl font-bold text-[var(--foreground)]">{plan.name}</h2>
+              </div>
+
+              <div className="mb-6 pb-6 border-b border-[var(--border)]">
+                <div className="flex items-end gap-1 mb-1">
+                  <span className="text-4xl font-extrabold text-[var(--foreground)]">€{plan.price}</span>
+                  <span className="text-sm text-[var(--text-muted)] pb-1">/ μήνα</span>
+                </div>
+                <div className="text-sm font-bold text-emerald-600 bg-emerald-50 inline-block px-2 py-0.5 rounded mt-1">
+                  ή €{plan.yearly} / χρόνο (2 μήνες δωρεάν)
+                </div>
+                <p className="text-sm text-[var(--text-muted)] mt-3">{plan.tagline}</p>
+              </div>
+
+              <ul className="space-y-3 mb-8 flex-1">
+                {plan.features.map((item, idx) => (
+                  <li key={idx} className={`flex gap-3 text-sm leading-tight ${idx === 0 && item.includes('+') ? 'font-bold text-[var(--brand)]' : 'text-[var(--text-secondary)] font-medium'}`}>
+                    {idx === 0 && item.includes('+')
+                      ? <Zap className="w-4 h-4 flex-shrink-0 mt-0.5"/>
+                      : <CheckCircle2 className="w-4 h-4 text-[var(--success)] flex-shrink-0 mt-0.5"/>
+                    }
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link href="/register" className="w-full">
+                <button className={`w-full text-sm py-2.5 ${plan.featured ? 'btn btn-primary shadow-md shadow-brand/20' : 'btn btn-secondary'}`}>
+                  Ξεκινήστε Δωρεάν
+                </button>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── SUPPORT SERVICE ADD-ON ─── */}
       <section className="px-6 pb-24">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          {/* Trial Plan */}
-          <div className="card p-8 flex flex-col hover:border-[var(--brand)]/30 transition-all">
-            <div className="mb-4">
-              <span className="inline-block px-3 py-1 bg-zinc-100 text-zinc-600 font-bold text-[10px] uppercase tracking-wider rounded-full mb-3">
-                Χωρίς πιστωτική κάρτα
-              </span>
-              <h2 className="text-2xl font-bold text-[var(--foreground)]">ΔΟΚΙΜΑΣΤΙΚΟ</h2>
+        <div className="max-w-6xl mx-auto">
+          <div className="card p-8 border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 flex flex-col md:flex-row items-center gap-8">
+            <div className="shrink-0 w-16 h-16 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center">
+              <Headphones className="w-8 h-8 text-amber-600"/>
             </div>
-            <div className="mb-6 pb-6 border-b border-[var(--border)]">
-              <div className="flex items-end gap-1 mb-2">
-                <span className="text-4xl font-extrabold text-[var(--foreground)]">Δωρεάν</span>
+            <div className="flex-1 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                <Star className="w-4 h-4 text-amber-500 fill-amber-400"/>
+                <span className="text-xs font-bold uppercase tracking-widest text-amber-600">Υπηρεσία Πρόσθετη</span>
               </div>
-              <p className="text-sm text-[var(--text-muted)]">για 14 ημέρες πλήρους πρόσβασης</p>
-            </div>
-            <ul className="space-y-4 mb-8 flex-1">
-              {['Όλα τα features του Basic πακέτου', 'Απεριόριστα Πιστοποιητικά (Δοκιμαστικά)', 'Προσωπική Επίδειξη Χρήσης'].map(item => (
-                <li key={item} className="flex gap-3 text-sm text-[var(--text-secondary)] leading-tight">
-                  <CheckCircle2 className="w-4 h-4 text-[var(--brand)] flex-shrink-0 mt-0.5"/> {item}
-                </li>
-              ))}
-            </ul>
-            <Link href="/register" className="w-full">
-              <button className="btn btn-secondary w-full text-sm py-2.5">
-                Ξεκινήστε Δωρεάν
-              </button>
-            </Link>
-          </div>
-
-          {/* Basic Plan (Recommended) */}
-          <div className="card p-8 border-2 border-[var(--brand)] shadow-xl relative flex flex-col transform md:-translate-y-4">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-md">
-              Προτεινομενο
-            </div>
-            <div className="mb-4 mt-2">
-              <h2 className="text-2xl font-bold text-[var(--foreground)]">ΒΑΣΙΚΟ</h2>
-            </div>
-            <div className="mb-6 pb-6 border-b border-[var(--border)]">
-              <div className="flex flex-col gap-1 mb-2">
-                <div className="flex items-end gap-1">
-                  <span className="text-4xl font-extrabold text-[var(--foreground)]">€29</span>
-                  <span className="text-sm text-[var(--text-muted)] pb-1">/ μήνα</span>
-                </div>
-                <div className="text-sm font-bold text-emerald-600 bg-emerald-50 inline-block px-2 py-0.5 rounded w-max mt-1">
-                  ή €290 / χρόνο (2 μήνες δωρεάν)
-                </div>
+              <h3 className="text-xl font-bold text-[var(--foreground)] mb-2">Υπηρεσία Support & Εγκατάστασης</h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed max-w-xl">
+                Η ομάδα του Κανόνας αναλαμβάνει την πλήρη αρχική παραμετροποίηση: εισαγωγή στοιχείων ναού, ρύθμιση προσωπικού, φόρτωση εγγράφων-προτύπων και εκπαίδευση χρηστών. Ιδανικό για ναούς που θέλουν να ξεκινήσουν χωρίς καθυστέρηση.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
+                {['Ρύθμιση Στοιχείων Ναού', 'Εισαγωγή Προσωπικού', 'Φόρτωση Εγγράφων-Προτύπων', 'Εκπαίδευση Χρηστών'].map(f => (
+                  <span key={f} className="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full border border-amber-200">{f}</span>
+                ))}
               </div>
-              <p className="text-sm text-[var(--text-muted)] mt-3">Ιδανικό για την καθημερινότητα των Ναών</p>
             </div>
-            <ul className="space-y-4 mb-8 flex-1">
-              {[
-                'Μητρώο Ενοριτών (απεριόριστο)',
-                'Παραγωγή Εγγράφων (PDF/DOCX)',
-                'Οικονομικά & Ταμείο',
-                'Πρωτόκολλο',
-                'Ηλεκτρονικές Αιτήσεις (Connect)',
-                'Φιλόπτωχο & Συσσίτιο',
-                'Email υποστήριξη'
-              ].map(item => (
-                <li key={item} className="flex gap-3 text-sm text-[var(--foreground)] font-medium leading-tight">
-                  <CheckCircle2 className="w-4 h-4 text-[var(--success)] flex-shrink-0 mt-0.5"/> {item}
-                </li>
-              ))}
-            </ul>
-            <Link href="/register" className="w-full">
-              <button className="btn btn-primary w-full text-sm py-2.5 shadow-md shadow-brand/20">
-                Ξεκινήστε Δωρεάν
-              </button>
-            </Link>
+            <div className="shrink-0 text-center">
+              <div className="text-4xl font-extrabold text-[var(--foreground)] mb-1">€50</div>
+              <div className="text-sm text-[var(--text-muted)] font-bold mb-4">εφάπαξ</div>
+              <Link href="/contact">
+                <button className="btn bg-amber-500 hover:bg-amber-600 border-amber-500 text-white font-bold text-sm px-6 py-2.5 shadow-sm">
+                  Μάθετε Περισσότερα
+                </button>
+              </Link>
+            </div>
           </div>
-
-          {/* Premium Plan */}
-          <div className="card p-8 flex flex-col hover:border-[var(--brand)]/30 transition-all">
-            <div className="mb-4">
-              <h2 className="text-2xl font-bold text-[var(--foreground)]">PREMIUM</h2>
-            </div>
-            <div className="mb-6 pb-6 border-b border-[var(--border)]">
-              <div className="flex flex-col gap-1 mb-2">
-                <div className="flex items-end gap-1">
-                  <span className="text-4xl font-extrabold text-[var(--foreground)]">€59</span>
-                  <span className="text-sm text-[var(--text-muted)] pb-1">/ μήνα</span>
-                </div>
-                <div className="text-sm font-bold text-[var(--text-muted)] mt-1">
-                  ή €590 / χρόνο
-                </div>
-              </div>
-              <p className="text-sm text-[var(--text-muted)] mt-3">Για μεγάλους Ναούς / Προσκυνήματα</p>
-            </div>
-            <ul className="space-y-4 mb-8 flex-1">
-              <li className="flex gap-3 text-sm font-bold text-[var(--brand)] leading-tight mb-2">
-                <Zap className="w-4 h-4 flex-shrink-0 mt-0.5"/> Όλα του Basic +
-              </li>
-              {[
-                'Πολλαπλοί Ναοί στο ίδιο account',
-                'SMS Ειδοποιήσεις (Χρεώνεται ξεχωριστά)',
-                'Αυτόματη Εξαγωγή στη Μητρόπολη',
-                'Προτεραιότητα υποστήριξης 24/7',
-                'Προσαρμοσμένα Reports'
-              ].map(item => (
-                <li key={item} className="flex gap-3 text-sm text-[var(--text-secondary)] leading-tight">
-                  <CheckCircle2 className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0 mt-0.5"/> {item}
-                </li>
-              ))}
-            </ul>
-            <Link href="mailto:info@kanonas.app" className="w-full">
-              <button className="btn bg-zinc-900 border-0 hover:bg-zinc-800 text-white w-full text-sm py-2.5">
-                Επικοινωνήστε μαζί μας
-              </button>
-            </Link>
-          </div>
-
         </div>
       </section>
 
@@ -227,7 +261,7 @@ export default function PricingPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="card bg-slate-50 p-6 md:p-8 border-dashed border-2">
               <h3 className="font-bold text-lg mb-6 border-b pb-4">Η παλιά μέθοδος vs Κανόνας</h3>
               <div className="space-y-4">
@@ -275,7 +309,6 @@ export default function PricingPage() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      {/* Shortened footer for brevity, or full footer like mapping */}
       <footer className="bg-zinc-950 text-zinc-400 py-12">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2.5">
