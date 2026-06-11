@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { generateAllGamosDocs, generateAllBaptisiDocs, TokenData } from '@/lib/pdfEngine';
 import { getSession } from '@/lib/auth';
 import { declineGreekName, declineFullName } from '@/lib/greekDeclension';
+import { logAction } from '@/lib/audit';
 import fs from 'fs';
 import path from 'path';
 import JSZip from 'jszip';
@@ -968,6 +969,15 @@ export async function POST(req: NextRequest) {
 
     const safeName = (token.customerName || 'Εκκλησία').replace(/[^α-ωΑ-Ωa-zA-Z0-9_\- ]/g, '').trim().replace(/\s+/g, '_');
     const zipFilename = `${safeName}_${serviceTypeLower}.zip`;
+
+    const serviceLabel = token.serviceType === 'GAMOS' ? 'Γάμος' : 'Βάπτιση';
+    const docNames = result.map(d => d.label).join(', ');
+    await logAction({
+      action: 'DOCUMENT_GENERATED',
+      entityType: 'Token',
+      entityId: tokenId,
+      detail: `Παραγωγή ${result.length} εγγράφ${result.length === 1 ? 'ου' : 'ων'} για ${serviceLabel} — ${token.customerName || tokenId} (${docNames})`,
+    });
 
     return NextResponse.json({ success: true, docs: result, count: result.length, zip: zipBase64 ? { base64: zipBase64, filename: zipFilename } : null });
   } catch (error: any) {

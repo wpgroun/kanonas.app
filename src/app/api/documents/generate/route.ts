@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateDocxCertificate } from '@/lib/documentEngine';
 import { getSession } from '@/lib/auth';
+import { logAction } from '@/lib/audit';
 
 export async function POST(req: NextRequest) {
  try {
@@ -42,6 +43,13 @@ export async function POST(req: NextRequest) {
  const buf = generateDocxCertificate(token, token.persons, fileName);
 
  const filenameOutput = `Πιστοποιητικό_${token.serviceType}_${token.protocolNumber || token.id.slice(-6)}.docx`;
+
+ await logAction({
+   action: 'DOCUMENT_GENERATED',
+   entityType: 'Token',
+   entityId: tokenId,
+   detail: `Παραγωγή εγγράφου "${fileName}" για ${token.serviceType === 'GAMOS' ? 'Γάμο' : 'Βάπτιση'} — ${token.customerName || tokenId}`,
+ });
 
  // Return the word file as a download (Buffer → Uint8Array for NextResponse BodyInit compat)
  return new NextResponse(new Uint8Array(buf), {

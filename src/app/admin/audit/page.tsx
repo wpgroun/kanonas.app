@@ -12,7 +12,7 @@ function getActionStyle(action: string) {
  if (a.includes('DELETE') || a.includes('ΔΙΑΓΡΑΦ')) return { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-400' }
  if (a.includes('CREATE') || a.includes('ΠΡΟΣΘΗΚ') || a.includes('ΕΓΓΡΑΦ')) return { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', dot: 'bg-green-400' }
  if (a.includes('UPDATE') || a.includes('ΕΝΗΜΕΡ') || a.includes('ΚΑΤΑΣΤΑΣΗ') || a.includes('SETTINGS')) return { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-400' }
- if (a.includes('EXPORT') || a.includes('ΕΚΤΥΠ') || a.includes('ΑΡΧΕΙ')) return { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', dot: 'bg-orange-400' }
+ if (a.includes('EXPORT') || a.includes('ΕΚΤΥΠ') || a.includes('ΑΡΧΕΙ') || a.includes('DOCUMENT') || a.includes('ΕΓΓΡΑΦ')) return { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', dot: 'bg-orange-400' }
  if (a.includes('ΠΡΩΤΟΚ')) return { bg: 'bg-[var(--brand-50)]', text: 'text-[var(--brand)]', border: 'border-[var(--brand-light)]', dot: 'bg-indigo-400' }
  return { bg: 'bg-[var(--background)]', text: 'text-[var(--text-secondary)]', border: 'border-[var(--border)]', dot: 'bg-slate-400' }
 }
