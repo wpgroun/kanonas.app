@@ -20,45 +20,74 @@ const DOCX_PREVIEW_CSS = `
     flex-direction: column !important;
     align-items: center !important;
     min-height: 100% !important;
-    box-sizing: border-box !important;
   }
   .docx-wrapper > section.docx {
     background: white !important;
     box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
     margin-bottom: 24px !important;
-    flex-shrink: 0 !important;
   }
 `
 
 export default function DocPreviewModal({ open, onClose, base64, filename, label }: Props) {
+  const [pdfBase64, setPdfBase64] = useState<string | null>(null)
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
   const [rendering, setRendering] = useState(false)
   const [error, setError] = useState('')
 
-  const containerRef = useCallback((node: HTMLDivElement | null) => {
-    setContainer(node)
-  }, [])
+  const containerRef = useCallback((node: HTMLDivElement | null) => setContainer(node), [])
 
+  // Inject docx-preview styles once (for fallback mode)
   useEffect(() => {
-    // Inject docx-preview page styles once
-    const styleId = 'docx-preview-global-styles'
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement('style')
-      style.id = styleId
-      style.textContent = DOCX_PREVIEW_CSS
-      document.head.appendChild(style)
+    const id = 'docx-preview-global-styles'
+    if (!document.getElementById(id)) {
+      const s = document.createElement('style')
+      s.id = id
+      s.textContent = DOCX_PREVIEW_CSS
+      document.head.appendChild(s)
     }
   }, [])
 
   useEffect(() => {
-    if (!open || !container || !base64) return
-
+    if (!open || !base64) return
     let cancelled = false
+    setPdfBase64(null)
     setRendering(true)
     setError('')
-    container.innerHTML = ''
 
-    async function render() {
+    async function load() {
+      // Step 1: try server-side LibreOffice PDF conversion
+      try {
+        const res = await fetch('/api/documents/preview-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ base64 }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (!cancelled && data.pdf) {
+            setPdfBase64(data.pdf)
+            setRendering(false)
+            return
+          }
+        }
+      } catch {}
+
+      // Step 2: fallback to client-side docx-preview
+      if (cancelled) return
+      // container might not be mounted yet; it'll trigger separately via the container effect
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [open, base64])
+
+  // Fallback: render via docx-preview when PDF is not available and container is ready
+  useEffect(() => {
+    if (!open || !container || !base64 || pdfBase64 !== null) return
+
+    let cancelled = false
+
+    async function renderFallback() {
       try {
         const { renderAsync } = await import('docx-preview')
         const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0))
@@ -66,6 +95,8 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
           type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         })
         if (cancelled) return
+        if (!container) return
+        container.innerHTML = ''
         await renderAsync(blob, container as HTMLElement, undefined, {
           className: 'docx-preview-body',
           inWrapper: true,
@@ -83,28 +114,26 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
         if (!cancelled) setRendering(false)
       } catch (e: any) {
         if (!cancelled) {
-          console.error('[DocPreview]', e)
-          setError('Δεν ήταν δυνατή η προεπισκόπηση του εγγράφου.')
+          setError('Δεν ήταν δυνατή η προεπισκόπηση.')
           setRendering(false)
         }
       }
     }
 
-    render()
+    renderFallback()
     return () => { cancelled = true }
-  }, [open, container, base64])
+  }, [open, container, base64, pdfBase64])
+
+  const modalStyle = {
+    width: '90vw',
+    maxWidth: '1100px',
+    height: '92vh',
+    maxHeight: '92vh',
+  }
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
-      <DialogContent
-        className="flex flex-col p-0 gap-0"
-        style={{
-          width: '90vw',
-          maxWidth: '1100px',
-          height: '92vh',
-          maxHeight: '92vh',
-        }}
-      >
+      <DialogContent className="flex flex-col p-0 gap-0" style={modalStyle}>
         <DialogHeader className="px-5 py-3 border-b flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-base">
             <FileText className="w-4 h-4 text-[var(--brand)]" />
@@ -113,7 +142,7 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto relative" style={{ background: '#525659' }}>
+        <div className="flex-1 overflow-hidden relative" style={{ background: '#525659' }}>
           {rendering && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10" style={{ background: '#525659' }}>
               <Loader2 className="w-8 h-8 animate-spin text-white opacity-80" />
@@ -125,7 +154,22 @@ export default function DocPreviewModal({ open, onClose, base64, filename, label
               {error}
             </div>
           )}
-          <div ref={containerRef} style={{ minHeight: '100%' }} />
+
+          {/* PDF mode — pixel-perfect via LibreOffice */}
+          {pdfBase64 && !rendering && (
+            <iframe
+              src={`data:application/pdf;base64,${pdfBase64}`}
+              className="w-full h-full border-0"
+              title={label}
+            />
+          )}
+
+          {/* Fallback mode — docx-preview */}
+          {!pdfBase64 && (
+            <div className="w-full h-full overflow-y-auto">
+              <div ref={containerRef} style={{ minHeight: '100%' }} />
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
