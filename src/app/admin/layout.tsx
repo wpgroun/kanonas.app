@@ -34,19 +34,24 @@ export default async function AdminLayout({ children }: { children: ReactNode })
  select: { settings: true }
  });
 
- let disabledModules: string[] = [];
- try {
- const parsedSettings = JSON.parse(contextTemple?.settings ||"{}");
- disabledModules = parsedSettings.disabledModules || [];
- } catch(e) {}
+  let disabledModules: string[] = [];
+  let onboardingCompleted = true;
+  try {
+    const parsedSettings = JSON.parse(contextTemple?.settings || '{}');
+    disabledModules = parsedSettings.disabledModules || [];
+    onboardingCompleted = parsedSettings.onboardingCompleted !== false
+      ? !!parsedSettings.onboardingCompleted
+      : false;
+  } catch(e) {}
 
- return (
- <AdminShell
- perms={session as Record<string, any>}
- subscriptionWarning={subscriptionWarning}
- disabledModules={disabledModules}
- >
- {children}
- </AdminShell>
-)
+  return (
+    <AdminShell
+      perms={session as Record<string, any>}
+      subscriptionWarning={subscriptionWarning}
+      disabledModules={disabledModules}
+      onboardingCompleted={onboardingCompleted}
+    >
+      {children}
+    </AdminShell>
+  )
 }

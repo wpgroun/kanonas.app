@@ -15,15 +15,16 @@ import type { ExpiryWarning } from '@/actions/subscriptions';
 import GlobalSearch from '@/components/GlobalSearch';
 
 interface AdminShellProps {
- children: ReactNode
- perms: Record<string, any>
- subscriptionWarning: ExpiryWarning
- disabledModules?: string[]
+  children: ReactNode
+  perms: Record<string, any>
+  subscriptionWarning: ExpiryWarning
+  disabledModules?: string[]
+  onboardingCompleted?: boolean
 }
 
-export default function AdminShell({ children, perms, subscriptionWarning, disabledModules = [] }: AdminShellProps) {
- const pathname = usePathname();
- const router = useRouter();
+export default function AdminShell({ children, perms, subscriptionWarning, disabledModules = [], onboardingCompleted = true }: AdminShellProps) {
+  const pathname = usePathname();
+  const router = useRouter();
 
  const [collapsed, setCollapsed] = useState(false);
  const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,6 +41,13 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
    if (userMenuOpen) document.addEventListener('mousedown', handleClickOutside);
    return () => document.removeEventListener('mousedown', handleClickOutside);
  }, [userMenuOpen]);
+
+ // Redirect new temples to the setup wizard (skip if already there or super-admin)
+ useEffect(() => {
+   if (!onboardingCompleted && !perms.isSuperAdmin && pathname !== '/admin/onboarding') {
+     router.push('/admin/onboarding');
+   }
+ }, [onboardingCompleted, perms.isSuperAdmin, pathname]);
 
  const navGroups = [
  {
@@ -143,6 +151,11 @@ export default function AdminShell({ children, perms, subscriptionWarning, disab
  };
 
  const showBanner = subscriptionWarning && !bannerDismissed && !perms.isSuperAdmin;
+
+ // Full-page routes — render without sidebar/topbar chrome
+ if (pathname === '/admin/onboarding') {
+   return <>{children}</>
+ }
 
  return (
  <div className="admin-wrapper">
