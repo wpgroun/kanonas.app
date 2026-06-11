@@ -23,38 +23,94 @@ export async function getParishioners(page = 1, pageSize = 100) {
 }
 
 export async function createParishioner(formData: {
- firstName: string
- lastName: string
- email?: string
- phone?: string
- fathersName?: string
- address?: string
- city?: string
- afm?: string
+  firstName: string
+  lastName: string
+  email?: string
+  phone?: string
+  fathersName?: string
+  address?: string
+  city?: string
+  afm?: string
+  idNumber?: string
+  forceCreate?: boolean
 }) {
- await requireAuth()
- const templeId = await getCurrentTempleId()
- try {
- const p = await prisma.parishioner.create({
- data: {
- templeId,
- firstName: formData.firstName,
- lastName: formData.lastName,
- email: formData.email || null,
- phone: formData.phone || null,
- fathersName: formData.fathersName || null,
- address: formData.address || null,
- city: formData.city || null,
- afm: formData.afm || null,
- status:"active"
- }
- })
- revalidatePath('/admin/parishioners')
- return { success: true, id: p.id }
- } catch (error) {
- logger.error("Σφάλμα δημιουργίας ενορίτη:", error)
- return { success: false, error:"Αποτυχία ολοκλήρωσης"}
- }
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+
+  // Hard block: ΑΦΜ uniqueness per temple
+  if (formData.afm?.trim()) {
+    const existing = await prisma.parishioner.findFirst({
+      where: { templeId, afm: formData.afm.trim() },
+      select: { id: true, firstName: true, lastName: true },
+    })
+    if (existing) {
+      return {
+        success: false as const,
+        errorType: 'DUPLICATE_AFM' as const,
+        existing,
+        error: `Υπάρχει ήδη ενορίτης με αυτό το ΑΦΜ: ${existing.firstName} ${existing.lastName}`,
+      }
+    }
+  }
+
+  // Hard block: ΑΔΤ uniqueness per temple
+  if (formData.idNumber?.trim()) {
+    const existing = await prisma.parishioner.findFirst({
+      where: { templeId, idNumber: formData.idNumber.trim() },
+      select: { id: true, firstName: true, lastName: true },
+    })
+    if (existing) {
+      return {
+        success: false as const,
+        errorType: 'DUPLICATE_ID' as const,
+        existing,
+        error: `Υπάρχει ήδη ενορίτης με αυτό το ΑΔΤ: ${existing.firstName} ${existing.lastName}`,
+      }
+    }
+  }
+
+  // Soft check: same name (skipped if admin chose to force-create)
+  if (!formData.forceCreate) {
+    const sameNameMatches = await prisma.parishioner.findMany({
+      where: {
+        templeId,
+        firstName: { equals: formData.firstName.trim(), mode: 'insensitive' },
+        lastName: { equals: formData.lastName.trim(), mode: 'insensitive' },
+      },
+      select: { id: true, firstName: true, lastName: true, afm: true },
+    })
+    if (sameNameMatches.length > 0) {
+      return {
+        success: false as const,
+        errorType: 'SOFT_DUPLICATE' as const,
+        existing: sameNameMatches,
+        error: `Βρέθηκαν ${sameNameMatches.length} ενορίτες με το ίδιο όνομα.`,
+      }
+    }
+  }
+
+  try {
+    const p = await prisma.parishioner.create({
+      data: {
+        templeId,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email || null,
+        phone: formData.phone || null,
+        fathersName: formData.fathersName || null,
+        address: formData.address || null,
+        city: formData.city || null,
+        afm: formData.afm?.trim() || null,
+        idNumber: formData.idNumber?.trim() || null,
+        status: 'active',
+      },
+    })
+    revalidatePath('/admin/parishioners')
+    return { success: true as const, id: p.id }
+  } catch (error) {
+    logger.error('Σφάλμα δημιουργίας ενορίτη:', error)
+    return { success: false as const, errorType: 'SERVER_ERROR' as const, error: 'Αποτυχία ολοκλήρωσης' }
+  }
 }
 
 export async function getParishionerDetails(id: string) {
@@ -216,6 +272,51 @@ export async function anonymizeParishioner(id: string): Promise<{ success: boole
  logger.error('[GDPR] Anonymization error:', error)
  return { success: false, error: 'Αποτυχία ανωνυμοποίησης.' }
  }
+}
+
+export type DedupGroup = {
+  key: string
+  parishioners: Array<{
+    id: string
+    firstName: string
+    lastName: string
+    email: string | null
+    phone: string | null
+    afm: string | null
+    createdAt: Date
+  }>
+}
+
+export async function getDeduplicatePreview(): Promise<{
+  success: boolean
+  groups: DedupGroup[]
+  error?: string
+}> {
+  await requireAuth()
+  const templeId = await getCurrentTempleId()
+  try {
+    const all = await prisma.parishioner.findMany({
+      where: { templeId },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, firstName: true, lastName: true, email: true, phone: true, afm: true, createdAt: true },
+    })
+
+    const groupMap = new Map<string, typeof all>()
+    for (const p of all) {
+      const key = `${p.firstName.trim().toLowerCase()}|${p.lastName.trim().toLowerCase()}`
+      if (!groupMap.has(key)) groupMap.set(key, [])
+      groupMap.get(key)!.push(p)
+    }
+
+    const groups: DedupGroup[] = []
+    for (const [key, parishioners] of groupMap) {
+      if (parishioners.length > 1) groups.push({ key, parishioners })
+    }
+
+    return { success: true, groups }
+  } catch (error: any) {
+    return { success: false, groups: [], error: error.message }
+  }
 }
 
 /**

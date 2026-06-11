@@ -6,33 +6,45 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Users, Plus, Mail, Phone, UserCircle2, Search, Trash2, Loader2 } from 'lucide-react'
-import { deduplicateParishioners } from '@/actions/parishioners'
+import { deduplicateParishioners, getDeduplicatePreview } from '@/actions/parishioners'
+import type { DedupGroup } from '@/actions/parishioners'
 import { useRouter } from 'next/navigation'
+import DedupPreviewModal from './DedupPreviewModal'
 
 const ALPHABET = ['Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ','Ν','Ξ','Ο','Π','Ρ','Σ','Τ','Υ','Φ','Χ','Ψ','Ω']
 
 export default function ParishionersClient({ parishioners }: { parishioners: any[] }) {
- const router = useRouter()
- const [search, setSearch] = useState('')
- const [selectedLetter, setSelectedLetter] = useState<string | null>(null)
- const [deduping, setDeduping] = useState(false)
+  const router = useRouter()
+  const [search, setSearch] = useState('')
+  const [selectedLetter, setSelectedLetter] = useState<string | null>(null)
+  const [deduping, setDeduping] = useState(false)
+  const [dedupGroups, setDedupGroups] = useState<DedupGroup[]>([])
+  const [showDedupModal, setShowDedupModal] = useState(false)
+  const [confirming, setConfirming] = useState(false)
 
- const handleDedup = async () => {
-   if (!confirm('Αυτή η ενέργεια θα διαγράψει ΜΟΝΙΜΑ τους διπλότυπους ενορίτες (κρατώντας τον παλαιότερο). Συνέχεια;')) return
-   setDeduping(true)
-   const res = await deduplicateParishioners()
-   setDeduping(false)
-   if (res.success) {
-     if (res.deleted === 0) {
-       alert('Δεν βρέθηκαν διπλοί ενορίτες.')
-     } else {
-       alert(`Εκκαθάριση ολοκληρώθηκε!\nΒρέθηκαν ${res.groups} ομάδες διπλών.\nΔιαγράφηκαν ${res.deleted} αντίγραφα.`)
-       router.refresh()
-     }
-   } else {
-     alert(res.error || 'Σφάλμα κατά την εκκαθάριση.')
-   }
- }
+  const handleDedup = async () => {
+    setDeduping(true)
+    const res = await getDeduplicatePreview()
+    setDeduping(false)
+    if (!res.success) {
+      alert(res.error || 'Σφάλμα κατά τη φόρτωση.')
+      return
+    }
+    setDedupGroups(res.groups)
+    setShowDedupModal(true)
+  }
+
+  const handleConfirmDedup = async () => {
+    setConfirming(true)
+    const res = await deduplicateParishioners()
+    setConfirming(false)
+    setShowDedupModal(false)
+    if (res.success && res.deleted > 0) {
+      router.refresh()
+    } else if (!res.success) {
+      alert(res.error || 'Σφάλμα κατά την εκκαθάριση.')
+    }
+  }
 
  const activeLetters = new Set(
  parishioners.map(p => {
@@ -65,8 +77,8 @@ export default function ParishionersClient({ parishioners }: { parishioners: any
  // But let's safely intersect with ALPHABET, plus any non-greek starters that are active
  const visibleLetters = ALPHABET.filter(L => activeLetters.has(L))
 
- return (
- <div className="container-fluid mt-6 space-y-6">
+  return (
+  <div className="container-fluid mt-6 space-y-6">
  
  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
  <div>
@@ -205,8 +217,16 @@ export default function ParishionersClient({ parishioners }: { parishioners: any
  </CardContent>
  </Card>
  ))}
- </div>
- )}
- </div>
- )
+  </div>
+  )}
+
+  <DedupPreviewModal
+    open={showDedupModal}
+    onClose={() => setShowDedupModal(false)}
+    groups={dedupGroups}
+    onConfirm={handleConfirmDedup}
+    confirming={confirming}
+  />
+  </div>
+  )
 }
