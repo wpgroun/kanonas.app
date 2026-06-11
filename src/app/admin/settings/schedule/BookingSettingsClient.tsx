@@ -9,7 +9,8 @@ import { CalendarIcon, CodeIcon, ClockIcon, SaveIcon, CopyIcon, SettingsIcon, Al
 export default function BookingSettingsClient({ initialSettings, templeId }: { initialSettings: any, templeId: string }) {
  const router = useRouter();
  const [saving, setSaving] = useState(false);
- 
+ const [copied, setCopied] = useState(false);
+
  const defaultSchedule = initialSettings?.settings?.bookingSchedule || {
  disabledDaysOfWeek: [1, 3], 
  timeSlots: ['17:00', '18:00', '19:00', '20:00'],
@@ -22,11 +23,14 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
  const [schedule, setSchedule] = useState(defaultSchedule);
  const [newDateStr, setNewDateStr] = useState('');
  
- const embedCode = `<iframe src="https://kanonas.gr/widget/booking/${templeId}"width="100%"height="600px"style="border:none; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></iframe>`;
+ const templeSlug = initialSettings?.slug || templeId;
+ const bookingUrl = `https://kanonas.app/temple/${templeSlug}/connect/book`;
+ const embedCode = `<a href="${bookingUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#4F46E5;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-size:16px;font-weight:600;letter-spacing:0.01em;">📅 Κράτηση Μυστηρίου</a>`;
 
  const copyEmbedCode = () => {
- navigator.clipboard.writeText(embedCode);
- alert('Ο κώδικας ενσωμάτωσης αντιγράφηκε στο πρόχειρο!');
+   navigator.clipboard.writeText(embedCode);
+   setCopied(true);
+   setTimeout(() => setCopied(false), 2500);
  };
 
  const handleDayToggle = (dayIndex: number) => {
@@ -187,6 +191,47 @@ export default function BookingSettingsClient({ initialSettings, templeId }: { i
 )
  })}
  </div>
+ </div>
+
+ <div className="glass-panel p-6">
+ <h3 className="text-lg font-bold border-b border-border pb-3 mb-5 flex items-center gap-2">
+   <CodeIcon className="text-primary" size={20} /> Ενσωμάτωση στο Site του Ναού
+ </h3>
+ <p className="text-sm text-muted-foreground mb-4">
+   Αντιγράψτε τον παρακάτω κώδικα και επικολλήστε τον στο site του ναού. Όταν ο πολίτης τον πατήσει, θα μεταφερθεί στη σελίδα κράτησης μυστηρίου του ναού σας.
+ </p>
+
+ {/* Preview */}
+ <div className="mb-4 p-4 bg-muted/40 rounded-lg border border-border flex items-center gap-4">
+   <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Προεπισκόπηση:</span>
+   <a
+     href={bookingUrl}
+     target="_blank"
+     rel="noopener noreferrer"
+     className="inline-block"
+     style={{ background:'#4F46E5', color:'#fff', padding:'10px 24px', borderRadius:'8px', textDecoration:'none', fontFamily:'sans-serif', fontSize:'15px', fontWeight:600 }}
+   >
+     📅 Κράτηση Μυστηρίου
+   </a>
+ </div>
+
+ {/* Snippet */}
+ <div className="relative">
+   <pre className="bg-background border border-border rounded-lg p-4 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">
+     {embedCode}
+   </pre>
+   <button
+     onClick={copyEmbedCode}
+     className="absolute top-2 right-2 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+   >
+     <CopyIcon size={13} />
+     {copied ? 'Αντιγράφηκε!' : 'Αντιγραφή'}
+   </button>
+ </div>
+
+ <p className="text-xs text-muted-foreground mt-3">
+   Άμεσος σύνδεσμος: <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-mono">{bookingUrl}</a>
+ </p>
  </div>
 
  </div>
